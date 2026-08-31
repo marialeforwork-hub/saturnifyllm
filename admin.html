@@ -15,6 +15,16 @@
         .score-badge { font-weight: bold; color: #27ae60; background: #e8f8f5; padding: 4px 8px; border-radius: 4px; }
     </style>
     <script type="module">
+        // Kiểm tra quyền Admin
+if (sessionStorage.getItem('userRole') !== 'admin') {
+    const adminPass = prompt("Trang này bảo mật. Nhập Passcode Admin:");
+    if (adminPass !== "ADMIN999") {
+        alert("Passcode không đúng!");
+        window.location.href = "index.html";
+    } else {
+        sessionStorage.setItem('userRole', 'admin');
+    }
+}
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
