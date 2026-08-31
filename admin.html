@@ -3,46 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Quản Lý Kết Quả SAT</title>
+    <title>Trang Quản Lý Chi Tiết Kết Quả SAT</title>
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .admin-container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        h1 { color: #1a2a3a; margin-bottom: 20px; border-bottom: 3px solid #3498db; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .stats-bar { display: flex; gap: 15px; margin-bottom: 25px; }
-        .stat-card { flex: 1; background: #eef6fc; padding: 15px; border-radius: 8px; border-left: 5px solid #3498db; }
-        .stat-card div:first-child { font-size: 0.85em; color: #666; text-transform: uppercase; font-weight: bold; }
-        .stat-card div:last-child { font-size: 1.8em; font-weight: bold; color: #2c3e50; margin-top: 5px; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; font-size: 14px; }
+    .admin-container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin-top: 0; font-size: 1.5em; }
+    
+    .stats-bar { display: flex; gap: 15px; margin-bottom: 20px; }
+    .stat-card { flex: 1; background: #eef6fc; padding: 12px 18px; border-radius: 8px; border-left: 4px solid #3498db; }
+    .stat-card div:first-child { font-size: 0.8em; color: #666; font-weight: bold; text-transform: uppercase; }
+    .stat-card div:last-child { font-size: 1.5em; font-weight: bold; color: #2c3e50; margin-top: 2px; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e1e8ed; }
-        th { background-color: #f8f9fa; color: #2c3e50; font-weight: 600; }
-        tr:hover { background-color: #f1f7fc; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e1e8ed; vertical-align: middle; }
+    th { background: #f8f9fa; color: #2c3e50; font-weight: 600; font-size: 0.9em; white-space: nowrap; }
+    tr:hover { background: #f1f7fc; }
 
-        .badge-score { background: #e8f8f5; color: #27ae60; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-        .badge-attempt { background: #fef9e7; color: #f39c12; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-        .btn-detail { background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
-        .btn-detail:hover { background: #2980b9; }
+    /* Cân chỉnh lại kích thước các thẻ hiển thị */
+    .badge-score { background: #e8f8f5; color: #27ae60; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; white-space: nowrap; display: inline-block; }
+    
+    /* SỬA LỖI HỘP "LƯỢT LÀM": Dùng inline-flex và white-nowrap để không bị vỡ/xuống dòng */
+    .badge-attempt { 
+        background: #fef9e7; 
+        color: #d35400; 
+        padding: 4px 8px; 
+        border-radius: 4px; 
+        font-weight: bold; 
+        border: 1px solid #fecd56; 
+        font-size: 0.85em;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
 
-        /* Modal Chi Tiết Bài Làm */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto; padding: 25px; border-radius: 10px; position: relative; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; font-weight: bold; color: #888; }
-        .answer-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; }
-        .status-correct { color: #27ae60; font-weight: bold; }
-        .status-wrong { color: #e74c3c; font-weight: bold; }
-        .status-empty { color: #7f8c8d; font-style: italic; }
+    .badge-id { background: #f8f9fa; color: #7f8c8d; padding: 2px 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 0.75em; display: inline-block; margin-top: 3px; }
+    
+    /* Sửa nút bấm nhỏ gọn lại */
+    .btn-detail { background: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em; white-space: nowrap; }
+    .btn-detail:hover { background: #2980b9; }
+
+    /* Modal Chi Tiết Bài Làm */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-content { background: white; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; padding: 20px; border-radius: 10px; position: relative; }
+    .close-btn { position: absolute; top: 12px; right: 18px; font-size: 22px; cursor: pointer; font-weight: bold; color: #888; }
+    .answer-row { padding: 8px 12px; margin-bottom: 6px; border-radius: 6px; border: 1px solid #eee; background: #fafafa; font-size: 0.9em; }
+    .status-correct { color: #27ae60; font-weight: bold; }
+    .status-wrong { color: #e74c3c; font-weight: bold; }
     </style>
 
-    <!-- FIREBASE SDK V9 MODULE -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
             authDomain: "saturnifyllm.firebaseapp.com",
-            databaseURL: "https://saturnifyllm-default-rtdb.firebaseio.com",
             projectId: "saturnifyllm",
             storageBucket: "saturnifyllm.firebasestorage.app",
             messagingSenderId: "679587062435",
@@ -51,7 +69,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        const db = getFirestore(app);
 
         const resultsTable = document.getElementById('resultsBody');
         const totalSubmissionsEl = document.getElementById('totalSubmissions');
@@ -59,81 +77,100 @@
 
         let globalDataStore = {};
 
-        // Lắng nghe dữ liệu theo thời gian thực (Real-time Listener)
-        const resultsRef = ref(db, 'sat_results');
-        onValue(resultsRef, (snapshot) => {
+        const q = query(collection(db, "results"), orderBy("timestamp", "desc"));
+
+        onSnapshot(q, (snapshot) => {
             resultsTable.innerHTML = '';
-            
-            if (!snapshot.exists()) {
+
+            if (snapshot.empty) {
                 resultsTable.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: #888;">Chưa có lượt nộp bài nào trên hệ thống.</td></tr>';
                 totalSubmissionsEl.innerText = '0';
                 totalStudentsEl.innerText = '0';
                 return;
             }
 
-            const data = snapshot.val();
-            globalDataStore = data;
+            totalSubmissionsEl.innerText = snapshot.size;
+            const uniqueStudents = new Set();
+            const studentAttemptTracker = {};
 
-            const itemsArray = Object.entries(data).map(([key, val]) => ({ id: key, ...val }));
-            
-            // Sắp xếp bài mới nộp lên đầu
-            itemsArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            // Chuyển dữ liệu sang Mảng để tính toán lượt làm (Lần 1, Lần 2...)
+            const rawDocs = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
 
-            // Thống kê tổng quan
-            totalSubmissionsEl.innerText = itemsArray.length;
-            const uniqueStudents = new Set(itemsArray.map(item => item.studentName));
-            totalStudentsEl.innerText = uniqueStudents.size;
+            // Sắp xếp xuôi thời gian để đếm lượt chính xác
+            const sortedAsc = [...rawDocs].sort((a, b) => {
+                const tA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                const tB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+                return tA - tB;
+            });
 
-            // Đổ dữ liệu vào Bảng
-            itemsArray.forEach((item) => {
+            // Gán số lượt làm bài
+            sortedAsc.forEach(item => {
+                const trackerKey = `${item.name}_${item.quizTitle}`;
+                studentAttemptTracker[trackerKey] = (studentAttemptTracker[trackerKey] || 0) + 1;
+                item.attemptNumber = studentAttemptTracker[trackerKey];
+            });
+
+            // Đưa lại thứ tự mới nhất lên đầu
+            rawDocs.reverse().forEach(data => {
+                globalDataStore[data.docId] = data;
+                if (data.name) uniqueStudents.add(data.name);
+
+                const scoreText = (data.score !== undefined && data.total) 
+                    ? `${data.score}/${data.total} (${data.percentage || Math.round((data.score / data.total) * 100) + '%'})`
+                    : `${data.score || 0} điểm`;
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${escapeHtml(item.studentName || 'Chưa rõ')}</strong></td>
-                    <td>${escapeHtml(item.quizTitle || 'Bài SAT')}</td>
-                    <td><span class="badge-attempt">Lần ${item.attempt || 1}</span></td>
-                    <td><span class="badge-score">${item.score || '0/0'} (${item.percentage || '0%'})</span></td>
-                    <td>${item.duration || 'N/A'}</td>
-                    <td><small>${item.endTime || 'N/A'}</small></td>
                     <td>
-                        <button class="btn-detail" onclick="showDetail('${item.id}')">Xem Chi Tiết</button>
+                        <strong>${escapeHtml(data.name || 'Học sinh')}</strong>
+                        <br><span class="badge-id">ID: ${escapeHtml(data.id || 'N/A')}</span>
+                    </td>
+                    <td>${escapeHtml(data.quizTitle || 'Bài tập')}</td>
+                    <td><span class="badge-attempt">Lần ${data.attemptNumber}</span></td>
+                    <td><span class="badge-score">${scoreText}</span></td>
+                    <td><small><b>Bắt đầu:</b> ${data.startTime || 'N/A'}<br><b>Kết thúc:</b> ${data.endTime || 'N/A'}</small></td>
+                    <td><small>${data.duration || 'N/A'}</small></td>
+                    <td>
+                        <button class="btn-detail" onclick="openDetail('${data.docId}')">🔍 Xem Chi Tiết</button>
                     </td>
                 `;
                 resultsTable.appendChild(tr);
             });
+
+            totalStudentsEl.innerText = uniqueStudents.size;
         }, (error) => {
-            console.error("Lỗi khi tải kết quả:", error);
-            resultsTable.innerHTML = `<tr><td colspan="7" style="text-align:center; color: red;">Lỗi đọc dữ liệu: ${error.message}</td></tr>`;
+            console.error("Lỗi Firestore:", error);
+            resultsTable.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Lỗi kết nối: ${error.message}</td></tr>`;
         });
 
-        // Hàm mở Popup xem chi tiết các câu làm đúng/sai
-        window.showDetail = function(keyId) {
-            const record = globalDataStore[keyId];
+        // Hàm mở Popup Chi Tiết Bài Làm
+        window.openDetail = function(docId) {
+            const record = globalDataStore[docId];
             if (!record) return;
 
-            document.getElementById('modalStudent').innerText = record.studentName || 'Học Sinh';
-            document.getElementById('modalQuiz').innerText = record.quizTitle || 'Bài tập';
-            
-            const detailsContainer = document.getElementById('modalAnswersList');
-            detailsContainer.innerHTML = '';
+            document.getElementById('modalStudent').innerText = `${record.name} (Lần ${record.attemptNumber})`;
+            document.getElementById('modalQuiz').innerText = record.quizTitle;
+            document.getElementById('modalTime').innerText = `Làm từ ${record.startTime || 'N/A'} đến ${record.endTime || 'N/A'} (Tổm thời gian: ${record.duration || 'N/A'})`;
 
-            if (record.answers) {
+            const listContainer = document.getElementById('modalAnswersList');
+            listContainer.innerHTML = '';
+
+            if (record.answers && Object.keys(record.answers).length > 0) {
                 Object.entries(record.answers).forEach(([qNum, ans]) => {
-                    let statusHtml = '';
-                    if (ans.status === 'correct') {
-                        statusHtml = `<span class="status-correct">✓ Đúng (${ans.userChoice})</span>`;
-                    } else if (ans.status === 'wrong') {
-                        statusHtml = `<span class="status-wrong">✗ Sai (${ans.userChoice} - Đ.Án: ${ans.correctAnswer})</span>`;
-                    } else {
-                        statusHtml = `<span class="status-empty">- Bỏ trống</span>`;
-                    }
+                    let statusHtml = ans.isCorrect 
+                        ? `<span class="status-correct">✓ ĐÚNG (Đã chọn: ${ans.userChoice})</span>`
+                        : `<span class="status-wrong">✗ SAI (Đã chọn: ${ans.userChoice} | Đáp án đúng: ${ans.correctAnswer})</span>`;
 
                     const row = document.createElement('div');
                     row.className = 'answer-row';
-                    row.innerHTML = `<span><strong>${qNum}:</strong></span> <span>${statusHtml}</span>`;
-                    detailsContainer.appendChild(row);
+                    row.innerHTML = `
+                        <div style="font-weight:bold; margin-bottom: 4px;">${qNum}</div>
+                        <div>${statusHtml}</div>
+                    `;
+                    listContainer.appendChild(row);
                 });
             } else {
-                detailsContainer.innerHTML = '<p>Không có thông tin chi tiết từng câu.</p>';
+                listContainer.innerHTML = '<p style="color:#e74c3c; text-align:center;">Bài làm này thuộc phiên bản cũ (chưa lưu chi tiết câu hỏi).</p>';
             }
 
             document.getElementById('detailModal').style.display = 'flex';
@@ -151,17 +188,15 @@
 <body>
 
 <div class="admin-container">
-    <h1>
-        📊 Bảng Quản Lý Kết Quả SAT 
-    </h1>
+    <h1>📊 Bảng Quản Lý Chi Tiết Kết Quả SAT</h1>
 
     <div class="stats-bar">
         <div class="stat-card">
-            <div>Tổng Lượt Nộp Bài</div>
+            <div>TỔNG LƯỢT NỘP BÀI</div>
             <div id="totalSubmissions">0</div>
         </div>
         <div class="stat-card">
-            <div>Số Học Sinh Đã Làm</div>
+            <div>SỐ HỌC SINH ĐÃ LÀM</div>
             <div id="totalStudents">0</div>
         </div>
     </div>
@@ -169,31 +204,32 @@
     <table>
         <thead>
             <tr>
-                <th>Tên Học Sinh</th>
-                <th>Tên Bài Tập</th>
-                <th>Lượt Thi</th>
-                <th>Kết Quả</th>
+                <th>Học Sinh</th>
+                <th>Bài Kiểm Tra</th>
+                <th>Lượt Làm</th>
+                <th>Điểm Số</th>
+                <th>Thời Gian (Bắt Đầu - Kết Thúc)</th>
                 <th>Thời Gian Làm</th>
-                <th>Thời Điểm Nộp</th>
                 <th>Thao Tác</th>
             </tr>
         </thead>
         <tbody id="resultsBody">
             <tr>
-                <td colspan="7" style="text-align: center; color: #888;">Đang kết nối dữ liệu Firebase...</td>
+                <td colspan="7" style="text-align: center; color: #888;">Đang tải dữ liệu kết quả...</td>
             </tr>
         </tbody>
     </table>
 </div>
 
-<!-- Modal Chi Tiết Bài Làm -->
+<!-- Modal xem chi tiết -->
 <div id="detailModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h2 style="margin-top:0; color:#2c3e50;">Chi Tiết Bài Làm</h2>
+        <h2 style="margin-top:0; color:#2c3e50;">📋 Chi Tiết Bài Làm</h2>
         <p><strong>Học sinh:</strong> <span id="modalStudent"></span></p>
         <p><strong>Đề thi:</strong> <span id="modalQuiz"></span></p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+        <p style="font-size: 0.9em; color: #666;"><span id="modalTime"></span></p>
+        <hr style="border:0; border-top:1px solid #eee; margin: 15px 0;">
         <div id="modalAnswersList"></div>
     </div>
 </div>
