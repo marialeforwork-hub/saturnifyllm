@@ -1933,26 +1933,41 @@
     }
 
     function sendResultToAdmin() {
-        const endTime = new Date();
-        const durationSec = Math.round((endTime - startTime) / 1000);
-        const durationMin = (durationSec / 60).toFixed(1);
+    const endTime = new Date();
+    const durationSec = Math.round((endTime - startTime) / 1000);
+    const durationMin = (durationSec / 60).toFixed(1);
 
-        let studentAnswers = {};
-        quizData.forEach((data, index) => {
-            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
-            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
-        });
+    let studentAnswers = {};
+    
+    // Ghi nhận chi tiết từng câu: Đáp án đã chọn + Đáp án đúng + Trạng thái Đúng/Sai
+    quizData.forEach((data, index) => {
+        const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+        const userChoice = selected ? selected.value : 'Bỏ trống';
+        const isCorrect = userChoice === data.correctAnswer;
 
-        const resultData = {
-            timestamp: Date.now(),
-            studentName: STUDENT_ID,
-            quizTitle: document.title || 'Bài tập SAT',
-            score: `${currentScore}/${totalQuestions}`,
-            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
-            answers: studentAnswers,
-            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
-            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
-            duration: `${durationMin} phút (${durationSec}s)`
+        studentAnswers[`Câu ${index + 1}`] = {
+            userChoice: userChoice,
+            correctAnswer: data.correctAnswer,
+            status: userChoice === 'Bỏ trống' ? 'empty' : (isCorrect ? 'correct' : 'wrong')
+        };
+    });
+
+    const resultData = {
+        timestamp: Date.now(),
+        studentName: STUDENT_ID,
+        quizTitle: document.title || 'Bài tập SAT',
+        score: `${currentScore}/${totalQuestions}`,
+        percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+        answers: studentAnswers,
+        startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+        endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+        duration: `${durationMin} phút (${durationSec}s)`
+    };
+
+    if (typeof window.saveToFirebase === 'function') {
+        window.saveToFirebase(resultData);
+    }
+}
         };
 
         if (typeof window.saveToFirebase === 'function') {
