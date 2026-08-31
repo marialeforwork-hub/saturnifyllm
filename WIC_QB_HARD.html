@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WORD IN CONTEXT - HARD - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>WORD IN CONTEXT: HARD (QUESTION BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="sticky-footer">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 🕒 LƯU MỐC THỜI GIAN BẮT ĐẦU CỦA LẦN LÀM BÀI HIỆN TẠI
+    let startTime = new Date();
+
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        // Thu thập chi tiết từng câu làm đúng hay sai
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const userChoice = selectedOption ? selectedOption.value : "Bỏ trống";
+            const isCorrect = userChoice === data.correctAnswer;
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.question,
+                userChoice: userChoice,
+                correctAnswer: data.correctAnswer,
+                isCorrect: isCorrect
+            };
+        });
+
+        // Tính thời gian làm bài thực tế của lượt này (giây / phút)
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+    const quizData = [
+  {
+    "id": 1,
+    "question": "Question Rejecting the premise that the literary magazine Ebony and Topaz (1927) should present a unified vision of Black American identity, editor Charles S. Johnson fostered his contributors’ diverse perspectives by promoting their authorial autonomy. Johnson ’ s self-effacement diverged from the editorial stances of W.E.B. Du Bois and Alain Locke, whose decisions for their publications were more ______. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "proficient",
+      "B": "dogmatic",
+      "C": "ambiguous",
+      "D": "unpretentious"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. A person who is \"dogmatic\" believes strongly that their principles and opinions are true. Because Du Bois and Locke are implied to have one \"unified vision\" of Black American identity that they prioritize over the \"diverse perspectives\" of different writers, they can be described as dogmatic. Choice A is incorrect. \"Proficient\" means \"skilled. \" Du Bois and Locke are contrasted with Johnson, but nothing in the text suggests that Johnson was not skilled at making editorial decisions. Based on the text, the three editors just have different styles; they’re not necessarily more or less skilled. Choice C is incorrect. \"Ambiguous\" means \"unclear\" or \"open to multiple interpretations.\" However, it’ s actually Johnson who encouraged multiple interpretations (\"diverse perspectives\"). Since Du Bois and Locke are said to \"diverge\" from Johnson, we can assume that the views they published were not ambiguous, but instead clear and firm (a \"unified vision\"). Choice D is incorrect. \"Unpretentious\" means \"not trying to impress others with greater skill or impor tance than is actually possessed.\" Du Bois and Locke are contrasted with Johnson, but nothing in the text suggests that Johnson is pretentious (trying to impress others)."
+  },
+  {
+    "id": 2,
+    "question": "Question Some economic historians ______ that late nineteenth- and early twentieth-century households in the United States experienced an economy of scale when it came to food purchases—they assumed that large households spent less on food per person than did small households. Economist Trevon Logan showed, however, that a close look at the available data disproves this supposition. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "surmised",
+      "B": "contrived",
+      "C": "questioned",
+      "D": "regretted"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of late nineteenth- and early twentieth-century household food purchases. In this context, “ surmised” means formed an idea or assumption with little evidence. The text explains that cer tain economic historians “ assumed” that large and small households spent different amounts on food per person, but that another economist found this supposition to be false based on evidence from available data. This context suggests that the economic historians made an incorrect assumption without enough consideration of evidence. Choice B is incorrect. In this context, “ contrived” would mean brought about or created through trickery. Nothing in the text suggests that the economic historians were deliberately trying to trick people with a claim about food purchasing behaviors in late nineteenth- and early twentieth- century households; the text simply suggests that they made an assumption about those behaviors that another historian believes isn ’t suppor ted by the available data. Choice C is incorrect because the text indicates that it’ s Logan and not the economic historians who “ questioned, ” or doubted, the assumption that large and small households in the late nineteenth and early twentieth centuries spent different amounts on food per person; the economic historians are the ones who made that assumption to begin with. Choice D is incorrect because nothing in the text suggests that some economic historians “regretted, ” or felt sad or remorseful about, the food purchasing behaviors of late nineteenth- and early twentieth-century households. The text focuses on the idea that the economic historians made an assumption about those behaviors that may not be suppor ted by available data, not on the historians’ emotional response to what households did in the past."
+  },
+  {
+    "id": 3,
+    "question": "Question Economist Marco Castillo and colleagues showed that nuisance costs—the time and effor t people must spend to make donations—reduce charitable giving. Charities can mitigate this effect by compensating donors for nuisance costs, but those costs, though variable, are largely ______ donation size, so charities that compensate donors will likely favor attracting a few large donors over many small donors. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "supplemental to",
+      "B": "predictive of",
+      "C": "independent of",
+      "D": "subsumed in"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. We ’re told that charities that pay donors back for nuisance costs will attract a few large donors instead of many small donors. This suggests that nuisance costs are not linked to donation size. Choice A is incorrect. This doesn ’t fit the logic of the text. If nuisance costs are supplemental to (meaning in addition to) donation size, that wouldn ’t result in charities that compensate donors for those costs attracting a few large donors over many small donors. Choice B is incorrect. This doesn ’t fit the logic of the text. If nuisance costs can predict donation size, that wouldn ’t necessarily result in charities that compensate donors for those costs attracting a few large donors over many small donors. Choice D is incorrect. This doesn ’t fit the logic of the text. If nuisance costs are subsumed in (meaning included in) donation size, that wouldn ’t result in charities that compensate donors for those costs attracting a few large donors over many small donors."
+  },
+  {
+    "id": 4,
+    "question": "Question The results of randomized clinical trials testing the efficacy of common medical interventions sometimes fail to ______ conclusions that practitioners reach based on their real-world observations of patients. While there are several possible reasons for this, one is that practitioners may overlook confounding variables that account for the results they attribute to the interventions in question. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "circumvent",
+      "B": "corroborate",
+      "C": "disseminate",
+      "D": "implement"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of a relationship between the results of randomized clinical tests of how effective common medical interventions are and the conclusions practitioners reach about such interventions in real-world settings. In this context, \"corroborate\" means confirm or suppor t with evidence. The text indicates that one possible explanation for the relationship being discussed is that practitioners may overlook confounding variables—that is, additional factors other than the medical interventions being investigated that affect the observed outcomes. This means that practitioners may assume that an outcome is the direct result of a medical intervention when it is actually the result of a combination of factors. Clinical trials take steps to rule out factors other than the one being studied, so if those extra factors ar e actually having an effect on real-world outcomes, the trials are likely to produce conclusions different from those practitioners reach in their r eal-world observations. In other words, clinical trials may fail to corroborate practitioners’ conclusions. Choice A is incorrect because it wouldn ’t make sense to say that the results of clinical trials could \"circumvent,\" or find a way around or bypass, conclusions practitioners reach in real-world scenarios with patients; it’ s possible that researchers conducting the trials might avoid engaging with practitioners’ conclusions, but findings from a study can ’t choose to get around something. Choice C is incorrect because it wouldn ’t make sense to say that the results of clinical trials could \"disseminate,\" or spread widely, conclusions pr actitioners reach in real-world scenarios with patients; the researchers conducting the trials might choose to draw attention to practitioners’ conclusions, but findings from a study can ’t spread anything. Choice D is incorrect because it wouldn ’t make sense to say that the results of clinical trials could \"implement,\" or put into effect, conclusions practitioners reach in real-world scenarios with patients; the researchers conducting the trials might consider practitioners’ conclusions, but findings from a study can ’t put anything into effect."
+  },
+  {
+    "id": 5,
+    "question": "Question Businesses typically try to promote themselves, but research by Michael Luca, Abhishek Nagaraj, and Gauri Subramani suggests that some do not ______ their marketing. The researchers studied restaurants in Texas and found that those listed on a popular review website (which can be done at no cost) had revenue increases of 5 percent on average, but 33 percent of restaurants studied never listed on the site. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "adorn",
+      "B": "optimize",
+      "C": "endorse",
+      "D": "counteract"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of business marketing practices. In this context, \"optimize\" means make the most effective possible use of available oppor tunities. The text indicates that though businesses typically try to promote themselves, they don ’t always make use of effective tools for doing so, pointing to research showing that 33 percent of restaurants failed to use a free listing service that increased revenue by 5 percent on average for restaurants that did use the service. The text therefore suggests that by foregoing a free and effective marketing tool, some businesses aren ’t making the best use of, or optimizing, marketing oppor tunities. Choice A is incorrect because in this context, \"adorn\" would mean decorate or enhance the appearance of, and there ’ s nothing in the text to suggest that by failing to use a free and effective promotional tool, some businesses aren ’t enhancing the appearance of their own marketing. The example in the text illustrates that some businesses aren ’t utilizing an effective marketing oppor tunity, not that they aren ’t improving the appearance of their marketing. Choice C is incorrect because in this context, \"endorse\" would mean openly approve or recommend, and the text’ s discussion of the fact that some businesses have overlooked an effective marketing tool doesn ’t suppor t the idea that those businesses therefore don ’t approve of their own marketing. Choice D is incorrect because in this context, saying that businesses don ’t \"counteract\" their marketing would suggest that they don ’t actively undermine it or make it ineffective. The text begins by stating that businesses typically try to promote themselves but then continues to imply that some businesses fail to take advantage of good oppor tunities to do so, citing the example of businesses that failed to use a free and effective marketing tool. Though it’ s possible that those businesses that did use the site therefore didn ’t unintentionally counteract their own marketing, the first sentence conveys that the text’ s focus is on things that some businesses do and that some businesses don ’t do when trying to promote themselves, and it wouldn ’t make sense to say that any businesses would actively try to undermine their own marketing in pursuit of that goal."
+  },
+  {
+    "id": 6,
+    "question": "Question One popular theory of the origin of the Moon, the “big whack, ” posits that a protoplanet called Theia collided with Ear th, flinging debris into orbit that eventually coalesced into the Moon. Until recently, Theia was ______, but researcher Qian Yuan and colleagues now claim to have identified pieces of the protoplanet in the lowermost section of Ear th ’ s mantle. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "desultory",
+      "B": "spurious",
+      "C": "veritable",
+      "D": "notional"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of Theia and the origin of the Moon. In this context, \"notional\" means theoretical or only an idea. The text indicates that although something was once true of Theia, the protoplanet one theory holds collided with Ear th and created debris that became the Moon, researchers now claim to have identified pieces of it deep in Ear th ’ s mantle. In other words, having direct evidence of Theia is a new development. This context suggests that before evidence was found, Theia was only theoretical—that is, that it was notional. Choice A is incorrect because the text doesn ’t suggest that Theia, a protoplanet, was \"desultory ,\" which in this context would mean moving away from the matter at hand; indeed, the text focuses on the \"big whack\" theory of the origin of the Moon and indicates that Theia is a central par t of that theory. Choice B is incorrect because the text makes the point that something was true of Theia until recently and suggests that this has changed now that researchers believe they have found pieces of the protoplanet deep in Ear th ’ s mantle. It wouldn ’t make sense to say that Theia was actually \"spurious,\" or false, until researchers found direct evidence of the protoplanet. (Although Theia ’ s existence might not have been cer tain, it would not have been false simply because there was no evidence of it.) Choice C is incorrect because the text makes the point that something was true of Theia until recently and suggests that this has changed now that researchers believe they have found pieces of the protoplanet deep in Ear th ’ s mantle. It wouldn ’t make sense to say that Theia was \"veritable,\" or real, before researchers found direct evidence of its existence: the evidence would instead confirm that Theia was real."
+  },
+  {
+    "id": 7,
+    "question": "Question Before the Mariner 2 mission completed a successful flyby of Venus in 1962, astronomers’ ideas about the planet were little more than ______. Venus’ s atmosphere is so thick that Ear th-based observations had yielded very little information about the planet. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "summations",
+      "B": "conjectures",
+      "C": "conclusions",
+      "D": "exemplifications"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of pre-Mariner 2 ideas about Venus. In this context, “ conjectures” means guesses or inferences formed without sufficient evidence. The text indicates that before the successful 1962 flyby, Ear th- based observations of Venus had produced “very little information ” because of the planet’ s thick atmosphere. The limited scope of astronomers’ earlier knowledge of Venus is also emphasized by the text’ s description of their ideas as being “little more than ” something before the flyby. This context conveys that before Mariner 2 flew close to Venus, astronomers lacked the evidence needed for their ideas about the planet to be much more than conjectures, or guesses. Choice A is incorrect. In this context, “ summations” would be final conclusions reached by putting all information together. Because the text emphasizes that very little information about Venus was available before the 1962 flyby, it wouldn ’t make sense to describe astronomers’ pre- Mariner 2 ideas about Venus as summations; the text suggests that astronomers didn ’t have enough information to draw solid conclusions about Venus. Choice C is incorrect. In this context, “ conclusions” would be reasoned final judgments or outcomes. Because the text emphasizes that very little information about Venus was available before the 1962 flyby, it wouldn ’t make sense to describe astronomers’ pre-Mariner 2 ideas about Venus as conclusions; the text suggests that astronomers didn ’t have what they would have needed to make informed judgments about Venus. Choice D is incorrect because it wouldn ’t make sense to describe astronomers’ pre-Mariner 2 ideas about Venus as “ exemplifications, ” or examples that illustrate something; people ’ s ideas about a subject are the ideas themselves, not illustrations. Fur ther, the text emphasizes that the astronomers had little information before 1962, suggesting they didn ’t have much to work with to form examples."
+  },
+  {
+    "id": 8,
+    "question": "Question Seminole/Muscogee director Sterlin Harjo ______ television ’ s tendency to situate Native characters in the distant past: this rejection is evident in his series Reservation Dogs, which revolves around teenagers who dress in contemporary styles and whose dialogue is laced with current slang. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "repudiates",
+      "B": "proclaims",
+      "C": "foretells",
+      "D": "recants"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of Sterlin Harjo ’ s approach to representing Native characters on television. As used in this context, “repudiates” means rejects or refuses to have anything to do with. The text indicates that television shows tend to depict Native characters as living long ago, but that Harjo ’ s series Reservation Dogs focuses on Native teenagers in the present day, representing a “rejection ” of the typical approach to depicting Native characters. This context thus indicates that Harjo repudiates television ’ s general tendency regarding Native characters. Choice B is incorrect because the text describes Harjo ’ s “rejection ” of the typical approach to representing Native characters on television, so it wouldn ’t make sense to say that Harjo “ proclaims, ” or declares or affirms, television ’ s general tendency regarding Native characters. Harjo is described as refusing to follow the pattern of depicting Native characters in the distant past, not as proclaiming that pattern. Choice C is incorrect because the text describes television ’ s tendency to represent Native characters in the distant past as something that is already occurring, not as something that Harjo “foretells, ” or predicts will happen in the future. The text is focused on Harjo ’ s “rejection ” of this pattern, not on any predictions he may have about it. Choice D is incorrect because saying that Harjo “recants” something would mean that he withdraws a previously held belief, and it wouldn ’t make sense to say that Harjo recants television ’ s tendency to represent Native characters as living in the past. No beliefs previously held by Harjo are mentioned. Additionally, a tendency isn ’t a belief and thus isn ’t something that can be recanted."
+  },
+  {
+    "id": 9,
+    "question": "Question The Polynesian languages, a group of related languages originating on islands in the Pacific, typically have ______ array of consonant sounds. For example, the Mangareva language of the South Pacific has nine consonants, and ‘Ōlelo Hawai‘i, the language of the Native Hawaiian people, has eight. Globally, however, the median number of consonants per language is over twenty-two. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "an unvarying",
+      "B": "a musical",
+      "C": "an exclusive",
+      "D": "a modest"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of Polynesian languages. In this context, “ modest” means relatively limited or small. The text begins with a statement about the array, or number, of consonant sounds in these languages. It then gives examples of one Polynesian language that has nine consonants and one that has eight consonants before noting that the global median number of consonants per language is more than twenty-two; in other words, the numbers of consonants in the Polynesian examples are well below the global median number. This context conveys that the text is making the point that the Polynesian languages have a modest array of consonant sounds. Choice A is incorrect. In this context, “unvarying” would mean unchanging. The text focuses on comparing the typical numbers of consonant sounds in Polynesian languages to the global median number of consonants per language, not on conveying that the number of consonant sounds in Polynesian languages typically doesn ’t vary; the text makes no mention of the number of consonants changing within a language or language group. Choice B is incorrect because the text is focused on the quantity of consonant sounds in Polynesian languages, not the idea that those consonants are “ musical, ” or pleasantly harmonious and like music; the text discusses only the numbers of consonants in Polynesian languages and the global median number of consonants per language, not the way consonants sound. Choice C is incorrect. In this context, “ exclusive” would mean limited to a single group. The text discusses the typical numbers of consonant sounds in Polynesian languages and gives two examples of languages with consonant numbers below the global median number of consonants per language, but it doesn ’t suggest that the array, or number, of consonant sounds in Polynesian languages is exclusive to those languages—that is, that Polynesian languages are the only ones with eight to nine consonants."
+  },
+  {
+    "id": 10,
+    "question": "Question Barring major archaeological discoveries, we are unlikely to ever have ______ account of ancient Egypt under the female pharaoh Hatshepsut, as much of the evidence of her reign was deliberately destroyed by her successors. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "an imaginative",
+      "B": "a superficial",
+      "C": "an exhaustive",
+      "D": "a questionable"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of historical evidence about ancient E gypt under the reign of the pharaoh Hatshepsut. In this context, \"an exhaustive\" account would be a thorough one. The text states that much of the evidence from her reign was purposely destroyed—in other words, there is a lack of surviving records. This context conveys that unless there are major new archaeological discoveries, an exhaustive account of Hatshepsut’ s reign is unlikely. Choice A is incorrect because in this context, \"an imaginative\" account would be an account based on imagination, or ideas and speculation, rather than facts. The text indicates that much of the evidence of Hatshepsut’ s reign was deliberately destroyed, and a lack of evidence actually makes it more likely that accounts will be imaginative to some degree and not strictly factual. Choice B is incorrect because in this context, \"a superficial\" account would be one that is lacking in depth or concerned only with what is obvious. The text indicates that most evidence of Hatshepsut’ s reign was purposely destroyed, which suggests that accounts of that time are likely already somewhat superficial, since there is little information available to suppor t deeper knowledge. Fur ther, it would be illogical to suggest that discovering major new evidence would make it more likely that accounts would be superficial. Choice D is incorrect because \"a questionable\" account would be one likely to be challenged or doubted, and since the text suggests that little evidence of Hatshepsut’ s reign has survived, accounts of that time probably involve some speculation and thus may already be open to doubt. Fur ther, it would be illogical to suggest that discovering major new evidence would make it more likely that accounts would be questionable."
+  },
+  {
+    "id": 11,
+    "question": "Question In a study of residential mobility in Washington, DC, LaTanya Brown-Rober tson et al. found that increases in household spending power (via tax credits) had mixed effects on mobility decisions, possibly because residential location choices are not fully reducible to economic factors but are also ______ noneconomic factors such as access to strong local social networks. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "transposed with",
+      "B": "mediated by",
+      "C": "decoupled from",
+      "D": "antecedent to"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of residential mobility decisions. In this context, \"mediated by\" means influenced or affected by something. The text establishes that increasing household spending power (an economic factor) produced \"mixed effects\" on mobility decisions. The text then explains that residential choices are \"not fully reducible to economic factors,\" which means that these decisions don ’t simply rely on how much money is available to spend on a residential move but on other factors as well. According to the text, noneconomic considerations, such as access to social networks, also play a significant role. Thus, \"mediated by\" accurately captures this relationship where noneconomic factors influence what might otherwise be purely economic decisions. Choice A is incorrect because \"transposed with\" would suggest that economic and noneconomic factors ar e being switched or interchanged when making residential mobility decisions, which wouldn ’t make logical sense in this context. The text indicates that these factors coexist and jointly influence such decisions. Choice C is incorrect. The phrase \"decoupled from\" means separated or disconnected from, which would suggest that economic factors are completely separate from noneconomic factors. This would contradict the text’ s main point that residential mobility decisions involve multiple factors being considered simultaneously rather than in isolation. Choice D is incorrect because \"antecedent to,\" which means something prior or earlier, would indicate that noneconomic factors come before economic ones in time or sequence. The text doesn ’t establish this chronological relationship. Instead, the text indicates that economic factors (household spending power) and noneconomic factors (access to social networks) simultaneously influence residential mobility decisions."
+  },
+  {
+    "id": 12,
+    "question": "Question falls. Among stock-market investors, the practice of diversification, or distributing investment funds across many different companies in many different industries, is regarded as ______ since it protects investors from major losses if the value of one par ticular company or industry sect or Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "contentious",
+      "B": "prudent",
+      "C": "unworkable",
+      "D": "optimistic"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of how stock-market investors regard diversification. In this context, “ prudent” means showing sensible judgment. The text defines diversification as the practice of spreading investment funds across many different companies and industries and explains that this practice “ protects investors from major losses” when a par ticular company or sector loses value. This context suppor ts the idea that diversification is regarded as prudent—that is, as a sensible strategy because of the financial protection it provides. Choice A is incorrect because describing diversification as “ contentious, ” or likely to cause disagreement, would contradict the text, which presents diversification as a practice valued by investors for its protective benefits, not as one that prompts dispute. Choice C is incorrect because describing diversification as “unworkable, ” or unable to function effectively, would contradict the text, which indicates that diversification successfully protects investors from major losses. Choice D is incorrect because describing diversification as “ optimistic, ” or expressing confidence in a positive outcome, wouldn ’t make sense in context. The text presents diversification as a defensive strategy designed to limit losses, not as one expressing confidence about future gains."
+  },
+  {
+    "id": 13,
+    "question": "Question The creation of Lotte Reiniger’ s 1926 animated film The Adventures of Prince Achmed was ______ process. Over the course of three years, Reiniger and her collaborators painstakingly made more than 250,000 individual images of hand-cut paper silhouettes and repeatedly had to invent entirely new methods and tools to create the special effects Reiniger envisioned. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "a haphazard",
+      "B": "a contentious",
+      "C": "an ineffectual",
+      "D": "an arduous"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of the creation of The Adventures of Prince Achmed. In this context, \"arduous\" means that the process is marked by great labor or effor t. According to the text, the creation of the 1926 animated film The Adventures of Prince Achmed took three years and was a painstaking process. Since the process was so long and required great effor ts by Lotte Reiniger and her team, the creation of the film was therefore an arduous process. Choice A is incorrect because the text doesn ’t indicate that the creation of Reiniger’ s film was \"a haphazard,\" or disorganized, process. In fact, the text suggests that the creation process was quite meticulous and the team worked hard together to produce the envisioned effects. Choice B is incorrect. While the text does suggest that the creation of Reiniger’ s film was a long and difficult process, it doesn ’t suggest that the process was \"a contentious\" one, or one causing controversy or argument. The text suggests that the team worked together to produce the envisioned effects. Choice C is incorrect because rather than describing the process of creating the film as \"ineffectual, \" or not having the effect it was intended to have, the text describes the process as ultimately successful despite the difficulty it involved."
+  },
+  {
+    "id": 14,
+    "question": "Question Among saltwater fish species, there is a clear association between habitat latitude and morphological variety. While tropical species are ______ deep-bodied physical forms (body shapes that are laterally compressed but ver tically extended), polar and temperate species are highly dispersed across the morphological spectrum. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "authenticated by",
+      "B": "habituated to",
+      "C": "contemporary with",
+      "D": "concentrated among"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of the relationship between habitat latitude and body shape in saltwater fish species. In this context, “ concentrated among” means largely confined to. The text sets up a contrast between tropical species, which are generally characterized by a single shape—deep-bodied forms—and polar and temperate species, which are “highly dispersed across the morphological spectrum ” (meaning they exhibit a wide range of body shapes). This context suppor ts the idea that tropical species are concentrated among deep-bodied physical forms—that is, largely confined to this single morphological category rather than spread across many. Choice A is incorrect because saying that tropical species are “ authenticated by, ” or proven genuine by, deep-bodied physical forms wouldn ’t make sense. Instead, the text describes the typical morphology (body shape) of tropical fish species and how that differs from the typical morphologies of polar and temperate fish species. Choice B is incorrect because saying that tropical species are “habituated to, ” or accustomed through repeated exposure to, deep-bodied physical forms wouldn ’t make sense. Instead, the text describes the typical morphology (body shape) of tropical fish species and how that differs from the typical morphologies of polar and temperate fish species. Choice C is incorrect because saying that tropical species are “ contemporary with, ” or existing at the same time as, deep-bodied physical forms indicates that the species exist at the same time as their body shapes do, which, if it is a meaningful statement at all, is at best trivially true and unrelated to the text’ s discussion of the typical morphology (body shape) of tropical fish species and how that differs from the typical morphologies of polar and temperate fish species."
+  },
+  {
+    "id": 15,
+    "question": "Question The güiro, a musical instrument traditionally made from a dried and hollowed gourd, is thought to have originated with the Taíno people of Puer to Rico. Players use a wooden stick to scrape along ridges cut into the side of the gourd, creating sounds that are highly ______: the sounds produced by güiros can differ based on the distance between the ridges, the types of strokes the player uses, and the thickness of the gourd. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "overlooked",
+      "B": "powerful",
+      "C": "routine",
+      "D": "variable"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of the sounds made by güiros. In this context, “variable” means able to change. The text begins by explaining that güiros are instruments made out of hollowed gourds with ridges cut into their sides and that players scrape the ridges with wooden sticks t o produce sounds. The text goes on to say that güiros’ sounds can change depending on gourd thickness, the distance between ridges, and the types of strokes the player uses, thus suppor ting the idea that the sounds created by these instruments are variable. Choice A is incorrect because “ overlooked” means not being seen or noticed, and there is nothing in the text to suggest that the sounds produced by güiros are overlooked or not noticed. Choice B is incorrect because in this context, “ powerful” would mean having a great ability to produce an effect. While it’ s possible that the sounds produced by güiros have a strong effect on listeners, the text doesn ’t discuss this aspect of their sounds. Choice C is incorrect because “routine” means usual and unvarying, and there is nothing in the text to suggest that the sounds produced by güiros are unvarying. In fact, the text describes how the sounds produced by güiros can differ based on several factors."
+  },
+  {
+    "id": 16,
+    "question": "Question Proposals to raise the age at which retirees begin receiving government transfers of funds are generally discussed in terms of the effects on transfer recipients, but Andria Smythe has argued that delaying such transfers could ______ wealth creation among working adults by lengthening the period in which they are providing financial suppor t to their nonworking parents. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "stymie",
+      "B": "compound",
+      "C": "disparage",
+      "D": "outstrip"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of the consequences of raising the age at which retirees begin receiving government funds. The text indicates that raising the age for these funds is usually discussed in terms of effects on fund recipients but that Andria Smythe is instead considering the effects on working family members who car e for retirees. Smythe notes that raising the age for the funds would increase the length of time retirees are dependent on financial assistance from working family members. This is suggested to have an effect on wealth creation for those workers, and most logically, that effect would be disadvantageous. Thus, \"stymie,\" which means to prevent or greatly hinder, is the most logical choice in context. Choice B is incorrect because in this context, \"compound\" would most nearly mean multiply or greatly enhance. The text indicates that raising the age at which retirees are eligible for government funds will increase the amount of time retirees are dependent on working family members for financial suppor t. This would likely have a negative rather than a positive effect on wealth creation. Choice C is incorrect because in this context, \"disparage\" would most nearly mean criticize or defame. Nothing in the text suggests that raising the age at which retirees are eligible for government funds would defame wealth creation among working adults. Choice D is incorrect because in this context, \"outstrip\" would most nearly mean to exceed, and nothing in the text indicates that the financial suppor t provided to retirees would exceed the amount of wealth these workers can create. The text does suggest that work ers providing funds to retirees works against those workers’ wealth accumulation, but not that the suppor t to retirees exceeds the workers’ accumulated wealth."
+  },
+  {
+    "id": 17,
+    "question": "Question In studying the use of external stimuli to reduce the itching sensation caused by an allergic histamine response, Louise Ward and colleagues found that while harmless applications of vibration or warming can provide a temporary distraction, such ______ stimuli actually offer less relief than a stimulus that seems less benign, like a mild electric shock. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "deceptive",
+      "B": "innocuous",
+      "C": "novel",
+      "D": "impractical"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of Ward and colleagues’ findings. As used in this context, “innocuous” means mild or unharmful. The text describes the vibration and warming that Ward and colleagues used t o alleviate itching as “harmless applications” and goes on to contrast these applications with another stimulus that actually offers more relief even though it seems to be stronger and “less benign. ” This context conveys the idea that vibration and warming were innocuous stimuli. Choice A is incorrect because the text focuses on a distinction between harmless stimuli and those that seem to be less benign. Nothing in the text suggests that any of the treatments are “ deceptive, ” or misleading; indeed, even the less effective ones are described as offering some relief. Choice C is incorrect because the text focuses on the amount of relief from itching offered by harmless stimuli and those that seem to be less benign. The text doesn ’t suggest that any of these stimuli are “ novel, ” or original and new; heat, vibration, and electricity aren ’t new inventions. Choice D is incorrect because it wouldn ’t make sense to describe an application of vibration or warming as “impractical, ” or not suitable for use. The text indicates that these harmless applications are useful in that they offer at least some temporary relief."
+  },
+  {
+    "id": 18,
+    "question": "Question The fossil remains of the individual known as Oase 1, discovered in Romania in 2002, can help paleoanthropologists not only ______ steps in the evolution of hominids but also illuminate the Pleistocene epoch generally, revealing impor tant details about the time in which Oase 1 lived. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "exploit",
+      "B": "discern",
+      "C": "prioritize",
+      "D": "yield"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of the utility of the Oase 1 fossil to paleoanthropologists. As used in this context, \"discern\" means to detect or recognize something, especially something hidden or obscure. The text indicates that the Oase 1 fossil can help paleoanthropologists recognize patterns in the evolutionary process and shed light on (\"illuminate\") the period in which Oase 1 lived. Thus, the fossil will enable researchers to gain insights into, or discern, facts that are still not well understood. Choice A is incorrect because in this context, \"exploit\" would suggest that the paleoanthropologists are using \"steps in the evolution of hominids,\" which does not make logical sense. Rather, the text is about how the Oase 1 fossil could help paleoanthropologists learn about hominid evolution and the Pleistocene epoch more generally. Choice C is incorrect because in this context, \"prioritize\" would suggest that either the paleoanthropologists are placing more impor tance on \"steps in the evolution of hominids\" than they are on something else not identified in the text or that they are placing these steps in some sor t of order. Rather, the text is about how the Oase 1 fossil could help paleoanthropologists learn about hominid evolution and the Pleistocene epoch more generally. Choice D is incorrect because to say that paleoanthropologists could \"yield\" or generate \"steps in the evolution of hominids\" doesn ’t make sense. The researchers may develop new insights into those evolutionary steps, but they do not create those steps themselves. Rather, the context makes it clear that they are detecting or discovering patterns based on their study of the Oase 1 fossil."
+  },
+  {
+    "id": 19,
+    "question": "Question The following text is from a 1955 translation of Samuel Beckett’ s 1951 novel Molloy (translated by the author and Patrick Bowles). In the text, Molloy has arrived at the town rampar ts, an elevated walkway atop the city walls. And having cleared the rampar ts I had to confess the sky was clearing, prior to its winding in the other shroud, night. Yes, the great cloud was ravelling, discovering here and there a pale and dying sky, and the sun, already down, was manifest in the livid tongues of fire dar ting towards the zenith, falling and dar ting again, ever more pale and languid, and doomed no sooner lit to be extinguished. ©1955 by Grove Press, Inc. As used in the text, what does the word “ manifest” most nearly mean?",
+    "options": {
+      "A": "Realized",
+      "B": "Perceptible",
+      "C": "Situated",
+      "D": "Dwindling"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because as used in the text, “ manifest” most nearly means perceptible or detectable. The text indicates that the sun was “ already down, ” meaning it was below the horizon and not directly visible. However, the sun ’ s presence was nonetheless perceptible or manifest in the “tongues of fire” (or beams of light) that still flickered in the darkening sky. Choice A is incorrect. Although in some contexts “ manifest” can mean “realized” or “brought into being, ” that is not the context here. Rather, the text is about how the sun ’ s presence was perceptible or manifest in the “ dar ting” beams of light that could still be seen in the sky . Choice C is incorrect. This choice would suggest that the sun is situated, or located, in the light it emits, which is not suppor ted by the surrounding context. Rather, the text is about how the sun ’ s presence was perceptible or manifest in the remaining light that could still be seen in the sky. Choice D is incorrect. Although the text is about the decreasing light in the scene at sunset, the text’ s use of “ manifest” is about how the sun ’ s presence was nonetheless perceptible or manifest in the “tongues of fire” still visible in the sky as night approached."
+  },
+  {
+    "id": 20,
+    "question": "Question The following text is adapted from James Baldwin ’ s 1956 novel Giovanni’ s Room. The narrator is riding in a taxi down a street lined with food vendors and shoppers in Paris, France. The multitude of Paris seems to be dressed in blue every day but Sunday, when, for the most par t, they put on an unbelievably festive black. Here they were now, in blue, disputing, every inch, our passage, with their wagons, handtrucks, their bursting baskets carried at an angle steeply self-confident on the back. ©1956 by James Baldwin As used in the text, what does the word “ disputing” most nearly mean?",
+    "options": {
+      "A": "Arguing about",
+      "B": "Disapproving of",
+      "C": "Asser ting possession of",
+      "D": "Providing resistance to"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because as used in the text, \"disputing\" most nearly means providing resistance to. The narrator is in a taxi as it drives down a street lined with so many food vendors and shoppers that the narrator describes them as \"the multitude of Paris,\" meaning an immense group of people. The street is essentially a large open-air market, and there are so many people pushing small wagons of goods and carrying shopping baskets that \"every inch\" of the taxi’ s progress is impeded. In other words, the people are providing resistance to the taxi’ s attempt to drive down the street. Choice A is incorrect. Although in some contexts, \" disputing\" can mean arguing, the narrator doesn ’t por tray the shoppers and vendors as arguing with the driver of the taxi or, indeed, arguing at all. Choice B is incorrect. Although in some contexts, \"disputing\" can mean expressing disapproval, the narrator doesn ’t suggest that the shoppers and vendors necessarily disapprove of the taxi’ s attempt to drive down the street. Instead, their combined presence along the street has the effect of impeding the taxi’ s progress. Choice C is incorrect because, as the narrator explains, both the multitude of people and the taxi are using a public space (a street) at the same time. The narrator doesn ’t go so far as to suggest that the people feel that they, and not the taxi, possess exclusive access to the street."
+  },
+  {
+    "id": 21,
+    "question": "Question The following text is adapted from Edith Whar ton ’ s 1911 novella Ethan Frome. The narrator has asked the woman he rents a room from about Ethan Frome, a town resident he encountered recently. Her mind was a store-house of innocuous anecdote and any question about her acquaintances brought for th a volume of detail; but on the subject of Ethan Frome I found her unexpectedly reticent. There was no hint of disapproval in her reserve; I merely felt in her an insurmountable reluctance to speak of him. As used in the text, what does the word “reserve” most nearly mean?",
+    "options": {
+      "A": "Modesty",
+      "B": "Misgiving",
+      "C": "Constraint",
+      "D": "Composure"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because as used in the text, “reserve” most nearly means constraint, or repression of one ’ s behavior or actions. The text indicates that although the narrator’ s landlady is ordinarily “ a store-house of innocuous anecdote” who readily produces “ a volume of detail” in response to questions about her acquaintances—that is, she usually tells harmless stories and is willing to share details about people she knows—she is “unexpectedly reticent, ” or surprisingly unwilling to speak, when it comes to Ethan Frome. The narrator then observes that the landlady doesn ’t appear to disapprove of Ethan, she simply seems completely reluctant to speak of him. In this context, then, “reserve” refers to the landlady’ s constraint—her repression of her usual willingness to share details in conversation. Choice A is incorrect. “Modesty” can refer to being appropriate in speech or behavior, and one might consider it appropriate to decline to speak of someone, but the text gives no indication that the narrator thinks the landlady is acting out of modesty. The narrator suggests that the landlady generally isn ’t concerned about the appropriateness of discussing others (she ’ s usually “ a store-house of innocuous anecdote” and shares many details) and isn ’t holding back to avoid saying something negative about Ethan Frome (there ’ s “ no hint of disapproval”); indeed, the narrator suggests he can ’t tell why the landlady is so unwilling to speak of Ethan. Choice B is incorrect because the text never suggests that the landlady has any “ misgiving, ” or feeling of doubt or apprehension, about Ethan F rome. In fact, the text explicitly states that ther e is “ no hint of disapproval” in her surprising unwillingness to discuss Ethan. Choice D is incorrect because the narrator doesn ’t suggest that the landlady is acting with “ composure, ” or calmness and control of her emotions. Instead of describing the landlady’ s emotional state or presenting her as calm, the narrator simply conveys her surprising unwillingness to discuss Ethan Frome."
+  },
+  {
+    "id": 22,
+    "question": "Question The subscription model in which consumers who do not deliberately cancel their subscriptions automatically pay recurring fees for access to products and services benefits retailers when consumer ______ is high. Many of the 8.5 percent of subscribers who canceled their food and beverage subscriptions in January 2022 had stopped valuing their subscriptions long before then, but sellers profited from those customers’ passivity in the interim. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "iner tia",
+      "B": "decisiveness",
+      "C": "evasion",
+      "D": "turnover"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of when the subscription model benefits retailers. In this context, “iner tia ” means a tendency to remain inactive or unchanged. The text describes a subscription model in which consumers continue to pay recurring fees unless they actively cancel and indicates that retailers profit when consumers fail to cancel even after they have stopped valuing the subscription. The text reinforces this by stating that sellers profited from canceling customers’ “ passivity in the interim ”—that is, the period during which those customers had ceased valuing their subscriptions but had not yet acted to cancel. This context suppor ts the idea that the model benefits retailers when consumer iner tia is high—that is, when consumers tend to remain inactive rather than take action to cancel. Choice B is incorrect because saying that the subscription model benefits retailers when consumer “ decisiveness, ” or quick and firm action, is high would contradict the text. The text indicates that retailers profit from consumer “ passivity”—the failure to act—and decisive consumers would presumably cancel subscriptions promptly once they stopped valuing them, eliminating the retailers’ benefit. Choice C is incorrect because saying that the subscription model benefits retailers when consumer “ evasion, ” or active avoidance, is high wouldn ’t make sense in this context. Evasion implies deliberate action to avoid something, but the text describes consumers as passive—they fail to cancel not because they actively avoid doing so but because they don ’t take action at all. Choice D is incorrect because saying that the subscription model benefits retailers when consumer “turnover, ” or the rate at which customers are replaced by new ones, is high would contradict the text. The text indicates that retailers profit when consumers continue paying without canceling, which means retailers benefit from retaining consumers, not from a high rate of consumer replacement."
+  },
+  {
+    "id": 23,
+    "question": "Question The following text is from the 1989 novel The Ancient Child by Kiowa writer N. Scott Momaday. The main character has achieved tremendous commercial success as a painter. More and more often he was asked to compromise his ar t or himself in one way or another, and more often than not he did so, for he was inclined to be passive and na ve; it was difficult for him to say no. Those who exhibited his work, who praised and purchased it, and who demanded its proliferation began to determine it. ©1989 by N. Scott Momaday As used in the text, what does the word “ determine” most nearly mean?",
+    "options": {
+      "A": "Conclude",
+      "B": "Dictate",
+      "C": "Evaluate",
+      "D": "Select"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because as used in the text \"determine\" most nearly means \"dictate.\" The text describes the relationship between the main character and those who exhibit, praise, and purchase his ar twork. The text states that the main character is often asked to change his ar t or himself based on outside influences, and he usually acquiesces. Because the main character admits that those who suppor t his work often shape it based on their demands, it follows that those outside influences dictate, or guide or dominate, the direction his work takes. Choice A is incorrect because the text doesn ’t suggest that outside influences \"conclude,\" or end, the main character’ s work. The text states that many suppor ters of the main character’ s ar t \"demand its proliferation,\" not its conclusion. Choice C is incorrect because the text doesn ’t suggest that outside influences are \"evaluating,\" or judging the main character’ s work. According to the text, the main character’ s ar t has already achieved great commercial success, with many people exhibiting, purchasing, and praising his work. Thus, outsiders have already suppor ted the main character’ s work and are not questioning or evaluating its success or wor th. They are instead influencing its initial direction. Choice D is incorrect because the text doesn ’t suggest that outside influences \"select,\" or choose the main character’ s work. According to the text, the main character’ s ar t has already achieved great commercial success, with many people exhibiting, purchasing, and praising his work. Thus, outsiders have already suppor ted the main character’ s work and are not selecting it. They are instead influencing its initial direction."
+  },
+  {
+    "id": 24,
+    "question": "Question While recent scholarship has undermined claims that the works of twelfth-century Islamic philosopher Ibn Rushd were ______ other Muslim philosophers of his time, it is indisputable that his location in the Muslim-ruled area of what is now Spain meant that his works were primarily available thousands of miles west of the era ’ s center of Islamic thought. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "controversial among",
+      "B": "antagonistic toward",
+      "C": "imitated by",
+      "D": "inconsequential to"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of the twelfth-century Islamic philosopher Ibn Rushd. As used in this context, \"inconsequential to\" means not significant to. According to the text, Ibn Rushd’ s works were primarily available in Spain, where he lived, far from central areas of the Muslim world, a fact that could suppor t the conclusion that his influence on Muslim contemporaries was limited. The text implies, however, that recent scholarship has shown that his works still had an impact on other Muslim philosophers of his time. This context suppor ts the idea that his works weren ’t inconsequential to Islamic thought in this period. Choice A is incorrect because the issue under consideration in the text is whether other Muslim philosophers of Ibn Rushd’ s time had access to his works, not whether his works were \"controversial among,\" or causing dispute among, other philosophers. Choice B is incorrect. The text implies that other Muslim philosophers of Ibn Rushd’ s era were aware of his works, not that they were \" antagonistic toward,\" or hostile toward, them. There is no suggestion that Ibn Rushd’ s writings elicited hostility from his contemporaries. Choice C is incorrect because in this context, \"imitated by\" would mean followed as a model by. Although the text implies that Ibn Rushd’ s works were at least somewhat available in regions that were at the center of Islamic thought during the period, it doesn ’t specifically address in what ways his works influenced contemporary Muslim philosophers. Thus, the text doesn ’t suppor t the idea that other philosophers modeled their own works after Ibn Rushd’ s works."
+  },
+  {
+    "id": 25,
+    "question": "Question Whether the reign of a French monarch such as Hugh Capet or Henry I was historically consequential or relatively uneventful, its trajectory was shaped by questions of legitimacy and therefore cannot be understood without a corollary understanding of the factors that allowed the monarch to ______ his right to hold the throne. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "disengage",
+      "B": "annotate",
+      "C": "buttress",
+      "D": "reciprocate"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of the legitimacy of the reigns of French monarchs such as Hugh Capet and Henry I. As used in this context, “buttress” means to strengthen or defend. The text indicates that regardless of whether a French monarch ’ s reign was significant or uneventful, each monarch faced questions about his right to the throne. The text goes on to say that in order to understand the path of a French monarch ’ s reign, it’ s impor tant to understand what contributed to the monarch ’ s ability to “hold the throne. ” This context suggests that French monarchs such as Hugh Capet and Henry I had to buttress, or defend, their right to be monarch. Choice A is incorrect because it wouldn ’t make sense in context to discuss factors that enabled a monarch to “ disengage, ” or withdraw his right to the French throne. The text focuses on an examination of people who reigned as French monarchs, not on people who didn ’t choose to rule. Choice B is incorrect because it wouldn ’t make sense in context to discuss factors that enabled a monarch to “ annotate, ” or add notes to or explain, his right to the French throne. Nothing in the text suggests that the monarchs were writing notes about their right to the throne; instead, faced with questions about the legitimacy of their reign, the monarchs defended their right. Choice D is incorrect. Saying that a monarch who is faced with questions about the legitimacy of his reign was able to “reciprocate” his right to the French throne would mean that he either returned his right to the throne or that he responded in kind to the challenge. Neither of these meanings would make sense in context because the text focuses on people who did reign as French monarchs and defended their right to do so."
+  },
+  {
+    "id": 26,
+    "question": "Question Text corpora such as the Bank of English are enormous collections of electronically stored texts that can be used for empirical testing of hypotheses regarding the frequency of typical word usage. If one has a ______ that the word “ get” has a high incidence in English, for example, an analysis of a corpus can suppor t that hypothesis by showing that “ get” is the fifth most commonly used verb. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "recognition",
+      "B": "scheme",
+      "C": "supposition",
+      "D": "synopsis"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of testing hypotheses regarding usage by means of text corpora. In this context, \"supposition\" refers to an assumption or hypothesis that is not yet proven. The text explains that text corpora can be used for \"empirical testing of hypotheses regarding the frequency of typical word usage\" and then provides a specific example of using corpus analysis to suppor t a claim about the word \"get.\" The word \"supposition\" precisely conveys this idea of an assumption or hypothesis about word frequency that can then be tested against empirical data. Choice A is incorrect because it wouldn ’t make sense to say that someone has a \"recognition \" that the word \"get\" has a high incidence in English. Recognition implies acknowledging something already established as true or valid, but the text indicates that corpus analysis is needed to suppor t the claim about \"get,\" suggesting its high frequency wasn ’t already established or previously known. Choice B is incorrect because it wouldn ’t make sense to say that someone has a \"scheme\" that the word \"get\" has a high incidence in English. A scheme is a plan or systematic arrangement, but the context indicates what’ s needed is a preliminary hypothesis that can be tested with corpus data, not a plan related to word frequency. Choice D is incorrect because it wouldn ’t make sense to say that someone has a \"synopsis\" that the word \"get\" has a high incidence in English. A synopsis is a summary or outline, but the text is discussing an initial hypothesis about word frequency that requires testing, not a condensed statement of existing information."
+  },
+  {
+    "id": 27,
+    "question": "Question Critics have asser ted that fine ar t and fashion rar ely ______ in a world where ar tists create timeless works for exhibition and designers periodically produce new styles for the public to buy. Luise o/Shoshone-Bannock beadwork ar tist and designer Jamie Okuma challenges this view: her work can be seen in the Metropolitan Museum of Ar t and purchased through her online boutique. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "prevail",
+      "B": "succumb",
+      "C": "diverge",
+      "D": "intersect"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion about the relationship between fine ar t and fashion. As used in this context, “intersect” means to connect or overlap. The text indicates that Jamie Okuma challenges the position held by critics because her work can be seen at an ar t museum and can be bought by the public from her online boutique. The text also presents the critics’ view as being influenced by a perception that fine ar tists create works that are “timeless” and meant for exhibition, whereas fashion designers periodically produce new styles that are meant for purchase. This context suggests that the critics believe that fine ar t and fashion tend not to overlap—in other words, that they rarely intersect. Choice A is incorrect because it wouldn ’t make sense in context to say that critics contend that fine ar t and fashion rarely “ prevail, ” or prove to be triumphant or widespread. The text indicates that Okuma is an example of an ar tist who demonstrates that it’ s possible to make fine ar t that is also available to the public as fashion. Choice B is incorrect because it wouldn ’t make sense in context to say that fine ar t and fashion rarely “ succumb, ” or surrender. The text establishes that unlike what critics believe, Okuma creates works that are in ar t museums and available for the public to purchase, suggesting that critics believe fine ar t and fashion rarely overlap, not that they rarely succumb. Choice C is incorrect because saying that critics believe that fine ar t and fashion rarely “ diverge, ” or disagree or move in different directions, wouldn ’t make sense in context. The text presents Okuma ’ s work as both fine ar t and fashion, thereby undermining what the critics asser t. This suggests that the critics believe that fine ar t and fashion rarely intersect rather than that the two rarely diverge."
+  },
+  {
+    "id": 28,
+    "question": "Question The work of Kiowa painter T.C. Cannon derives its power in par t from the tension among his ______ influences: classic European por traiture, with its realistic treatment of faces; the American pop ar t movement, with its vivid colors; and flatstyle, the inter tribal painting style that rejects the effect of depth typically achieved through shading and perspective. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "complementary",
+      "B": "unknown",
+      "C": "disparate",
+      "D": "interchangeable"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of the ar tistic styles that have influenced Cannon ’ s work. As used in this context, “ disparate” means distinct or dissimilar. The text indicates that a tension exists among the styles that have influenced Cannon ’ s work and goes on to describe how those styles differ: classic European por traiture favors realism, American pop ar t uses vivid colors, and inter tribal flatstyle rejects the use of shading and perspective to achieve depth. This context suggests that the styles that have influenced Cannon ’ s work are disparate. Choice A is incorrect because the text indicates that there is a tension among the influences on Cannon ’ s ar twork, so it wouldn ’t make sense to say that the influences are “ complementary, ” or that they complete one another or make up for one another’ s deficiencies. Choice B is incorrect because it wouldn ’t make sense to characterize Cannon ’ s influences as “unknown, ” or not familiar; it’ s clear that the influences are known because the text goes on to list them. Choice D is incorrect because the text indicates that there is a tension among the influences on Cannon ’ s work, not that they are “interchangeable, ” or capable of being used in one another’ s place."
+  },
+  {
+    "id": 29,
+    "question": "Question Though copies of The Adventures of Indiana Jones in Wenceslas Square in Prague on January 16, 1989—an underground computer game that was created anonymously in 1989 as an act of political protest against the authoritarian regime of what was then Czechoslovakia—were originally distributed ______, the game is now readily available online for anyone to play. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "succinctly",
+      "B": "dispassionately",
+      "C": "disingenuously",
+      "D": "surreptitiously"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of how The Adventures of Indiana Jones in Wenceslas Square in Prague on January 16, 1989 was originally distributed. In this context, “ surreptitiously” means in a secret manner. The text describes the game as being underground and created anonymously as a way to oppose the regime of what was then Czechoslovakia. The text goes on to contrast the game ’ s original distribution with its current broader availability. This context suppor ts the idea that copies were originally distributed surreptitiously—that is, secretly, as would be necessary for an act of protest against an authoritarian regime. Choice A is incorrect because saying that copies of the game were originally distributed “ succinctly, ” or in a brief and concise manner, wouldn ’t make sense in this context. “Succinctly” describes the manner in which something is expressed, not the manner in which physical copies of a game are circulated. Choice B is incorrect because saying that copies of the game were originally distributed “ dispassionately, ” or without emotion, wouldn ’t make sense in this context. The text describes the game as an act of political protest, suggesting that its creation and distribution were motivated by strong feelings about the then Czechoslovakian regime. Moreover, the text establishes the contrast between secretive distribution and open availability, not between emotional and unemotional distribution. Choice C is incorrect because saying that copies of the game were originally distributed “ disingenuously, ” or in an insincere manner, wouldn ’t make sense in this context. The text characterizes the game as a sincere act of political protest, and the contrast the text sets up concerns secrecy (“underground” and “ anonymously”) versus openness (“readily available”)."
+  },
+  {
+    "id": 30,
+    "question": "Question New and interesting research conducted by Suleiman A. Al-Sweedan and Moath Alhaj is inspired by their observation that though there have been many studies of the effect of high altitude on blood chemistry, there is a ______ studies of the effect on blood chemistry of living in locations below sea level, such as the California t owns of Salton City and Seeley. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "quarrel about",
+      "B": "paucity of",
+      "C": "profusion of",
+      "D": "verisimilitude in"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically and precisely completes the text’ s discussion of studies of altitude ’ s effect on blood chemistry. In this context, “ paucity of” means lack of. In describing the inspiration behind Al-Sweedan and Alhaj’ s research, the text uses the word “though ” to suggest a contrasting relationship between two types of studies: those examining the effect on blood chemistry of living at a high altitude and those examining the effect on blood chemistry of living in locations below sea level. This contrasting relationship and the text’ s use of the word “ many” provide context suggesting that there are few, if any, examples of the second type of study, whereas there are numerous examples of the first type. Choice A is incorrect because it wouldn ’t make sense in context for there to be a “ quarrel about, ” or open disagreement about, studies of the effect on blood chemistry of living in locations below sea level. The text’ s use of the words “though ” and “ many” suggests a contrasting relationship in terms of amount between two types of studies: those examining the effect on blood chemistry of living at a high altitude and those examining the effect on blood chemistry of living in locations below sea level. There ’ s nothing in the text to suggest that the contrast between the two types of studies involves the extent to which researchers broadly agree or disagree about the contents of either type. Choice C is incorrect because it wouldn ’t make sense in context for there to be a “ profusion of, ” or great abundance of, studies of the effect on blood chemistry of living in locations below sea level. The text’ s use of the words “though ” and “ many” suggests a contrasting relationship in terms of amount between two types of studies: those examining the effect on blood chemistry of living at a high altitude and those examining the effect on blood chemistry of living in locations below sea level. Rather than logically completing this contr ast, “ profusion of” would indicate that the two types of studies are similar in terms of amount, with many examples existing of both types. Choice D is incorrect because it wouldn ’t make sense in context for there to be a “verisimilitude in, ” or appearance of truth in, studies of the effect on blood chemistry of living in locations below sea level. The text’ s use of the words “though ” and “ many” suggests a contrasting relationship in terms of amount between two types of studies: those examining the effect on blood chemistry of living at a high altitude and those examining the eff ect on blood chemistry of living in locations below sea level. There ’ s nothing in the text to suggest that the contrast between the two types of studies involves the extent to which either type of study presents an appearance of truth."
+  },
+  {
+    "id": 31,
+    "question": "Question Stephen Hannock’ s luminous landscape paintings are appealing to viewers but have elicited little commentary from contemporary critics, a phenomenon that may be due to the very fact that the paintings seem so ______. Many critics focus their attention on ar t that is cryptic or over tly challenging. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "innovative",
+      "B": "subversive",
+      "C": "profound",
+      "D": "accessible"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. When talking about a thing, “ accessible” means “ easy to understand. ” This sets up the contrast in the next sentence, which tells us that critics mostly focus on ar t that is “ cryptic or challenging” (meaning not easy to understand). Choice A is incorrect. This doesn ’t fit the logic of the text. The next sentence tells us that critics focus on ar t that is mysterious and challenging. If Hannock’ s paintings are “innovative” (meaning advanced and original), then critics probably would comment on them. Choice B is incorrect. This doesn ’t fit the logic of the text. The next sentence tells us that critics focus on ar t that is mysterious and challenging. If Hannock’ s paintings are “ subversive” (meaning disruptive and revolutionary), then critics probably would comment on them. Choice C is incorrect. This doesn ’t fit the logic of the text. The next sentence tells us that critics focus on ar t that is mysterious and challenging. If Hannock’ s paintings are “ profound” (meaning very deep and insightful), then critics pr obably would comment on them."
+  },
+  {
+    "id": 32,
+    "question": "Question Archaeologists have identified a plethora of beads fashioned from Tritia gibbosula shells in many Middle Stone Age (MSA) sites across western Nor th Africa, including El Mnasra Cave, Morocco. In a 2021 paper, El Mehdi Sehasseh et al. attribute these ar tifacts’ apparent ______ to the evolution and propagation of symbolic behavior (e.g., use of personal ornaments) in humans and the widespread availability of T. gibbosula during the MSA. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "heterogeneity",
+      "B": "ubiquity",
+      "C": "expediency",
+      "D": "fecundity"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of beads found in Middle Stone Age sites. In this context, “ubiquity” means widespread presence or commonness. The text states that archaeologists have encountered “ a plethora, ” or an abundance, of beads made from Tritia gibbosula shells “in many Middle Stone Age (MSA) sites across western Nor th Africa. ” In this context, the abundance of beads therefore suggests their ubiquity. Choice A is incorrect because in this context, “heterogeneity” would mean variety or diversity among the beads. The text doesn ’t suggest that the beads varied significantly from one another; rather , it focuses on their widespread presence across multiple sites. Moreover, the text mentions that all the beads were “fashioned from Tritia gibbosula shells, ” suggesting consistency rather than heterogeneity. Choice C is incorrect because the text doesn ’t emphasize the beads’ “ expediency, ” or convenience or practicality. The text doesn ’t suppor t the idea of convenience (there ’ s no indication, for example, that the beads were easy t o use or make) but rather focuses on the beads’ abundant presence at MSA sites. Choice D is incorrect. While “fecundity” can suggest abundant production, it specifically r efers to fer tility, and the text doesn ’t connect the beads to this theme. Instead, the text attributes their widespread presence to the development of symbolic behavior in humans and the natural availability of Tritia gibbosula during the MSA."
+  },
+  {
+    "id": 33,
+    "question": "Question Containing over 160 billion base pairs of DNA resulting from polyploidy (whole genome duplication) and accumulation of noncoding DNA without significant deletion, the genome of Tmesipteris oblanceolata (New Caledonian fork fern) is the largest known among eukaryotes—and, given the high biological costs of extremely large genomes, is unlikely to be ______. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "protracted",
+      "B": "superseded",
+      "C": "cur tailed",
+      "D": "obviated"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of the fork fern ’ s enormous genome. In this context, \"superseded\" means surpassed or exceeded by something else. The text establishes that this plant has \"the largest known\" genome among eukaryotes and mentions \"the high biological costs of extremely large genomes,\" suggesting there are natural constraints that make it biologically disadvantageous to maintain such massive genetic material. This context suppor ts the idea that it’ s unlikely another organism will evolve an even larger genome that would replace this plant’ s record—that is, its status as having the largest genome is unlikely to be superseded. Choice A is incorrect because in this context, \"protracted\" would mean drawn out over time or space, and the text focuses on the record size of the New Caledonian fork fern ’ s genome and the fact that extremely large genomes carry \"high biological costs.\" This information suggests that the biological upper limit for genome size may have been reached and that the New Caledonian fork fern ’ s genome is therefore unlikely to be surpassed, or superseded, not that it’ s unlikely to be protracted. Choice C is incorrect because in this context, \"cur tailed\" would mean cut shor t or reduced, and the text focuses on the record size of the New Caledonian fork fern ’ s genome and the fact that extremely large genomes carry \"high biological costs.\" This information suggests that the biological upper limit for genome size may have been reached and that the New Caledonian fork fern ’ s genome is therefore unlikely to be surpassed, or superseded, not that it’ s unlikely to be cur tailed. Choice D is incorrect because in this context, \"obviated\" would mean made unnecessary or redundant, and the text focuses on the record size of the New Caledonian fork fern ’ s genome and the fact that extremely large genomes carry \"high biological costs.\" This information suggests that the biological upper limit for genome size may have been reached and that the New Caledonian fork fern ’ s genome is therefore unlikely to be surpassed, or superseded, not that it’ s unlikely to be obviated."
+  },
+  {
+    "id": 34,
+    "question": "Question It is by no means ______ to recognize the influence of Dutch painter Hieronymus Bosch on Ali Banisadr’ s paintings; indeed, Banisadr himself cites Bosch as an inspiration. However, some scholars have suggested that the ancient Mesopotamian poem Epic of Gilgamesh may have had a far greater impact on Banisadr’ s work. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "substantial",
+      "B": "satisfying",
+      "C": "unimpor tant",
+      "D": "appropriate"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the sentence about the influences on Banisadr’ s work. In context, “It is by no means” followed by “unimpor tant” conveys how it is relevant to recognize Bosch ’ s influence on Banisadr. The text points out that the ar tist himself cites Bosch as an inspiration, and then goes on to claim that The Epic of Gilgamesh has had a more significant influence than Bosch. Choice A is incorrect because “ substantial, ” which means weighty or meaningful, incorrectly suggests that it wouldn ’t be meaningful to acknowledge Bosch ’ s influence on Banisadr. The phrase “indeed, Banisadr himself cites Bosch as an inspiration ” doesn ’t suppor t this suggestion. Choice B is incorrect because “ satisfying, ” which means pleasing, incorrectly suggests that it wouldn ’t be pleasing to acknowledge Bosch ’ s influence on Banisadr. The phrase “indeed, Banisadr himself cites Bosch as an inspiration ” doesn ’t suppor t this suggestion. Choice D is incorrect because “ appropriate, ” which means suitable, incorrectly suggests that it wouldn ’t be proper to acknowledge Bosch ’ s influence on Banisadr. The phrase “indeed, Banisadr himself cites Bosch as an inspiration ” doesn ’t suppor t this suggestion."
+  },
+  {
+    "id": 35,
+    "question": "Question As discussed by scholar Anna Mladentseva, many ar tworks produced in the mid-1990s to the early 2000s exclusively for exhibition on the internet, such as Sinae Kim ’ s Genesis (2001), have become inaccessible because viewing them requires the use of ______ software (most notably Adobe Flash, discontinued in 2021). Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "defunct",
+      "B": "arcane",
+      "C": "ubiquitous",
+      "D": "extraneous"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of ar tworks that were produced for exhibition on the internet. In this context, \"defunct\" means no longer existing or functioning. According to the text, many ar tworks that were produced in the mid- 1990s to the early 2000s for exhibition on the internet have become inaccessible due to their reliance on cer tain software. As an example, the text cites Sinae Kim ’ s Genesis, which relied on software that was discontinued in 2021. This context suppor ts the idea that the software is defunct. Choice B is incorrect because the text indicates that viewing ar tworks produced in the mid-1990s to the early 2000s for exhibition on the internet requires the use of software. Ar tists generally want their works to be seen by many people, so it wouldn ’t make sense for creators of internet ar t to require the use of software that is \"arcane,\" or known or knowable to only a few people. Moreover, the text states that a prominent example of software used to view these ar tworks is Adobe Flash, which was discontinued in 2021, meaning it’ s now defunct. Choice C is incorrect because \"ubiquitous\" would mean found everywhere, which wouldn ’t make sense in this context. The text indicates that the reason why many ar tworks that were produced in the mid-1990s to the early 2000s for exhibition on the internet have become inaccessible has to do with the software required for viewing them. According to the text, one example of such software is Adobe Flash, which was discontinued in 2021, meaning it’ s now defunct. Choice D is incorrect because nothing in the text suggests that the software used to view ar tworks produced in the mid-1990s to the early 2000s for exhibition on the internet is \" extraneous,\" or irrelevant. Instead, the text indicates that use of specific software is required to view cer tain ar tworks from this period and that the discontinuation of the software renders the works inaccessible."
+  },
+  {
+    "id": 36,
+    "question": "Question In 1891, design ar tist William Morris cofounded the Kelmscott Press, which printed editions of books using preindustrial methods. Historians argue that Morris’ s repudiation of industrialization is ______ the Kelmscott editions’ use of handmade materials and intricate ornamentation reminiscent of medieval manuscripts: these meticulously handcrafted elements exemplify the ar tistry involved. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "insensible to",
+      "B": "manifest in",
+      "C": "scrutinized by",
+      "D": "complicated by"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of the Kelmscott Press’ s books. In this context, \"manifest in\" means evident or apparent from. The text states that the Kelmscott Press, which was cofounded by William Morris, produced its books using preindustrial methods. The text notes the similarity between those methods, which include the use of handmade materials and intricate ornamentation, and methods used in the creation of medieval manuscripts. This context suggests that Morris’ s repudiation of industrialization is apparent from, or manifest in, the methods and materials his company employed. Choice A is incorrect because there is nothing in the text to suggest that Morris’ s repudiation of industrialization is \"insensible t o,\" or unaware of or lacking perception of, the use of handmade materials and intricate ornamentation in the production of the Kelmscott editions. Instead, the text suggests that the methods and materials used to produce the Kelmscott editions are evidence of Morris’ s repudiation of industrialization. Choice C is incorrect because it would not make sense to say that Morris’ s repudiation of industrialization was \"scrutinized by,\" or examined closely by, the Kelmscott editions’ use of handmade materials and intricate ornamentation. Although creating the Kelmscott editions may have involved examining the books closely, the text does not mention this aspect of Morris’ s work, and in any case, the action of using cer tain materials to create those editions cannot scrutinize Morris’ s attitude toward industrialization. Choice D is incorrect because the text gives no indication that Morris’ s repudiation of industrialization is \"complicated by,\" or made more complex or difficult by, the Kelmscott Press’ s use of preindustrial methods and handcrafted elements to produce books. Instead, the text presents those methods as exemplifying Morris’ s repudiation of industrialization."
+  },
+  {
+    "id": 37,
+    "question": "Question Scholarly discussions of gender in Shakespeare ’ s comedies often celebrate the rebellion of the playwright’ s characters against the rigid expectations ______ by Elizabethan society. Most of the comedies end in marriage, with characters returning to their socially dictated gender roles after previously defying them, but there are some notable exceptions. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "interjected",
+      "B": "committed",
+      "C": "illustrated",
+      "D": "prescribed"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of gender roles in Shakespeare ’ s comedies. As used in this context, “ prescribed” would mean laid down as rules. The text indicates that the characters in the comedies often defy gender roles that are “ socially dictated” (even if most characters do return to those roles eventually) and that scholars have been very interested in these acts of defiance. This context indicates that what the char acters are rebelling against are standards of behavior prescribed by the society of the time. Choice A is incorrect because saying that expectations about gender were “interjected, ” or suddenly inser ted between other things, wouldn ’t make sense in context. There ’ s no suggestion in the text that the issue of gender roles was inser ted between other things or was an interruption in a larger discussion. Choice B is incorrect because the text indicates that Shakespeare depicts characters rebelling against expectations about gender that have been “ socially dictated, ” not expectations that society has “ committed, ” or carried out, entrusted, or promised. Choice C is incorrect because the text indicates that Shakespeare depicts characters rebelling against expectations about gender that have been “ socially dictated, ” not expectations that have been “illustrated, ” or clarified with examples. Although it’ s possible for expectations about gender roles to be illustrated, there ’ s nothing in the text to indicate that characters in Shakespeare ’ s comedies rebel against illustrations of gender expectations."
+  },
+  {
+    "id": 38,
+    "question": "Question Despite how ______ they may seem on first glance, the works of the philosopher Georg Hegel have proven to be quite influential. Readers who manage to penetrate Hegel’ s frustratingly dense prose often find that his thrillingly original and profound ideas wind up shaping their own thinking. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "authoritative",
+      "B": "opaque",
+      "C": "empirical",
+      "D": "facile"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of Hegel’ s works. In this context, \"opaque\" means difficult to understand or unclear. The text creates a contrast between the initial impression given by Hegel’ s works and their influence and insight, noting that readers must \"penetrate Hegel’ s frustratingly dense prose\" to access his impor tant ideas. This context clearly establishes that Hegel’ s writing is initially challenging to comprehend, or opaque. Choice A is incorrect because \"authoritative\" means influential or clearly accurate. Hegel’ s works may be authoritative, but it wouldn ’t make logical sense in context to say that although his works seem authoritative, they have been influential. Instead, the text focuses on the fact that Hegel’ s works are challenging to read, but that working through the dense prose can be rewarding. Choice C is incorrect because referring to Hegel’ s works as \"empirical,\" which means factual or verifiable, would suggest that they are based on observation or experience rather than theory. The text, however, doesn ’t address this aspect of Hegel’ s philosophy. Instead, it focuses on the difficulty of understanding his writing. Choice D is incorrect because describing Hegel’ s works as \"facile,\" which means superficial or simplistic, would directly contradict the text’ s characterization of his writing as \"frustratingly dense\" and requiring effor t to understand."
+  },
+  {
+    "id": 39,
+    "question": "Question To entice study par ticipants, psychology researchers commonly offer a gift card or other compensation. However, this practice may undercut the applicability of the study’ s results: people who join a study in response to ______ may differ in impor tant ways from a representative sample of the population of interest. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "a propensity",
+      "B": "an inducement",
+      "C": "a paradigm",
+      "D": "an appeasement"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of how compensation in psychology studies may affect the applicability of results. In this context, “ an inducement” means a reward offered to encourage a person to take a par ticular action. The text indicates that psychology researchers commonly offer rewards such as gift cards to encourage people to par ticipate in their studies, potentially rendering the par ticipant pool unrepresentative of the target population. This context suppor ts the idea that par ticipants are joining studies in response to an inducement. Choice A is incorrect. While par ticipants might join a study in response to “ a propensity, ” or a natural inclination, to do so, the text isn ’t focused on par ticipants’ predispositions. Rather, the text is concerned with the external rewards that researchers offer to attract par ticipants. Choice C is incorrect because saying that par ticipants join studies in response to “ a paradigm, ” or a typical model or framework, wouldn ’t make sense in context. The text doesn ’t address any such framework. Instead, it focuses on tangible rewards that researchers offer to attract study par ticipants. Choice D is incorrect because saying that par ticipants join a study in response to “ an appeasement, ” or a concession made to pacify a person, wouldn ’t make sense in context. The text describes researchers offering gift cards and other forms of compensation to attract willing study par ticipants, not to address anyone ’ s grievance or dissatisfaction."
+  },
+  {
+    "id": 40,
+    "question": "Question Given that the conditions in binary star systems should make planetary formation nearly impossible, it’ s not surprising that the existence of planets in such systems has lacked ______ explanation. Roman Rafikov and Kedron Silsbee shed light on the subject when they used modeling to determine a complex set of factors that could suppor t planets’ development. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "a discernible",
+      "B": "a straightforward",
+      "C": "an inconclusive",
+      "D": "an unbiased"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s description of effor ts to explain the existence of planets in binary star systems. As used in this context, describing an explanation as “ a straightforward” one would mean that the explanation is direct and uncomplicated. The text asser ts that since it should be “ nearly impossible” for planets to form in binary star systems, it’ s “ not surprising” that there isn ’t a straightforward explanation for the existence of planets in such systems; the fact that one potential approach involves “ complex” factors offers fur ther contextual suppor t for this idea. Choice A is incorrect because it would not make sense in context to say that there isn ’t “ a discernible” explanation—meaning an explanation capable of being perceived—for the existence of planets in binary star systems. The text discusses just such an explanation offer ed by Roman Rafikov and Kedron Silsbee, which indicates that their explanation can be discerned. Choice C is incorrect because the text emphasizes how difficult it is to explain the existence of planets in binary star systems, suggesting that the situation isn ’t marked by the lack of “ an inconclusive” explanation—an explanation that does not resolve the issue—but rather that if any explanations have been offer ed, they’ve likely been inconclusive ones. Choice D is incorrect because nothing in the text suggests that there is a lack of “ an unbiased, ” or impar tial and unprejudiced, explanation for the existence of planets in binary star systems. The text indicates that it’ s difficult to explain the existence of planets in such systems and it describes one attempt to do so, but there is no evidence that explanations from Roman Rafikov and Kedron Silsbee or others are biased."
+  },
+  {
+    "id": 41,
+    "question": "Question For her 2021 ar t installation Anthem, Wu Tsang joined forces with singer and composer Beverly Glenn-Copeland to produce a piece that critics found truly ______: they praised Tsang for creatively transforming a museum rotunda into a dynamic exhibit by projecting filmed images of Glenn- Copeland onto a massive 84-foot cur tain and filling the space with the sounds of his and other voices singing. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "restrained",
+      "B": "inventive",
+      "C": "inexplicable",
+      "D": "mystifying"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of the ar t installation Anthem. In this context, “inventive” means characterized by invention and creativity. The text explains that critics’ responses to the installation involved praise for Tsang’ s creative transformation of a space into a dynamic exhibit with huge images and lots of sound. This context conveys that the critics found the piece par ticularly creative. Choice A is incorrect because the text indicates that critics praised the installation for being dynamic and including huge images and lots of sound, and it wouldn ’t make sense to describe such an exhibit as “restrained, ” or limited and not extravagant or showy. Choice C is incorrect because it wouldn ’t make sense to say that critics found the installation “inexplicable, ” or incapable of being explained or interpreted, since the critics were able to explain their praise for the installation ’ s transformation of a space with huge images and lots of sound. Choice D is incorrect because the text focuses on the idea that critics praised Tsang for creatively transforming a space into a dynamic exhibit, not that they found the installation “ mystifying, ” or bewildering and hard to understand. Nothing in the text suggests that the critics couldn ’t understand the piece."
+  },
+  {
+    "id": 42,
+    "question": "Question Despite stated claims of global relevance, much major research on income inequality performed in the 2010s suffered from a myopic focus on a few countries in Nor th America and Western Europe, par tly due to limited data availability. Researchers would later ______ this shor tcoming after gaining new access to banking records located in nations in Africa, such as Tunisia, and Eastern Europe, such as Hungary. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "presuppose",
+      "B": "categorize",
+      "C": "mitigate",
+      "D": "validate"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of research on income inequality in the 2010s. In this context, \"mitigate\" means to make less severe or reduce the negative effects of something. The text first identifies a shor tcoming in the research: a \"myopic focus on a few countries\" despite claims of \"global relevance.\" The text then explains that researchers later gained access to new data from previously excluded regions (Africa and Eastern Europe). This context suppor ts the idea that with these new data, researchers would be able to reduce, or mitigate, the identified shor tcoming by incorporating a broader range of geographic regions into their studies of income inequality. Choice A is incorrect because in this context, \"presuppose\" would mean to assume in advance that something is true, and it wouldn ’t make logical sense to say that researchers later assumed as true in advance a shor tcoming they had already encountered. Choice B is incorrect because in this context, \"categorize\" would mean to classify or place into groups. The text indicates that researchers did something about the shor tcoming that characterized research on income inequality in the 2010s—limited geographic scope—after they gained access to new data from previously excluded regions. Categorizing a shor tcoming doesn ’t require access to or analysis of new data; it could be done without any new information, but by analyzing new data, researchers went beyond merely categorizing the shor tcoming and instead took action to address it. Choice D is incorrect because in this context, \"validate\" would mean to confirm or substantiate something. The text indicates that researchers did something about a known shor tcoming of research on income inequality in the 2010s—limited geographic scope—after they gained access to new data from previously excluded regions. Confirming an already known shor tcoming doesn ’t require access to or analysis of new data; it could be done without any new information, but by analyzing new data, researchers went beyond merely validating the shor tcoming and instead took action to make the shor tcoming less severe."
+  },
+  {
+    "id": 43,
+    "question": "Question The work of Tobias Gerstenberg et al. on tracking eye movements suppor ts a theory that people envision ______ scenarios when making causal judgments: when subjects were asked to look at two colliding billiard balls and judge whether one caused or prevented the other’ s movement through a gate, their eyes looked at where the target ball would have gone if the ball that altered its path did not exist. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "ambivalent",
+      "B": "retrospective",
+      "C": "counterfactual",
+      "D": "analogical"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of what people envision when making causal judgments, or judgments of cause and effect. In this context, “ counterfactual” means contrary to fact. The text explains that in an experiment in which subjects judged whether one billiard ball caused or prevented another billiard ball’ s movement through a gate, researchers found that the subjects looked at where the target ball would have gone if the other ball hadn ’t been there at all—that is, the subjects pictured the path the target ball would have taken in a scenario contrary to the one they actually saw. This would be an example of people envisioning counterfactual scenarios when considering causes and effects. Choice A is incorrect because it wouldn ’t make sense to describe scenarios people envision when making judgments of cause and effect as “ ambivalent, ” or characterized by conflicting feelings. People might have conflicting feelings in response to a scenario, but a scenario itself can ’t have feelings. Choice B is incorrect. In this context, “retrospective” would mean looking back at something that occurred in the past. The text indicates that when asked to make a judgment about the movement of the target billiard ball, subjects envisioned what would have happened if only one ball had been present—that is, the text indicates that they envisioned a scenario that hadn ’t actually happened, not that they examined only what had already actually happened. Choice D is incorrect. The text indicates that in an experiment involving the interaction of two billiard balls, eye movements showed that subjects pictured the path one ball would have taken if the other hadn ’t been present. Because the subjects were picturing a scenario in the same context (the movement of the target billiard ball), just with a different arrangement of details (only one ball present), this wouldn ’t be an example of people envisioning “ analogical” scenarios, or hypothetical scenarios that are comparable to the scenario in question despite having different contexts."
+  },
+  {
+    "id": 44,
+    "question": "Question Researcher Haesung Jung led a 2020 study showing that individual acts of kindness can ______ prosocial behavior across a larger group. Jung and her team found that bystanders who witness a helpful act become more likely to offer help to someone else, and in doing so, can inspire still others to act. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "require",
+      "B": "remember",
+      "C": "foster",
+      "D": "discourage"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of Jung and her team ’ s study of acts of kindness. In this context, “foster” means encourage or promote the development of. The text indicates that Jung and her team found that seeing a helpful (or prosocial) act makes a bystander more likely to help someone else, which can in turn inspire additional people to help others. That is, the team showed that single acts of kindness can foster additional prosocial acts across a group. Choice A is incorrect because nothing in the text suggests that Jung and her team found that single acts of kindness “require, ” or depend on or make obligatory, broader prosocial (or helpful) behavior across a group. There ’ s no suggestion in the text that individual acts of kindness can only occur if other prosocial acts have already occurred, and the text indicates only that an act of kindness can inspire additional helpful acts, not that it necessarily will do so. Choice B is incorrect because the text focuses on a possible direct effect of individual acts of kindness, or single helpful actions, and it wouldn ’t make sense to suggest that actions can “remember, ” or hold a memory of, something. Choice D is incorr ect because the text doesn ’t indicate that Jung and her team found that single acts of kindness can “ discourage, ” or hinder, prosocial (or helpful) behavior across a group. On the contrary, the text states that Jung and her team found that seeing a helpful act makes a bystander more likely to help someone else, which can in turn inspire even more people to help others."
+  },
+  {
+    "id": 45,
+    "question": "Question In the 2010s, the price of pop music cassette tapes from the 1980s and 1990s rose dramatically, which had the counterintuitive effect of ______ demand: buyers who hadn ’t previously wanted to purchase vintage cassettes thronged the market, believing prices would continue to rise and the tapes could be resold later at a profit. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "exploiting",
+      "B": "monetizing",
+      "C": "appraising",
+      "D": "engendering"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of how rising prices affected demand for vintage cassette tapes. In this context, \"engendering\" means producing or causing to exist. The text indicates that the effect of a dramatic increase in the price of vintage cassettes was counterintuitive, or contrary to what would typically be expected. Generally, when prices rise, demand falls—but the text indicates that in this case, buyers who previously had no interest in cassettes \"thronged the market\" (that is, many of them began purchasing cassettes) because they saw the cassettes as potential investments. This context conveys that the rising prices surprisingly produced significant demand, producing many new buyers for vintage cassettes. Choice A is incorrect because the text focuses on a rise in prices of vintage cassettes, and it wouldn ’t make sense to describe the price increase itself—rather than sellers of vintage cassettes—as \"exploiting,\" or unfairly or selfishly taking advantage of, demand. Fur ther, wanting to take advantage of new demand would be a motivation for a price increase, not a counterintuitive effect of it. Choice B is incorrect. In this context, \"monetizing\" would mean utilizing as a source of pr ofit, and it wouldn ’t make sense to describe a price increase itself, r ather than sellers of vintage cassettes, as using demand as a source of profit; moreover, seeking to profit when there ’ s new demand would be a reason for price increases, not a counterintuitive effect of them. Choice C is incorrect. In this context, \"appraising\" would mean assessing the value or significance of something. The text focuses on a rise in prices of vintage cassettes, and while it would be reasonable to suggest that sellers might have appraised demand for those cassettes, it wouldn ’t make sense to suggest that a price increase itself could do such an assessment; moreover, an appraisal of demand would most likely precede a price increase rather than be an effect of it."
+  },
+  {
+    "id": 46,
+    "question": "Question Some foraging models predict that the distance bees travel when foraging will decline as floral density increases, but biologists Shalene Jha and Claire Kremen showed that bees’ behavior is inconsistent with this prediction if flowers in dense patches are ______: bees will forage beyond patches of low species richness to acquire multiple resource types. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "depleted",
+      "B": "homogeneous",
+      "C": "immature",
+      "D": "dispersed"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of Jha and Kremen ’ s finding about bees’ foraging behavior. In this context, “homogeneous” means uniform or of the same kind. The text indicates that some models predict that the distance that bees travel when they’re foraging declines as the density of flowers incr eases. The text goes on to say, however, that Jha and Kremen identified a circumstance in which bees don ’t behave this way. Specifically, if bees encounter “ patches of low species richness”—that is, patches in which the flowers are largely from the same species—they’ ll travel beyond those patches to get varied food r esources. This context thus suggests that bees don ’t behave as some models predict if the dense patches of flowers the bees encounter are homogeneous. Choice A is incorrect because the text indicates that Jha and Kremen found that bees will behave differently than some models predict if the bees encounter flower patches that are not rich in species, not if the flowers are “ depleted, ” or emptied or reduced in quality or quantity. Although it could be true that bees are likely to leave depleted patches in search of more resources, the text doesn ’t indicate that Jha and Kremen investigated that possibility. Choice C is incorrect because there ’ s no information in the text suggesting that bees will not behave as some models predict if flowers in patches are “immature, ” or not fully developed. Instead, the text indicates that Jha and Kremen found that bees will behave contrary to some models’ predictions if the flower patches are not rich in species. Choice D is incorrect because the text indicates that bees’ behavior will be inconsistent with the predictions of some models if the flower patches that the bees encounter are of low species richness, not if the flowers are in patches that ar e “ dispersed, ” or widely scattered. Although the text does describe bees as leaving patches that are not rich in species to forage elsewhere, there ’ s no suggestion that Jha and Kremen found that the distance between dense flower patches affects whether the bees behave as some models predict."
+  },
+  {
+    "id": 47,
+    "question": "Question Diadromous fish migrate between freshwater and marine biomes during their life cycle. The migration ’ s obligate nature is why diadromous fish can be ______ those that are merely euryhaline (able to tolerate high salinity): the euryhaline blackchin tilapia can survive high salinity, but its life cycle does not involve relocation to a different biome, as does that of the diadromous wild salmon. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "demarcated from",
+      "B": "reconstituted as",
+      "C": "conflated with",
+      "D": "derived from"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of diadromous fish. In this context, \" demarcated from\" means separate or set apar t from. The text indicates that diadromous fish differ from euryhaline fish in that diadromous fish \"migrate between freshwater and marine biomes during their life,\" whereas euryhaline fish do not relocate to a different biome because they can tolerate higher salinity environments. Therefore, this context suggests that because of differences between their migr ation patterns, diadromous fish are distinct and can be demarcated from euryhaline fish. Choice B is incorrect. Although the text states that diadromous fish migrate and relocate, the text does not suggest that diadromous fish would be \"reconstituted as,\" or formed again as, anything new. Only their environments change and not the fish themselves. Choice C is incorrect because the text does not suggest that diadromous fish can be \"conflated with,\" or combined with, euryhaline fish. Instead, the text distinguishes the two types of fish by pointing out their differences with regard to migration and tolerance for salinity. Choice D is incorrect because the text indicates that based on migration habits and tolerance for salinity, diadromous fish are different from euryhaline fish; so it would not make logical sense to say that diadromous fish would be \"derived from,\" or be an extension of or result from, euryhaline fish."
+  },
+  {
+    "id": 48,
+    "question": "Question Some scientists have suggested that mammals in the Mesozoic era were not a very ______ group, but paleontologist Zhe-Xi Luo ’ s research suggests that early mammals living in the shadow of dinosaurs weren ’t all ground-dwelling insectivores. Fossils of various plant-eating mammals have been found in China, including species like Vilevolodon diplomylos, which Luo says could glide like a flying squirrel. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "predatory",
+      "B": "obscure",
+      "C": "diverse",
+      "D": "localized"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of the kinds of mammals alive during the Mesozoic era. As used in this context, “ diverse” means to have a significant amount of variety. The text indicates that some scientists have suggested that Mesozoic mammals can ’t be characterized in a cer tain way, then contrasts the view put forward by those scientists with Luo ’ s research, which shows that Mesozoic mammals “weren ’t all ground-dwelling insectivores” and instead were “various. ” This context suggests that some scientists have viewed Mesozoic mammals as being all alike, or not a very diverse group. Choice A is incorrect because it wouldn ’t make sense to say that some scientists have suggested that Mesozoic mammals weren ’t very “ predatory, ” or that they didn ’t prey on other animals, since the text establishes a contrast between what some scientists have suggested and Luo ’ s research showing that Mesozoic mammals “weren ’t all ground-dwelling insectivores. ” This context suggests that some scientists have regarded Mesozoic mammals as all being insectivores, or animals that prey on insects, not that some scientists have suggested that Mesozoic mammals didn ’t prey on other animals. Choice B is incorrect because it wouldn ’t make sense to say that some scientists have suggested that Mesozoic mammals weren ’t very “ obscure, ” or concealed or not well known, since the text establishes a contrast between what some scientists have suggested and Luo ’ s research showing that Mesozoic mammals were a varied group. There ’ s no contrast between saying that the mammals weren ’t concealed or well known and the mammals being varied. Choice D is incorrect because it wouldn ’t make sense to say that some scientists have suggested that Mesozoic mammals weren ’t very “localized, ” or confined to a par ticular area, since the text establishes a contrast between what some scientists have suggested and Luo ’ s research showing that Mesozoic mammals were a varied group. There ’ s no contrast between saying that the mammals weren ’t localized and the mammals being varied. Although the text mentions mammal fossils found in China, nothing in the discussion of Luo ’ s research addresses the limits of Mesozoic mammal habitats."
+  },
+  {
+    "id": 49,
+    "question": "Question In a 2020 paper, Arya Udry et al. cautioned that although similarities in the isotopic signatures of elements detected in Mars’ s atmosphere and in Mar tian meteorites recovered on Ear th make it tempting to treat the geochemical proper ties of the meteorites as ______ those of Mars’ s interiors, Mars’ s geology cannot be ascer tained based solely on meteorite-sample analyses. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "contrivances of",
+      "B": "proxies for",
+      "C": "catalysts of",
+      "D": "deterrents to"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of the relationship between Mar tian meteorites and Mars’ s interior geology. In this context, “ proxies for” means substitutes used to represent something else. The text describes Udry and colleagues as cautioning against a tempting line of reasoning: because the isotopic signatures (chemical fingerprints) of elements in Mars’ s atmosphere resemble those in Mar tian meteorites recovered on Ear th, researchers might be inclined to treat the meteorites’ geochemical proper ties as reasonably standing in for those of Mars’ s interiors. The text indicates that Udry and colleagues argue against this reasoning, noting that Mars’ s geology cannot be determined solely from meteorite analysis. This context conveys that it is tempting to treat the meteorites’ proper ties as proxies for those of Mars’ s interiors. Choice A is incorrect because “ contrivances of” would mean things ar tificially devised or produced by something, and it wouldn ’t make sense to say that it’ s tempting to treat the geochemical proper ties of meteorites as having been ar tificially produced by the planet the meteorites came from; it’ s not clear how a planet could fabricate such proper ties. Fur ther, the text is focused on the idea that it’ s tempting to treat the meteorites’ proper ties as standing in for those of Mars’ s interiors, which likely wouldn ’t be the case if the meteorite ’ s proper ties were considered ar tificial in any way. Choice C is incorrect because “ catalysts of” something are things that trigger or accelerate its change or action. The text focuses on the idea of analyzing samples of Mar tian meteorites found on Ear th to determine Mars’ s geology; this suggests that the temptation is to view the geochemical proper ties of the meteorites as direct evidence of those of Mars’ s interior, not to treat them as though they had caused changes in Mars’ s interior geology. Choice D is incorrect because “ deterrents to ” something would mean things that discourage or prevent it, and it wouldn ’t make sense to say that it’ s tempting to treat the geochemical proper ties of Mar tian meteorites as preventing the geochemical proper ties of Mars’ s interiors; the meteorites came from Mars and are no longer there, so their proper ties can ’t have any effect on those of the planet."
+  },
+  {
+    "id": 50,
+    "question": "Question Political blogs with conspicuous ideological alignments became an integral component of US media in the early 2000s. While some commentators lauded this development, asser ting that such blogs had a welcome transparency missing from traditional news, less ______ observers countered that such blogs tended to ideological extremes that exacerbated political polarization to problematic levels. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "sanguine",
+      "B": "recalcitrant",
+      "C": "misanthropic",
+      "D": "earnest"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of political blogs. In this context, \" sanguine\" means optimistic. The text begins by noting the rise of political blogs with readily identifiable ideological alignments in the early 2000s. The text then indicates that some commentators saw this as a positive development, citing a reason why (their differ ence from traditional news). Finally, the text goes on to contrast those commentators with others who have a negative opinion of the rise of political blogs (because they increase political polarization among their readers). This context suppor ts the idea that the second group of commentators is less positive than the first: thus, the second group of commentators is less optimistic, or sanguine. Choice B is incorrect because it would not make sense in this context to describe those commentators who have a negative opinion of political blogs as less \"recalcitrant,\" or obstinately uncooperative, than those commentators who suppor ted political blogs. Choice C is incorrect because the text gives no indication that those commentators who have a negative opinion of political blogs ar e less \"misanthropic,\" or less contemptuous of humankind, than those commentators who have a positive opinion of political blogs—there is no indication in the text that those commentators who like political blogs would be contemptuous of humankind at all. Choice D is incorrect because there is no evidence that those commentators who have a negative opinion of political blogs are less \"earnest,\" or sincere, than those who have a positive opinion of such blogs—presumably, both groups of commentators hold their beliefs with equal conviction."
+  },
+  {
+    "id": 51,
+    "question": "Question The familial structure of the black swan (Cygnus atratus) shows tremendous ______: breeding pairs with demonstrated success in rearing cygnets (young swans) have been observed to foster those of less successful pairs, and while rearing by female-male pairs is most common, male-male pairs sometimes rear cygnets too, achieving a significantly higher rate of survival to adulthood than female-male pairs. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "cohesion",
+      "B": "elasticity",
+      "C": "affection",
+      "D": "reciprocity"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of black swan familial structures. In this context, “ elasticity” means flexibility or adaptability. The text provides examples of flexible family arrangements among black swans: successful male- female breeding pairs are known to foster other pairs’ cygnets, and while they are less common, male-male pairs also successfully rear cygnets. This context therefore emphasizes the flexibility or elasticity of black swan familial structures, showing how this trait contributes to the success of the species. Choice A is incorrect. Although close family units may show “ cohesion, ” which refers to unity or harmony within a group, the text’ s focus is on the variety and adaptability of black swan family structures. The examples given—fostering other pairs’ cygnets and forming male-male as well as female-male pairs—highlight flexibility rather than cohesion, emphasizing family structures that vary from the model in which a breeding pair raises its own young. Choice C is incorrect. While “ affection, ” or fondness, might be present in black swan relationships, the text doesn ’t focus on emotional bonds but rather on the structural flexibility of black swan familial arrangements. The examples provided demonstrate adaptable breeding and rearing practices rather than affectionate behaviors. Choice D is incorrect because “reciprocity” would suggest mutual exchange or cooperation between par ties. Although the text mentions the fostering of cygnets by different successful breeding pairs, it doesn ’t establish that this is based on reciprocal exchanges. The focus is instead on the flexibility of family structures and the effectiveness of these varied structures in rearing young."
+  },
+  {
+    "id": 52,
+    "question": "Question According to a US tax policy exper t, state taxes ar e ______ other factors when considering an interstate move. Even significant differences in state taxation have almost no effect on most people ’ s decisions, while differences in employment oppor tunities, housing availability, and climate are strong influences. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "consistent with",
+      "B": "representative of",
+      "C": "overshadowed by",
+      "D": "irrelevant to"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of the factors that influence peoples’ decisions to move to a different state. As used in this context, “ overshadowed by” means to be surpassed by or caused to seem less impor tant than other factors affecting a move. The text indicates that, according to a US tax policy exper t, when people think about an interstate move, state taxes have little effect on their decisions, while employment oppor tunities, housing availability, and climate have a very strong effect. This context suggests that people consider these other factors to be more impor tant than state taxes. Choice A is incorrect because the text indicates that state taxes aren ’t as impor tant a consideration as other factors when people are thinking of moving to another state. The context doesn ’t suggest that state taxes are “ consistent with, ” or in agreement with these other factors. Choice B is incorrect because it wouldn ’t make sense in context to say that state taxes are “representative of, ” or typical of, other factors. Taxes aren ’t an example of employment oppor tunities, housing availability, and climate, which are the other factors listed in the text. Choice D is incorrect because it wouldn ’t make sense in context to say that state taxes are “irrelevant to, ” or unconnected or unimpor tant to other factors. State taxes are irrelevant to peoples’ decisions, not to other factors. In other words, although the text suggests that state taxes may be irrelevant to people considering a move to another state, the other fact ors mentioned in the text, such as employment oppor tunities, are unable to have an opinion about state taxes. Fur thermore, the text indicates that significant differences in state taxes have almost no effect on peoples’ choices to move, but they aren ’t completely unimpor tant."
+  },
+  {
+    "id": 53,
+    "question": "Question Players of online games are largely aware that the games collect their data, and they’re often willing to trade some privacy for a fun experience. But the games are often quite ______ about what data they collect and why. Because of this, data-privacy advocates are seeking to expand online players’ knowledge of data collection practices and improve their ability to navigate privacy-setting features in games. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "opaque",
+      "B": "abrasive",
+      "C": "ambivalent",
+      "D": "outspoken"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of how online games disclose information about their data collection practices. In this context, “ opaque” means that games deliberately avoid sharing clear information about data collection. The text indicates that data-privacy advocates are working t o “ expand online players’ knowledge of data collection practices” and improve players’ ability to navigate privacy settings. The fact that advocates are working to expand players’ knowledge about data collection and privacy settings implies that players currently lack clear information about these aspects of the games. This context therefore suppor ts the idea that online games are often quite unclear, or opaque, about what data they collect and why. Choice B is incorrect because describing online games as being “ abrasive, ” or harsh and irritating, about their data collection practices wouldn ’t make sense in context. The text focuses on the clarity of the information about data collection that games share with players, not on the tone or manner in which this information is communicated. Choice C is incorrect because describing the games as “ ambivalent, ” or having mixed feelings, about their data collection practices wouldn ’t make sense in context. The text isn ’t discussing the game companies’ attitudes toward their own practices; it’ s discussing the extent to which information about those practices is communicated to players. Choice D is incorrect because describing online games as “ outspoken, ” or frank and for thright, about their data collection practices would contradict the text. If the games were for thright about data collection, data-privacy advocates wouldn ’t need to work to expand players’ awareness of this aspect of gaming. Instead, the text emphasizes the challenge of obtaining clear information about data collection in online games."
+  },
+  {
+    "id": 54,
+    "question": "Question To demonstrate that the integrity of underground metal pipes can be assessed without unear thing the pipes, engineer Aroba Saleem and colleagues ______ the tendency of some metals’ internal magnetic fields to alter under stress: the team showed that such alterations can be measured from a distance and can reveal concentrations of stress in the pipes. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "hypothesized",
+      "B": "discounted",
+      "C": "redefined",
+      "D": "exploited"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of using magnetism to detect stress in buried metal pipes. In this context, \"exploited\" means made productive use of. The text indicates that the magnetic fields of some metals change under stress and that Saleem and colleagues showed that it is possible to measure those changes from a distance, thereby demonstrating that the integrity of underground metal pipes can be evaluated without having to unear th them. This context thus indicates that Saleem and colleagues made productive use of, or exploited, this tendency of the metals’ magnetic fields. Choice A is incorrect because in this context, \"hypothesized\" would mean made a tentative assumption t o be evaluated in a study or experiment. Although Saleem and colleagues may have had one or more hypotheses for these experiments, the text presents the information about the tendency of some metals’ magnetic fields to change under stress as a known fact that the researchers made productive use of, not as a hypothesis to be evaluated. The text after the colon indicates that the researchers were not evaluating whether such changes occur but whether those changes can be measured at a distance. Choice B is incorrect because in this context, \"discounted\" would mean downplayed or ignored, but the text does not suggest that Saleem and colleagues minimized or ignored the tendency of the magnetic fields of some metals to change under stress. Rather, the text indicates that this tendency is the basis for Saleem and colleagues’ method of assessing the pipes’ integrity. Choice C is incorrect because nothing in the text indicates that Saleem and colleagues \"redefined,\" or reevaluated or reformulated, the tendency of some metals’ magnetic fields to change under stress. Instead, the text indicates that the researchers made use of that tendency to demonstrate that it is possible to evaluate the integrity of underground pipes without unear thing them."
+  },
+  {
+    "id": 55,
+    "question": "Question In 2016, Gabriela González and team announced that a chirping sound captur ed by Laser Interferometer Gravitational-Wave Observatory antennas was direct evidence of gravitational waves, which skeptics had argued would be too faint for detection. Detailed statistical analysis helped preclude claims of the event’ s ______, confirming the signal at a confidence level of over 99%. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "inconspicuousness",
+      "B": "discretion",
+      "C": "ambiguity",
+      "D": "probability"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of Gabriela González and team ’ s detection of gravitational waves. In this context, \"ambiguity\" means uncer tainty or doubtfulness. The text explains that although skeptics had thought that direct evidence of gravitational waves would be too faint to be detected, researchers led by González claimed that a chirping sound captured by Laser Interferometer Gravitational-Wave Observatory antennas never theless provided such evidence. The text goes on to say that detailed statistical analysis confirmed the observation of gravitational waves with a high degree of confidence—that is, with near cer tainty—a finding that helped to preclude, or rule out, any claims that the signal’ s attribution to gravitational waves might be ambiguous or doubtful. Choice A is incorrect. In this context, \"inconspicuousness\" would mean the quality of being unnoticeable or difficult to detect. Although the text indicates that skeptics had doubted whether gravitational waves could be observed directly because of their presumed faintness (which suggests that gravitational waves were expected to be difficult to detect), the blank por tion of the text isn ’t referring to the possibility that gravitational waves are unnoticeable or undetectable. Instead, the focus of the last sentence is González’ s team ’ s observation of a chirping sound that they attributed to gravitational waves, and it wouldn ’t make sense to say that through statistical analysis, they ruled out the possibility that the sound they observed was undetectable. Rather, the skeptical view presented in the text suggests that there could be some ambiguity about the source of the chirping, but statistical analysis vir tually eliminated this uncer tainty. Choice B is incorrect because in this context, \"discretion\" would mean good judgment, and it wouldn ’t make sense to say that an event, such as the detection of gravitational waves, would show judgment, much less that the event’ s capacity to exercise good judgment would be precluded by statistical analysis confirming its attribution. Choice D is incorrect because in this context, \"probability\" would mean likelihood, and the text states that statistical analysis, which confirmed the signal with a high degree of confidence, suggests the likelihood that the chirping sound was produced by gravitational waves, not that the analysis helped to preclude this likelihood."
+  },
+  {
+    "id": 56,
+    "question": "Question The author’ s claim about the relationship between Neander thals and Homo sapiens is ______, as it fails to account for several recent archaeological discoveries. To be convincing, his argument would need to address recent finds of additional hominid fossils, such as the latest Denisovan specimens and Homo longi. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "disorienting",
+      "B": "tenuous",
+      "C": "nuanced",
+      "D": "unoriginal"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of the author’ s claim about the relationship between Neander thals and Homo sapiens. As used in this context, “tenuous” means lacking substance. The end of the first sentence states that the author’ s claim didn ’t consider cer tain key pieces of evidence—“recent archaeological discoveries”—and is therefore weak. Choice A is incorrect because it wouldn ’t make sense in context to refer to the author’ s claim as “ disorienting, ” or confusing. The text suggests that the author’ s claim is insubstantial, not that it’ s difficult to grasp. Choice C is incorrect because referring to the claim as “ nuanced, ” or subtle, wouldn ’t make sense in context. According to the text, the claim is incomplete because it didn ’t consider cer tain key information about recent archaeological finds; it doesn ’t suggest that what’ s in the claim lacks precision. Choice D is incorrect because saying that the claim is “unoriginal, ” or imitative, wouldn ’t make sense in context. The text faults the claim because it doesn ’t consider cer tain key information about recent archaeological finds; it doesn ’t suggest that the author’ s claim lacks originality."
+  },
+  {
+    "id": 57,
+    "question": "Question Within baleen whale species, some individuals develop an accessory spleen—a seemingly functionless formation of splenetic tissue outside the normal spleen. Given the formation ’ s greater prevalence among whales known to make deeper dives, some researchers hypothesize that its role isn ’t ______; rather, the accessory spleen may actively suppor t diving mechanisms. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "replicable",
+      "B": "predetermined",
+      "C": "operative",
+      "D": "latent"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of baleen whale accessory spleens. In this context, “latent” means dormant or functionless. The text sets up a contrast between the idea that baleen whale accessory spleens appear not to have a function and the research indicating that the accessory spleen may actually have a role in suppor ting the whales’ diving mechanisms. This context therefore conveys the idea that the assumption that baleen whale accessory spleens are latent may be incorrect. Choice A is incorrect because it wouldn ’t make sense to say that the role of the accessory spleen is “replicable, ” or capable of being reproduced. The text indicates that the role of the accessory spleen seems to have no function, but some researchers think it does have a role; the text doesn ’t address whether the role of the accessory spleen could or couldn ’t be reproduced. Choice B is incorrect because suggesting that the role of the accessory spleen is “ predetermined, ” or decided in advance, wouldn ’t make sense in context. Although the researchers may agree that the role of the accessory spleen or any other organ hasn ’t been determined in advance, the text focuses on the idea that the accessory spleen was thought to have been functionless but may in fact serve an active role for baleen whales. Choice C is incorrect because it’ s the opposite of what the context of the text is conveying. The second sentence of the text indicates that baleen whale accessory spleens may not be useless, not that they aren ’t “ operative, ” or functional."
+  },
+  {
+    "id": 58,
+    "question": "Question The province of Xoconochco was situated on the Pacific coast, hundreds of kilometers southeast of Tenochtitlan, the capital of the Aztec Empire. Because Xoconochco ’ s location within the empire was so ______, cacao and other trade goods produced there could reach the capital only after a long overland journey. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "unobtrusive",
+      "B": "concealed",
+      "C": "approximate",
+      "D": "peripheral"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’ s discussion of the location of the province of Xoconochco within the Aztec Empire. As used in this context, “ peripheral” means situated toward the outer bounds rather than the center. The text indicates that Xoconochco was located on a coast, hundreds of kilometers away from the capital of the Aztec Empire. The text also states that trade between the province and the capital required “ a long overland journey. ” This context suggests that Xoconochco was situated toward an edge of the empire ’ s territory rather than near its center. Choice A is incorrect because it wouldn ’t make sense in context to refer to Xoconochco ’ s location within the Aztec Empire as “unobtrusive, ” or not blatant or undesirably prominent; it’ s not clear how a province ’ s physical location would or wouldn ’t be blatant. Instead of focusing on how noticeable Xoconochco ’ s location was, the text emphasizes the province ’ s distance from the capital of the empire, pointing out that because of this distance trade between the two required “ a long overland journey. ” Choice B is incorrect because the text indicates that the province of Xoconochco was located on a coast far from the capital of the Aztec Empire, not that it was “ concealed, ” or kept out of sight or hidden from view. Nothing in the text suggests that Xoconochco was actually hidden such that people couldn ’t see it, and being hidden wouldn ’t necessarily result in trade between the province and the capital requiring “ a long overland journey. ” Choice C is incorrect because to say that Xoconochco ’ s location within the Aztec Empire was “ approximate” would mean that the location either wasn ’t precisely correct or was close to some other location. Neither of these meanings would make sense in context because the text indicates that Xoconochco ’ s location is known and that it was far from the empire ’ s capital, so there ’ s no reason to characterize the location as either not precisely correct or close to another location."
+  },
+  {
+    "id": 59,
+    "question": "Question K.D. Leka and colleagues found that the Sun ’ s corona provides an advance indication of solar flares—intense eruptions of electromagnetic radiation that emanate from active regions in the Sun ’ s photosphere and can interfere with telecommunications on Ear th. Preceding a flare, the corona temporarily exhibits increased brightness above the region where the flare is ______. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "antecedent",
+      "B": "impending",
+      "C": "innocuous",
+      "D": "perpetual"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’ s discussion of advance indications of solar flares. In this context the word \"impending\" means imminent or approaching. The text mentions a study by Leka and colleagues that found that the Sun ’ s corona provides an advance indication of solar flares. The text then points out why such an advance indication would be useful—solar flares can interfere with communications on Ear th—and concludes by describing the characteristic of the corona that gives warning of a solar flare. The text indicates that this characteristic—increased brightness in a par ticular region of the corona—comes before the appearance of the flare. Therefore, in context, the best answer would indicate that the flare is approaching, or impending. Choice A is incorrect. The best answer would be one that indicates that the increased brightness of the Sun ’ s corona precedes the appearance of the flare. But if the flare were \"antecedent,\" or previous, then the flare would instead precede the appearance of the increased brightness of the corona, a statement that is logically inconsistent. Choice C is incorrect. The word \"innocuous,\" or harmless, does not logically complete the text; since solar flares can interfere with communications on Ear th, they cannot reasonably be described as innocuous. Choice D is incorrect. If the solar flares have an advance indication of their appearance, then there must therefore be a time befor e the appearance of the flares when they do not exist. But the word \"perpetual,\" or never-ending, would in context indicate that the flare exists at the same time as the advance indication provided by the Sun ’ s corona, which would not make logical sense."
+  },
+  {
+    "id": 60,
+    "question": "Question A casual description of Scherezade Garc a ’ s 2019 mural Blame It on the Bean: The Power of Coffee can make the work seem ______—a painting that is housed in a coffee shop and that depicts three women drinking coffee may not sound par ticularly ambitious—but in fact the work is a complex, dynamic meditation on gender and the legacy of colonialism that demands serious attention. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "unassuming",
+      "B": "shrewd",
+      "C": "incongruous",
+      "D": "pretentious"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of Scherezade Garc a ’ s mural Blame It on the Bean: The Power of Coffee. In this context, “unassuming” means ordinary or unremarkable. The text draws a contrast between a “ casual description ” of the mural’ s ordinary location (a coffee shop) and subject matter (three women drinking coffee)—details that would make it seem relatively unambitious—and a characterization of the painting as a “ dynamic meditation ” on gender and colonialism deserving of “ serious attention. ” This context suggests that the mural has significant depth and complexity, but a superficial description of it might make the mural seem ordinary and unremarkable—that is, unassuming. Choice B is incorrect because in this context, “ shrewd” would mean clever or astute, and there ’ s nothing in the text to suggest that a casual yet misleading description that only mentions the appar ent simplicity of the mural’ s location and subject matter would make the mural seem par ticularly clever or astute. Though it’ s possible that the text’ s asser tion that the mural is a “ complex, dynamic meditation ” demanding “ serious attention ” might convey the idea that it’ s a par ticularly clever or astute—that is, shrewd—ar twork, the text wouldn ’t suggest that a casual description that fails to account for the work’ s complexity would likewise characterize the work as shrewd. Choice C is incorrect because in this context, “incongruous” would mean unsuitable for its surroundings or internally inconsistent. The “ casual description ” presented in the text indicates that the painting is housed in a coffee shop and depicts women drinking coffee, which would imply that the mural may in fact be well suited to its surroundings, not that it’ s ill suited to its location. Moreover, none of the details mentioned in this description would suggest that the painting contains internal inconsistencies of any kind. Choice D is incorrect because in this context, “ pretentious” would mean expressive of exaggerated impor tance, which wouldn ’t fit the contrast established in the text between a “ casual description ” of the painting and the work’ s deeper themes. Though the text argues that the painting is wor thy of “ serious attention, ” which would suggest its impor tance, the text doesn ’t suggest that the casual description would by contrast imply that the painting’ s impor tance is exaggerated. Rather, by merely mentioning the mural’ s relatively ordinary location and subject matter without reference to this complexity, the casual description conveys that the painting is more unassuming and understated than it actually is, not that it expresses an exaggerated self-impor tance."
+  },
+  {
+    "id": 61,
+    "question": "Question As an undergraduate researcher in anthropology, Jennifer C. Chen contributed to a groundbreaking study challenging the accepted view that among prehistoric peoples, female par ticipation in hunting was ______. The research team ’ s review of data from late Pleistocene and early Holocene burials in the Americas revealed that, in fact, as many as half of the hunters in those populations were female. Which choice completes the text with the most logical and precise word or phrase?",
+    "options": {
+      "A": "inevitable",
+      "B": "satisfactory",
+      "C": "negligible",
+      "D": "commonplace"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of the study of female par ticipation in hunting among prehistoric peoples. In this context, “ negligible” means not significant enough to be wor th considering. The text says that the study challenged the accepted view of female par ticipation in hunting among prehistoric peoples. The text goes on to say that the researchers found that “in fact, as many as half” the hunters in the groups studied were female. The phrase “in fact” establishes a contrast indicating that the finding that as many as half the hunters were female differs from the accepted view. This context suggests, then, that the accepted view is that female par ticipation in hunting was negligible. Choice A is incorrect because the text indicates that the study challenged the accepted view by showing that as many as half of hunters among prehistoric peoples were female, which suggests that the accepted view is that female par ticipation was low, not that female par ticipation was “inevitable, ” or unavoidable. Nothing in the text suggests that the accepted view is that prehistoric peoples could not avoid female par ticipation in hunting. Choice B is incorrect because nothing in the text suggests that the accepted view of female par ticipation in hunting among prehistoric peoples is that such par ticipation was “ satisfactory, ” or sufficient to meet a requirement or demand. There is no information in the text about any demands or requirements regarding female par ticipation in hunting, let alone any information about how much female par ticipation in hunting would be enough to satisfy those demands or requirements. Instead, the text indicates that the study challenged the accepted view by showing that as many as half the hunters in the groups studied were female, suggesting that the accepted view is that female par ticipation in hunting was low. Choice D is incorrect because the text indicates that the study challenged the accepted view by showing that as many as half of hunters among the prehistoric peoples studied were female, which suggests that the accepted view is that female par ticipation was low, not that female par ticipation was “ commonplace, ” or ordinary or unremarkable. Although the study under discussion suggests that female par ticipation may have been commonplace, that study is presented as challenging the accepted view, not as reinforcing the accepted view."
+  }
+]
+    ];
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        
+        // 📌 1. TỰ ĐỘNG TẠO HỘP NAVIGATOR CHỌN CÂU CỐ ĐỊNH GÓC PHẢI
+        createNavigatorBox();
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "80px";
+
+            let optionsHtml = '';
+            for (const [key, value] of Object.entries(data.options|| {})) {
+                optionsHtml += `
+                    <li>
+                        <label id="label-${data.id}-${key}">
+                            <input type="radio" name="question${data.id}" value="${key}">
+                            <strong>${key}.</strong> ${value}
+                        </label>
+                    </li>
+                `;
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <ul class="options">
+                    ${optionsHtml}
+                </ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        // Lắng nghe sự kiện chọn đáp án để lưu bản nháp & đổi màu Navigator
+        quizContainer.addEventListener('change', (e) => {
+            saveProgress();
+            updateNavigatorState();
+        });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+    }
+
+    // 🛠️ HÀM TẠO HỘP NAVIGATOR DẠNG LƯỚI
+    function createNavigatorBox() {
+        let oldBox = document.getElementById('quizNavBox');
+        if (oldBox) oldBox.remove();
+
+        const navBox = document.createElement('div');
+        navBox.id = 'quizNavBox';
+        navBox.style.cssText = `
+            position: fixed; top: 20px; right: 20px; width: 210px; max-height: 75vh;
+            background: #ffffff; border: 2px solid #3498db; border-radius: 10px; padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+
+        const title = document.createElement('div');
+        title.innerText = '📌 Danh Sách Câu Hỏi';
+        title.style.cssText = 'font-weight: bold; color: #2c3e50; font-size: 0.9em; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
+        navBox.appendChild(title);
+
+        const grid = document.createElement('div');
+        grid.style.cssText = 'display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;';
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 32px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+
+        navBox.appendChild(grid);
+        document.body.appendChild(navBox);
+    }
+
+    // 🔄 ĐỔI MÀU Ô NAVIGATOR KHI ĐÃ CHỌN CÂU HỎI
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn && selected) {
+                btn.style.background = '#2ecc71';
+                btn.style.color = '#ffffff';
+                btn.style.borderColor = '#27ae60';
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) {
+                userAnswers[data.id] = selectedOption.value;
+            }
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                // Làm lại từ đầu -> Đặt lại thời gian bắt đầu lượt làm mới
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value;
+                const correctAnswer = data.correctAnswer;
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('wrong-answer-label');
+                    document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'block';
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            
+            // 📊 2. LƯU DỮ LIỆU CHI TIẾT SANG DÀNH CHO ADMIN
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    // 📤 HÀM TỔNG HỢP & GỬI DỮ LIỆU KẾT QUẢ SANG TRANG ADMIN
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        // Bắn dữ liệu ra ngoài iframe nếu có
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        
+        // 🕒 ĐẶT LẠI MỐC THỜI GIAN BẮT ĐẦU CHO LẦN LÀM MỚI
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+                
+                for (const key of Object.keys(data.options)) {
+                    const lbl = document.getElementById(`label-${data.id}-${key}`);
+                    if (lbl) {
+                        lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                    }
+                }
+
+                // Đặt lại màu ô Navigator
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+</body>
+</html>
