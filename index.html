@@ -140,14 +140,15 @@
         "THUVINH":  { name: "Thu Vinh", role: "math_only" },
         "DINHANH":  { name: "Đình Anh", role: "full_student" },
         "TAMDI":    { name: "Tâm Di",   role: "full_student" },
-        "TRIAL":    { name: "Ốc",   role: "full_student" },
-        "6868": { name: "Admin",    role: "admin" }
+        "TRIAL":    { name: "Ốc",       role: "full_student" },
+        "6868":     { name: "Admin",    role: "admin" }
     };
 
     let selectedQuizUrl = "";
     let selectedQuizTitle = "";
     let timerInterval = null;
     let totalSeconds = 0;
+    let currentQuizMode = "practice"; // Biến lưu chế độ đang chọn
 
     function checkPasscode() {
         const code = document.getElementById('passcode').value.trim().toUpperCase();
@@ -200,15 +201,13 @@
     }
 
     function startQuizWithTimer() {
-        const mode = document.querySelector('input[name="quizMode"]:checked').value;
+        currentQuizMode = document.querySelector('input[name="quizMode"]:checked').value;
         clearInterval(timerInterval);
 
-        if (mode === 'practice') {
-            // Chế độ Luyện Tập: Không hiện đồng hồ đếm ngược
+        if (currentQuizMode === 'practice') {
             document.getElementById('timerLabel').innerText = "📖 Chế độ: Luyện tập (Tự do)";
             document.getElementById('timerText').innerText = "";
         } else {
-            // Chế độ Thi Thử: Hiện đếm ngược & Tự nộp khi 00:00
             const mins = parseInt(document.getElementById('timeLimitInput').value) || 35;
             totalSeconds = mins * 60;
             document.getElementById('timerLabel').innerText = "⏳ Thời gian thi còn lại: ";
@@ -219,10 +218,7 @@
                 if (totalSeconds <= 0) {
                     clearInterval(timerInterval);
                     alert("⏰ Hết giờ thi! Hệ thống sẽ tự động nộp bài.");
-                    try {
-                        const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
-                        iframeDoc.querySelector('button[onclick*="submit"]')?.click();
-                    } catch (e) {}
+                    forceSubmitQuiz();
                 }
                 updateTimerDisplay();
             }, 1000);
@@ -231,8 +227,66 @@
         document.getElementById('timerModal').style.display = 'none';
         document.getElementById('mainContent').classList.add('hidden');
         document.getElementById('quizTitleDisplay').innerText = `📝 ${selectedQuizTitle}`;
-        document.getElementById('quizIframe').src = selectedQuizUrl;
+        
+        const iframe = document.getElementById('quizIframe');
+        iframe.src = selectedQuizUrl;
+
+        // Lắng nghe nút Nộp bài bên trong iframe
+        iframe.onload = function() {
+            setupIframeSubmitInterceptor();
+        };
+
         document.getElementById('quizRunner').classList.remove('hidden');
+    }
+
+    // Hàm thiết lập chặn Nộp bài nếu chưa chọn đủ đáp án ở Chế Độ Thi Thử
+    function setupIframeSubmitInterceptor() {
+        try {
+            const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
+            const submitBtn = iframeDoc.querySelector('button[onclick*="submit"]');
+
+            if (submitBtn) {
+                // Đổi kiểu bắt sự kiện để kiểm tra điều kiện trước khi nộp
+                const originalOnClick = submitBtn.onclick;
+                submitBtn.onclick = null; // Gỡ sự kiện onclick cũ
+
+                submitBtn.addEventListener('click', function(e) {
+                    if (currentQuizMode === 'test') {
+                        const questionBlocks = iframeDoc.querySelectorAll('.question-block');
+                        let unansweredQuestions = [];
+
+                        questionBlocks.forEach((block, index) => {
+                            const checked = block.querySelector('input[type="radio"]:checked');
+                            if (!checked) {
+                                unansweredQuestions.push(index + 1);
+                            }
+                        });
+
+                        if (unansweredQuestions.length > 0) {
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                            alert(`⚠️ Chế độ Thi thử yêu cầu bạn làm hết tất cả các câu!\n\nBạn còn ${unansweredQuestions.length} câu chưa chọn đáp án: Câu ${unansweredQuestions.join(', ')}.`);
+                            return false;
+                        }
+                    }
+
+                    // Nếu làm hết bài hoặc ở chế độ Luyện tập => Tiến hành nộp bài
+                    if (typeof originalOnClick === 'function') {
+                        originalOnClick.call(this, e);
+                    }
+                });
+            }
+        } catch (err) {
+            console.log("Không thể truy cập iframe (khác origin hoặc bài làm chưa load xong).", err);
+        }
+    }
+
+    // Ép nộp bài khi hết giờ
+    function forceSubmitQuiz() {
+        try {
+            const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
+            iframeDoc.querySelector('button[onclick*="submit"]')?.click();
+        } catch (e) {}
     }
 
     function updateTimerDisplay() {
@@ -241,7 +295,7 @@
         const timerEl = document.getElementById('timerText');
         if (timerEl) {
             timerEl.innerText = `${mins}:${secs}`;
-            timerEl.style.color = (totalSeconds <= 300) ? '#e74c3c' : '#f1c40f'; // Đỏ khi dưới 5p
+            timerEl.style.color = (totalSeconds <= 300) ? '#e74c3c' : '#f1c40f';
         }
     }
 
