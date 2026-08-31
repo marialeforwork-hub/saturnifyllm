@@ -225,7 +225,7 @@
             questionBlock.style.scrollMarginTop = "80px";
 
             let optionsHtml = '';
-            for (const [key, value] of Object.entries(data.options)) {
+            for (const [key, value] of Object.entries(data.options|| {})) {
                 optionsHtml += `
                     <li>
                         <label id="label-${data.id}-${key}">
