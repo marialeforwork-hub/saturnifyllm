@@ -117,7 +117,7 @@
 <body>
 
 <div class="container">
-    <h1>Bài Kiểm Tra: Transitions</h1>
+    <h1>Đề SAT Math 8/2026</h1>
     <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
 </div>
@@ -268,7 +268,7 @@
         {id:419,text:"6,000 bacteria. 4 hrs later: 12,000. $P = C \\cdot 2^{t/r}$. Value of $r$?",type:"mcq",options:{A:"1/4",B:"1/4000",C:"6,000",D:"4"},answer:"D"}
     ];
 
-     const quizContainer = document.getElementById('quiz');
+  const quizContainer = document.getElementById('quiz');
     let currentScore = 0;
     let answeredCount = 0;
     const totalQuestions = quizData.length;
@@ -284,24 +284,38 @@
             questionBlock.id = `question-${data.id}`;
             questionBlock.dataset.locked = "false";
 
-            let optionsHtml = '';
-            for (const [key, value] of Object.entries(data.options)) {
-                optionsHtml += `
-                    <li>
-                        <label id="label-${data.id}-${key}">
-                            <input type="radio" name="question${data.id}" value="${key}" onchange="saveProgress()">
-                            <strong>${key}.</strong> ${value}
-                        </label>
-                    </li>
+            let contentHtml = '';
+
+            if (data.type === 'mcq' && data.options) {
+                let optionsHtml = '';
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}" onchange="saveProgress()">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+                contentHtml = `<ul class="options">${optionsHtml}</ul>`;
+            } else {
+                // Xử lý cho câu nhập đáp án (type: "input")
+                contentHtml = `
+                    <div style="margin-top: 10px;">
+                        <input type="text" id="input-${data.id}" placeholder="Nhập đáp án..." 
+                               style="padding: 8px 12px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; width: 200px;" 
+                               oninput="saveProgress()">
+                    </div>
                 `;
             }
 
             questionBlock.innerHTML = `
-                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
-                <ul class="options">
-                    ${optionsHtml}
-                </ul>
-                <div class="explanation" id="explanation-${data.id}">${data.explanation}</div>
+                <div class="question-text">Câu ${index + 1}: ${data.text}</div>
+                ${contentHtml}
+                <div class="explanation" id="explanation-${data.id}">
+                    Đáp án đúng: <strong>${data.answer}</strong>
+                </div>
             `;
             quizContainer.appendChild(questionBlock);
         });
@@ -313,9 +327,12 @@
     function saveProgress() {
         let userAnswers = {};
         quizData.forEach(data => {
-            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
-            if (selectedOption) {
-                userAnswers[data.id] = selectedOption.value;
+            if (data.type === 'mcq') {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userAnswers[data.id] = inputEl.value.trim();
             }
         });
         localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
@@ -338,18 +355,19 @@
             if (confirmResume) {
                 let lastAnsweredId = null;
                 Object.entries(userAnswers).forEach(([qId, value]) => {
-                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
-                    if (radio) {
-                        radio.checked = true;
-                        lastAnsweredId = qId;
+                    const qData = quizData.find(q => q.id == qId);
+                    if (qData && qData.type === 'mcq') {
+                        const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                        if (radio) { radio.checked = true; lastAnsweredId = qId; }
+                    } else {
+                        const input = document.getElementById(`input-${qId}`);
+                        if (input) { input.value = value; lastAnsweredId = qId; }
                     }
                 });
 
                 if (lastAnsweredId) {
                     const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
-                    if (targetBlock) {
-                        targetBlock.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
                 }
             } else {
                 localStorage.removeItem(QUIZ_STORAGE_KEY);
@@ -364,31 +382,57 @@
             const block = document.getElementById(`question-${data.id}`);
             if (block.dataset.locked === "true") return;
 
-            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
-            
-            if (selectedOption) {
-                checkedAny = true;
-                const userAnswer = selectedOption.value;
-                const correctAnswer = data.correctAnswer;
-                
-                if (userAnswer === correctAnswer) {
-                    document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
-                    currentScore++;
-                } else {
-                    document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('wrong-answer-label');
-                    document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
-                }
+            let isCorrect = false;
+            let hasAnswered = false;
 
-                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
-                radios.forEach(radio => radio.disabled = true);
-                block.dataset.locked = "true";
+            if (data.type === 'mcq') {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) {
+                    hasAnswered = true;
+                    const userAnswer = selectedOption.value;
+                    if (userAnswer === data.answer) {
+                        document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
+                        isCorrect = true;
+                    } else {
+                        document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('wrong-answer-label');
+                        document.getElementById(`label-${data.id}-${data.answer}`).classList.add('correct-answer-label');
+                    }
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => radio.disabled = true);
+                }
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') {
+                    hasAnswered = true;
+                    const userAnswer = inputEl.value.trim().toLowerCase();
+                    const correctAnswer = String(data.answer).trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        inputEl.style.backgroundColor = '#d4edda';
+                        inputEl.style.borderColor = '#2ecc71';
+                        isCorrect = true;
+                    } else {
+                        inputEl.style.backgroundColor = '#f8d7da';
+                        inputEl.style.borderColor = '#e74c3c';
+                    }
+                    inputEl.disabled = true;
+                }
+            }
+
+            if (hasAnswered) {
+                checkedAny = true;
+                if (isCorrect) currentScore++;
                 
+                const expEl = document.getElementById(`explanation-${data.id}`);
+                if (expEl) expEl.style.display = 'block';
+
+                block.dataset.locked = "true";
                 answeredCount++;
             }
         });
 
         if (!checkedAny) {
-            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+            alert('Bạn chưa chọn hoặc nhập đáp án nào để kiểm tra!');
         } else {
             updateScoreBoard();
             
@@ -416,21 +460,28 @@
             if (block) {
                 block.dataset.locked = "false";
                 
-                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
-                radios.forEach(radio => {
-                    radio.disabled = false;
-                    radio.checked = false;
-                });
+                if (data.type === 'mcq') {
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => {
+                        radio.disabled = false;
+                        radio.checked = false;
+                    });
+                    for (const key of Object.keys(data.options || {})) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                    }
+                } else {
+                    const inputEl = document.getElementById(`input-${data.id}`);
+                    if (inputEl) {
+                        inputEl.value = '';
+                        inputEl.disabled = false;
+                        inputEl.style.backgroundColor = '#fff';
+                        inputEl.style.borderColor = '#ccc';
+                    }
+                }
 
                 const explanationEl = document.getElementById(`explanation-${data.id}`);
                 if (explanationEl) explanationEl.style.display = 'none';
-                
-                for (const key of Object.keys(data.options)) {
-                    const lbl = document.getElementById(`label-${data.id}-${key}`);
-                    if (lbl) {
-                        lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
-                    }
-                }
             }
         });
         
