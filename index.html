@@ -10,7 +10,7 @@
         h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
         
         .login-box { background: #eef2f5; padding: 25px; border-radius: 8px; text-align: center; margin-bottom: 25px; }
-        .login-box input { padding: 12px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 5px; width: 220px; text-align: center; text-transform: uppercase; }
+        .login-box input[type="text"], .login-box input[type="password"] { padding: 12px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 5px; width: 220px; text-align: center; text-transform: uppercase; }
         .login-box button { padding: 12px 25px; font-size: 1.05em; background: #3498db; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 5px; }
         .login-box button:hover { background: #2980b9; }
 
@@ -18,17 +18,23 @@
         .quiz-list { list-style: none; padding: 0; }
         .quiz-item { background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 10px; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
         .quiz-item span { font-weight: bold; color: #2c3e50; font-size: 1.05em; }
-        .btn-start { background: #2ecc71; color: white; padding: 8px 18px; border-radius: 4px; text-decoration: none; font-size: 0.95em; font-weight: bold; transition: background 0.2s; }
+        .btn-start { background: #2ecc71; color: white; padding: 8px 18px; border-radius: 4px; text-decoration: none; font-size: 0.95em; font-weight: bold; cursor: pointer; border: none; transition: background 0.2s; }
         .btn-start:hover { background: #27ae60; }
         .btn-admin { background: #e74c3c; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; font-weight: bold; margin-bottom: 15px; }
         
         .hidden { display: none !important; }
         .user-info { font-size: 1.2em; font-weight: bold; color: #27ae60; margin-bottom: 10px; }
+
+        /* Frame xem bài tập full màn hình */
+        #quizRunner { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #fff; z-index: 9999; display: flex; flex-direction: column; }
+        #timerHeader { background: #2c3e50; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 1.1em; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        #quizIframe { flex: 1; border: none; width: 100%; height: 100%; }
+        .btn-exit { background: #e74c3c; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="mainContent" class="container">
     <h1>📚 Thư Viện Luyện Thi SAT</h1>
 
     <!-- Khung nhập Passcode cá nhân -->
@@ -39,16 +45,14 @@
         <p id="errorMsg" style="color: #e74c3c; display: none; margin-top: 12px; font-weight: bold;">❌ Mã Passcode không chính xác!</p>
     </div>
 
-    <!-- Khung xin chào sau khi đăng nhập thành công -->
+    <!-- Khung xin chào sau khi đăng nhập -->
     <div id="welcomeSection" class="login-box hidden">
         <div class="user-info" id="userInfoText"></div>
         <button onclick="logout()" style="background: #95a5a6; font-size: 0.85em; padding: 6px 15px;">Đăng xuất / Nhập mã khác</button>
     </div>
 
-    <!-- Danh mục bài tập phân theo nhóm -->
+    <!-- Danh mục bài tập -->
     <div id="quizContent" class="hidden">
-        
-        <!-- Nút Admin (Chỉ hiển thị với PASS Admin) -->
         <div id="adminLink" class="hidden" style="text-align: right;">
             <a href="admin.html" class="btn-admin">⚙️ Trang Quản Lý Admin</a>
         </div>
@@ -59,7 +63,7 @@
             <ul class="quiz-list">
                 <li class="quiz-item">
                     <span>📝 August SAT Math (Tổng hợp)</span>
-                    <a href="augustmath.html" class="btn-start">Làm bài</a>
+                    <button class="btn-start" onclick="openTimerModal('augustmath.html', 'August SAT Math')">Làm bài</button>
                 </li>
             </ul>
         </div>
@@ -70,35 +74,79 @@
             <ul class="quiz-list">
                 <li class="quiz-item">
                     <span>📝 Transitions Quiz</span>
-                    <a href="Transitions_quiz.html" class="btn-start">Làm bài</a>
+                    <button class="btn-start" onclick="openTimerModal('Transitions_quiz.html', 'Transitions Quiz')">Làm bài</button>
                 </li>
                 <li class="quiz-item">
                     <span>📝 Boundaries Quiz 107</span>
-                    <a href="Boundaries_Quiz_107.html" class="btn-start">Làm bài</a>
+                    <button class="btn-start" onclick="openTimerModal('Boundaries_Quiz_107.html', 'Boundaries Quiz 107')">Làm bài</button>
                 </li>
                 <li class="quiz-item">
                     <span>📝 Form Structure and Sense</span>
-                    <a href="Form structure and sense.html" class="btn-start">Làm bài</a>
+                    <button class="btn-start" onclick="openTimerModal('Form structure and sense.html', 'Form Structure and Sense')">Làm bài</button>
                 </li>
             </ul>
         </div>
-
     </div>
 </div>
 
+<!-- Modal Chọn Chế Độ Làm Bài -->
+<div id="timerModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 10000;">
+    <div style="background: white; padding: 25px 30px; border-radius: 12px; max-width: 440px; width: 90%; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
+        <h2 style="margin-top: 0; color: #2c3e50;">🎯 Chọn Chế Độ Làm Bài</h2>
+        <p style="color: #666; font-size: 0.95em;">Lựa chọn hình thức làm bài phù hợp với bạn:</p>
+        
+        <div style="text-align: left; margin: 20px 0; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+            <label style="display: block; margin-bottom: 12px; cursor: pointer; font-weight: bold; color: #2c3e50;">
+                <input type="radio" name="quizMode" value="practice" checked onchange="toggleTimeInput(false)">
+                📖 Chế độ Luyện tập
+                <span style="display: block; font-size: 0.85em; color: #7f8c8d; font-weight: normal; margin-left: 20px; margin-top: 2px;">Thong thả làm bài, không giới hạn thời gian.</span>
+            </label>
+
+            <label style="display: block; margin-bottom: 8px; cursor: pointer; font-weight: bold; color: #2c3e50;">
+                <input type="radio" name="quizMode" value="test" onchange="toggleTimeInput(true)">
+                ⏱️ Chế độ Thi thử
+                <span style="display: block; font-size: 0.85em; color: #7f8c8d; font-weight: normal; margin-left: 20px; margin-top: 2px;">Đếm ngược & tự động nộp bài khi hết giờ.</span>
+            </label>
+
+            <div id="countdownInput" style="display: none; margin-left: 20px; margin-top: 10px; background: #fff; padding: 10px; border-radius: 5px; border: 1px dashed #3498db;">
+                <span style="font-size: 0.9em; color: #2c3e50; font-weight: bold;">Thời gian thi: </span>
+                <input type="number" id="timeLimitInput" value="35" min="1" max="180" style="width: 55px; padding: 4px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-weight: bold;"> phút
+            </div>
+        </div>
+
+        <button onclick="startQuizWithTimer()" style="background: #2ecc71; color: white; border: none; padding: 12px 25px; font-size: 1.05em; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%;">🚀 Bắt Đầu Làm Bài</button>
+    </div>
+</div>
+
+<!-- Khung chạy Quiz + Thanh Bấm Giờ -->
+<div id="quizRunner" class="hidden">
+    <div id="timerHeader">
+        <span id="quizTitleDisplay">📝 Bài Làm</span>
+        <div>
+            <span id="timerLabel">📖 Chế độ Luyện tập</span>
+            <span id="timerText" style="color: #f1c40f; font-size: 1.2em; margin-right: 20px; margin-left: 8px;"></span>
+            <button class="btn-exit" onclick="exitQuiz()">✕ Thoát</button>
+        </div>
+    </div>
+    <iframe id="quizIframe" src=""></iframe>
+</div>
+
 <script>
-    // Danh sách Passcode gắn liền với Tên và Quyền hạn
     const STUDENT_PASSCODES = {
         "THUVINH":  { name: "Thu Vinh", role: "math_only" },
         "DINHANH":  { name: "Đình Anh", role: "full_student" },
         "TAMDI":    { name: "Tâm Di",   role: "full_student" },
-        "SEED2027COMING": { name: "Admin",    role: "admin" }
+        "6868": { name: "Admin",    role: "admin" }
     };
+
+    let selectedQuizUrl = "";
+    let selectedQuizTitle = "";
+    let timerInterval = null;
+    let totalSeconds = 0;
 
     function checkPasscode() {
         const code = document.getElementById('passcode').value.trim().toUpperCase();
         const student = STUDENT_PASSCODES[code];
-        
         if (student) {
             document.getElementById('errorMsg').style.display = 'none';
             sessionStorage.setItem('studentName', student.name);
@@ -112,7 +160,6 @@
     function applyAccessRights() {
         const role = sessionStorage.getItem('userRole');
         const name = sessionStorage.getItem('studentName');
-
         if (!role) return;
 
         document.getElementById('loginSection').classList.add('hidden');
@@ -120,7 +167,6 @@
         document.getElementById('userInfoText').innerText = `👋 Xin chào học sinh: ${name}`;
         document.getElementById('quizContent').classList.remove('hidden');
 
-        // Phân quyền danh mục bài tập
         if (role === 'admin') {
             document.getElementById('adminLink').classList.remove('hidden');
             document.getElementById('catMath').classList.remove('hidden');
@@ -136,6 +182,71 @@
     function logout() {
         sessionStorage.clear();
         location.reload();
+    }
+
+    function openTimerModal(url, title) {
+        selectedQuizUrl = url;
+        selectedQuizTitle = title;
+        document.getElementById('timerModal').style.display = 'flex';
+    }
+
+    function toggleTimeInput(show) {
+        document.getElementById('countdownInput').style.display = show ? 'block' : 'none';
+    }
+
+    function startQuizWithTimer() {
+        const mode = document.querySelector('input[name="quizMode"]:checked').value;
+        clearInterval(timerInterval);
+
+        if (mode === 'practice') {
+            // Chế độ Luyện Tập: Không hiện đồng hồ đếm ngược
+            document.getElementById('timerLabel').innerText = "📖 Chế độ: Luyện tập (Tự do)";
+            document.getElementById('timerText').innerText = "";
+        } else {
+            // Chế độ Thi Thử: Hiện đếm ngược & Tự nộp khi 00:00
+            const mins = parseInt(document.getElementById('timeLimitInput').value) || 35;
+            totalSeconds = mins * 60;
+            document.getElementById('timerLabel').innerText = "⏳ Thời gian thi còn lại: ";
+            
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                totalSeconds--;
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("⏰ Hết giờ thi! Hệ thống sẽ tự động nộp bài.");
+                    try {
+                        const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
+                        iframeDoc.querySelector('button[onclick*="submit"]')?.click();
+                    } catch (e) {}
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        document.getElementById('timerModal').style.display = 'none';
+        document.getElementById('mainContent').classList.add('hidden');
+        document.getElementById('quizTitleDisplay').innerText = `📝 ${selectedQuizTitle}`;
+        document.getElementById('quizIframe').src = selectedQuizUrl;
+        document.getElementById('quizRunner').classList.remove('hidden');
+    }
+
+    function updateTimerDisplay() {
+        const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+        const secs = String(totalSeconds % 60).padStart(2, '0');
+        const timerEl = document.getElementById('timerText');
+        if (timerEl) {
+            timerEl.innerText = `${mins}:${secs}`;
+            timerEl.style.color = (totalSeconds <= 300) ? '#e74c3c' : '#f1c40f'; // Đỏ khi dưới 5p
+        }
+    }
+
+    function exitQuiz() {
+        if (confirm("Bạn có chắc chắn muốn thoát khỏi bài làm?")) {
+            clearInterval(timerInterval);
+            document.getElementById('quizIframe').src = "";
+            document.getElementById('quizRunner').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
     }
 
     window.onload = function() {
