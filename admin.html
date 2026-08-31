@@ -3,87 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Điểm Học Sinh</title>
+    <title>ADMIN - SATURNIFY</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f4f7f6; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
         th { background-color: #3498db; color: white; }
         tr:nth-child(even) { background-color: #f9f9f9; }
-        .score-badge { font-weight: bold; color: #27ae60; background: #e8f8f5; padding: 4px 8px; border-radius: 4px; }
+        
+        .btn-view { background: #2ecc71; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-view:hover { background: #27ae60; }
+        .btn-clear { background: #e74c3c; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; float: right; margin-bottom: 10px; }
+
+        /* Modal xem chi tiết */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 10000; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 650px; max-height: 85vh; overflow-y: auto; }
+        .close-btn { background: #7f8c8d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; float: right; font-weight: bold; }
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 15px; }
+        .detail-card { background: #f8f9fa; border: 1px solid #e9ecef; padding: 8px; border-radius: 5px; text-align: center; font-size: 0.9em; }
     </style>
-    <script type="module">
-        // Kiểm tra quyền Admin
-if (sessionStorage.getItem('userRole') !== 'admin') {
-    const adminPass = prompt("Trang này bảo mật. Nhập Passcode Admin:");
-    if (adminPass !== "6868") {
-        alert("Passcode không đúng!");
-        window.location.href = "index.html";
-    } else {
-        sessionStorage.setItem('userRole', 'admin');
-    }
-}
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
-            authDomain: "saturnifyllm.firebaseapp.com",
-            projectId: "saturnifyllm",
-            storageBucket: "saturnifyllm.firebasestorage.app",
-            messagingSenderId: "679587062435",
-            appId: "1:679587062435:web:f10555b0cbbdb9fb89d516"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Lắng nghe dữ liệu real-time từ Firestore
-        const q = query(collection(db, "results"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const tbody = document.getElementById('scoreTableBody');
-            tbody.innerHTML = '';
-            
-            if (snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chưa có dữ liệu nộp bài.</td></tr>';
-                return;
-            }
-
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString('vi-VN') : 'N/A';
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${data.name || 'Học sinh ẩn danh'}</strong></td>
-                        <td>${data.id || 'N/A'}</td>
-                        <td>${data.quizTitle || 'Bài kiểm tra'}</td>
-                        <td><span class="score-badge">${data.score} / ${data.total}</span></td>
-                        <td>${date}</td>
-                    </tr>
-                `;
-            });
-        });
-    </script>
 </head>
 <body>
-    <div class="container">
-        <h2>📊 Bảng Điểm Học Sinh (Cập nhật Thời gian thực)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Họ và Tên</th>
-                    <th>Mã Học Sinh</th>
-                    <th>Bài Kiểm Tra</th>
-                    <th>Kết Quả</th>
-                    <th>Thời Gian Nộp</th>
-                </tr>
-            </thead>
-            <tbody id="scoreTableBody">
-                <tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu...</td></tr>
-            </tbody>
-        </table>
+
+<div class="container">
+    <button class="btn-clear" onclick="clearData()">🗑️ Xóa Tất Cả Dữ Liệu</button>
+    <h1>⚙️ Bảng Quản Lý Kết Quả Học Sinh</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Học Sinh</th>
+                <th>Bài Tập</th>
+                <th>Lần Làm</th>
+                <th>Điểm Số</th>
+                <th>Thời Gian Làm</th>
+                <th>Nộp Lúc</th>
+                <th>Chi Tiết</th>
+            </tr>
+        </thead>
+        <tbody id="resultTableBody">
+            <!-- Dữ liệu sẽ tự động nạp vào đây -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Chi Tiết Bài Làm -->
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">Đóng</button>
+        <h2 id="modalStudentName" style="color: #2c3e50; margin-top: 0;">Chi Tiết Bài Làm</h2>
+        <div id="modalInfo" style="line-height: 1.6; background: #eef2f5; padding: 12px; border-radius: 6px;"></div>
+        
+        <h3 style="margin-top: 20px; color: #2980b9;">📌 Lựa Chọn Từng Câu:</h3>
+        <div id="modalAnswers" class="detail-grid"></div>
     </div>
+</div>
+
+<script>
+    function loadResults() {
+        const tbody = document.getElementById('resultTableBody');
+        const results = JSON.parse(localStorage.getItem('sat_results') || '[]').reverse(); // Mới nhất lên đầu
+
+        if (results.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7">Chưa có lượt làm bài nào được ghi nhận.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        results.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${item.studentName}</strong></td>
+                <td>${item.quizTitle}</td>
+                <td><span style="background: #e17055; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.85em;">Lần ${item.attempt || 1}</span></td>
+                <td><strong style="color: #27ae60;">${item.score}</strong> (${item.percentage})</td>
+                <td>${item.duration}</td>
+                <td>${item.endTime}</td>
+                <td><button class="btn-view" onclick='showDetail(${JSON.stringify(item)})'>👁️ Xem</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function showDetail(data) {
+        document.getElementById('modalStudentName').innerText = `👤 Học sinh: ${data.studentName}`;
+        document.getElementById('modalInfo').innerHTML = `
+            <b>Bài làm:</b> ${data.quizTitle} | <b>Lần làm thứ:</b> ${data.attempt || 1}<br>
+            <b>Điểm số:</b> ${data.score} (${data.percentage})<br>
+            <b>Bắt đầu:</b> ${data.startTime}<br>
+            <b>Kết thúc:</b> ${data.endTime}<br>
+            <b>Tổng thời gian:</b> ${data.duration}
+        `;
+
+        const answersContainer = document.getElementById('modalAnswers');
+        answersContainer.innerHTML = '';
+
+        for (const [qNum, choice] of Object.entries(data.answers)) {
+            const card = document.createElement('div');
+            card.className = 'detail-card';
+            card.innerHTML = `<b>${qNum}</b><br><span style="color: ${choice === 'Bỏ trống' ? '#e74c3c' : '#2980b9'}; font-weight: bold;">${choice}</span>`;
+            answersContainer.appendChild(card);
+        }
+
+        document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').style.display = 'none';
+    }
+
+    function clearData() {
+        if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử làm bài của học sinh?")) {
+            localStorage.removeItem('sat_results');
+            loadResults();
+        }
+    }
+
+    window.onload = loadResults;
+</script>
 </body>
 </html>
