@@ -113,7 +113,7 @@
             });
 
             // Hiển thị bài nộp mới nhất lên trên
-            rawDocs.reverse().forEach(data => {
+            [...sortedAsc].reverse().forEach(data => {
                 globalDataStore[data.docId] = data;
                 
                 const displayName = data.name || data.studentName || 'Học sinh ẩn danh';
