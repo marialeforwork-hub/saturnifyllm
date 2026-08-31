@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WORD IN CONTEXT - QUESTION BANK - EASY</title>
+    <title>Bài Tập Trắc Nghiệm: Logical Transitions</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -79,7 +79,7 @@
 <body>
 
 <div class="container">
-    <h1>WORD IN CONTEXT - EASY</h1>
+    <h1>Bài Kiểm Tra: Transitions</h1>
     <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
 </div>
@@ -112,10 +112,33 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // 🕒 LƯU MỐC THỜI GIAN BẮT ĐẦU CỦA LẦN LÀM BÀI HIỆN TẠI
+    let startTime = new Date();
+
     async function saveScoreToFirebase(score, total) {
         const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
         const studentId = sessionStorage.getItem('studentId') || "N/A";
         const quizName = document.title;
+        const endTime = new Date();
+
+        // Thu thập chi tiết từng câu làm đúng hay sai
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const userChoice = selectedOption ? selectedOption.value : "Bỏ trống";
+            const isCorrect = userChoice === data.correctAnswer;
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.question,
+                userChoice: userChoice,
+                correctAnswer: data.correctAnswer,
+                isCorrect: isCorrect
+            };
+        });
+
+        // Tính thời gian làm bài thực tế của lượt này (giây / phút)
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
 
         try {
             await addDoc(collection(db, "results"), {
@@ -124,15 +147,20 @@
                 quizTitle: quizName,
                 score: score,
                 total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
                 timestamp: new Date()
             });
-            console.log("Đã lưu điểm thành công lên Firebase!");
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
         } catch (error) {
             console.error("Lỗi khi lưu điểm lên Firebase: ", error);
         }
     }
     const quizData = [
-{
+        {
     "id": 1,
     "question": "Question Ar tist Marilyn Dingle ’ s intricate, coiled baskets are ______ sweetgrass and palmetto palm. Following a Gullah technique that originated in West Africa, Dingle skillfully winds a thin palm frond around a bunch of sweetgrass with the help of a “ sewing bone” to create the basket’ s signature look that no factory can reproduce. Which choice completes the text with the most logical and precise word or phrase?",
     "options": {
@@ -1836,14 +1864,11 @@
     "correctAnswer": "A",
     "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of Ronyoung Kim ’ s novel Clay Walls. In this context, \"distinct\" means clearly separate and different. The text indicates that the novel consists of three sections and that each section is narrated from the perspective of a different character. This context suppor ts the idea that Kim ’ s novel features three distinct perspectives. Choice B is incorrect because describing the three perspectives in Kim ’ s novel as \"required,\" or demanded as necessary to be done or provided, wouldn ’t make sense in context. When writing a novel, a novelist is free to choose to narrate the story from any number of perspectives. There ’ s nothing in the text to indicate that providing three perspectives was demanded of Kim. Instead, the text focuses on identifying the three different perspectives featured in Kim ’ s novel. Choice C is incorrect because describing the three perspectives in Kim ’ s novel as \"unintended,\" or not planned as a purpose or goal, wouldn ’t make sense in context. Authors make deliberate choices about the perspectives they feature in their works, and the text indicates that Kim chose to incorporate three different perspectives in her novel. Choice D is incorrect because describing the three perspectives in Kim ’ s novel as \"unknown,\" or not revealed, wouldn ’t make sense in context. The text directly identifies the three perspectives that appear in her novel as those of Faye and her two parents, Haesu and Chun, which indicates that the novel’ s perspectives are in fact known."
   },
-];
+    ];
     const quizContainer = document.getElementById('quiz');
     let currentScore = 0;
     let answeredCount = 0;
     const totalQuestions = quizData.length;
-
-    // 🕒 GHI NHẬN THỜI GIAN BẮT ĐẦU LÀM BÀI
-    const startTime = new Date();
 
     const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
     const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
@@ -1993,6 +2018,8 @@
                     }
                 }
             } else {
+                // Làm lại từ đầu -> Đặt lại thời gian bắt đầu lượt làm mới
+                startTime = new Date();
                 localStorage.removeItem(QUIZ_STORAGE_KEY);
             }
         }
@@ -2053,7 +2080,7 @@
     // 📤 HÀM TỔNG HỢP & GỬI DỮ LIỆU KẾT QUẢ SANG TRANG ADMIN
     function saveAdminResultData() {
         const endTime = new Date();
-        const durationSec = Math.round((endTime - startTime) / 1000);
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
         const durationMin = (durationSec / 60).toFixed(1);
 
         const quizTitle = document.title || 'Bài tập SAT';
@@ -2094,6 +2121,9 @@
         
         currentScore = 0;
         answeredCount = 0;
+        
+        // 🕒 ĐẶT LẠI MỐC THỜI GIAN BẮT ĐẦU CHO LẦN LÀM MỚI
+        startTime = new Date();
         
         localStorage.removeItem(QUIZ_STORAGE_KEY);
         
@@ -2144,9 +2174,6 @@
 
     buildQuiz();
     checkAndRestoreProgress();
-</script>
-</body>
-</html>
 </script>
 </body>
 </html>
