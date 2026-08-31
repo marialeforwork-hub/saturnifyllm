@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Trắc Nghiệm Ôn Tập</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 { color: #2c3e50; margin-bottom: 10px; }
+        p.subtitle { color: #7f8c8d; margin-bottom: 25px; font-size: 1.05em; }
+        
+        /* Khung đăng nhập */
+        .login-box input {
+            padding: 12px;
+            width: 85%;
+            margin-bottom: 12px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .login-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+            margin-top: 10px;
+        }
+        .login-btn:hover { background-color: #27ae60; }
+
+        /* Danh sách bài tập */
+        #quizSelection { display: none; text-align: left; }
+        .student-info-badge {
+            background: #e8f4f8;
+            color: #2980b9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .quiz-list { display: flex; flex-direction: column; gap: 12px; }
+        .quiz-card {
+            display: block;
+            background: #f9f9f9;
+            border: 2px solid #eef2f5;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .quiz-card:hover {
+            background: #3498db;
+            color: #fff;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+        .quiz-card span { display: block; font-size: 0.85em; font-weight: normal; color: #95a5a6; margin-top: 4px; }
+        .quiz-card:hover span { color: #ecf0f1; }
+
+        /* Bảng lịch sử */
+        .history-box { margin-top: 35px; border-top: 2px solid #eee; padding-top: 20px; }
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95em; }
+        .history-table th, .history-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .history-table th { background-color: #f2f2f2; }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+            authDomain: "saturnifyllm.firebaseapp.com",
+            projectId: "saturnifyllm",
+            storageBucket: "saturnifyllm.firebasestorage.app",
+            messagingSenderId: "679587062435",
+            appId: "1:679587062435:web:f10555b0cbbdb9fb89d516"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Tải lịch sử làm bài của học sinh
+        window.loadStudentHistory = async function(studentId) {
+            const historyBody = document.getElementById('historyBody');
+            historyBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Đang tải lịch sử...</td></tr>';
+
+            try {
+                const q = query(collection(db, "results"), where("id", "==", studentId));
+                const querySnapshot = await getDocs(q);
+                
+                historyBody.innerHTML = '';
+                if (querySnapshot.empty) {
+                    historyBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Chưa có lịch sử làm bài.</td></tr>';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const dateStr = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString('vi-VN') : 'N/A';
+                    historyBody.innerHTML += `
+                        <tr>
+                            <td>${dateStr}</td>
+                            <td>${data.quizTitle || 'Bài kiểm tra'}</td>
+                            <td><strong style="color:#27ae60;">${data.score} / ${data.total}</strong></td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Lỗi khi tải lịch sử:", err);
+                historyBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Lỗi tải dữ liệu.</td></tr>';
+            }
+        };
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <!-- KHUNG ĐĂNG NHẬP -->
+    <div id="loginBox" class="login-box">
+        <h1>🔑 Đăng Nhập Làm Bài</h1>
+        <p class="subtitle">Nhập mã truy cập và thông tin cá nhân để bắt đầu</p>
+        <input type="password" id="passcode" placeholder="Mã truy cập bài học (Passcode)"><br>
+        <input type="text" id="studentName" placeholder="Họ và tên của em"><br>
+        <input type="text" id="studentId" placeholder="Mã học sinh"><br>
+        <button onclick="startQuiz()" class="login-btn">Vào Làm Bài 🚀</button>
+    </div>
+
+    <!-- DANH SÁCH BÀI TẬP (HIỆN SAU KHI LOGIN) -->
+    <div id="quizSelection">
+        <h1 style="text-align:center;">📚 Thư Viện Bài Tập Trắc Nghiệm</h1>
+        <div class="student-info-badge" id="studentBadge"></div>
+        <p class="subtitle" style="margin-bottom: 15px;">Chọn bài tập em muốn làm bên dưới:</p>
+        
+        <div class="quiz-list">
+            <a href="augustmath.html" class="quiz-card">
+                📐 August Math
+                <span>Bài tập toán học</span>
+            </a>
+
+            <a href="Form structure and sense.html" class="quiz-card">
+                📝 Form Structure and Sense
+                <span>Bài tập cấu trúc và ngữ nghĩa</span>
+            </a>
+
+            <a href="Transitions_quiz.html" class="quiz-card">
+                ⚡ Logical Transitions
+                <span>Ôn tập các từ nối logic (86 câu)</span>
+            </a>
+
+            <a href="Boundaries_Quiz_107.html" class="quiz-card">
+                ✍️ Standard English Conventions
+                <span>Ôn tập quy tắc ngữ pháp chuẩn (107 câu)</span>
+            </a>
+        </div>
+
+        <!-- LỊCH SỬ BÀI ĐÃ LÀM -->
+        <div class="history-box">
+            <h3>📜 Lịch Sử Bài Đã Làm</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Thời Gian</th>
+                        <th>Bài Kiểm Tra</th>
+                        <th>Kết Quả</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // MÃ TRUY CẬP DÀNH CHO HỌC SINH (Bạn có thể thay đổi mã này)
+    const CORRECT_PASSCODE = "SAT2026";
+
+    function startQuiz() {
+        const pass = document.getElementById('passcode').value.trim();
+        const name = document.getElementById('studentName').value.trim();
+        const id = document.getElementById('studentId').value.trim();
+        
+        if (pass !== CORRECT_PASSCODE) {
+            alert('Mã truy cập (Passcode) không đúng! Vui lòng hỏi giáo viên.');
+            return;
+        }
+
+        if (!name || !id) {
+            alert('Vui lòng nhập đầy đủ Họ tên và Mã học sinh!');
+            return;
+        }
+        
+        sessionStorage.setItem('studentName', name);
+        sessionStorage.setItem('studentId', id);
+        
+        document.getElementById('studentBadge').innerText = `Học sinh: ${name} (Mã: ${id})`;
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('quizSelection').style.display = 'block';
+
+        // Tải lịch sử các bài đã làm từ Firebase
+        if (window.loadStudentHistory) {
+            window.loadStudentHistory(id);
+        }
+    }
+
+    window.onload = function() {
+        const savedName = sessionStorage.getItem('studentName');
+        const savedId = sessionStorage.getItem('studentId');
+        if (savedName && savedId) {
+            document.getElementById('studentName').value = savedName;
+            document.getElementById('studentId').value = savedId;
+            document.getElementById('passcode').value = CORRECT_PASSCODE;
+            startQuiz();
+        }
+    }
+</script>
+
+</body>
+</html>
