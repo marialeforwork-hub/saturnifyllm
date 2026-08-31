@@ -20,20 +20,50 @@
         .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
         
         .sticky-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #fff;
-            padding: 15px 20px;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-            box-sizing: border-box;
-            border-top: 3px solid #3498db;
-        }
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    padding: 15px 20px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    box-sizing: border-box;
+    border-top: 3px solid #3498db;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Các lớp mới dùng để ẩn/hiện và tạo nút bấm */
+.sticky-footer.hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toggle-nav-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1001;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: background 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+.toggle-nav-btn:active { transform: translateY(0); }
         .stats {
             font-size: 1.1em;
             color: #2c3e50;
@@ -83,7 +113,13 @@
     <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
 </div>
+<!-- Thêm nút này nằm ngay TRÊN thẻ sticky-footer -->
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
 
+<!-- Thêm id="stickyFooter" vào thẻ bên dưới -->
+<div class="sticky-footer" id="stickyFooter">
 <div class="sticky-footer">
     <div class="stats">
         Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
@@ -111,6 +147,18 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    // Xử lý sự kiện Hiện/Ẩn Thanh Navigator
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        stickyFooter.classList.toggle('hidden');
+        const isHidden = stickyFooter.classList.contains('hidden');
+        toggleIcon.textContent = isHidden ? '🙈' : '👁️';
+        toggleText.textContent = isHidden ? 'Hiện thanh công cụ' : 'Ẩn thanh công cụ';
+    });
 
     // 🕒 LƯU MỐC THỜI GIAN BẮT ĐẦU CỦA LẦN LÀM BÀI HIỆN TẠI
     let startTime = new Date();
