@@ -313,6 +313,20 @@
             applyAccessRights();
         }
     };
+    // Lắng nghe kết quả gửi từ iframe bài tập ra trang chính
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'SAT_SUBMIT_RESULT') {
+            const resultData = event.data.data;
+            let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+            
+            // Tránh lưu trùng lắp
+            if (!history.some(h => h.id === resultData.id)) {
+                history.push(resultData);
+                localStorage.setItem('sat_results', JSON.stringify(history));
+                console.log("Đã cập nhật kết quả vào Admin Storage!", resultData);
+            }
+        }
+    });
 </script>
 </body>
 </html>
