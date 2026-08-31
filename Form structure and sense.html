@@ -1,11 +1,9 @@
-mẫu ko có explain
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FORM, STRUCTURE AND SENSE</title>
+    <title>Bài Tập Trắc Nghiệm: Logical Transitions</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -21,22 +19,55 @@ mẫu ko có explain
         .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
         
         .sticky-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 15px 20px;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.1); display: flex; justify-content: space-around;
-            align-items: center; z-index: 1000; box-sizing: border-box; border-top: 3px solid #3498db;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
         }
-        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
         .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
         .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
         
-        .global-check-btn, .reset-btn {
-            padding: 12px 20px; font-size: 1.1em; color: #fff; border: none; border-radius: 5px;
-            cursor: pointer; font-weight: bold; transition: background 0.3s;
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
         }
-        .global-check-btn { background-color: #2ecc71; box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3); }
-        .global-check-btn:hover { background-color: #27ae60; }
-        .reset-btn { background-color: #e74c3c; box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3); }
-        .reset-btn:hover { background-color: #c0392b; }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
         
         @media (max-width: 600px) {
             .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
@@ -47,8 +78,8 @@ mẫu ko có explain
 <body>
 
 <div class="container">
-    <h1>Bài Kiểm Tra Trắc Nghiệm</h1>
-    <p style="text-align: center; color: #7f8c8d;">Chọn đáp án và bấm <strong>"Kiểm tra"</strong> để xem kết quả.</p>
+    <h1>Bài Kiểm Tra: Transitions</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
 </div>
 
@@ -58,15 +89,77 @@ mẫu ko có explain
         Điểm số:<span id="scoreText">0</span>
     </div>
     <div style="display: flex; gap: 10px;">
-        <button class="reset-btn" id="resetBtn">🔄 Làm lại</button>
-        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra</button>
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
     </div>
 </div>
 
-<script>
-    // 📌 DỮ LIỆU CÂU HỎI (CHỈ CÓ ĐỀ VÀ ĐÁP ÁN)
-    const quizData = [
-         { id: 1, question: "The radiation that ______ during the decay of radioactive atomic nuclei is known as gamma radiation.", options: { A: "occurs", B: "have occurred", C: "occur", D: "are occurring" }, correctAnswer: "A" },
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 🕒 LƯU MỐC THỜI GIAN BẮT ĐẦU CỦA LẦN LÀM BÀI HIỆN TẠI
+    let startTime = new Date();
+
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        // Thu thập chi tiết từng câu làm đúng hay sai
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const userChoice = selectedOption ? selectedOption.value : "Bỏ trống";
+            const isCorrect = userChoice === data.correctAnswer;
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.question,
+                userChoice: userChoice,
+                correctAnswer: data.correctAnswer,
+                isCorrect: isCorrect
+            };
+        });
+
+        // Tính thời gian làm bài thực tế của lượt này (giây / phút)
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+const quizData = [
+{ id: 1, question: "The radiation that ______ during the decay of radioactive atomic nuclei is known as gamma radiation.", options: { A: "occurs", B: "have occurred", C: "occur", D: "are occurring" }, correctAnswer: "A" },
         { id: 2, question: "Despite being cheap, versatile, and easy to produce, ______ they are made from nonrenewable petroleum, and most do not biodegrade in landfills.", options: { A: "there are two problems associated with commercial plastics:", B: "two problems are associated with commercial plastics:", C: "commercial plastics' two associated problems are that", D: "commercial plastics have two associated problems:" }, correctAnswer: "B" },
         { id: 3, question: "On April 5, 1977, Kitty Cone and 150 other disability rights activists entered a San Francisco federal building. After pleading for years to no effect for the passage of key antidiscrimination legislation, ______ until their demands were addressed. Finally, on April 28, the legislation was signed.", options: { A: "pressure on lawmakers increased when the activists staged a sit-in protest", B: "a sit-in protest staged by the activists increased pressure on lawmakers", C: "lawmakers came the activists staged a sit-in protest", D: "the activists increased pressure on lawmakers by staging a sit-in protest" }, correctAnswer: "D" },
         { id: 4, question: "In recent years, economists around the world have created new tools that quantify the overall well-being of a country's citizens. Economists in India, for example, use an Ease of Living Index. This tool ______ economic potential, sustainability, and citizens' quality of life.", options: { A: "measures", B: "had measured", C: "would have measured", D: "will have been" }, correctAnswer: "A" },
@@ -170,16 +263,20 @@ mẫu ko có explain
         { id: 102, question: "With its towering, six-spired exterior of granitelike quartz monzonite, the Salt Lake Temple is one of the most instantly recognizable structures in the state of Utah. However, many people do not know that ______ built over the course of forty years, with construction beginning in 1853 and ending in 1893.", options: { A: "it was", B: "one was", C: "they were", D: "both were" }, correctAnswer: "A" },
         { id: 103, question: "After winning the 1860 presidential election, Abraham Lincoln appointed Edward Bates, Salmon P. Chase, and William H. Seward to his cabinet. Lincoln’s decision was surprising, since each of these men had run against him, but historians have praised it, noting that Lincoln ______ his rivals’ diverse talents to strengthen his administration.", options: { A: "has leveraged", B: "is leveraging", C: "will leverage", D: "leveraged" }, correctAnswer: "D" },
         { id: 104, question: "Dr. Rocío Paola Caballero-Gill is a paleoceanographer. This means that Dr. Caballero-Gill doesn’t just study oceans as they are today. She uses chemistry and fossil evidence ______ oceans as they were in the past.", options: { A: "has studied", B: "to study", C: "studied", D: "studies" }, correctAnswer: "B" }
-    ];
-
+ 
+];
     const quizContainer = document.getElementById('quiz');
     let currentScore = 0;
     let answeredCount = 0;
     const totalQuestions = quizData.length;
-    const QUIZ_STORAGE_KEY = `quiz_draft_${document.title}`;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
 
     function buildQuiz() {
         quizContainer.innerHTML = '';
+        
+        // 📌 1. TỰ ĐỘNG TẠO HỘP NAVIGATOR CHỌN CÂU CỐ ĐỊNH GÓC PHẢI
         createNavigatorBox();
 
         quizData.forEach((data, index) => {
@@ -203,19 +300,24 @@ mẫu ko có explain
 
             questionBlock.innerHTML = `
                 <div class="question-text">Câu ${index + 1}: ${data.question}</div>
-                <ul class="options">${optionsHtml}</ul>
+                <ul class="options">
+                    ${optionsHtml}
+                </ul>
             `;
             quizContainer.appendChild(questionBlock);
         });
-
-        quizContainer.addEventListener('change', () => {
+        
+        // Lắng nghe sự kiện chọn đáp án để lưu bản nháp & đổi màu Navigator
+        quizContainer.addEventListener('change', (e) => {
             saveProgress();
             updateNavigatorState();
         });
-
-        document.getElementById('progressText').innerText = `0/${totalQuestions}`;
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
     }
 
+    // 🛠️ HÀM TẠO HỘP NAVIGATOR DẠNG LƯỚI
     function createNavigatorBox() {
         let oldBox = document.getElementById('quizNavBox');
         if (oldBox) oldBox.remove();
@@ -223,25 +325,30 @@ mẫu ko có explain
         const navBox = document.createElement('div');
         navBox.id = 'quizNavBox';
         navBox.style.cssText = `
-            position: fixed; top: 20px; right: 20px; width: 200px; max-height: 70vh;
-            background: #fff; border: 2px solid #3498db; border-radius: 10px; padding: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 9999; overflow-y: auto;
+            position: fixed; top: 20px; right: 20px; width: 210px; max-height: 75vh;
+            background: #ffffff; border: 2px solid #3498db; border-radius: 10px; padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         `;
 
         const title = document.createElement('div');
         title.innerText = '📌 Danh Sách Câu Hỏi';
-        title.style.cssText = 'font-weight: bold; color: #2c3e50; font-size: 0.85em; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
+        title.style.cssText = 'font-weight: bold; color: #2c3e50; font-size: 0.9em; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
         navBox.appendChild(title);
 
         const grid = document.createElement('div');
-        grid.style.cssText = 'display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;';
+        grid.style.cssText = 'display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;';
 
         quizData.forEach((data, index) => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.id = `nav_btn_${data.id}`;
             btn.innerText = index + 1;
-            btn.style.cssText = `width: 100%; height: 30px; border: 1px solid #bdc3c7; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-weight: bold;`;
+            btn.style.cssText = `
+                width: 100%; height: 32px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;
+            `;
+
             btn.onclick = () => {
                 const targetBlock = document.getElementById(`question-${data.id}`);
                 if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
@@ -253,13 +360,14 @@ mẫu ko có explain
         document.body.appendChild(navBox);
     }
 
+    // 🔄 ĐỔI MÀU Ô NAVIGATOR KHI ĐÃ CHỌN CÂU HỎI
     function updateNavigatorState() {
         quizData.forEach((data) => {
             const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
             const btn = document.getElementById(`nav_btn_${data.id}`);
             if (btn && selected) {
                 btn.style.background = '#2ecc71';
-                btn.style.color = '#fff';
+                btn.style.color = '#ffffff';
                 btn.style.borderColor = '#27ae60';
             }
         });
@@ -269,9 +377,51 @@ mẫu ko có explain
         let userAnswers = {};
         quizData.forEach(data => {
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
-            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            if (selectedOption) {
+                userAnswers[data.id] = selectedOption.value;
+            }
         });
         localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                // Làm lại từ đầu -> Đặt lại thời gian bắt đầu lượt làm mới
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
     }
 
     function checkCurrentAnswers() {
@@ -282,11 +432,12 @@ mẫu ko có explain
             if (block.dataset.locked === "true") return;
 
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
             if (selectedOption) {
                 checkedAny = true;
                 const userAnswer = selectedOption.value;
                 const correctAnswer = data.correctAnswer;
-
+                
                 if (userAnswer === correctAnswer) {
                     document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
                     currentScore++;
@@ -298,39 +449,99 @@ mẫu ko có explain
                 const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
                 radios.forEach(radio => radio.disabled = true);
                 block.dataset.locked = "true";
+                
                 answeredCount++;
             }
         });
 
         if (!checkedAny) {
-            alert('Bạn chưa chọn đáp án nào!');
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
         } else {
             updateScoreBoard();
+            
+            // 📊 2. LƯU DỮ LIỆU CHI TIẾT SANG DÀNH CHO ADMIN
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
             if (answeredCount === totalQuestions) {
-                alert(`Hoàn thành! Kết quả: ${currentScore}/${totalQuestions}.`);
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
                 localStorage.removeItem(QUIZ_STORAGE_KEY);
             }
         }
     }
 
+    // 📤 HÀM TỔNG HỢP & GỬI DỮ LIỆU KẾT QUẢ SANG TRANG ADMIN
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        // Bắn dữ liệu ra ngoài iframe nếu có
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
     function resetQuiz() {
-        if (!confirm('Bạn muốn làm lại từ đầu?')) return;
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
         currentScore = 0;
         answeredCount = 0;
+        
+        // 🕒 ĐẶT LẠI MỐC THỜI GIAN BẮT ĐẦU CHO LẦN LÀM MỚI
+        startTime = new Date();
+        
         localStorage.removeItem(QUIZ_STORAGE_KEY);
-
+        
         quizData.forEach(data => {
             const block = document.getElementById(`question-${data.id}`);
             if (block) {
                 block.dataset.locked = "false";
+                
                 const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
-                radios.forEach(radio => { radio.disabled = false; radio.checked = false; });
-
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                
                 for (const key of Object.keys(data.options)) {
                     const lbl = document.getElementById(`label-${data.id}-${key}`);
-                    if (lbl) lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                    if (lbl) {
+                        lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                    }
                 }
 
+                // Đặt lại màu ô Navigator
                 const navBtn = document.getElementById(`nav_btn_${data.id}`);
                 if (navBtn) {
                     navBtn.style.background = '#f8f9fa';
@@ -339,13 +550,16 @@ mẫu ko có explain
                 }
             }
         });
+        
         updateScoreBoard();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function updateScoreBoard() {
-        document.getElementById('progressText').innerText = `${answeredCount}/${totalQuestions}`;
-        document.getElementById('scoreText').innerText = currentScore;
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
     }
 
     document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
