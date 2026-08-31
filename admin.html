@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN - SATURNIFY</title>
+    <title>Trang Quản Lý Admin - Luyện Thi SAT</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -18,7 +18,7 @@
         .btn-view:hover { background: #27ae60; }
         .btn-clear { background: #e74c3c; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; float: right; margin-bottom: 10px; }
 
-        /* Modal xem chi tiết */
+        /* Modal popup xem chi tiết */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 10000; }
         .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 650px; max-height: 85vh; overflow-y: auto; }
         .close-btn { background: #7f8c8d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; float: right; font-weight: bold; }
@@ -29,7 +29,7 @@
 <body>
 
 <div class="container">
-    <button class="btn-clear" onclick="clearData()">🗑️ Xóa Tất Cả Dữ Liệu</button>
+    <button class="btn-clear" onclick="clearData()">🗑️ Xóa Lịch Sử Bài Làm</button>
     <h1>⚙️ Bảng Quản Lý Kết Quả Học Sinh</h1>
 
     <table>
@@ -40,24 +40,24 @@
                 <th>Lần Làm</th>
                 <th>Điểm Số</th>
                 <th>Thời Gian Làm</th>
-                <th>Nộp Lúc</th>
+                <th>Thời Gian Nộp</th>
                 <th>Chi Tiết</th>
             </tr>
         </thead>
         <tbody id="resultTableBody">
-            <!-- Dữ liệu sẽ tự động nạp vào đây -->
+            <!-- Dữ liệu bài làm nạp ở đây -->
         </tbody>
     </table>
 </div>
 
-<!-- Modal Chi Tiết Bài Làm -->
+<!-- Modal Xem Chi Tiết Đáp Án Học Sinh Chọn -->
 <div id="detailModal" class="modal">
     <div class="modal-content">
         <button class="close-btn" onclick="closeModal()">Đóng</button>
         <h2 id="modalStudentName" style="color: #2c3e50; margin-top: 0;">Chi Tiết Bài Làm</h2>
         <div id="modalInfo" style="line-height: 1.6; background: #eef2f5; padding: 12px; border-radius: 6px;"></div>
         
-        <h3 style="margin-top: 20px; color: #2980b9;">📌 Lựa Chọn Từng Câu:</h3>
+        <h3 style="margin-top: 20px; color: #2980b9;">📌 Lựa Chọn Từng Câu Của Học Sinh:</h3>
         <div id="modalAnswers" class="detail-grid"></div>
     </div>
 </div>
@@ -65,24 +65,24 @@
 <script>
     function loadResults() {
         const tbody = document.getElementById('resultTableBody');
-        const results = JSON.parse(localStorage.getItem('sat_results') || '[]').reverse(); // Mới nhất lên đầu
+        const results = JSON.parse(localStorage.getItem('sat_results') || '[]').reverse(); // Bài mới nhất nằm lên đầu
 
         if (results.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7">Chưa có lượt làm bài nào được ghi nhận.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7">Chưa có dữ liệu bài làm nào.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = '';
-        results.forEach(item => {
+        results.forEach((item, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><strong>${item.studentName}</strong></td>
                 <td>${item.quizTitle}</td>
-                <td><span style="background: #e17055; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.85em;">Lần ${item.attempt || 1}</span></td>
+                <td><span style="background: #e17055; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.85em;">Lần ${item.attempt || 1}</span></td>
                 <td><strong style="color: #27ae60;">${item.score}</strong> (${item.percentage})</td>
                 <td>${item.duration}</td>
                 <td>${item.endTime}</td>
-                <td><button class="btn-view" onclick='showDetail(${JSON.stringify(item)})'>👁️ Xem</button></td>
+                <td><button class="btn-view" onclick='showDetail(${JSON.stringify(item)})'>👁️ Xem chi tiết</button></td>
             `;
             tbody.appendChild(tr);
         });
@@ -95,17 +95,21 @@
             <b>Điểm số:</b> ${data.score} (${data.percentage})<br>
             <b>Bắt đầu:</b> ${data.startTime}<br>
             <b>Kết thúc:</b> ${data.endTime}<br>
-            <b>Tổng thời gian:</b> ${data.duration}
+            <b>Thời gian làm bài:</b> ${data.duration}
         `;
 
         const answersContainer = document.getElementById('modalAnswers');
         answersContainer.innerHTML = '';
 
-        for (const [qNum, choice] of Object.entries(data.answers)) {
-            const card = document.createElement('div');
-            card.className = 'detail-card';
-            card.innerHTML = `<b>${qNum}</b><br><span style="color: ${choice === 'Bỏ trống' ? '#e74c3c' : '#2980b9'}; font-weight: bold;">${choice}</span>`;
-            answersContainer.appendChild(card);
+        if (data.answers) {
+            for (const [qNum, choice] of Object.entries(data.answers)) {
+                const card = document.createElement('div');
+                card.className = 'detail-card';
+                card.innerHTML = `<b>${qNum}</b><br><span style="color: ${choice === 'Bỏ trống' ? '#e74c3c' : '#2980b9'}; font-weight: bold;">${choice}</span>`;
+                answersContainer.appendChild(card);
+            }
+        } else {
+            answersContainer.innerHTML = '<p>Không có chi tiết từng câu cho bài làm này.</p>';
         }
 
         document.getElementById('detailModal').style.display = 'flex';
