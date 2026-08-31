@@ -327,6 +327,23 @@
             }
         }
     });
+    // Lắng nghe kết quả từ iframe gửi ra và phát tín hiệu cho các Tab khác (Admin)
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'SAT_SUBMIT_RESULT') {
+            const resultData = event.data.data;
+            let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+            
+            // Tính số lần làm bài
+            const attempt = history.filter(h => h.studentName === resultData.studentName && h.quizTitle === resultData.quizTitle).length + 1;
+            resultData.attempt = attempt;
+
+            history.push(resultData);
+            localStorage.setItem('sat_results', JSON.stringify(history));
+
+            // Bắt buộc trình duyệt cập nhật sang tab Admin đang mở
+            window.dispatchEvent(new Event('storage'));
+        }
+    });
 </script>
 </body>
 </html>
