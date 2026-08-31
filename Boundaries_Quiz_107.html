@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập Trắc Nghiệm: Standard English Conventions (107 Câu)</title>
+    
+    <!-- Tích hợp MathJax -->
+    <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Thanh công cụ trôi nổi ở dưới cùng */
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+        }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px; font-size: 1.1em; background-color: #2ecc71; color: #fff;
+            border: none; border-radius: 5px; cursor: pointer; font-weight: bold;
+            transition: background 0.3s; box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        
+        .reset-btn {
+            padding: 12px 20px; font-size: 1.1em; background-color: #e74c3c; color: #fff;
+            border: none; border-radius: 5px; cursor: pointer; font-weight: bold;
+            transition: background 0.3s; box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+
+    <!-- TÍCH HỢP FIREBASE SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+            authDomain: "saturnifyllm.firebaseapp.com",
+            projectId: "saturnifyllm",
+            storageBucket: "saturnifyllm.firebasestorage.app",
+            messagingSenderId: "679587062435",
+            appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+            measurementId: "G-YV0NEJKNNH"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.saveScoreToFirebase = async function(score, total) {
+            const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+            const studentId = sessionStorage.getItem('studentId') || "N/A";
+            const quizName = document.title;
+
+            try {
+                await addDoc(collection(db, "results"), {
+                    name: studentName,
+                    id: studentId,
+                    quizTitle: quizName,
+                    score: score,
+                    total: total,
+                    timestamp: new Date()
+                });
+                console.log("Đã lưu điểm thành công lên Firebase!");
+            } catch (error) {
+                console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+            }
+        };
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bài Tập Trắc Nghiệm: Standard English Conventions</h1>
+    <p style="text-align: center; color: #7f8c8d;">Làm bài đến đâu, chọn đáp án rồi bấm <strong>"Kiểm tra các câu đã chọn"</strong> ở thanh dưới cùng nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="sticky-footer">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/107</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" onclick="resetQuiz()">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" onclick="checkCurrentAnswers()">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {id: 1, question: "Generations of mystery and horror ______ have been influenced by the dark, gothic stories of celebrated American author Edgar Allan Poe (1809–1849).", options: {A: "writers", B: "writers,", C: "writers—", D: "writers;"}, correctAnswer: "A"},
+        {id: 2, question: "The Mission 66 initiative, which was approved by Congress in 1956, represented a major investment in the infrastructure of overburdened national ______ it prioritized physical improvements to the parks’ roads, utilities, employee housing, and visitor facilities while also establishing educational programming for the public.", options: {A: "parks and", B: "parks", C: "parks;", D: "parks,"}, correctAnswer: "A"},
+        {id: 3, question: "A recent study tracked the number of bee species present in twenty-seven New York apple orchards over a ten-year period. ______ found that when wild growth near an orchard was cleared, the number of different bee species visiting the orchard decreased.", options: {A: "Entomologist Heather Grab:", B: "Entomologist, Heather Grab,", C: "Entomologist Heather Grab", D: "Entomologist Heather Grab,"}, correctAnswer: "A"},
+        {id: 4, question: "A study led by scientist Rebecca Kirby at the University of Wisconsin–Madison found that black bears that eat human food before hibernation have increased levels of a rare carbon isotope, ______ due to the higher 13C levels in corn and cane sugar. Bears with these elevated levels were also found to have much shorter hibernation periods on average.", options: {A: "carbon-13, (13C)", B: "carbon-13 (13C)", C: "carbon-13, (13C),", D: "carbon-13 (13C),"}, correctAnswer: "A"},
+        {id: 5, question: "The haiku-like poems of Tomas Tranströmer, which present nature- and dream- influenced images in crisp, spare language, have earned the Swedish poet praise from leading contemporary ______ them Nigerian American essayist and novelist Teju Cole, who has written that Tranströmer’s works “contain a luminous simplicity.”", options: {A: "writers. Among", B: "writers among", C: "writers; among", D: "writers, among"}, correctAnswer: "A"},
+        {id: 6, question: "While one requires oxygen and one does ______ and anaerobic respiration are both forms of cellular respiration—that is, they are processes by which cells break down glucose to use as energy.", options: {A: "not aerobic", B: "not. Aerobic", C: "not, aerobic", D: "not; aerobic"}, correctAnswer: "A"},
+        {id: 7, question: "To serve local families during the Great Depression, innovative New York City librarian Pura Belpré offered storytelling in both English and Spanish, an uncommon ______ celebrated el Día de los Tres Reyes Magos, an important community holiday; and put on puppet shows dramatizing Puerto Rican folktales.", options: {A: "practice, at the time", B: "practice at the time;", C: "practice, at the time,", D: "practice at the time,"}, correctAnswer: "A"},
+        {id: 8, question: "Photosynthesis, the mechanism by which plants use sunlight to turn carbon dioxide and water into ______ is fueled in part by an enzyme called Photosystem II that harvests energy-giving electrons from water molecules.", options: {A: "nutrients", B: "nutrients and", C: "nutrients,", D: "nutrients—"}, correctAnswer: "A"},
+        {id: 9, question: "Human-made (synthetic) fibers used in clothes and many other consumer products are more durable than most natural plant ______ the manufacture of synthetic fibers requires toxic chemical solvents that can pollute air and water.", options: {A: "fibers,", B: "fibers but", C: "fibers", D: "fibers, but"}, correctAnswer: "A"},
+        {id: 10, question: "After a spate of illnesses as a child, Wilma Rudolph was told she might never walk again. Defying all odds, Rudolph didn’t just walk, she ______ the 1960 Summer Olympics in Rome, she won both the 100- and 200-meter dashes and clinched first place for her team in the 4x100-meter relay, becoming the first US woman to win three gold medals in a single Olympics.", options: {A: "ran—fast—during", B: "ran—fast during", C: "ran—fast, during", D: "ran—fast. During"}, correctAnswer: "A"},
+        {id: 11, question: "Emperor penguins don’t waddle out of the ocean. They launch themselves at such a high speed that they travel up to two meters before landing. How ______ A layer of microbubbles on their plumage reduces friction as the penguins speed to the surface.", options: {A: "they are able to move so fast!", B: "are they able to move so fast.", C: "they are able to move so fast.", D: "are they able to move so fast?"}, correctAnswer: "A"},
+        {id: 12, question: "Beatrix Potter is perhaps best known for writing and illustrating children’s books such as The Tale of Peter Rabbit (1902), but she also dedicated herself to mycology, the study of ______ more than 350 paintings of the fungal species she observed in nature and submitting her research on spore germination to the Linnean Society of London.", options: {A: "fungi; producing", B: "fungi. Producing", C: "fungi producing", D: "fungi, producing"}, correctAnswer: "A"},
+        {id: 13, question: "In addition to advocating for South America’s independence in two political treatises, the Cartagena Manifesto and the Letter from Jamaica, Simón Bolívar personally led armies against the Spanish, liberating three South American territories—New Granada (present-day Colombia and Panama), Venezuela, and Quito (present-day ______ from colonial rule.", options: {A: "Ecuador,)", B: "Ecuador)", "C": "Ecuador),", "D": "Ecuador)—"}, correctAnswer: "A"},
+        {id: 14, question: "In a 2016 study, Eastern Washington University psychologist Amani El-Alayli found that, among the study participants who experienced frisson (a physiological response akin to goosebumps or getting the chills) while listening to music, there was one personality trait that they scored particularly ______ openness to experience.", options: {A: "high. On", B: "high on;", C: "high on", D: "high on:"}, correctAnswer: "A"},
+        {id: 15, question: "Emperor Ashoka ruled the Maurya Empire in South Asia from roughly 270 to 232 BCE. He is known for enforcing a moral code called the Law of Piety, which established the sanctity of animal ______ the just treatment of the elderly, and the abolition of the slave trade.", options: {A: "life", B: "life;", C: "life:", "D": "life,"}, correctAnswer: "A"},
+        {id: 16, question: "On July 23, 1854, a clipper ship called the Flying Cloud entered San Francisco ______ left New York Harbor under the guidance of Captain Josiah Perkins Creesy and his wife, navigator Eleanor Creesy, a mere 89 days and 8 hours earlier, the celebrated ship set a record that would stand for 135 years.", options: {A: "Bay and having", B: "Bay. Having", C: "Bay, having", D: "Bay having"}, correctAnswer: "A"},
+        {id: 17, question: "When external forces are applied to common glass made from silicates, energy builds up around minuscule defects in the material, resulting in fractures. Recently, engineer Erkka Frankberg of Tampere University in Finland used the chemical ______ to make a glassy solid that can withstand higher strain than silicate glass can before fracturing.", options: {A: "compound, aluminum oxide", B: "compound aluminum oxide,", C: "compound, aluminum oxide,", "D": "compound aluminum oxide"}, correctAnswer: "A"},
+        {id: 18, question: "In 2018, a team of researchers led by Dr. Caitlin Whalen compiled every available measurement of ocean mixing rates from the past two decades. With this novel data set, the team was able to determine how current-driven mixing varies across ______ and what impact it has on the distribution of heat and nutrients in the ocean.", options: {A: "regions,", B: "regions:", "C": "regions;", "D": "regions"}, correctAnswer: "A"},
+        {id: 19, question: "Researcher Lin Zhi developed a process for increasing the tensile strength— measured in gigapascals, or GPa—of silkworm ______ dissolving and reweaving the silk in a solution of iron metal ions, zinc, and sugar, Zhi increased the amount of force required to stretch it from approximately 0.5 GPa to 2 GPa.", options: {A: "silk, by", B: "silk by", C: "silk and by", D: "silk. By"}, correctAnswer: "A"},
+        {id: 20, question: "A subseasonal weather forecast attempts to predict weather conditions three to four weeks in ______ its predictions are therefore more short-term than those of the seasonal forecast, which attempts to predict the weather more than a month in advance.", options: {A: "advance,", B: "advance", C: "advance;", "D": "advance and"}, "correctAnswer": "A"},
+        {id: 21, question: "In discussing Mary Shelley’s 1818 epistolary novel Frankenstein, literary theorist Gayatri Spivak directs the reader’s attention to the character of Margaret Saville. As Spivak points out, Saville is not the protagonist of Shelley’s ______ as the recipient of the letters that frame the book’s narrative, she’s the “occasion” of it.", options: {A: "novel", B: "novel,", C: "novel; rather,", "D": "novel, rather,"}, "correctAnswer": "A"},
+        {id: 22, question: "As British scientist Peter Whibberley has observed, “the Earth is not a very good timekeeper.” Earth’s slightly irregular rotation rate means that measurements of time must be periodically adjusted. Specifically, an extra “leap second” (the 86,401st second of the day) is ______ time based on the planet’s rotation lags a full nine-tenths of a second behind time kept by precise atomic clocks.", options: {A: "added, whenever", B: "added; whenever", C: "added. Whenever", D: "added whenever"}, "correctAnswer": "A"},
+        {id: 23, question: "In her book The Woman Warrior: Memoirs of a Girlhood Among Ghosts, author Maxine Hong Kingston examines themes ______ childhood, womanhood, and Chinese American identity by intertwining autobiography and mythology.", options: {A: "of:", B: "of", C: "of—", "D": "of,"}, "correctAnswer": "A"},
+        {id: 24, question: "The fine, powdery substance that covers the Moon’s surface is called regolith. Because regolith is both readily available and high in oxygen ______ scientists have wondered whether it could be used as a potential source of oxygen for future lunar settlements.", options: {A: "content and", B: "content,", "C": "content", "D": "content, and"}, "correctAnswer": "A"},
+        {id: 25, question: "Over twenty years ago, in a landmark experiment in the psychology of choice, professor Sheena Iyengar set up a jam-tasting booth at a grocery store. The number of jams available for tasting ______ some shoppers had twenty-four different options, others only six. Interestingly, the shoppers with fewer jams to choose from purchased more jam.", options: {A: "varied:", B: "varied,", "C": "varied, while", "D": "varied while"}, "correctAnswer": "A"},
+        {id: 26, question: "Po’Pay was a Tewa leader from Ohkay Owingeh, a pueblo located about twenty-five miles north of present-day Santa Fe, New Mexico. He was instrumental in organizing the Pueblo Revolt of ______ as a result of his leadership, the Spanish colonizers were expelled from the region for a time.", options: {A: "1680", B: "1680 and", C: "1680,", "D": "1680, and"}, "correctAnswer": "A"},
+        {id: 27, question: "Psychophysicist Howard Moskowitz was hired by a soda company to determine how much artificial sweetener ______ After conducting consumer taste tests, he found that no such ideal existed: participants expressed a wide range of preferences for different blends of sweetener, carbonization, and flavoring.", options: {A: "do most people prefer in a diet drink?", B: "do most people prefer in a diet drink.", C: "most people prefer in a diet drink?", "D": "most people prefer in a diet drink."}, "correctAnswer": "A"},
+        {id: 28, question: "Gathering accurate data on water flow in the United States is challenging because of the country’s millions of miles of ______ the volume and speed of water at any given location can vary drastically over time.", options: {A: "waterways and the fact that,", "B": "waterways, and the fact that,", "C": "waterways, and, the fact that", "D": "waterways and the fact that"}, "correctAnswer": "A"},
+        {id: 29, question: "In 2008, two years after the death of science fiction writer Octavia Butler, the Huntington Library in ______ received a collection of more than 8,000 items, including Butler’s private notes, research materials, manuscripts, photos, and drawings. Today, the Octavia E. Butler Collection is one of the most researched archives at the library.", options: {A: "California,", "B": "California:", "C": "California—", "D": "California"}, "correctAnswer": "A"},
+        {id: 30, question: "On sunny days, dark rooftops absorb solar energy and convert it to unwanted heat, raising the surrounding air ______ a light-colored covering to an existing dark roof, either by attaching prefabricated reflective sheets or spraying on a paint-like coating, helps combat this effect.", options: {A: "temperature; by adding", B: "temperature, adding", C: "temperature. Adding", "D": "temperature by adding"}, "correctAnswer": "A"},
+        {id: 31, question: "Typically, underlines, scribbles, and notes left in the margins by a former owner lower a book’s ______ when the former owner is a famous poet like Walt Whitman, such markings, known as marginalia, can be a gold mine to literary scholars.", options: {A: "value, but", B: "value", C: "value,", "D": "value but"}, "correctAnswer": "A"},
+        {id: 32, question: "After the United Kingdom began rolling out taxes equivalent to a few cents on single- use plastic grocery bags in 2011, plastic-bag consumption decreased by up to ninety ______ taxes are subject to what economists call the “rebound effect”: as the change became normalized, plastic-bag use started to creep back up.", options: {A: "percent, such", "B": "percent and such", "C": "percent. Such", "D": "percent such"}, "correctAnswer": "A"},
+        {id: 33, question: "In her two major series “Memory Test” and “Autobiography,” painter Howardena Pindell explored themes ______ healing, self-discovery, and memory by cutting and sewing back together pieces of canvas and inserting personal artifacts, such as postcards, into some of the paintings.", options: {A: "of", "B": "of,", "C": "of—", "D": "of:"}, "correctAnswer": "A"},
+        {id: 34, question: "Archaeologists have estimated that the pre-Columbian Native American city of Cahokia, located across the Mississippi River from modern-day St. Louis, Missouri, had as many as 20,000 inhabitants in the year 1150 ______ it one of the largest cities in North America at the time.", options: {A: "CE making", "B": "CE. Making", "C": "CE, making", "D": "CE; making"}, "correctAnswer": "A"},
+        {id: 35, question: "About 70,000 meteorites have been found on Earth. Although most meteorites are fragments of ______ hundred have been identified as being from the Moon or Mars.", options: {A: "asteroids. Several", "B": "asteroids, several", "C": "asteroids; several", "D": "asteroids: several"}, "correctAnswer": "A"},
+        {id: 36, question: "Sociologist Alton Okinaka sits on the review board tasked with adding new sites to the Hawai‘i Register of Historic Places, which includes Pi‘ilanihale Heiau and the ‘Ōpaeka‘a Road Bridge. Okinaka doesn’t make such decisions ______ all historical designations must be approved by a group of nine other experts from the fields of architecture, archaeology, history, and Hawaiian culture.", options: {A: "single-handedly, however;", "B": "single-handedly; however,", "C": "single-handedly, however,", "D": "single-handedly however"}, "correctAnswer": "A"},
+        {id: 37, question: "Polyphenols are organic compounds ______ among their many roles, provide pigment that helps protect plants against ultraviolet radiation from sunlight.", options: {A: "that—", "B": "that;", "C": "that,", "D": "that:"}, "correctAnswer": "A"},
+        {id: 38, question: "Eli Eisenberg, a genetics expert at Tel Aviv University in Israel, recently discovered that ______ have a special genetic ability called RNA editing that confers evolutionary advantages.", options: {A: "cephalopods, ocean dwellers that include the squid, the octopus, and the cuttlefish", B: "cephalopods—ocean dwellers—that include the squid, the octopus, and the  cuttlefish,", "C": "cephalopods, ocean dwellers that include: the squid, the octopus, and the cuttlefish,", "D": "cephalopods—ocean dwellers that include the squid, the octopus, and the  cuttlefish—"}, "correctAnswer": "A"},
+        {id: 39, question: "Detroit natives Timothy Paule and Nicole Lindsey have combined their two passions, Detroit and beekeeping, to improve the health of their city’s flowers and other vegetation. In 2017, the couple converted a vacant lot in the city into an ______ in the years that followed they acquired nine additional lots and established more than 35 hives.", options: {A: "apiary,", "B": "apiary, and", "C": "apiary and", "D": "apiary"}, "correctAnswer": "A"},
+        {id: 40, question: "The city of Pompeii, which was buried in ash following the eruption of Mount Vesuvius in 79 CE, continues to be studied by archaeologists. Unfortunately, as ______ attest, archaeological excavations have disrupted ash deposits at the site, causing valuable information about the eruption to be lost.", options: {A: "researchers, Roberto Scandone and Christopher Kilburn,", "B": "researchers, Roberto Scandone and Christopher Kilburn", "C": "researchers Roberto Scandone and Christopher Kilburn", "D": "researchers Roberto Scandone, and Christopher Kilburn"}, "correctAnswer": "A"},
+        {id: 41, question: "Using satellite remote sensing, Dr. Catherine Nakalembe, director of NASA’s Harvest Africa initiative, gathers important data on crop health. Nakalembe doesn’t just compile the ______ she also shares her findings with African farmers, enabling them to make data-driven decisions about managing critical food crops.", options: {A: "information, though;", "B": "information, though,", "C": "information; though", "D": "information though,"}, "correctAnswer": "A"},
+        {id: 42, question: "From afar, African American fiber artist Bisa Butler’s portraits look like paintings, their depictions of human faces, bodies, and clothing so intricate that it seems only a fine brush could have rendered them. When viewed up close, however, the portraits reveal themselves to be ______ stitching barely visible among the thousands of pieces of printed, microcut fabric.", options: {A: "quilts, and the", "B": "quilts, the", "C": "quilts; the", "D": "quilts. The"}, "correctAnswer": "A"},
+        {id: 43, question: "In paleontology, the term “Elvis taxon” gets applied to a newly identified living species that was once presumed to be extinct. Like an Elvis impersonator who might bear a striking resemblance to the late musical icon Elvis Presley himself, an Elvis taxon is not the real thing, ______ is a misidentified look-alike.", options: {A: "however but it", "B": "however it", "C": "however, it", "D": "however. It"}, "correctAnswer": "A"},
+        {id: 44, question: "After the printing press was introduced in 1440, handwritten manuscripts from Europe’s medieval period were often destroyed and the paper used for other purposes. In one instance, pages ______ a collection of Norse tales dating to 1270 were discovered lining a bishop’s miter (hat).", options: {A: "from:", "B": "from,", "C": "from", "D": "from—"}, "correctAnswer": "A"},
+        {id: 45, question: "Santa Clara Pueblo artist Roxanne Swentzell’s sculpture Mud Woman Rolls On consists of five human figures made of clay and plant fiber and arranged in descending size; each figure holds the smaller one in front of it. The arrangement of the figures, according to ______ represents her idea that “we all come from the Earth, generation after generation.”", options: {A: "Swentzell", "B": "Swentzell,", "C": "Swentzell:", "D": "Swentzell—"}, "correctAnswer": "A"},
+        {id: 46, question: "Nine months before Rosa Parks made history by refusing to comply with the segregated seating policy on a Montgomery, Alabama, bus, a fifteen-year-old Montgomery girl named Claudette Colvin was arrested for the same ______ to some historians, Colvin’s arrest led to Parks’s action and eventually to the desegregation of Montgomery’s bus system.", options: {A: "offense. According", "B": "offense, according", "C": "offense according", "D": "offense and according"}, "correctAnswer": "A"},
+        {id: 47, question: "The first computerized spreadsheet, Dan Bricklin’s VisiCalc, improved financial recordkeeping not only by providing users with an easy means of adjusting data in spreadsheets but also by automatically updating all calculations that were dependent on these ______ to VisiCalc’s release, changing a paper spreadsheet often required redoing the entire sheet by hand, a process that could take days.", options: {A: "adjustments prior", "B": "adjustments, prior", "C": "adjustments. Prior", "D": "adjustments and prior"}, "correctAnswer": "A"},
+        {id: 48, question: "It is generally true that technological change is a linear process, in which once-useful technologies are replaced by new and better ______ the reawakening of interest in the steam engine (from advocates of carbon-neutral rail travel) reminds us that ostensibly obsolete technologies may be brought back into service to address society’s changing needs.", options: {A: "ones, even so;", "B": "ones even so,", "C": "ones; even so,", "D": "ones, even so,"}, "correctAnswer": "A"},
+        {id: 49, question: "In 2017, artists Isabel and Ruben Toledo redesigned the costumes and sets for The Miami City Ballet’s production of The ______ to reviewers, the Toledos’ designs helped infuse the production with elements of Miami’s Latin American culture.", options: {A: "Nutcracker according,", "B": "Nutcracker, according", "C": "Nutcracker according", "D": "Nutcracker. According"}, "correctAnswer": "A"},
+        {id: 50, question: "Seneca sculptor Marie Watt’s blanket art comes in a range of shapes and sizes. In 2004, Watt sewed strips of blankets together to craft a 10-by-13-inch ______ in 2014, she arranged folded blankets into two large stacks and then cast them in bronze, creating two curving 18-foot-tall blue-bronze pillars.", options: {A: "sampler later,", "B": "sampler;", "C": "sampler,", "D": "sampler, later,"}, "correctAnswer": "A"},
+        {id: 51, question: "The life spans of rockfish vary greatly by species. For instance, the colorful calico rockfish (Sebastes dalli) can survive for a little over a ______ the rougheye rockfish (Sebastes aleutianus) boasts a maximum life span of about two centuries.", options: {A: "decade: while", "B": "decade. While", "C": "decade; while", "D": "decade, while"}, "correctAnswer": "A"},
+        {id: 52, question: "The Arctic-Alpine Botanic Garden in Norway and the Jardim Botânico of Rio de Janeiro in Brazil are two of many botanical gardens around the world dedicated to growing diverse plant ______ fostering scientific research; and educating the public about plant conservation.", options: {A: "species, both native and nonnative,", "B": "species, both native and nonnative;", "C": "species; both native and nonnative,", "D": "species both native and nonnative,"}, "correctAnswer": "A"},
+        {id: 53, question: "In 1955, Indian Bengali filmmaker Satyajit Ray released his first movie, Pather ______ quiet black-and-white drama about a family in rural India, Ray’s film was quite different from the loud, colorful action-romance movies that were popular at the time.", options: {A: "Panchali a", "B": "Panchali, which was a", "C": "Panchali, a", "D": "Panchali. A"}, "correctAnswer": "A"},
+        {id: 54, question: "A study published by Rice University geoscientist Ming Tang in 2019 offers a new explanation for the origin of Earth’s ______ structures called arcs, towering ridges that form when a dense oceanic plate subducts under a less dense continental plate, melts in the mantle below, and then rises and bursts through the continental crust above.", options: {A: "continents geological", "B": "continents: geological", "C": "continents; geological", "D": "continents. Geological"}, "correctAnswer": "A"},
+        {id: 55, question: "Humans were long thought to have begun occupying the Peruvian settlement of Machu Picchu between 1440 and 1450 CE. However, a team led by anthropologist Dr. Richard Burger used accelerator mass spectrometry to uncover evidence that it was occupied ______ 1420 CE, according to Burger, humans were likely inhabiting the area.", options: {A: "earlier. In", "B": "earlier, in", "C": "earlier, which in", "D": "earlier in"}, "correctAnswer": "A"},
+        {id: 56, question: "The intense pressure found in the deep ocean can affect the structure of proteins in fish’s cells, distorting the proteins’ shape. The chemical trimethylamine N-oxide (TMAO) counters this effect, ensuring that proteins retain their original ______ is found in high concentrations in the cells of the deepest-dwelling fish.", options: {A: "configurations. TMAO", "B": "configurations TMAO", "C": "configurations, TMAO", "D": "configurations and TMAO"}, "correctAnswer": "A"},
+        {id: 57, question: "When particles are suspended in liquid (like pollen in a water glass), they will zigzag randomly through the liquid and collide with one another in perpetuity. This type of random, continuous ______ is known as Brownian motion, can be observed throughout the natural world.", options: {A: "movement: which", "B": "movement, which", "C": "movement which", "D": "movement. Which"}, "correctAnswer": "A"},
+        {id: 58, question: "Materials scientist Marie-Agathe Charpagne and her colleagues believed they could improve on the multicomponent alloy NiCoCr, an equal-proportions mixture of nickel (Ni), cobalt (Co), and chromium (Cr), by replacing chromium with ruthenium ______ the alloy that resulted, NiCoRu, turned out to be an unsuitable replacement for NiCoCr.", "options": {A: "(Ru)", "B": "(Ru) but", "C": "(Ru),", "D": "(Ru), but"}, "correctAnswer": "A"},
+        {id: 59, question: "The forty-seven geothermal springs of Arkansas’ Hot Springs National Park are sourced via a process known as natural groundwater recharge, in which rainwater percolates downward through the earth—in this case, the porous rocks of the hills around Hot ______ collect in a subterranean basin.", options: {A: "Springs to", "B": "Springs: to", "C": "Springs—to", "D": "Springs, to"}, "correctAnswer": "A"},
+        {id: 60, question: "In 1959, the film industry debuted Smell-O-Vision. Theaters were fitted with specialized vents that emitted odors at specific points in a ______ as the scent of roses when roses appeared in a scene. Smell-O-Vision failed to impress, however, with one reviewer declaring it “briefly weird and not very interesting.”", options: {A: "movie such", "B": "movie; such", "C": "movie. Such", "D": "movie, such"}, "correctAnswer": "A"},
+        {id: 61, question: "In 2010, archaeologist Noel Hidalgo Tan was visiting the twelfth-century temple of Angkor Wat in Cambodia when he noticed markings of red paint on the temple ______ the help of digital imaging techniques, he discovered the markings to be part of an elaborate mural containing over 200 paintings.", "options": {"A": "walls, with", "B": "walls with", "C": "walls so with", "D": "walls. With"}, "correctAnswer": "A"},
+        {id: 62, question: "According to Naomi Nakayama of the University of Edinburgh, the reason seeds from a dying dandelion appear to float in the air while ______ is that their porous plumes enhance drag, allowing the seeds to stay airborne long enough for the wind to disperse them throughout the surrounding area.", "options": {"A": "falling,", "B": "falling:", "C": "falling;", "D": "falling"}, "correctAnswer": "A"},
+        {id: 63, question: "In 1727, dramatist Lewis Theobald presented a new play, Double Falsehood, at a London theater. Theobald claimed that his drama was based on a little-known play by William Shakespeare, Cardenio. Many, including poet Alexander Pope, were ______ historians have determined that Shakespeare’s company did perform a play called Cardenio in 1613.", "options": {"A": "skeptical but", "B": "skeptical, but", "C": "skeptical,", "D": "skeptical"}, "correctAnswer": "A"},
+        {id: 64, question: "Robin Wall Kimmerer of the Citizen Potawatomi Nation is a bryologist, a plant scientist who specializes in mosses. To Kimmerer, mosses are Earth’s most adaptable plants: they can clone ______ enter a dormant state in times of drought, and grow in areas that don’t have soil.", "options": {"A": "themselves;", "B": "themselves,", "C": "themselves. And", "D": "themselves"}, "correctAnswer": "A"},
+        {id: 65, question: "The Tantaquidgeon Museum in Uncasville, Connecticut, was founded in 1931 with the goal of showcasing the culture and history of the Mohegan ______ today, nearly a century later, it is the oldest Native-owned and -operated museum in the country.", "options": {"A": "Tribe, and", "B": "Tribe", "C": "Tribe and", "D": "Tribe,"}, "correctAnswer": "A"},
+        {id: 66, question: "The poem Beowulf begins with the word “hwæt,” which is an Old English ______ as “hark!” or “listen!” in some versions, the word was playfully rendered as “bro!” by Maria Dahvana Headley in her 2020 translation of the poem.", "options": {"A": "exclamation, translated", "B": "exclamation and translated", "C": "exclamation translated", "D": "exclamation. Translated"}, "correctAnswer": "A"},
+        {id: 67, question: "In 1976, the Inuit rock group Sikumiut recorded the album People of the Ice. Though only their first record, it shows a band already skilled at the difficult task of making music that sounds easy and fun. On songs like “Utirumavunga,” Lucassie Koperqualuk’s guitar riffs effortlessly ______ Charlie Adams’s delightfully catchy vocal melodies.", "options": {"A": "blend, with", "B": "blend. With", "C": "blend; with", "D": "blend with"}, "correctAnswer": "A"},
+        {id: 68, question: "Nigerian author Buchi Emecheta’s celebrated literary oeuvre includes The Joys of Motherhood, a novel about the changing roles of women in 1950s ______ a television play about the private struggles of a newlywed couple in Nigeria; and Head Above Water, her autobiography.", "options": {"A": "Lagos, A Kind of Marriage,", "B": "Lagos; A Kind of Marriage,", "C": "Lagos, A Kind of Marriage:", "D": "Lagos; A Kind of Marriage"}, "correctAnswer": "A"},
+        {id: 69, question: "In 1943, in the midst of World War II, mathematics professor Grace Hopper was recruited by the US military to help the war effort by solving complex equations. Hopper’s subsequent career would involve more than just ______ as a pioneering computer programmer, Hopper would help usher in the digital age.", "options": {"A": "equations, though:", "B": "equations, though,", "C": "equations. Though,", "D": "equations though"}, "correctAnswer": "A"},
+        {id: 70, question: "A conceptual artist and designer embraced by both the art world and the fashion ______ Mary Ping was chosen to curate the exhibition Front Row: Chinese American Designers for the Museum of Chinese in America.", "options": {"A": "world", "B": "world:", "C": "world;", "D": "world,"}, "correctAnswer": "A"},
+        {id: 71, question: "Both Sona Charaipotra, an Indian American, and Dhonielle Clayton, an African American, grew up frustrated by the lack of diverse characters in books for young people. In 2011, these two writers joined forces to found CAKE Literary, a book packaging ______ specializes in the creation and promotion of stories told from diverse perspectives for children and young adults.", "options": {"A": "company,", "B": "company that", "C": "company", "D": "company, that"}, "correctAnswer": "A"},
+        {id: 72, question: "In 2000, Nora de Hoyos Comstock, herself an owner of a successful consulting firm, sought to increase Latina representation in corporate ______ founded Las Comadres para las Americas, an international community that for over two decades has served as a resource and information network for Latina business professionals.", "options": {"A": "settings she", "B": "settings, she", "C": "settings and she", "D": "settings. She"}, "correctAnswer": "A"},
+        {id: 73, question: "Hegra is an archaeological site in present-day Saudi Arabia and was the second largest city of the Nabataean Kingdom (fourth century BCE to first century CE). Archaeologist Laila Nehmé recently traveled to Hegra to study its ancient ______ into the rocky outcrops of a vast desert, these burial chambers seem to blend seamlessly with nature.", "options": {"A": "tombs. Built", "B": "tombs, built", "C": "tombs and built", "D": "tombs built"}, "correctAnswer": "A"},
+        {id: 74, question: "Luci Tapahonso is the inaugural poet laureate of the Navajo Nation. Her book Sáanii Dahataal/The Women Are Singing—a combination of fiction and memoir, poetry and ______ serves as a testament to her versatility as a writer.", "options": {"A": "prose;", "B": "prose", "C": "prose,", "D": "prose—"}, "correctAnswer": "A"},
+        {id: 75, question: "American writer Edwidge Danticat, who emigrated from Haiti in 1981, has won acclaim for her powerful short stories, novels, and ______ her lyrical yet unflinching depictions of her native country’s turbulent history, writer Robert Antoni has compared Danticat to Nobel Prize–winning novelist Toni Morrison.", "options": {"A": "essays, praising", "B": "essays and praising", "C": "essays praising", "D": "essays. Praising"}, "correctAnswer": "A"},
+        {id: 76, question: "The field of geological oceanography owes much to American ______ Marie Tharp, a pioneering oceanographic cartographer whose detailed topographical maps of the ocean floor and its multiple rift valleys helped garner acceptance for the theories of plate tectonics and continental drift.", "options": {"A": "geologist,", "B": "geologist", "C": "geologist;", "D": "geologist:"}, "correctAnswer": "A"},
+        {id: 77, question: "In crafting her fantasy fiction, Nigerian-born British author Helen Oyeyemi has drawn inspiration from the classic nineteenth-century fairy tales of the Brothers Grimm. Her 2014 novel Boy, Snow, Bird, for instance, is a complex retelling of the story of Snow White, while her 2019 novel ______ offers a delicious twist on the classic tale of Hansel and Gretel.", "options": {"A": "Gingerbread—", "B": "Gingerbread,", "C": "Gingerbread", "D": "Gingerbread:"}, "correctAnswer": "A"},
+        {id: 78, question: "Swedish scientists Eva Engvall and Peter Perlmann developed a method for measuring the concentration of different proteins in a biological sample. Their ______ ELISA (enzyme-linked immunosorbent assay), is used to detect and measure proteins that indicate the presence of certain diseases.", "options": {"A": "method (called", "B": "method—called", "C": "method, called", "D": "method called"}, "correctAnswer": "A"},
+        {id: 79, question: "A standard Argo float, a type of autonomous robot, measures temperature and salinity in the upper regions of ice-free oceans. More advanced floats can measure a wider range of ______ and monitor seasonal ice zones.", "options": {"A": "variables: travel to greater depths", "B": "variables, travel to greater depths,", "C": "variables travel to greater depths,", "D": "variables, travel to greater depths;"}, "correctAnswer": "A"},
+        {id: 80, question: "Fans of science fiction will ______ multiple references to classic sci-fi stories in Janelle Monáe’s song lyrics, including her recurring nods to the plot of the 1927 sci-fi film Metropolis.", "options": {"A": "appreciate the", "B": "appreciate. The", "C": "appreciate, the", "D": "appreciate: the"}, "correctAnswer": "A"},
+        {id: 81, question: "Quantum particles of light—photons—provide an unhackable means of transmitting encryption keys over networks, as attempts to observe particles in quantum states will invariably alter the particles ______ dismantle any information they transmit.", "options": {"A": "and in the process,", "B": "and, in the process,", "C": "and in the process—", "D": "and, in the process"}, "correctAnswer": "A"},
+        {id: 82, question: "Lucía Michel of the University of Chile observed that alkaline soils contain an insoluble form of iron that blueberry plants cannot absorb, thus inhibiting blueberry growth. If these plants were grown in alkaline soil alongside grasses that aid in iron solubilization, ______ Michel was determined to find out.", "options": {"A": "could the blueberries thrive.", "B": "the blueberries could thrive.", "C": "the blueberries could thrive?", "D": "could the blueberries thrive?"}, "correctAnswer": "A"},
+        {id: 83, question: "Award-winning cinematographer James Wong Howe was known for his innovative filming techniques. While filming a boxing match for the movie Body and Soul ______ Howe had a handheld camera operator wear roller skates. This allowed the operator to move smoothly around actors in a boxing ring, creating an immersive experience for viewers.", "options": {"A": "(1947), and", "B": "(1947),", "C": "(1947) and", "D": "(1947)"}, "correctAnswer": "A"},
+        {id: 84, question: "Winding through the ice atop Norway’s Jotunheim Mountains is the Lendbreen pass, an ancient route that was used by hunters, farmers, traders, and travelers in the Middle Ages before eventually falling into disuse. Recently, archeologists have ______ knives, horseshoes, wool tunics, and thousands of other artifacts from the icy pass.", "options": {"A": "unearthed:", "B": "unearthed,", "C": "unearthed—", "D": "unearthed"}, "correctAnswer": "A"},
+        {id: 85, question: "Journalists have dubbed Gil Scott-Heron the “godfather of rap,” a title that has appeared in hundreds of articles about him since the 1990s. Scott-Heron himself resisted the godfather ______ feeling that it didn’t encapsulate his devotion to the broader African American blues music tradition as well as “bluesologist,” the moniker he preferred.", "options": {"A": "nickname, however", "B": "nickname, however;", "C": "nickname, however,", "D": "nickname; however,"}, "correctAnswer": "A"},
+        {id: 86, question: "How do scientists determine what foods were eaten by extinct hominins such as Neanderthals? In the past, researchers were limited to studying the marks found on the fossilized teeth of skeletons, but in 2017 a team led by Laura Weyrich of the Australian Centre for Ancient DNA tried something ______ the DNA found in Neanderthals’ fossilized dental plaque.", "options": {"A": "new: sequencing", "B": "new; sequencing", "C": "new, sequencing:", "D": "new. Sequencing"}, "correctAnswer": "A"},
+        {id: 87, question: "Before the Erie Canal was completed in 1825, transporting goods by wagon between New York City and the Midwest took up to forty-five days and cost one hundred dollars per ton. By linking the Hudson River to Lake ______ canal reduced transport time to nine days and cut costs to six dollars per ton.", "options": {"A": "Erie; the", "B": "Erie (the", "C": "Erie, the", "D": "Erie: the"}, "correctAnswer": "A"},
+        {id: 88, question: "During the English neoclassical period (1660–1789), many writers imitated the epic poetry and satires of ancient Greece and Rome. They were not the first in England to adopt the literary modes of classical ______ some of the most prominent figures of the earlier Renaissance period were also influenced by ancient Greek and Roman literature.", "options": {"A": "antiquity, however", "B": "antiquity, however,", "C": "antiquity, however;", "D": "antiquity; however,"}, "correctAnswer": "A"},
+        {id: 89, question: "Stomata, tiny pore structures in a leaf that absorb gases needed for plant growth, open when guard cells surrounding each pore swell with water. In a pivotal 2007 article, plant cell ______ showed that lipid molecules called phosphatidylinositol phosphates are responsible for signaling guard cells to open stomata.", "options": {"A": "biologist, Yuree Lee", "B": "biologist Yuree Lee,", "C": "biologist Yuree Lee", "D": "biologist, Yuree Lee,"}, "correctAnswer": "A"},
+        {id: 90, question: "In 1959, marine biologist Dr. Albert Jones founded the Underwater Adventure Seekers, a scuba diving ______ that is the oldest club for Black divers in the United States and that has helped thousands of diving enthusiasts become certified in the field.", "options": {"A": "club", "B": "club,", "C": "club—", "D": "club, and"}, "correctAnswer": "A"},
+        {id: 91, question: "To humans, it does not appear that the golden orb-weaver spider uses camouflage to capture its ______ the brightly colored arachnid seems to wait conspicuously in the center of its large circular web for insects to approach. Researcher Po Peng of the University of Melbourne has explained that the spider’s distinctive coloration may in fact be part of its appeal.", "options": {"A": "prey, rather,", "B": "prey rather,", "C": "prey, rather;", "D": "prey; rather,"}, "correctAnswer": "A"},
+        {id: 92, question: "After immigrating from Mexico and obtaining U.S. citizenship, Octaviano Ambrosio Larrazolo entered politics, earning a reputation for being a fervent defender of Hispanic civil rights. In 1919 Larrazolo was elected governor of ______ in 1928 he became the nation’s first Hispanic U.S. Senator.", "options": {"A": "New Mexico and", "B": "New Mexico,", "C": "New Mexico, and", "D": "New Mexico"}, "correctAnswer": "A"},
+        {id: 93, question: "In 1937, Chinese American screen actor Anna May Wong, who had portrayed numerous villains and secondary characters but never a heroine, finally got a starring role in Paramount Pictures’ Daughter of Shanghai, a film that ______ “expanded the range of possibilities for Asian images on screen.”", "options": {"A": "critic, Stina Chyn, claims", "B": "critic, Stina Chyn, claims,", "C": "critic Stina Chyn claims", "D": "critic Stina Chyn, claims,"}, "correctAnswer": "A"},
+        {id: 94, question: "In the novel Things Fall Apart by Chinua Achebe, Okonkwo is a leader of Umuofia (a fictional Nigerian clan) and takes pride in his culture’s traditions. However, when the arrival of European missionaries brings changes to Umuofia, the novel asks a central question: How ______", "options": {"A": "Umuofia’s traditions will be affected.", "B": "will Umuofia’s traditions be affected.", "C": "Umuofia’s traditions will be affected?", "D": "will Umuofia’s traditions be affected?"}, "correctAnswer": "A"},
+        {id: 95, question: "In 2018, the innovative works of Congolese sculptor and architect Bodys Isek ______ were featured in City Dreams, a solo exhibition at New York’s Museum of Modern Art.", "options": {"A": "Kingelez;", "B": "Kingelez,", "C": "Kingelez", "D": "Kingelez:"}, "correctAnswer": "A"},
+        {id: 96, question: "The 1977 play And the Soul Shall Dance depicts two Japanese American farming families in Depression-era Southern California. Critics have noted the way pioneering ______ compares the experiences of issei (Japanese nationals who emigrated to America) and nisei (their American-born children).", "options": {"A": "playwright, Wakako Yamauchi,", "B": "playwright, Wakako Yamauchi", "C": "playwright Wakako Yamauchi,", "D": "playwright Wakako Yamauchi"}, "correctAnswer": "A"},
+        {id: 97, question: "With some 16,000 in attendance, the Second World Black and African Festival of Arts and ______ or FESTAC ‘77, as the event was more commonly known—became the largest pan-African event on record. FESTAC drew people from around the world to Lagos, Nigeria, for a monthlong celebration of Black and African art, scholarship, and activism.", "options": {"A": "Culture:", "B": "Culture—", "C": "Culture,", "D": "Culture"}, "correctAnswer": "A"},
+        {id: 98, question: "A group of ecologists led by Axel Mithöfer at the Max Planck Institute for Chemical Ecology in Germany examined the defensive responses of two varieties of the sweet potato ______ TN57, which is known for its insect resistance, and TN66, which is much more susceptible to pests.", "options": {"A": "plant.", "B": "plant;", "C": "plant", "D": "plant:"}, "correctAnswer": "A"},
+        {id: 99, question: "At eight paragraphs long, the preamble to the constitution of ______ country in Western Asia—is much longer than the one-paragraph preamble to the United States Constitution.", "options": {"A": "Bahrain—a", "B": "Bahrain, a", "C": "Bahrain a", "D": "Bahrain: a"}, "correctAnswer": "A"},
+        {id: 100, question: "While many video game creators strive to make their graphics ever more ______ others look to the past, developing titles with visuals inspired by the “8-bit” games of the 1980s and 1990s. (The term “8-bit” refers to a console whose processor could only handle eight bits of data at once.)", "options": {"A": "lifelike but", "B": "lifelike", "C": "lifelike,", "D": "lifelike, but"}, "correctAnswer": "A"},
+        {id: 101, question: "The Lion Light system, developed by Kenyan inventor Richard Turere, consists of LED lights installed around the perimeter of livestock pastures. Powered with ______ the blinking LEDs keep lions away at night, thus protecting the livestock without risking harm to the endangered lions.", "options": {"A": "energy collected, by solar panels, during the day", "B": "energy collected by solar panels during the day", "C": "energy collected by solar panels during the day,", "D": "energy, collected by solar panels during the day,"}, "correctAnswer": "A"},
+        {id: 102, question: "The 2022 Nobel Prize in Chemistry was awarded to three pioneers in the field of click chemistry: two-time Nobel laureate Barry Sharpless, who coined the term “click chemistry” in 1998; Carolyn Bertozzi, founder of the Bertozzi Group at ______ and Morten Meldal, a professor at the University of Copenhagen in Denmark.", "options": {"A": "Stanford", "B": "Stanford,", "C": "Stanford:", "D": "Stanford;"}, "correctAnswer": "A"},
+        {id: 103, question: "In ancient Greece, an Epicurean was a follower of Epicurus, a philosopher whose beliefs revolved around the pursuit of pleasure. Epicurus defined pleasure as “the absence of pain in the body and of trouble in the ______ that all life’s virtues derived from this absence.", "options": {"A": "soul,” positing", "B": "soul”: positing", "C": "soul”; positing", "D": "soul.” Positing"}, "correctAnswer": "A"},
+        {id: 104, question: "The Alvarez theory, developed in 1980 by physicist Luis Walter Alvarez and his geologist son Walter Alvarez, maintained that the secondary effects of an asteroid impact caused many dinosaurs and other animals to die ______ it left unexplored the question of whether unrelated volcanic activity might have also contributed to the mass extinctions.", "options": {"A": "out but", "B": "out, but", "C": "out", "D": "out,"}, "correctAnswer": "A"},
+        {id: 105, question: "Researchers studying magnetosensation have determined why some soil-dwelling roundworms in the Southern Hemisphere move in the opposite direction of Earth’s magnetic field when searching for ______ in the Northern Hemisphere, the magnetic field points down, into the ground, but in the Southern Hemisphere, it points up, toward the surface and away from worms’ food sources.", "options": {"A": "food:", "B": "food,", "C": "food while", "D": "food"}, "correctAnswer": "A"},
+        {id: 106, question: "In her analysis of Edith Wharton’s The House of Mirth (1905), scholar Candace Waid observes that the novel depicts the upper classes of New York society as “consumed by the appetite of a soulless ______ an apt assessment given that The House of Mirth is set during the Gilded Age, a period marked by rapid industrialization, economic greed, and widening wealth disparities.", "options": {"A": "materialism”; and", "B": "materialism” and", "C": "materialism,”", "D": "materialism”"}, "correctAnswer": "A"},
+        {id: 107, question: "Joshua Hinson, director of the language revitalization program of the Chickasaw Nation in Oklahoma, helped produce the world’s first Indigenous-language instructional app, Chickasaw ______ Chickasaw TV , in 2010; and a Rosetta Stone language course in Chickasaw, in 2015.", "options": {"A": "Basic; in 2009, an online television network;", "B": "Basic; in 2009, an online television network,", "C": "Basic, in 2009; an online television network,", "D": "Basic, in 2009, an online television network,"}, "correctAnswer": "A"}
+    ];
+
+
+const quizContainer = document.getElementById('quiz');
+let currentScore = 0;
+let answeredCount = 0;
+const totalQuestions = quizData.length;
+
+// Mã định danh bản nháp bài làm theo Học sinh và Tên file bài tập
+const STUDENT_ID = sessionStorage.getItem('studentId') || 'guest';
+const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+// 1. Tạo giao diện các câu hỏi
+function buildQuiz() {
+    quizContainer.innerHTML = '';
+    quizData.forEach((data, index) => {
+        const questionBlock = document.createElement('div');
+        questionBlock.classList.add('question-block');
+        questionBlock.id = `question-${data.id}`;
+        questionBlock.dataset.locked = "false";
+
+        let optionsHtml = '';
+        for (const [key, value] of Object.entries(data.options)) {
+            optionsHtml += `
+                <li>
+                    <label id="label-${data.id}-${key}">
+                        <input type="radio" name="question${data.id}" value="${key}" onchange="saveProgress()">
+                        <strong>${key}.</strong> ${value}
+                    </label>
+                </li>
+            `;
+        }
+
+        questionBlock.innerHTML = `
+            <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+            <ul class="options">
+                ${optionsHtml}
+            </ul>
+        `;
+        quizContainer.appendChild(questionBlock);
+    });
+    
+    const progressEl = document.getElementById('progressText');
+    if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+}
+
+// 2. Tự động lưu tiến độ vào localStorage mỗi khi tích chọn đáp án
+function saveProgress() {
+    let userAnswers = {};
+    quizData.forEach(data => {
+        const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+        if (selectedOption) {
+            userAnswers[data.id] = selectedOption.value;
+        }
+    });
+    localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+}
+
+// 3. Kiểm tra và phục hồi câu đã làm dở khi vào lại trang
+function checkAndRestoreProgress() {
+    const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+    if (!savedDraft) return;
+
+    const userAnswers = JSON.parse(savedDraft);
+    const count = Object.keys(userAnswers).length;
+
+    if (count > 0) {
+        const confirmResume = confirm(
+            `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+            `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+            `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+        );
+
+        if (confirmResume) {
+            let lastAnsweredId = null;
+            Object.entries(userAnswers).forEach(([qId, value]) => {
+                const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    lastAnsweredId = qId;
+                }
+            });
+
+            if (lastAnsweredId) {
+                const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                if (targetBlock) {
+                    targetBlock.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        } else {
+            localStorage.removeItem(QUIZ_STORAGE_KEY);
+        }
+    }
+}
+
+// 4. Kiểm tra đáp án, chấm điểm & gửi Firebase
+function checkCurrentAnswers() {
+    let checkedAny = false;
+
+    quizData.forEach(data => {
+        const block = document.getElementById(`question-${data.id}`);
+        if (block.dataset.locked === "true") return;
+
+        const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+        
+        if (selectedOption) {
+            checkedAny = true;
+            const userAnswer = selectedOption.value;
+            const correctAnswer = data.correctAnswer;
+            
+            if (userAnswer === correctAnswer) {
+                document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
+                currentScore++;
+            } else {
+                document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('wrong-answer-label');
+                document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
+            }
+
+            const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+            radios.forEach(radio => radio.disabled = true);
+            block.dataset.locked = "true";
+            
+            answeredCount++;
+        }
+    });
+
+    if (!checkedAny) {
+        alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+    } else {
+        updateScoreBoard();
+        
+        if (window.saveScoreToFirebase) {
+            window.saveScoreToFirebase(currentScore, answeredCount);
+        }
+
+        if (answeredCount === totalQuestions) {
+            alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+            localStorage.removeItem(QUIZ_STORAGE_KEY);
+        }
+    }
+}
+
+// 5. Làm lại từ đầu
+function resetQuiz() {
+    if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+    
+    currentScore = 0;
+    answeredCount = 0;
+    
+    localStorage.removeItem(QUIZ_STORAGE_KEY);
+    
+    quizData.forEach(data => {
+        const block = document.getElementById(`question-${data.id}`);
+        if (block) {
+            block.dataset.locked = "false";
+            
+            const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+            radios.forEach(radio => {
+                radio.disabled = false;
+                radio.checked = false;
+            });
+            
+            for (const key of Object.keys(data.options)) {
+                const lbl = document.getElementById(`label-${data.id}-${key}`);
+                if (lbl) {
+                    lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                }
+            }
+        }
+    });
+    
+    updateScoreBoard();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 6. Cập nhật bảng điểm
+function updateScoreBoard() {
+    const progressEl = document.getElementById('progressText');
+    const scoreEl = document.getElementById('scoreText');
+    if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+    if (scoreEl) scoreEl.innerText = currentScore;
+}
+
+// Chạy khởi tạo giao diện và kiểm tra tiến độ dở
+buildQuiz();
+checkAndRestoreProgress();
+</script>
+</body>
+</html>

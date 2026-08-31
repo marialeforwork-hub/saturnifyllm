@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập Trắc Nghiệm</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f7f6; 
+            color: #333; 
+            line-height: 1.6; 
+            padding: 20px; 
+            margin: 0; 
+            padding-bottom: 110px; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+        }
+        h1 { 
+            text-align: center; 
+            color: #2c3e50; 
+            border-bottom: 2px solid #3498db; 
+            padding-bottom: 12px; 
+            margin-top: 0;
+        }
+        .intro-text {
+            text-align: center; 
+            color: #7f8c8d;
+            margin-bottom: 25px;
+        }
+        .question-block { 
+            margin-bottom: 30px; 
+            padding-bottom: 20px; 
+            border-bottom: 1px solid #eee; 
+        }
+        .question-text { 
+            font-size: 1.1em; 
+            font-weight: 600; 
+            margin-bottom: 15px; 
+            color: #2c3e50;
+        }
+        .options { 
+            list-style-type: none; 
+            padding: 0; 
+            margin: 0;
+        }
+        .options li { 
+            margin-bottom: 10px; 
+        }
+        .options label { 
+            display: flex;
+            align-items: center;
+            padding: 12px 15px; 
+            background: #f9f9f9; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+        }
+        .options label:hover { 
+            background: #eef2f5; 
+            border-color: #bdc3c7;
+        }
+        .options input[type="radio"] { 
+            margin-right: 12px; 
+            cursor: pointer; 
+            width: 18px;
+            height: 18px;
+        }
+        
+        /* Trạng thái khi chọn đáp án */
+        .options label.selected-label {
+            background-color: #e8f4fc;
+            border-color: #3498db;
+            font-weight: 600;
+        }
+        
+        /* Trạng thái đúng / sai khi kiểm tra */
+        .correct-answer-label { 
+            background-color: #d4edda !important; 
+            border-color: #28a745 !important; 
+            color: #155724; 
+            font-weight: bold; 
+        }
+        .wrong-answer-label { 
+            background-color: #f8d7da !important; 
+            border-color: #dc3545 !important; 
+            color: #721c24; 
+        }
+        
+        /* Vô hiệu hóa hover khi đã khóa */
+        .question-block[data-locked="true"] label {
+            cursor: default;
+        }
+        .question-block[data-locked="true"] label:hover {
+            background: inherit;
+        }
+
+        /* Thanh công cụ trôi nổi ở dưới cùng */
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+        }
+        .stats { 
+            font-size: 1.1em; 
+            color: #2c3e50; 
+        }
+        .stats span { 
+            font-weight: bold; 
+            color: #27ae60; 
+            font-size: 1.2em; 
+            margin-left: 5px; 
+        }
+        .stats b { 
+            color: #2980b9; 
+            margin-left: 5px; 
+            font-size: 1.1em; 
+        }
+        
+        .global-check-btn {
+            padding: 12px 25px; 
+            font-size: 1em; 
+            background-color: #2ecc71; 
+            color: #fff;
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: background 0.3s, transform 0.1s; 
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        
+        .reset-btn {
+            padding: 12px 20px; 
+            font-size: 1em; 
+            background-color: #e74c3c; 
+            color: #fff;
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: background 0.3s, transform 0.1s; 
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn, .reset-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bài Kiểm Tra Trắc Nghiệm</h1>
+    <p class="intro-text">Làm bài đến đâu, chọn đáp án rồi bấm <strong>"Kiểm tra các câu đã chọn"</strong> ở thanh dưới cùng nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="sticky-footer">
+    <div class="stats">
+        Tiến độ: <b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số: <span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" onclick="resetQuiz()">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" onclick="checkCurrentAnswers()">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        { id: 1, question: "The radiation that ______ during the decay of radioactive atomic nuclei is known as gamma radiation.", options: { A: "occurs", B: "have occurred", C: "occur", D: "are occurring" }, correctAnswer: "A" },
+        { id: 2, question: "Despite being cheap, versatile, and easy to produce, ______ they are made from nonrenewable petroleum, and most do not biodegrade in landfills.", options: { A: "there are two problems associated with commercial plastics:", B: "two problems are associated with commercial plastics:", C: "commercial plastics' two associated problems are that", D: "commercial plastics have two associated problems:" }, correctAnswer: "B" },
+        { id: 3, question: "On April 5, 1977, Kitty Cone and 150 other disability rights activists entered a San Francisco federal building. After pleading for years to no effect for the passage of key antidiscrimination legislation, ______ until their demands were addressed. Finally, on April 28, the legislation was signed.", options: { A: "pressure on lawmakers increased when the activists staged a sit-in protest", B: "a sit-in protest staged by the activists increased pressure on lawmakers", C: "lawmakers came the activists staged a sit-in protest", D: "the activists increased pressure on lawmakers by staging a sit-in protest" }, correctAnswer: "D" },
+        { id: 4, question: "In recent years, economists around the world have created new tools that quantify the overall well-being of a country's citizens. Economists in India, for example, use an Ease of Living Index. This tool ______ economic potential, sustainability, and citizens' quality of life.", options: { A: "measures", B: "had measured", C: "would have measured", D: "will have been" }, correctAnswer: "A" },
+        { id: 5, question: "Mathematician and meteorologist Edward Lorenz used the metaphor of the 'butterfly effect' to explain how seemingly minor events can have major impacts on future weather. According to Lorenz's metaphor, the wind from a butterfly flapping ______ might eventually grow into a storm elsewhere across the globe.", options: { A: "its wings", B: "its wings'", C: "it's wing's", D: "it's wings'" }, correctAnswer: "A" },
+        { id: 6, question: "Bonnie Buratti of NASA's Jet Propulsion Laboratory ______ data about Saturn's rings collected by the Cassini spacecraft when she made an interesting discovery: the tiny moons embedded between and within Saturn's rings are shaped by the buildup of ring material on the moons' surfaces.", options: { A: "studies", B: "has been studying", C: "will study", D: "was studying" }, correctAnswer: "D" },
+        { id: 7, question: "Rabinal Achí is a precolonial Maya dance drama performed annually in Rabinal, a town in the Guatemalan highlands. Based on events that occurred when Rabinal was a city-state ruled by a king, ______ had once been an ally of the king but was later captured while leading an invading force against him.", options: { A: "Rabinal Achi tells the story of K'iche'", B: "K'iche' Achí, the military leader in the story of Rabinal Achi,", C: "the military leader whose story is told in Rabinal Achí, K'iche' Achí,", D: "there was a military leader, K'iche' Achí, who in Rabinal Achi" }, correctAnswer: "C" },
+        { id: 8, question: "During the American Civil War, Thomas Morris Chester braved the front lines as a war correspondent for the Philadelphia Press. Amplifying the voices and experiences of Black soldiers ______ of particular importance to Chester, who later became an activist and lawyer during the postwar Reconstruction period.", options: { A: "were", B: "have been", C: "are", D: "was" }, correctAnswer: "D" },
+        { id: 9, question: "In 1903, environmentalist John Muir guided President Theodore Roosevelt on a scenic, sprawling trip through California's Yosemite Valley. Upon returning from the three-day excursion, Roosevelt ______ to conserve the nation's wilderness areas, a vow he upheld for his remaining six years in office.", options: { A: "is vowing", B: "vowed", C: "will vow", D: "vows" }, correctAnswer: "B" },
+        { id: 10, question: "To survive when water is scarce, embryos inside African turquoise killifish eggs ______ a dormant state known as diapause. In this state, embryonic development is paused for as long as two years—longer than the life span of an adult killifish.", options: { A: "enter", B: "to enter", C: "having entered", D: "entering" }, correctAnswer: "A" },
+        { id: 11, question: "In 1637, the price of tulips skyrocketed in Amsterdam, with single bulbs of rare varieties selling for up to the equivalent of $200,000 in today's US dollars. Some historians ______ that this 'tulip mania' was the first historical instance of an asset bubble, which occurs when investors drive prices to highs not supported by actual demand.", options: { A: "claiming", B: "claim", C: "having claimed", D: "to claim" }, correctAnswer: "B" },
+        { id: 12, question: "Professional American football player Fred Cox invented one of the world's most popular toys. In the 1970s, he came up with the idea for the Nerf football, which ______ of the harder and heavier regulation football.", options: { A: "were a smaller, foam version", B: "are smaller, foam versions", C: "were smaller, foam versions", D: "is a smaller, foam version" }, correctAnswer: "D" },
+        { id: 13, question: "Formed in 1967 to foster political and economic stability within the Asia-Pacific region, the Association of Southeast Asian Nations was originally made up of five members: Thailand, the Philippines, Singapore, Malaysia, and Indonesia. By the end of the 1990s, the organization ______ its initial membership.", options: { A: "has doubled", B: "had doubled", C: "doubles", D: "will double" }, correctAnswer: "B" },
+        { id: 14, question: "Atoms in a synchrotron, a type of circular particle accelerator, travel faster and faster until they ______ a desired energy level, at which point they are diverted to collide with a target, smashing the atoms.", options: { A: "will reach", B: "reach", C: "had reached", D: "are reaching" }, correctAnswer: "B" },
+        { id: 15, question: "Led by Syrian American astronomer Shadia Habbal, the Solar Wind Sherpas are an intrepid team of scientists who travel the globe to study solar winds, the streams of particles emanating from the Sun that are only visible from certain locations during a total solar eclipse. When such an eclipse is imminent, the Sherpas pack up their telescopes and ______ ready.", options: { A: "get", B: "had gotten", C: "got", D: "were getting" }, correctAnswer: "A" },
+        { id: 16, question: "Farouk El-Baz, a geologist and space scientist, ______ part of the team that selected the lunar landing sites for the Apollo program during the 1960s and 1970s.", options: { A: "are", B: "was", C: "have been", D: "were" }, correctAnswer: "B" },
+        { id: 17, question: "In the 1970s, Janaki Ammal, a prominent botanist, emerged as a powerful voice in India's environmental conservation movement. Her exhaustive chromosomal survey of plants in Silent Valley, a pristine tropical forest in Kerala, India, that is home to nearly 1,000 species of native flora (many of which are endangered), ______ instrumental in the government's decision to preserve the forest.", options: { A: "are", B: "were", C: "have been", D: "was" }, correctAnswer: "D" },
+        { id: 18, question: "Obsidian is a kind of volcanic glass formed when lava cools so quickly that the atoms inside it cannot arrange themselves in a crystalline structure. You ______ more about obsidian's structure, which is classified as amorphous, in a later chapter.", options: { A: "had learned", B: "had been learning", C: "will learn", D: "have learned" }, correctAnswer: "C" },
+        { id: 19, question: "The artistic talents of Barbara Chase-Riboud, most known for her 1979 historical novel Sally Hemings and the conversation it inspired, ______ limited to the realm of prose: she first excelled in sculpture, where her affinity for bronze—a material she...—became part of her identity.", options: { A: "hasn't been", B: "wasn't", C: "isn't", D: "aren't" }, correctAnswer: "D" },
+        { id: 20, question: "Public-awareness campaigns about the need to reduce single-use plastics can be successful, says researcher Kim Borg of Monash University in Australia, when these campaigns give consumers a choice: for example, Japan achieved a 40 percent reduction in plastic-bag use after cashiers were instructed to ask customers whether ______ wanted a bag.", options: { A: "they", B: "one", C: "you", D: "it" }, correctAnswer: "A" },
+        { id: 21, question: "Midway through her 1968 jazz album A Monastic Trio, Alice Coltrane switches instruments, swapping the piano for the harp. With the same fluid style that Coltrane was famous for on piano, she ______ her fingers across the harp strings and creates a radiant sound.", options: { A: "sweep", B: "are sweeping", C: "were sweeping", D: "sweeps" }, correctAnswer: "D" },
+        { id: 22, question: "Working from an earlier discovery of Charpentier's, chemists Emmanuelle Charpentier and Jennifer Doudna—winners of the 2020 Nobel Prize in Chemistry—re-created and then reprogrammed the so-called 'genetic scissors' of a species of DNA-cleaving bacteria ______ a tool that is revolutionizing the field of gene technology.", options: { A: "to forge", B: "forging", C: "forged", D: "and forging" }, correctAnswer: "A" },
+        { id: 23, question: "Objects ranging from the Kikkoman soy sauce bottle to the Yamaha VMAX motorcycle to the Komachi bullet train ______ designed by twentieth-century industrial designer Kenji Ekuan.", options: { A: "was", B: "is", C: "has been", D: "were" }, correctAnswer: "D" },
+        { id: 24, question: "In the historical novel The Surrender Tree, Cuban American author Margarita Engle uses poetry rather than prose ______ the true story of Cuban folk hero Rosa La Bayamesa.", options: { A: "tells", B: "told", C: "is telling", D: "to tell" }, correctAnswer: "D" },
+        { id: 25, question: "In assessing the films of Japanese director Akira Kurosawa, ______ have missed his equally deep engagement with Japanese artistic traditions such as Noh theater.", options: { A: "many critics have focused on Kurosawa's use of Western literary sources but", B: "Kurosawa's use of Western literary sources has been the focus of many critics, who", C: "there are many critics who have focused on Kurosawa's use of Western literary sources, but they", D: "the focus of many critics has been on Kurosawa's use of Western literary sources; they" }, correctAnswer: "A" },
+        { id: 26, question: "Classical composer Florence Price's 1927 move to Chicago marked a turning point in her career. It was there that Price premiered her First Symphony—a piece that was praised for blending traditional Romantic motifs with aspects of Black folk music—and ______ supportive relationships with other Black artists.", options: { A: "developing", B: "developed", C: "to develop", D: "having developed" }, correctAnswer: "B" },
+        { id: 27, question: "Like other amphibians, the wood frog (Rana sylvatica) is unable to generate its own heat, so during periods of subfreezing temperatures, it ______ by producing large amounts of glucose, a sugar that helps prevent damaging ice from forming inside its cells.", options: { A: "had survived", B: "survived", C: "would survive", D: "survives" }, correctAnswer: "D" },
+        { id: 28, question: "While exploring Nevada's Gypsum Cave in 1930, Seneca and Abenaki archaeologist Bertha Parker made her most famous discovery: the skull of a now-extinct ground sloth (Nothrotheriops shastensis) alongside human-made tools. Parker's crucial finding was the first ______ humans in North America as far back as 10,000 ago.", options: { A: "places", B: "placed", C: "place", D: "to place" }, correctAnswer: "D" },
+        { id: 29, question: "The sun never sets during the Arctic summer in the Far North. In response, reindeer in this region must change their sleep habits. Instead of resting when it gets dark, they rest when they need ______ their food.", options: { A: "digest", B: "will digest", C: "to digest", D: "digesting" }, correctAnswer: "C" },
+        { id: 30, question: "British scientists James Watson and Francis Crick won the Nobel Prize in part for their 1953 paper announcing the double helix structure of DNA, but it is misleading to say that Watson and Crick discovered the double helix. ______ findings relied on a famous X-ray image of DNA fibers, 'Photo 51,' developed by X-ray crystallographer Rosalind Franklin and her graduate student Raymond Gosling.", options: { A: "They're", B: "It's", C: "Their", D: "Its" }, correctAnswer: "C" },
+        { id: 31, question: "In the 1950s, a man named Joseph McVicker was struggling to keep his business afloat when his sister-in-law Kay Zufall advised him to repurpose the company's product, a nontoxic, clay-like substance for removing soot from wallpaper, as a modeling putty for kids. In addition, Zufall ______ selling the product under a child-friendly name: Play-Doh.", options: { A: "suggested", B: "suggests", C: "had suggested", D: "was suggesting" }, correctAnswer: "A" },
+        { id: 32, question: "When they were first discovered in Australia in 1798, duck-billed, beaver-tailed platypuses so defied categorization that one scientist assigned them the name Ornithorhynchus paradoxus: 'paradoxical bird-snout.' The animal, which lays eggs but also nurses ______ young with milk, has since been classified as belonging to the monotremes group.", options: { A: "they're", B: "their", C: "its", D: "it's" }, correctAnswer: "C" },
+        { id: 33, question: "Known as Earth's 'living skin,' biocrusts are thin layers of soil held together by surface-dwelling microorganisms such as fungi, lichens, and cyanobacteria. Fortifying soil in arid ecosystems against erosion, ______", options: { A: "a recent study's estimate is that these crusts reduce global dust emissions by 60 percent each year.", B: "an estimated 60 percent reduction in global dust emissions each year is due to these crusts, according to a recent study.", C: "these crusts reduce global dust emissions by an estimated 60 percent each year, according to a recent study.", D: "a recent study has estimated that these crusts reduce global dust emissions by 60 percent each year." }, correctAnswer: "C" },
+        { id: 34, question: "In order to prevent nonnative fish species from moving freely between the Mediterranean and Red Seas, marine biologist Bella Galil has proposed that a saline lock system be installed along the Suez Canal in Egypt's Great Bitter Lakes. The lock would increase the salinity of the lakes and ______ creatures would be unable to cross.", options: { A: "creates", B: "create", C: "creating", D: "created" }, correctAnswer: "B" },
+        { id: 35, question: "The African Games Co-production Market, one of over 180 annual international conferences supporting video game development, ______ the growth of the African gaming industry by helping start-up studios in Africa find partners.", options: { A: "promote", B: "are promoting", C: "promotes", D: "have promoted" }, correctAnswer: "C" },
+        { id: 36, question: "In 1966, Emmett Ashford became the first African American to umpire a Major League Baseball game. His energetic gestures announcing when a player had struck out and his habit of barreling after a hit ball to see if it would land out of ______ the traditionally solemn umpire role into a dynamic one.", options: { A: "bounds helped", B: "bounds, helping", C: "bounds that helped", D: "bounds to help" }, correctAnswer: "A" },
+        { id: 37, question: "The classic children's board game Chutes and Ladders is a version of an ancient Nepalese game, Paramapada Sopanapata. In both games, players encounter 'good' or 'bad' spaces while traveling along a path; landing on one of the good spaces ______ a player to skip ahead and arrive closer to the end goal.", options: { A: "allows", B: "are allowing", C: "have allowed", D: "allow" }, correctAnswer: "A" },
+        { id: 38, question: "Literary agents estimate that more than half of all nonfiction books credited to a celebrity or other public figure are in fact written by ghostwriters, professional authors who are paid to write other ______ but whose names never appear on book covers.", options: { A: "people's stories", B: "peoples story's", C: "peoples stories", D: "people's story's" }, correctAnswer: "A" },
+        { id: 39, question: "Based on genetic evidence, archaeologists have generally agreed that reindeer domestication began in the eleventh century CE. However, since uncovering fragments of a 2,000-year-old reindeer training harness in northern Siberia, ______ much earlier.", options: { A: "researcher Robert Losey has argued that domestication", B: "researcher Robert Losey's argument is that domestication", C: "domestication, researcher Robert Losey has argued,", D: "the argument researcher Robert Losey has made is that domestication" }, correctAnswer: "A" },
+        { id: 40, question: "In the early twentieth century, Joseph Kekuku and other Hawaiian ______ in the mainland United States to the bright and lilting sound of the kīkā kila, or Hawaiian steel guitar. The instrument soon became a fixture in American blues and country music.", options: { A: "musicians introduced audiences", B: "musicians' introduced audiences'", C: "musician's introduced audience's", D: "musicians' introduced audiences" }, correctAnswer: "A" },
+        { id: 41, question: "Ten of William Shakespeare's plays are classified as histories. Although each one of these plays, which include Henry V and Richard III, ______ on a single historical figure (specifically, an English king), some, such as Henry VI Part One and Henry VI Part Two, feature different episodes from the same monarch's life.", options: { A: "focuses", B: "focus", C: "are focused", D: "were focused" }, correctAnswer: "A" },
+        { id: 42, question: "Smaller than poppy seeds, tardigrades are tiny, but they are tough. These minuscule animals can survive for thirty years without food or water, and ______ can withstand extreme temperatures as low as minus 328 degrees and as high as 304 degrees Fahrenheit.", options: { A: "that", B: "it", C: "they", D: "he" }, correctAnswer: "C" },
+        { id: 43, question: "African American Percy Julian was a scientist and entrepreneur whose work helped people around the world to see. Named in 1999 as one of the greatest achievements by a US chemist in the past hundred years, ______ led to the first mass-produced treatment for glaucoma.", options: { A: "Julian synthesized the alkaloid physostigmine in 1935; it", B: "in 1935 Julian synthesized the alkaloid physostigmine, which", C: "Julian's 1935 synthesis of the alkaloid physostigmine", D: "the alkaloid physostigmine was synthesized by Julian in 1935 and" }, correctAnswer: "C" },
+        { id: 44, question: "The US Geological Survey wants to map every human-made structure in the United States, and it is asking volunteers to help. Cassie Tammy Wang and Ashish D'Souza are just two of the many volunteer map editors who ______ to the project since it began in 2012.", options: { A: "contribute", B: "will contribute", C: "have contributed", D: "will be contributing" }, correctAnswer: "C" },
+        { id: 45, question: "Far from being modern inventions, ______ more than 5,000 years ago.", options: { A: "Sumerians in ancient Mesopotamia used drinking straws", B: "drinking straws were used by Sumerians in ancient Mesopotamia", C: "the use of drinking straws by Sumerians in ancient Mesopotamia happened", D: "ancient Mesopotamia was home to Sumerians who used drinking straws" }, correctAnswer: "B" },
+        { id: 46, question: "Cheng Dang and her colleagues at the University of Washington recently ran simulations to determine the extent to which individual snow ______ affect the amount of light reflecting off a snowy surface.", options: { A: "grain's physical properties'", B: "grains' physical properties", C: "grains' physical property's", D: "grains physical properties" }, correctAnswer: "B" },
+        { id: 47, question: "In his groundbreaking book Bengali Harlem and the Lost Histories of South Asian America, Vivek Bald uses newspaper articles, census records, ships' logs, and memoirs to tell the ______ who made New York City their home in the early twentieth century.", options: { A: "story's of the South Asian immigrants", B: "story's of the South Asian immigrants'", C: "stories of the South Asian immigrants", D: "stories' of the South Asian immigrant's" }, correctAnswer: "C" },
+        { id: 48, question: "In the canon of North African literature, Moroccan author Driss Chraïbi's 1954 novel The Simple Past (Le Passé simple) looms large. A coming-of-age story, a social meditation, and a sober gaze into the dark maw of French colonialism, ______ interrogates systemic power with memorable intensity.", options: { A: "Morocco gained its independence two years before the publication of Chraïbi's debut novel, which", B: "Chraïbi's debut novel, published two years before Morocco gained its independence,", C: "Chraïbi wrote a debut novel that, published two years before Morocco gained its independence,", D: "published two years before Morocco gained its independence, Chraïbi wrote a debut novel that" }, correctAnswer: "B" },
+        { id: 49, question: "When writing The Other Black Girl (2021), novelist Zakiya Dalila Harris drew on her own experiences working at a publishing office. The award-winning book is Harris's first novel, but her writing ______ honored before. At the age of twelve, she entered a contest to have a story published in American Girl magazine and won.", options: { A: "were", B: "have been", C: "has been", D: "are" }, correctAnswer: "C" },
+        { id: 50, question: "In winter, the diets of Japanese macaques, also known as snow monkeys, are influenced more by food availability than by food preference. Although the monkeys prefer to eat vegetation and land-dwelling invertebrates, those food sources may become unavailable because of extensive snow and ice cover, ______ the monkeys to hunt for marine animals in any streams that have not frozen over.", options: { A: "forces", B: "to force", C: "forcing", D: "forced" }, correctAnswer: "C" },
+        { id: 51, question: "Planetary scientist Briony Horgan and her colleagues have determined that as much as 25 percent of the sand on Mars is composed of impact spherules. These spherical bits of glass form when asteroids collide with the planet, ejecting bits of molten rock into the atmosphere that, after cooling and solidifying into glass, ______ surface.", options: { A: "to rain", B: "raining", C: "having rained", D: "rain" }, correctAnswer: "D" },
+        { id: 52, question: "Compared to that of alumina glass, ______ silica glass atoms are so far apart that they are unable to re-form bonds after being separated.", options: { A: "silica glass is at a significant disadvantage due to its more dispersed atomic arrangement:", B: "silica glass has a more dispersed atomic arrangement, resulting in a significant disadvantage:", C: "a significant disadvantage of silica glass is that its atomic arrangement is more dispersed:", D: "silica glass's atomic arrangement is more dispersed, resulting in a significant disadvantage:" }, correctAnswer: "D" },
+        { id: 53, question: "Food and the sensation of taste are central to Monique Truong's novels. In The Book of Salt, for example, the exiled character of Binh connects to his native Saigon through the food he prepares, while in Bitter in the Mouth, the character of Linda ______ a form of synesthesia whereby the words she hears evoke tastes.", options: { A: "experienced", B: "had experienced", C: "experiences", D: "will be experiencing" }, correctAnswer: "C" },
+        { id: 54, question: "Earth is not a perfect sphere. Due to the ______ gravitational pull, Earth bulges out on the sides closest to and farthest from the Moon. This distorting pull is known as a tidal force, and it is responsible for the changes in water levels that are called high and low tides.", options: { A: "Moon's", B: "Moons", C: "Moons'", D: "Moon" }, correctAnswer: "A" },
+        { id: 55, question: "In Death Valley National Park's Racetrack Playa, a flat, dry lakebed, are 162 rocks—some weighing less than a pound but others almost 700 pounds—that move periodically from place to place, seemingly of their own volition. Racetrack-like trails in the ______ mysterious migration.", options: { A: "playas sediment mark the rock's", B: "playa's sediment mark the rocks", C: "playa's sediment mark the rocks'", D: "playas' sediment mark the rocks'" }, correctAnswer: "C" },
+        { id: 56, question: "The human brain is primed to recognize faces—so much so that, due to a perceptual tendency called pareidolia, ______ will even find faces in clouds, wooden doors, pieces of fruit, and other faceless inanimate objects. Researcher Susan Magsamen has focused her work on better understanding this everyday phenomenon.", options: { A: "she", B: "they", C: "it", D: "those" }, correctAnswer: "C" },
+        { id: 57, question: "In 2016, engineer Vanessa Galvez oversaw the installation of 164 bioswales, vegetated channels designed to absorb and divert stormwater, along the streets of Queens, New York. By reducing the runoff flowing into city sewers, ______", options: { A: "the mitigation of both street flooding and the resulting pollution of nearby waterways has been achieved by bioswales.", B: "the bioswales have mitigated both street flooding and the resulting pollution of nearby waterways.", C: "the bioswales' mitigation of both street flooding and the resulting pollution of nearby waterways has been achieved.", D: "both street flooding and the resulting pollution of nearby waterways have been mitigated by bioswales." }, correctAnswer: "B" },
+        { id: 58, question: "Official measurements of the Mississippi River's length vary: according to the US Geologic Survey, the river is 2,300 miles long, whereas the Environmental Protection Agency records its length as 2,320 miles. This disparity can be explained in part by the fact that rivers such as the Mississippi expand and contract as ______", options: { A: "they accumulate", B: "one accumulates", C: "it accumulates", D: "we accumulate" }, correctAnswer: "A" },
+        { id: 59, question: "Richard Spikes was a prolific African American inventor known for his contributions to automotive engineering. Between 1907 and 1946, he patented many inventions, ______ an automobile turn signal, a safety brake, and most famously the first automatic gearshift.", options: { A: "included", B: "includes", C: "including", D: "will include" }, correctAnswer: "C" },
+        { id: 60, question: "Even though bats prefer very sweet nectar, the plants that attract them have evolved to produce nectar that is only moderately sweet. A recent study ______ why: making sugar is energy-intensive, and it is more advantageous for plants to make a large amount of low-sugar nectar than a small amount of high-sugar nectar.", options: { A: "explains", B: "explaining", C: "having explained", D: "to explain" }, correctAnswer: "A" },
+        { id: 61, question: "In the late 1960s, inspired in part by the sight of laundry hanging on a clothesline, African American abstract painter Sam Gilliam began to create his iconic 'Drape' paintings. He applied bold, saturated hues to large canvases and ______ from ceilings or walls, causing the drooping fabric to cascade in dramatic loops and curves.", options: { A: "to have suspended", B: "suspending", C: "to suspend", D: "suspended" }, correctAnswer: "D" },
+        { id: 62, question: "Slam poet Elizabeth Acevedo's debut novel The Poet X, winner of the 2018 National Book Award for Young People's Literature, is composed of ______ protagonist, fifteen-year-old Xiomara Batista.", options: { A: "poems putatively written by the novel's", B: "poem's putatively written by the novel's", C: "poem's putatively written by the novels'", D: "poems putatively written by the novels" }, correctAnswer: "A" },
+        { id: 63, question: "Author Madeline L'Engle, ______ to create a suspenseful tone that draws the reader in, begins her novel A Wrinkle in Time with descriptions of 'wraithlike shadows' and 'the frenzied lashing of the wind.'", options: { A: "looked", B: "looks", C: "is looking", D: "looking" }, correctAnswer: "D" },
+        { id: 64, question: "The Progressive Era in the United States witnessed the rise of numerous Black women's clubs, local organizations that advocated for racial and gender equality. Among the clubs' leaders ______ Josephine St. Pierre Ruffin, founder of the Women's Era Club of Boston.", options: { A: "was", B: "were", C: "are", D: "have been" }, correctAnswer: "A" },
+        { id: 65, question: "American poet Emily Dickinson wrote many of her poems on scraps of paper, but she also took steps to collect these works. From 1858 to around 1864, for example, she copied more than 800 of ______", options: { A: "them", B: "this", C: "that", D: "it" }, correctAnswer: "A" },
+        { id: 66, question: "Scientists believe that, unlike most other species of barnacle, turtle barnacles (Chelonibia testudinari) can dissolve the cement-like secretions they use to attach ______ to a sea turtle shell, enabling the barnacles to move short distances across the shell's surface.", options: { A: "it", B: "themselves", C: "them", D: "Itself" }, correctAnswer: "B" },
+        { id: 67, question: "Occupying a significant part of modern-day Nigeria, the Kingdom of Benin was one of the major powers in West Africa between the thirteenth and nineteenth centuries. It ______ ruled by Oba Ewuare I from 1440 to 1473.", options: { A: "is", B: "will be", C: "has been", D: "was" }, correctAnswer: "D" },
+        { id: 68, question: "In the 2011 documentary The Barber of Birmingham, civil rights activist James Armstrong recounts how his barbershop in Birmingham, Alabama, ______ as a political hub for members of the Black community during the 1950s.", options: { A: "serving", B: "having served", C: "served", D: "to serve" }, correctAnswer: "C" },
+        { id: 69, question: "Former First Lady of the United States Eleanor Roosevelt and Indian activist and educator Hansa Mehta were instrumental in drafting the United Nations' Universal Declaration of Human Rights, a document that ______ the basic freedoms to which all people are entitled.", options: { A: "have outlined", B: "were outlining", C: "outlines", D: "outline" }, correctAnswer: "C" },
+        { id: 70, question: "In many of her landscape paintings from the 1970s and 1980s, Lebanese American artist Etel Adnan worked to capture the essence of California's fog-shrouded Mount Tamalpais region through abstraction, using splotches of color to represent the area's features. Interestingly, the triangle representing the mountain itself ______ among few defined figures in her paintings.", options: { A: "are", B: "have been", C: "were", D: "is" }, correctAnswer: "D" },
+        { id: 71, question: "A second-generation Japanese American, Wataru Misaka ______ in World War II (1941-45) and won two amateur national basketball championships at the University of Utah when he joined the New York Knicks for the 1947-48 season, becoming the first non-white basketball player in the US's top professional league.", options: { A: "already served", B: "was already serving", C: "already serves", D: "had already served" }, correctAnswer: "D" },
+        { id: 72, question: "In 1930, Japanese American artist Chiura Obata depicted the natural beauty of Yosemite National Park in two memorable woodcuts: Evening at Carl Inn and Lake Basin in the High Sierra. In 2019, ______ exhibited alongside 150 of Obata's other works in a single-artist show at the Smithsonian American Art Museum.", options: { A: "it was", B: "they were", C: "this was", D: "some were" }, correctAnswer: "B" },
+        { id: 73, question: "If simple sugars such as ribose and glycolaldehyde ______ Earth from elsewhere and survived impact—a possibility astrophysicist Nicolle Zellner outlined in a 2020 study—the sugars could have reacted with other molecules that were already present on the planet to form the nucleotides that are the structural components of RNA and DNA.", options: { A: "reach", B: "had reached", C: "will reach", D: "are reaching" }, correctAnswer: "B" },
+        { id: 74, question: "Inventor John Friedman created a prototype of the first flexible straw by inserting a screw into a paper straw and, using dental floss, binding the straw tightly around the ______. When the floss and screw were removed, the resulting corrugations in the paper allowed the straw to bend easily over the edge of a glass.", options: { A: "screw's thread's.", B: "screws' threads.", C: "screw's threads.", D: "screws threads'." }, correctAnswer: "C" },
+        { id: 75, question: "Photographer Ansel Adams's landscape portraits are iconic pieces of American art. However, many of the ______ of landscapes were intended not as art but as marketing; a concessions company at Yosemite National Park had hired Adams to take pictures of the park for restaurant menus and brochures.", options: { A: "photographer's early photo's", B: "photographers early photo's", C: "photographer's early photos", D: "photographers early photos" }, correctAnswer: "C" },
+        { id: 76, question: "Each year in the fall, when the weather starts to cool in the northern hemisphere, millions of North American monarch butterflies journey south. Searching for food and warmer habitats, they ______ thousands of miles from as far north as Canada all the way down to Mexico on this annual migration.", options: { A: "flew", B: "were flying", C: "had flown", D: "fly" }, correctAnswer: "D" },
+        { id: 77, question: "Oglala Lakota poet Layli Long Soldier's star quilt poems offer an unusually open-ended reading experience. With ______ eight panels of text stitched together in the shape of a traditional eight-pointed Lakota star quilt, the poems present viewers with a seemingly infinite number of ways to read them.", options: { A: "their", B: "it's", C: "they're", D: "its" }, correctAnswer: "A" },
+        { id: 78, question: "\"Praise Song for the Day,\" Elizabeth Alexander's 2009 inaugural poem, asserts that \"We cross dirt roads and highways...to see what's on the other side.\" Alexander's use of \"we\" ______ Americans' collective efforts and shared desire to seek new opportunity.", options: { A: "evokes", B: "are evoking", C: "have evoked", D: "evoke" }, correctAnswer: "A" },
+        { id: 79, question: "By the time Hawaiian king Kamehameha III ______ the throne, the number of longhorn cattle, first introduced to the islands in 1793, had drastically increased, and so too had the need for paniolo (Hawaiian cowboys) to manage the wild herds that then roamed throughout the volcanic terrain.", options: { A: "ascended", B: "will ascend", C: "ascends", D: "is ascending" }, correctAnswer: "A" },
+        { id: 80, question: "Wanda Diaz-Merced is an astrophysicist who lost her sight when she was young. Diaz-Merced's condition inspired her to develop software that can translate scientific data into sound. Sound-based tools ______ scientists to detect subtle patterns in data. Such patterns may not be evident in traditional graphs.", options: { A: "has enabled", B: "enable", C: "is enabling", D: "enables" }, correctAnswer: "B" },
+        { id: 81, question: "Nuhad al-Haddad, known as Fairuz, was one of the most beloved Lebanese singers of the twentieth century. Her broad singing repertoire—which included traditional forms, such as the Arabic qasida and maqam, alongside modern pop and jazz styles—lent Fairuz a timeless, cross-generational appeal, ______ her the moniker \"the soul of Lebanon.\"", options: { A: "earned", B: "had earned", C: "earning", D: "earn" }, correctAnswer: "C" },
+        { id: 82, question: "Bengali author Toru Dutt's A Sheaf Gleaned in French Fields (1876), a volume of English translations of French poems, ______ scholars' understanding of the transnational and multilingual contexts in which Dutt lived and worked.", options: { A: "has enhanced", B: "are enhancing", C: "have enhanced", D: "enhance" }, correctAnswer: "A" },
+        { id: 83, question: "If you try on one of artist Nick Cave's signature Soundsuits, you can expect to swish, rustle, or clang every time you move. Cave makes his suits out of found objects, everything from ceramic birds to broken record players. He carefully considers the sound an object makes before using ______ in a suit.", options: { A: "that", B: "it", C: "these", D: "those" }, correctAnswer: "B" },
+        { id: 84, question: "In 1899, Swedish chemist Svante Arrhenius developed an equation to answer a long-standing question: why do chemical reactions speed up at higher temperatures? The Arrhenius equation, named for its creator, ______ an important concept in modern chemistry.", options: { A: "have remained", B: "remain", C: "remains", D: "are remaining" }, correctAnswer: "C" },
+        { id: 85, question: "In 1994, almost 200 years after the death of Wang Zhenyi, the International Astronomical ______ the contributions of the barrier-breaking 18th-century astronomer and author of \"Dispute of the Procession of the Equinoxes,\" naming a crater on Venus after her.", options: { A: "Union would finally acknowledge", B: "Union to finally acknowledge", C: "Union, having finally acknowledged", D: "Union, finally acknowledging" }, correctAnswer: "A" },
+        { id: 86, question: "In 2015, a team led by materials scientists Anirudha Sumant and Diana Berman succeeded in reducing the coefficient of friction (COF) between two surfaces to the lowest possible level: superlubricity. A nearly frictionless (and, as its name suggests, extremely slippery) state, ______", options: { A: "when their COF drops below 0.01, two surfaces reach superlubricity.", B: "two surfaces, when their COF drops below 0.01, reach superlubricity.", C: "reaching superlubricity", D: "superlubricity is reached when two surfaces' COF drops below 0.01." }, correctAnswer: "D" },
+        { id: 87, question: "The violins handmade in the seventeenth century by Italian craftsman Antonio Stradivari have been celebrated as some of the finest in the world. In close collaboration with musicians, Stradivari introduced changes to the shape of a traditional violin, flattening some of the instrument's curves and making ______", options: { A: "those", B: "one", C: "them", D: "it" }, correctAnswer: "C" },
+        { id: 88, question: "In his 1963 exhibition Exposition of Music-Electronic Television, Korean American artist Nam June Paik showed how television images could be manipulated to express an artist's perspective. Today, Paik ______ considered the first video artist.", options: { A: "will be", B: "had been", C: "was", D: "is" }, correctAnswer: "D" },
+        { id: 89, question: "Known for her massive photorealistic paintings of African American figures floating or swimming in pools, Calida Garcia ______ was the logical choice to design the book cover for Ta-Nehisi Coates's The Water Dancer, a novel about an African American man who can travel great distances through water.", options: { A: "Rawles-", B: "Rawles:", C: "Rawles,", D: "Rawles" }, correctAnswer: "D" },
+        { id: 90, question: "Researchers studying the \"terra-cotta army,\" the thousands of life-size statues of warriors found interred near the tomb of Emperor Qin Shi Huang of China, were shocked to realize that the shape of each statue's ears, like the shape of each person's ears, ______ unique.", options: { A: "are", B: "is", C: "were", D: "have been" }, correctAnswer: "B" },
+        { id: 91, question: "A member of the Cherokee Nation, Mary Golda Ross is renowned for her contributions to NASA's Planetary Flight Handbook, which ______ detailed mathematical guidance for missions to Mars and Venus.", options: { A: "provided", B: "having provided", C: "to provide", D: "providing" }, correctAnswer: "A" },
+        { id: 92, question: "In 1453, English King Henry VI became unfit to rule after falling gravely ill. As a result, Parliament appointed Richard, Third Duke of York, who had a strong claim to the English throne, to rule as Lord Protector. Upon recovering two years later, ______ forcing an angered Richard from the royal court and precipitating a series of battles later known as the Wars of the Roses.", options: { A: "Henry resumed his reign,", B: "the reign of Henry resumed,", C: "Henry's reign resumed,", D: "it was Henry who resumed his reign," }, correctAnswer: "A" },
+        { id: 93, question: "Botanists recognize over fifty different species of sunflower. One species, the silverleaf sunflower, ______ both an early-flowering ecotype that tends to grow in coastal areas and a late-flowering ecotype that grows inland.", options: { A: "having included", B: "including", C: "to include", D: "includes" }, correctAnswer: "D" },
+        { id: 94, question: "In 1990, California native and researcher Ellen Ochoa left her position as chief of the Intelligent Systems Technology Branch at a NASA research center ______ the space agency's astronaut training program.", options: { A: "to join", B: "is joining", C: "joined", D: "joins" }, correctAnswer: "A" },
+        { id: 95, question: "Why are Rome's famous concrete structures, such as the Colosseum, still standing after 2,000-plus years, when modern concrete may not even last for fifty? Scientists ______ that the secret to Roman concrete's durability was its unique blend of ingredients, which included volcanic ash and seawater.", options: { A: "explain", B: "having explained", C: "explaining", D: "to explain" }, correctAnswer: "A" },
+        { id: 96, question: "A model created by biologist Luis Valente predicts that the rate of speciation—the rate at which new species form—on an isolated island located approximately 5,000 kilometers from the nearest mainland ______ triple the rate of speciation on an island only 500 kilometers from the mainland.", options: { A: "being", B: "to be", C: "to have been", D: "will be" }, correctAnswer: "D" },
+        { id: 97, question: "For thousands of years, people in the Americas ______ the bottle gourd, a large bitter fruit with a thick rind, to make bottles, other types of containers, and even musical instruments. Oddly, there is no evidence that any type of bottle gourd is native to the Western Hemisphere; either the fruit or its seeds must have somehow been carried from Asia or Africa.", options: { A: "to use", B: "have used", C: "having used", D: "using" }, correctAnswer: "B" },
+        { id: 98, question: "In 1881, French chemist Camille Faure redesigned the rechargeable lead-acid battery. Faure's design greatly increased the amount of electricity that the original battery, which the French physicist Gaston Planté ______ fifteen years earlier, could hold.", options: { A: "is inventing", B: "will invent", C: "invents", D: "had invented" }, correctAnswer: "D" },
+        { id: 99, question: "A pioneer in the field of taphonomy (the study of how organic remains become fossils), ______ may be just as prevalent in the fossil record as those of thick-shelled organisms.", options: { A: "fossils of thin-shelled organisms, Anna Behrensmeyer demonstrated in a 2005 analysis,", B: "Anna Behrensmeyer demonstrated in a 2005 analysis that fossils of thin-shelled organisms", C: "an analysis in 2005 by Anna Behrensmeyer demonstrated that fossils of thin-shelled organisms", D: "a 2005 analysis by Anna Behrensmeyer demonstrated that fossils of thin-shelled organisms" }, correctAnswer: "B" },
+        { id: 100, question: "Because a cycle of lunar phases ______ 29.5 days to complete, it's possible to observe two full moons in a single month, one at the beginning and one at the end.", options: { A: "are taking", B: "have taken", C: "take", D: "takes" }, correctAnswer: "D" },
+        { id: 101, question: "The alga species Chlorella vulgaris is very efficient at making oxygen. For this reason, scientists are currently exploring ways to use this species in space. C. vulgaris might be used, for example, to build future biological air exchange systems that ______ oxygen for astronauts.", options: { A: "are producing", B: "produced", C: "produce", D: "have produced" }, correctAnswer: "C" },
+        { id: 102, question: "With its towering, six-spired exterior of granitelike quartz monzonite, the Salt Lake Temple is one of the most instantly recognizable structures in the state of Utah. However, many people do not know that ______ built over the course of forty years, with construction beginning in 1853 and ending in 1893.", options: { A: "it was", B: "one was", C: "they were", D: "both were" }, correctAnswer: "A" },
+        { id: 103, question: "After winning the 1860 presidential election, Abraham Lincoln appointed Edward Bates, Salmon P. Chase, and William H. Seward to his cabinet. Lincoln’s decision was surprising, since each of these men had run against him, but historians have praised it, noting that Lincoln ______ his rivals’ diverse talents to strengthen his administration.", options: { A: "has leveraged", B: "is leveraging", C: "will leverage", D: "leveraged" }, correctAnswer: "D" },
+        { id: 104, question: "Dr. Rocío Paola Caballero-Gill is a paleoceanographer. This means that Dr. Caballero-Gill doesn’t just study oceans as they are today. She uses chemistry and fossil evidence ______ oceans as they were in the past.", options: { A: "has studied", B: "to study", C: "studied", D: "studies" }, correctAnswer: "B" }
+    ];
+
+    // =======================================================
+// SAO CHÉP TỪ ĐÂY ĐẾN HẾT VÀ DÁN VÀO SAU MẢNG quizData
+// =======================================================
+
+const quizContainer = document.getElementById('quiz');
+let currentScore = 0;
+let answeredCount = 0;
+const totalQuestions = quizData.length;
+
+// Mã định danh bản nháp bài làm theo Học sinh và Tên file bài tập
+const STUDENT_ID = sessionStorage.getItem('studentId') || 'guest';
+const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+// 1. Tạo giao diện các câu hỏi
+function buildQuiz() {
+    quizContainer.innerHTML = '';
+    quizData.forEach((data, index) => {
+        const questionBlock = document.createElement('div');
+        questionBlock.classList.add('question-block');
+        questionBlock.id = `question-${data.id}`;
+        questionBlock.dataset.locked = "false";
+
+        let optionsHtml = '';
+        for (const [key, value] of Object.entries(data.options)) {
+            optionsHtml += `
+                <li>
+                    <label id="label-${data.id}-${key}">
+                        <input type="radio" name="question${data.id}" value="${key}" onchange="saveProgress()">
+                        <strong>${key}.</strong> ${value}
+                    </label>
+                </li>
+            `;
+        }
+
+        questionBlock.innerHTML = `
+            <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+            <ul class="options">
+                ${optionsHtml}
+            </ul>
+        `;
+        quizContainer.appendChild(questionBlock);
+    });
+    
+    const progressEl = document.getElementById('progressText');
+    if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+}
+
+// 2. Tự động lưu tiến độ vào localStorage mỗi khi tích chọn đáp án
+function saveProgress() {
+    let userAnswers = {};
+    quizData.forEach(data => {
+        const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+        if (selectedOption) {
+            userAnswers[data.id] = selectedOption.value;
+        }
+    });
+    localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+}
+
+// 3. Kiểm tra và phục hồi câu đã làm dở khi vào lại trang
+function checkAndRestoreProgress() {
+    const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+    if (!savedDraft) return;
+
+    const userAnswers = JSON.parse(savedDraft);
+    const count = Object.keys(userAnswers).length;
+
+    if (count > 0) {
+        const confirmResume = confirm(
+            `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+            `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+            `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+        );
+
+        if (confirmResume) {
+            let lastAnsweredId = null;
+            Object.entries(userAnswers).forEach(([qId, value]) => {
+                const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    lastAnsweredId = qId;
+                }
+            });
+
+            if (lastAnsweredId) {
+                const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                if (targetBlock) {
+                    targetBlock.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        } else {
+            localStorage.removeItem(QUIZ_STORAGE_KEY);
+        }
+    }
+}
+
+// 4. Kiểm tra đáp án, chấm điểm & gửi Firebase
+function checkCurrentAnswers() {
+    let checkedAny = false;
+
+    quizData.forEach(data => {
+        const block = document.getElementById(`question-${data.id}`);
+        if (block.dataset.locked === "true") return;
+
+        const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+        
+        if (selectedOption) {
+            checkedAny = true;
+            const userAnswer = selectedOption.value;
+            const correctAnswer = data.correctAnswer;
+            
+            if (userAnswer === correctAnswer) {
+                document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
+                currentScore++;
+            } else {
+                document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('wrong-answer-label');
+                document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
+            }
+
+            const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+            radios.forEach(radio => radio.disabled = true);
+            block.dataset.locked = "true";
+            
+            answeredCount++;
+        }
+    });
+
+    if (!checkedAny) {
+        alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+    } else {
+        updateScoreBoard();
+        
+        if (window.saveScoreToFirebase) {
+            window.saveScoreToFirebase(currentScore, answeredCount);
+        }
+
+        if (answeredCount === totalQuestions) {
+            alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+            localStorage.removeItem(QUIZ_STORAGE_KEY);
+        }
+    }
+}
+
+// 5. Làm lại từ đầu
+function resetQuiz() {
+    if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+    
+    currentScore = 0;
+    answeredCount = 0;
+    
+    localStorage.removeItem(QUIZ_STORAGE_KEY);
+    
+    quizData.forEach(data => {
+        const block = document.getElementById(`question-${data.id}`);
+        if (block) {
+            block.dataset.locked = "false";
+            
+            const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+            radios.forEach(radio => {
+                radio.disabled = false;
+                radio.checked = false;
+            });
+            
+            for (const key of Object.keys(data.options)) {
+                const lbl = document.getElementById(`label-${data.id}-${key}`);
+                if (lbl) {
+                    lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                }
+            }
+        }
+    });
+    
+    updateScoreBoard();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 6. Cập nhật bảng điểm
+function updateScoreBoard() {
+    const progressEl = document.getElementById('progressText');
+    const scoreEl = document.getElementById('scoreText');
+    if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+    if (scoreEl) scoreEl.innerText = currentScore;
+}
+
+// Chạy khởi tạo giao diện và kiểm tra tiến độ dở
+buildQuiz();
+checkAndRestoreProgress();
+</script>
+</body>
+</html>
