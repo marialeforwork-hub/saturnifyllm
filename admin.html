@@ -7,7 +7,7 @@
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; font-size: 14px; }
-        .admin-container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .admin-container { max-width: 1250px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin-top: 0; font-size: 1.5em; }
         
         .stats-bar { display: flex; gap: 15px; margin-bottom: 20px; }
@@ -28,6 +28,7 @@
         tr:hover { background: #f1f7fc; }
 
         .badge-score { background: #e8f8f5; color: #27ae60; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; white-space: nowrap; display: inline-block; }
+        .badge-total { background: #eef2ff; color: #4f46e5; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; white-space: nowrap; display: inline-block; border: 1px solid #c7d2fe; }
         .badge-attempt { 
             background: #fef9e7; color: #d35400; padding: 4px 8px; border-radius: 4px; font-weight: bold; 
             border: 1px solid #fecd56; font-size: 0.85em; white-space: nowrap; display: inline-flex; 
@@ -73,11 +74,13 @@
 
         let globalDataStore = {};
         let currentSortedDocs = [];
+        let studentTotalCorrectMap = {};
+        let studentTotalQuestionsMap = {};
 
         // Lắng nghe dữ liệu Realtime
         onSnapshot(collection(db, "results"), (snapshot) => {
             if (snapshot.empty) {
-                resultsTable.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: #888;">Chưa có lượt nộp bài nào trên hệ thống.</td></tr>';
+                resultsTable.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px; color: #888;">Chưa có lượt nộp bài nào trên hệ thống.</td></tr>';
                 totalSubmissionsEl.innerText = '0';
                 totalStudentsEl.innerText = '0';
                 studentSelectEl.innerHTML = '<option value="all">-- Tất cả học sinh --</option>';
@@ -87,10 +90,12 @@
             totalSubmissionsEl.innerText = snapshot.size;
             const uniqueStudents = new Set();
             const studentAttemptTracker = {};
+            studentTotalCorrectMap = {};
+            studentTotalQuestionsMap = {};
 
             const rawDocs = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
 
-            // 1. Sắp xếp xuôi thời gian để tính lượt làm bài chính xác
+            // 1. Sắp xếp xuôi thời gian để tính lượt làm bài & cộng dồn tổng điểm chính xác
             currentSortedDocs = [...rawDocs].sort((a, b) => {
                 const tA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
                 const tB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
@@ -102,6 +107,12 @@
                 item.displayName = displayName;
                 uniqueStudents.add(displayName);
 
+                // Tính tổng câu đúng tích lũy cho học sinh
+                const scoreNum = Number(item.score) || 0;
+                const totalNum = Number(item.total) || 0;
+                studentTotalCorrectMap[displayName] = (studentTotalCorrectMap[displayName] || 0) + scoreNum;
+                studentTotalQuestionsMap[displayName] = (studentTotalQuestionsMap[displayName] || 0) + totalNum;
+
                 const quizKey = item.quizTitle || 'Bài tập';
                 const trackerKey = `${displayName}_${quizKey}`;
                 studentAttemptTracker[trackerKey] = (studentAttemptTracker[trackerKey] || 0) + 1;
@@ -110,7 +121,7 @@
 
             totalStudentsEl.innerText = uniqueStudents.size;
 
-            // 2. Cập nhật danh sách Học sinh vào ô Filter (Giữ nguyên lựa chọn đang chọn nếu có)
+            // 2. Cập nhật danh sách Học sinh vào ô Filter
             const selectedVal = studentSelectEl.value || 'all';
             studentSelectEl.innerHTML = '<option value="all">-- Tất cả học sinh --</option>';
             Array.from(uniqueStudents).sort().forEach(name => {
@@ -125,7 +136,7 @@
             renderTable();
         }, (error) => {
             console.error("Lỗi Firestore:", error);
-            resultsTable.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Lỗi kết nối Firebase: ${error.message}</td></tr>`;
+            resultsTable.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Lỗi kết nối Firebase: ${error.message}</td></tr>`;
         });
 
         // Hàm render dữ liệu ra bảng có lọc
@@ -136,13 +147,12 @@
             // Lấy mảng từ mới nhất đến cũ nhất
             let displayList = [...currentSortedDocs].reverse();
 
-            // Nếu người dùng chọn 1 học sinh cụ thể
             if (selectedStudent !== 'all') {
                 displayList = displayList.filter(item => item.displayName === selectedStudent);
             }
 
             if (displayList.length === 0) {
-                resultsTable.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: #888;">Không tìm thấy bài làm nào của học sinh này.</td></tr>';
+                resultsTable.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px; color: #888;">Không tìm thấy bài làm nào của học sinh này.</td></tr>';
                 return;
             }
 
@@ -158,6 +168,11 @@
                         scoreText = `${data.score}`;
                     }
                 }
+
+                // Tính tổng câu đúng tích lũy hiển thị
+                const totalCorrect = studentTotalCorrectMap[data.displayName] || 0;
+                const totalQuestions = studentTotalQuestionsMap[data.displayName] || 0;
+                const totalText = totalQuestions > 0 ? `${totalCorrect}/${totalQuestions} câu` : `${totalCorrect} câu`;
 
                 let timeDisplay = 'N/A';
                 if (data.startTime && data.endTime) {
@@ -180,6 +195,7 @@
                     <td>${escapeHtml(data.quizTitle || 'Bài tập SAT')}</td>
                     <td><span class="badge-attempt">Lần ${data.attemptNumber}</span></td>
                     <td><span class="badge-score">${scoreText}</span></td>
+                    <td><span class="badge-total">${totalText}</span></td>
                     <td><small>${timeDisplay}</small></td>
                     <td><small>${durationDisplay}</small></td>
                     <td>
@@ -193,10 +209,8 @@
             });
         }
 
-        // Bắt sự kiện khi người dùng chọn lọc học sinh
         studentSelectEl.addEventListener('change', renderTable);
 
-        // Hàm xóa kết quả
         window.deleteResult = async function(docId, studentName) {
             if (confirm(`Bạn có chắc muốn xóa bài làm của "${studentName}" không?`)) {
                 try {
@@ -208,7 +222,6 @@
             }
         };
 
-        // Hàm mở Modal Chi Tiết
         window.openDetail = function(docId) {
             const record = globalDataStore[docId];
             if (!record) return;
@@ -286,7 +299,8 @@
                 <th>Học Sinh</th>
                 <th>Bài Kiểm Tra</th>
                 <th>Lượt Làm</th>
-                <th>Điểm Số</th>
+                <th>Điểm Lần Này</th>
+                <th>Tổng Đúng (In Total)</th>
                 <th>Thời Gian Làm Bài</th>
                 <th>Tổng Thời Gian</th>
                 <th>Thao Tác</th>
@@ -294,7 +308,7 @@
         </thead>
         <tbody id="resultsBody">
             <tr>
-                <td colspan="7" style="text-align: center; color: #888;">Đang tải dữ liệu...</td>
+                <td colspan="8" style="text-align: center; color: #888;">Đang tải dữ liệu...</td>
             </tr>
         </tbody>
     </table>
