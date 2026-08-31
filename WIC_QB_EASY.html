@@ -1842,16 +1842,24 @@
     let answeredCount = 0;
     const totalQuestions = quizData.length;
 
-    const STUDENT_ID = sessionStorage.getItem('studentId') || 'guest';
+    // 🕒 GHI NHẬN THỜI GIAN BẮT ĐẦU LÀM BÀI
+    const startTime = new Date();
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
     const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
 
     function buildQuiz() {
         quizContainer.innerHTML = '';
+        
+        // 📌 1. TỰ ĐỘNG TẠO HỘP NAVIGATOR CHỌN CÂU CỐ ĐỊNH GÓC PHẢI
+        createNavigatorBox();
+
         quizData.forEach((data, index) => {
             const questionBlock = document.createElement('div');
             questionBlock.classList.add('question-block');
             questionBlock.id = `question-${data.id}`;
             questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "80px";
 
             let optionsHtml = '';
             for (const [key, value] of Object.entries(data.options)) {
@@ -1875,10 +1883,70 @@
             quizContainer.appendChild(questionBlock);
         });
         
-        quizContainer.addEventListener('change', saveProgress);
+        // Lắng nghe sự kiện chọn đáp án để lưu bản nháp & đổi màu Navigator
+        quizContainer.addEventListener('change', (e) => {
+            saveProgress();
+            updateNavigatorState();
+        });
         
         const progressEl = document.getElementById('progressText');
         if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+    }
+
+    // 🛠️ HÀM TẠO HỘP NAVIGATOR DẠNG LƯỚI
+    function createNavigatorBox() {
+        let oldBox = document.getElementById('quizNavBox');
+        if (oldBox) oldBox.remove();
+
+        const navBox = document.createElement('div');
+        navBox.id = 'quizNavBox';
+        navBox.style.cssText = `
+            position: fixed; top: 20px; right: 20px; width: 210px; max-height: 75vh;
+            background: #ffffff; border: 2px solid #3498db; border-radius: 10px; padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+
+        const title = document.createElement('div');
+        title.innerText = '📌 Danh Sách Câu Hỏi';
+        title.style.cssText = 'font-weight: bold; color: #2c3e50; font-size: 0.9em; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
+        navBox.appendChild(title);
+
+        const grid = document.createElement('div');
+        grid.style.cssText = 'display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;';
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 32px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+
+        navBox.appendChild(grid);
+        document.body.appendChild(navBox);
+    }
+
+    // 🔄 ĐỔI MÀU Ô NAVIGATOR KHI ĐÃ CHỌN CÂU HỎI
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn && selected) {
+                btn.style.background = '#2ecc71';
+                btn.style.color = '#ffffff';
+                btn.style.borderColor = '#27ae60';
+            }
+        });
     }
 
     function saveProgress() {
@@ -1915,6 +1983,8 @@
                         lastAnsweredId = qId;
                     }
                 });
+
+                updateNavigatorState();
 
                 if (lastAnsweredId) {
                     const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
@@ -1965,12 +2035,57 @@
             alert('Bạn chưa chọn đáp án nào để kiểm tra!');
         } else {
             updateScoreBoard();
-            saveScoreToFirebase(currentScore, answeredCount);
+            
+            // 📊 2. LƯU DỮ LIỆU CHI TIẾT SANG DÀNH CHO ADMIN
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
 
             if (answeredCount === totalQuestions) {
                 alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
                 localStorage.removeItem(QUIZ_STORAGE_KEY);
             }
+        }
+    }
+
+    // 📤 HÀM TỔNG HỢP & GỬI DỮ LIỆU KẾT QUẢ SANG TRANG ADMIN
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.round((endTime - startTime) / 1000);
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        // Bắn dữ liệu ra ngoài iframe nếu có
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
         }
     }
 
@@ -2002,6 +2117,14 @@
                         lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
                     }
                 }
+
+                // Đặt lại màu ô Navigator
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
             }
         });
         
@@ -2021,6 +2144,9 @@
 
     buildQuiz();
     checkAndRestoreProgress();
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
