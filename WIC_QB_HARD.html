@@ -18,7 +18,36 @@
         .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
         .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
         .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
-        
+        /* Khung chứa danh sách câu hỏi */
+.question-list-panel {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+    z-index: 999;
+}
+
+/* Khi có lớp 'collapsed' sẽ trượt ẩn sang phải */
+.question-list-panel.collapsed {
+    transform: translate(calc(100% + 20px), -50%);
+}
+
+/* Nút bấm ẩn/hiện đính kèm bên mép trái của bảng */
+.toggle-sidebar-btn {
+    position: absolute;
+    left: -40px;
+    top: 20px;
+    width: 40px;
+    height: 40px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    font-size: 1.2em;
+    box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+}
         .sticky-footer {
     position: fixed;
     bottom: 0;
@@ -113,6 +142,16 @@
     <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
 </div>
+    <div class="question-list-panel" id="questionListPanel">
+    <!-- Nút bật/tắt dạng tab nhỏ nhô ra bên hông -->
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    
+    <!-- Nội dung bảng danh sách câu hỏi hiện tại của bạn nằm ở đây -->
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <!-- Danh sách nút từ 1 đến 61... -->
+    </div>
+</div>
 <!-- Thêm nút này nằm ngay TRÊN thẻ sticky-footer -->
 <button class="toggle-nav-btn" id="toggleNavBtn">
     <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
@@ -158,6 +197,16 @@
         const isHidden = stickyFooter.classList.contains('hidden');
         toggleIcon.textContent = isHidden ? '🙈' : '👁️';
         toggleText.textContent = isHidden ? 'Hiện thanh công cụ' : 'Ẩn thanh công cụ';
+    });
+    const questionListPanel = document.getElementById('questionListPanel');
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+
+    if (window.innerWidth <= 768) {
+        questionListPanel.classList.add('collapsed');
+    }
+
+    toggleSidebarBtn.addEventListener('click', () => {
+        questionListPanel.classList.toggle('collapsed');
     });
 
     // 🕒 LƯU MỐC THỜI GIAN BẮT ĐẦU CỦA LẦN LÀM BÀI HIỆN TẠI
