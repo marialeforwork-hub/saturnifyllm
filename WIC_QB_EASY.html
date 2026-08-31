@@ -3,98 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Tập SAT Online</title>
+    <title>Bài Tập Trắc Nghiệm: Logical Transitions</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-        .scoreboard { background: #eef2f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; font-weight: bold; }
-        .question-block { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-        .question-text { font-weight: bold; font-size: 1.1em; color: #2c3e50; margin-bottom: 12px; }
-        .options { list-style: none; padding: 0; margin: 0; }
-        .options li { margin-bottom: 8px; }
-        .options label { display: block; padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
-        .options label:hover { background: #f0f4f8; }
-        .correct-answer-label { background: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
-        .wrong-answer-label { background: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; font-weight: bold; }
-        .explanation { display: none; background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 12px; border-radius: 5px; margin-top: 12px; line-height: 1.5; }
-        .controls { display: flex; gap: 10px; justify-content: center; margin-top: 25px; }
-        .btn { padding: 12px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1em; }
-        .btn-check { background: #3498db; color: white; }
-        .btn-check:hover { background: #2980b9; }
-        .btn-reset { background: #95a5a6; color: white; }
-
-        /* Tối ưu hiển thị danh sách điều hướng trên Mobile */
-        @media (max-width: 1100px) {
-            #quizNavBox {
-                position: static !important;
-                width: 100% !important;
-                max-height: none !important;
-                margin-bottom: 20px;
-                box-sizing: border-box;
-            }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
         }
     </style>
-
-    <!-- TÍCH HỢP FIREBASE SATURNIFYLLM -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
-            authDomain: "saturnifyllm.firebaseapp.com",
-            databaseURL: "https://saturnifyllm-default-rtdb.firebaseio.com",
-            projectId: "saturnifyllm",
-            storageBucket: "saturnifyllm.firebasestorage.app",
-            messagingSenderId: "679587062435",
-            appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
-            measurementId: "G-YV0NEJKNNH"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        window.saveToFirebase = async function(resultData) {
-            try {
-                const snapshot = await get(ref(db, 'sat_results'));
-                let attemptCount = 1;
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const previous = Object.values(data).filter(item => 
-                        item.studentName === resultData.studentName && item.quizTitle === resultData.quizTitle
-                    );
-                    attemptCount = previous.length + 1;
-                }
-                
-                resultData.attempt = attemptCount;
-                await push(ref(db, 'sat_results'), resultData);
-                console.log("Đã lưu kết quả thành công lên Firebase!");
-            } catch (error) {
-                console.error("Lỗi gửi Firebase:", error);
-            }
-        };
-    </script>
 </head>
 <body>
 
 <div class="container">
-    <h1>Bài Tập Luyện Thi SAT</h1>
-    <div class="scoreboard">
-        <span>Đã làm: <span id="progressText" style="color: #2980b9;">0/0</span></span>
-        <span>Điểm số: <span id="scoreText" style="color: #27ae60;">0</span></span>
-    </div>
-
+    <h1>Bài Kiểm Tra: Transitions</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
+</div>
 
-    <div class="controls">
-        <button id="checkBtn" class="btn btn-check">Kiểm Tra Đáp Án</button>
-        <button id="resetBtn" class="btn btn-reset">Làm Lại</button>
+<div class="sticky-footer">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
     </div>
 </div>
 
-<script>
-    // 🎯 PASTE ĐỀ BÀI CỦA BẠN VÀO ĐÂY
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu điểm thành công lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
     const quizData = [
 {
     "id": 1,
@@ -1799,25 +1835,23 @@
     },
     "correctAnswer": "A",
     "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of Ronyoung Kim ’ s novel Clay Walls. In this context, \"distinct\" means clearly separate and different. The text indicates that the novel consists of three sections and that each section is narrated from the perspective of a different character. This context suppor ts the idea that Kim ’ s novel features three distinct perspectives. Choice B is incorrect because describing the three perspectives in Kim ’ s novel as \"required,\" or demanded as necessary to be done or provided, wouldn ’t make sense in context. When writing a novel, a novelist is free to choose to narrate the story from any number of perspectives. There ’ s nothing in the text to indicate that providing three perspectives was demanded of Kim. Instead, the text focuses on identifying the three different perspectives featured in Kim ’ s novel. Choice C is incorrect because describing the three perspectives in Kim ’ s novel as \"unintended,\" or not planned as a purpose or goal, wouldn ’t make sense in context. Authors make deliberate choices about the perspectives they feature in their works, and the text indicates that Kim chose to incorporate three different perspectives in her novel. Choice D is incorrect because describing the three perspectives in Kim ’ s novel as \"unknown,\" or not revealed, wouldn ’t make sense in context. The text directly identifies the three perspectives that appear in her novel as those of Faye and her two parents, Haesu and Chun, which indicates that the novel’ s perspectives are in fact known."
-  }
+  },
 ];
-
     const quizContainer = document.getElementById('quiz');
     let currentScore = 0;
     let answeredCount = 0;
     const totalQuestions = quizData.length;
+
+    // 🕒 GHI NHẬN THỜI GIAN BẮT ĐẦU LÀM BÀI
     const startTime = new Date();
 
-    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'Học Sinh';
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
     const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
 
     function buildQuiz() {
         quizContainer.innerHTML = '';
-        if (totalQuestions === 0) {
-            quizContainer.innerHTML = '<p style="text-align:center;">Chưa có dữ liệu câu hỏi.</p>';
-            return;
-        }
-
+        
+        // 📌 1. TỰ ĐỘNG TẠO HỘP NAVIGATOR CHỌN CÂU CỐ ĐỊNH GÓC PHẢI
         createNavigatorBox();
 
         quizData.forEach((data, index) => {
@@ -1841,21 +1875,25 @@
 
             questionBlock.innerHTML = `
                 <div class="question-text">Câu ${index + 1}: ${data.question}</div>
-                <ul class="options">${optionsHtml}</ul>
-                <div class="explanation" id="explanation-${data.id}"><strong>Lời giải:</strong> ${data.explanation}</div>
+                <ul class="options">
+                    ${optionsHtml}
+                </ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation}</div>
             `;
             quizContainer.appendChild(questionBlock);
         });
-
-        quizContainer.addEventListener('change', () => {
+        
+        // Lắng nghe sự kiện chọn đáp án để lưu bản nháp & đổi màu Navigator
+        quizContainer.addEventListener('change', (e) => {
             saveProgress();
             updateNavigatorState();
         });
-
-        loadProgress(); // Tự động khôi phục các câu đã chọn trước đó
-        updateScoreBoard();
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
     }
 
+    // 🛠️ HÀM TẠO HỘP NAVIGATOR DẠNG LƯỚI
     function createNavigatorBox() {
         let oldBox = document.getElementById('quizNavBox');
         if (oldBox) oldBox.remove();
@@ -1866,6 +1904,7 @@
             position: fixed; top: 20px; right: 20px; width: 210px; max-height: 75vh;
             background: #ffffff; border: 2px solid #3498db; border-radius: 10px; padding: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         `;
 
         const title = document.createElement('div');
@@ -1881,7 +1920,10 @@
             btn.type = 'button';
             btn.id = `nav_btn_${data.id}`;
             btn.innerText = index + 1;
-            btn.style.cssText = 'width: 100%; height: 32px; border: 1px solid #bdc3c7; background: #f8f9fa; color: #2c3e50; border-radius: 4px; cursor: pointer; font-weight: bold;';
+            btn.style.cssText = `
+                width: 100%; height: 32px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;
+            `;
 
             btn.onclick = () => {
                 const targetBlock = document.getElementById(`question-${data.id}`);
@@ -1894,6 +1936,7 @@
         document.body.appendChild(navBox);
     }
 
+    // 🔄 ĐỔI MÀU Ô NAVIGATOR KHI ĐÃ CHỌN CÂU HỎI
     function updateNavigatorState() {
         quizData.forEach((data) => {
             const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
@@ -1910,25 +1953,48 @@
         let userAnswers = {};
         quizData.forEach(data => {
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
-            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            if (selectedOption) {
+                userAnswers[data.id] = selectedOption.value;
+            }
         });
         localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
     }
 
-    function loadProgress() {
-        const saved = localStorage.getItem(QUIZ_STORAGE_KEY);
-        if (!saved) return;
-        
-        try {
-            const userAnswers = JSON.parse(saved);
-            Object.keys(userAnswers).forEach(questionId => {
-                const val = userAnswers[questionId];
-                const radio = document.querySelector(`input[name="question${questionId}"][value="${val}"]`);
-                if (radio) radio.checked = true;
-            });
-            updateNavigatorState();
-        } catch (e) {
-            console.error("Lỗi khôi phục tiến trình:", e);
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
         }
     }
 
@@ -1940,6 +2006,7 @@
             if (block.dataset.locked === "true") return;
 
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
             if (selectedOption) {
                 checkedAny = true;
                 const userAnswer = selectedOption.value;
@@ -1953,71 +2020,133 @@
                     document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
                 }
 
-                document.getElementById(`explanation-${data.id}`).style.display = 'block';
-                document.querySelectorAll(`input[name="question${data.id}"]`).forEach(radio => radio.disabled = true);
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'block';
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
                 block.dataset.locked = "true";
+                
                 answeredCount++;
             }
         });
 
         if (!checkedAny) {
-            alert('Bạn chưa chọn đáp án nào!');
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
         } else {
             updateScoreBoard();
-            sendResultToAdmin();
+            
+            // 📊 2. LƯU DỮ LIỆU CHI TIẾT SANG DÀNH CHO ADMIN
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
         }
     }
 
-    function sendResultToAdmin() {
+    // 📤 HÀM TỔNG HỢP & GỬI DỮ LIỆU KẾT QUẢ SANG TRANG ADMIN
+    function saveAdminResultData() {
         const endTime = new Date();
         const durationSec = Math.round((endTime - startTime) / 1000);
         const durationMin = (durationSec / 60).toFixed(1);
 
+        const quizTitle = document.title || 'Bài tập SAT';
         let studentAnswers = {};
-        
+
         quizData.forEach((data, index) => {
             const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
-            const userChoice = selected ? selected.value : 'Bỏ trống';
-            const isCorrect = userChoice === data.correctAnswer;
-
-            studentAnswers[`Câu ${index + 1}`] = {
-                userChoice: userChoice,
-                correctAnswer: data.correctAnswer,
-                status: userChoice === 'Bỏ trống' ? 'empty' : (isCorrect ? 'correct' : 'wrong')
-            };
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
         });
 
-        const percentageVal = totalQuestions > 0 ? Math.round((currentScore / totalQuestions) * 100) : 0;
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
 
         const resultData = {
-            timestamp: Date.now(),
+            id: Date.now(),
             studentName: STUDENT_ID,
-            quizTitle: document.title || 'Bài tập SAT',
+            quizTitle: quizTitle,
+            attempt: attemptCount,
             score: `${currentScore}/${totalQuestions}`,
-            percentage: percentageVal + '%',
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
             answers: studentAnswers,
             startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
             endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
             duration: `${durationMin} phút (${durationSec}s)`
         };
 
-        if (typeof window.saveToFirebase === 'function') {
-            window.saveToFirebase(resultData);
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        // Bắn dữ liệu ra ngoài iframe nếu có
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
         }
     }
 
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+                
+                for (const key of Object.keys(data.options)) {
+                    const lbl = document.getElementById(`label-${data.id}-${key}`);
+                    if (lbl) {
+                        lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                    }
+                }
+
+                // Đặt lại màu ô Navigator
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     function updateScoreBoard() {
-        document.getElementById('progressText').innerText = `${answeredCount}/${totalQuestions}`;
-        document.getElementById('scoreText').innerText = currentScore;
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
     }
 
     document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
-    document.getElementById('resetBtn').addEventListener('click', () => {
-        localStorage.removeItem(QUIZ_STORAGE_KEY);
-        location.reload();
-    });
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
 
     buildQuiz();
+    checkAndRestoreProgress();
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
