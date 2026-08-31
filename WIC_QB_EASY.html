@@ -23,6 +23,17 @@
         .btn-check { background: #3498db; color: white; }
         .btn-check:hover { background: #2980b9; }
         .btn-reset { background: #95a5a6; color: white; }
+
+        /* Tối ưu hiển thị danh sách điều hướng trên Mobile */
+        @media (max-width: 1100px) {
+            #quizNavBox {
+                position: static !important;
+                width: 100% !important;
+                max-height: none !important;
+                margin-bottom: 20px;
+                box-sizing: border-box;
+            }
+        }
     </style>
 
     <!-- TÍCH HỢP FIREBASE SATURNIFYLLM -->
@@ -85,7 +96,7 @@
 <script>
     // 🎯 PASTE ĐỀ BÀI CỦA BẠN VÀO ĐÂY
     const quizData = [
-        {
+{
     "id": 1,
     "question": "Question Ar tist Marilyn Dingle ’ s intricate, coiled baskets are ______ sweetgrass and palmetto palm. Following a Gullah technique that originated in West Africa, Dingle skillfully winds a thin palm frond around a bunch of sweetgrass with the help of a “ sewing bone” to create the basket’ s signature look that no factory can reproduce. Which choice completes the text with the most logical and precise word or phrase?",
     "options": {
@@ -1789,7 +1800,7 @@
     "correctAnswer": "A",
     "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of Ronyoung Kim ’ s novel Clay Walls. In this context, \"distinct\" means clearly separate and different. The text indicates that the novel consists of three sections and that each section is narrated from the perspective of a different character. This context suppor ts the idea that Kim ’ s novel features three distinct perspectives. Choice B is incorrect because describing the three perspectives in Kim ’ s novel as \"required,\" or demanded as necessary to be done or provided, wouldn ’t make sense in context. When writing a novel, a novelist is free to choose to narrate the story from any number of perspectives. There ’ s nothing in the text to indicate that providing three perspectives was demanded of Kim. Instead, the text focuses on identifying the three different perspectives featured in Kim ’ s novel. Choice C is incorrect because describing the three perspectives in Kim ’ s novel as \"unintended,\" or not planned as a purpose or goal, wouldn ’t make sense in context. Authors make deliberate choices about the perspectives they feature in their works, and the text indicates that Kim chose to incorporate three different perspectives in her novel. Choice D is incorrect because describing the three perspectives in Kim ’ s novel as \"unknown,\" or not revealed, wouldn ’t make sense in context. The text directly identifies the three perspectives that appear in her novel as those of Faye and her two parents, Haesu and Chun, which indicates that the novel’ s perspectives are in fact known."
   }
-    ];
+];
 
     const quizContainer = document.getElementById('quiz');
     let currentScore = 0;
@@ -1802,6 +1813,11 @@
 
     function buildQuiz() {
         quizContainer.innerHTML = '';
+        if (totalQuestions === 0) {
+            quizContainer.innerHTML = '<p style="text-align:center;">Chưa có dữ liệu câu hỏi.</p>';
+            return;
+        }
+
         createNavigatorBox();
 
         quizData.forEach((data, index) => {
@@ -1835,6 +1851,9 @@
             saveProgress();
             updateNavigatorState();
         });
+
+        loadProgress(); // Tự động khôi phục các câu đã chọn trước đó
+        updateScoreBoard();
     }
 
     function createNavigatorBox() {
@@ -1896,6 +1915,23 @@
         localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
     }
 
+    function loadProgress() {
+        const saved = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!saved) return;
+        
+        try {
+            const userAnswers = JSON.parse(saved);
+            Object.keys(userAnswers).forEach(questionId => {
+                const val = userAnswers[questionId];
+                const radio = document.querySelector(`input[name="question${questionId}"][value="${val}"]`);
+                if (radio) radio.checked = true;
+            });
+            updateNavigatorState();
+        } catch (e) {
+            console.error("Lỗi khôi phục tiến trình:", e);
+        }
+    }
+
     function checkCurrentAnswers() {
         let checkedAny = false;
 
@@ -1933,41 +1969,36 @@
     }
 
     function sendResultToAdmin() {
-    const endTime = new Date();
-    const durationSec = Math.round((endTime - startTime) / 1000);
-    const durationMin = (durationSec / 60).toFixed(1);
+        const endTime = new Date();
+        const durationSec = Math.round((endTime - startTime) / 1000);
+        const durationMin = (durationSec / 60).toFixed(1);
 
-    let studentAnswers = {};
-    
-    // Ghi nhận chi tiết từng câu: Đáp án đã chọn + Đáp án đúng + Trạng thái Đúng/Sai
-    quizData.forEach((data, index) => {
-        const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
-        const userChoice = selected ? selected.value : 'Bỏ trống';
-        const isCorrect = userChoice === data.correctAnswer;
+        let studentAnswers = {};
+        
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const userChoice = selected ? selected.value : 'Bỏ trống';
+            const isCorrect = userChoice === data.correctAnswer;
 
-        studentAnswers[`Câu ${index + 1}`] = {
-            userChoice: userChoice,
-            correctAnswer: data.correctAnswer,
-            status: userChoice === 'Bỏ trống' ? 'empty' : (isCorrect ? 'correct' : 'wrong')
-        };
-    });
+            studentAnswers[`Câu ${index + 1}`] = {
+                userChoice: userChoice,
+                correctAnswer: data.correctAnswer,
+                status: userChoice === 'Bỏ trống' ? 'empty' : (isCorrect ? 'correct' : 'wrong')
+            };
+        });
 
-    const resultData = {
-        timestamp: Date.now(),
-        studentName: STUDENT_ID,
-        quizTitle: document.title || 'Bài tập SAT',
-        score: `${currentScore}/${totalQuestions}`,
-        percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
-        answers: studentAnswers,
-        startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
-        endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
-        duration: `${durationMin} phút (${durationSec}s)`
-    };
+        const percentageVal = totalQuestions > 0 ? Math.round((currentScore / totalQuestions) * 100) : 0;
 
-    if (typeof window.saveToFirebase === 'function') {
-        window.saveToFirebase(resultData);
-    }
-}
+        const resultData = {
+            timestamp: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: document.title || 'Bài tập SAT',
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: percentageVal + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
         };
 
         if (typeof window.saveToFirebase === 'function') {
@@ -1981,7 +2012,10 @@
     }
 
     document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
-    document.getElementById('resetBtn').addEventListener('click', () => location.reload());
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        location.reload();
+    });
 
     buildQuiz();
 </script>
