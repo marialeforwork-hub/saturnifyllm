@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WORD IN CONTEXT - 125 câu</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>WORD IN CONTEXT - 125 câu</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const quizData = [
+  
+    {
+        "id": 1,
+        "source": "2022-10-AS-36",
+        "passage": " To investigate different aspects of queue design, the authors tested different scenarios, namely single versus parallel queues and a full versus blocked view of the customer lines. The results were the same across nearly every experimental variation: Parallel lines move faster than single ones. The authors think the key lies in making workers feel they're responsible for the line's _ ",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "breakthrough",
+            "B": "development",
+            "C": "journey",
+            "D": "progress"
+        },
+        "answer": "D"
+    },
+    {
+        "id": 2,
+        "source": "2022-10-AS-47",
+        "passage": "The problem is that when these polymers are made in water, as has been the case thus far, the liquid causes the gels to expand like a sponge, says Megan Valentine. That makes them nearly fully expanded from the get-go; if you pull on them, they can't stretch much farther and simply break. So, Valentine and her colleagues set out to see whether they could the strategy to work with a dry polymer.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "reconcile",
+            "B": "prepare",
+            "C": "acclimate",
+            "D": "adapt "
+        },
+        "answer": "D"
+    },
+    {
+        "id": 3,
+        "source": "2022-10-US-P1",
+        "passage": "My breath whistled between my open lips. Above the peacocks facing each other, he had transformed the standard Christian icon of a crown of thorns into a shimmering regal headdress for God the King, the thorns replaced by large glass jewels in Tiffany style.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "honest.",
+            "B": "characteristic.",
+            "C": "loyal.",
+            "D": "factual."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 4,
+        "source": "2022-10-US-P5",
+        "passage": "Rocky fragments have to survive in space for longer than iron ones. Most of the rocky mantle may be peeled away in small fragments-chips from the surface-while the iron core remains as a single piece, making it harder to disrupt later.",
+        "question": "As used in the text, what does the word \"disrupt\" most nearly mean?",
+        "options": {
+            "A": "Fracture.",
+            "B": "Confuse.",
+            "C": "Interrupt.",
+            "D": "Impede. "
+        },
+        "answer": "A"
+    },
+    {
+        "id": 5,
+        "source": "2022-12-AS-P4",
+        "passage": "Recent studies trace a wave of Austronesian colonization of Madagascar between 700 C.E. and 1200 C.E. The telltale evidence is, in effect, breadcrumbs: crops to Austronesia, sprinkled across Madagascar and neighboring islands. \"We finally have a signal of this Austronesian expansion, said Nicole Boivin, an archaeologist of Max Planck Institute.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "Distinctive",
+            "B": "Foreign",
+            "C": "Alienated",
+            "D": "Prevail "
+        },
+        "answer": "A"
+    },
+    {
+        "id": 6,
+        "source": "2022-12-AS-P3",
+        "passage": "\"Nickel metal, in bulk, has rarely been selected as a candidate for converting CO2 to CO,\" said Haotian WanNg, a Rowland Fellow at Harvard University and the Corresponding author on the paper. One reason is that it brings down the CO2 reduction selectivity dramatically. Another reason is because its surface can be easily poisoned by CO molecules if any are produced.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "sustainable",
+            "B": "promising",
+            "C": "uncertain",
+            "D": "failed"
+        },
+        "answer": "B"
+    },
+    {
+        "id": 7,
+        "source": "2022-05-AS-P1",
+        "passage": "This was his latest artwork, a botanical intervention he called the NeoEocene. He described it as a collaboration with time and place, whose outcome neither he nor any of his contemporaries would ever live to witness, but he was okay with not knowing. Patience was part of his nature, and he accepted his lot as a short-lived mammal, scurrying in and out amid the roots of the giants.",
+        "question": "As used in the text, what does the word \"lot\" most nearly mean?",
+        "options": {
+            "A": "Wealth",
+            "B": "Division",
+            "C": "Fate",
+            "D": "Assignment."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 8,
+        "source": "2022-05-AS-P2",
+        "passage": "But List's results were: While charities that offered a matching program did inspire more people to give than charities that didn't, he was surprised to find that a higher matching ratio didn't lead to larger donations.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "analytical",
+            "B": "amusing",
+            "C": "Unexpected",
+            "D": "inquisitive"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 9,
+        "source": "2022-05-AS-P3",
+        "passage": "Throughout those centuries of breeding canaries, one color remained elusive-red. In the 1920s, German breeders decided to cross canaries with a closely related species- the red siskin of Venezuela. They then mated the hybrids with more canaries, selecting offspring with red feathers, but as few other siskin traits as possible. The result, after many generations, \"--a bird that looks exactly was the \" red-factor canary like a _ canary, but with bright red plumes.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "expected",
+            "B": "symbolic",
+            "C": "boring",
+            "D": "usual"
+        },
+        "answer": "D"
+    },
+    {
+        "id": 10,
+        "source": "2022-05-AS-P2",
+        "passage": "Humans are so attached to forming groups that they seem to create group solidarity, and conflicts between groups, on the flimsiest of excuses. A salient aspect of groupishness is the contrast between the often link between members of the group, their actual connections, and strong motivations to defend the group and attack rival ones.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "Hostile",
+            "B": "Solid",
+            "C": "Counterfeit",
+            "D": "Tenuous"
+        },
+        "answer": "D"
+    },
+    {
+        "id": 11,
+        "source": "2022-05-US-15",
+        "passage": "A second experiment was even more startling. This time, a new group of blindfolded participants explored the same objects by touch. Rather than carefully and complex study, they _ rated how pleasant each object felt.30",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "directly",
+            "B": "quietly",
+            "C": "openly",
+            "D": "simply "
+        },
+        "answer": "D"
+    },
+    {
+        "id": 12,
+        "source": "2022-04-SD-P3",
+        "passage": "A study suggests that the commitment to and success of conservation programs in some countries have contributed to the overall growth of the global tiger population.\"It's a _ trend,\" Ginette Hemley, the WWF's senior vice president of wildlife conservation, says. \"We're cautiously hopeful.\"",
+        "question": "Which choice completes the text with the most logical and precise word?",
+        "options": {
+            "A": "emphatic.",
+            "B": "specific.",
+            "C": "reliable.",
+            "D": "favorable"
+        },
+        "answer": "D"
+    },
+    {
+        "id": 13,
+        "source": "2022-04-SD-P3",
+        "passage": "In April the WWF and the Global Tiger Forum announced to great fanfare that the planet's wild tiger population was at last on the rise, numbering 3,890 individuals. But their goal for population growth far exceeds what one would expect to basis of studies carried out using more rigorous techniques.",
+        "question": "Which choice completes the text with the most logical and precise word?",
+        "options": {
+            "A": "comprehend.",
+            "B": "realize.",
+            "C": "perfect.",
+            "D": "create.  on the"
+        },
+        "answer": "B"
+    },
+    {
+        "id": 14,
+        "source": "2021-10-AS-P1",
+        "passage": "This passage is adapted from Oscar Hijuelos, The Fourteen Sisters of Emilio Montez O'Brien.©1993 by Oscar Hijuelos. Mariela Montez immigrated from Cuba when she was little. Now She lives in a small town in Pennsylvania with her husband Nelson O'Brien and their children. She (Mariela) tried to keep the notion of it (Cuba) alive in her daughters, especially the oldest, describing to her with true sweetness the substance of her family's life there before the war in 1895 had disrupted it, a serene petit-bourgeois life, her father Emilio Montez-after whom her only son, Emilio Montez O'Brien, would be named-being a  farmer and merchant of adequate means. He owned two farms, and a stable in the city of Santiago, the farms razed to the ground during the war.",
+        "question": "As used in the text, what does the word “substance\" most nearly mean?",
+        "options": {
+            "A": "object.",
+            "B": "effect.",
+            "C": "essence.",
+            "D": "burden."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 15,
+        "source": "2021-10-AS-P2",
+        "passage": "A chicken eggshell has a tricky job: it must protect a developing chick, but then ultimately let the chick break free. The secret to its success lies in its complex nanostructure-and how that structure changes as the egg incubates.",
+        "question": "As used in the text, what does the word \"tricky\" most nearly mean?",
+        "options": {
+            "A": "unrealistic.",
+            "B": "deceptive.",
+            "C": "unstable.",
+            "D": "difficult."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 16,
+        "source": "2021-10-AS-P4",
+        "passage": "For decades studies of self-control in short-term decision-making have led to two clear, but seemingly contradictory results. One model suggested that self-control is a finite resource that can get used up if you lean on it too heavily, like a battery that loses its charge over time. Each little demonstration of self-control throughout the day ends up exhausting the limited reserves. The alternative model suggested that exercising self- control can help you build up the skill like a snowball that gets bigger as it builds momentum rolling downhill.",
+        "question": "As used in the text, what does the word “demonstration” most nearly mean?",
+        "options": {
+            "A": "explanation.",
+            "B": "protest.",
+            "C": "act.",
+            "D": "confirmation."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 17,
+        "source": "2021-10-AS-P5",
+        "passage": "In the waters off Cape Cod, lobtail feeding (in which humpback whales tail slap the surface to concentrate of confuse prey) was first seen in 1980, by just one of the 150 feeding humpback whales observed that year. In 1981, of the fifty-one known whales seen feeding at the surface that year, two were lobtail feeding. The behavior spread through the 1980s. By 1989, forty-two of the eighty-three whales seen surface feeding that year were lobtail feeding. Lobtail feeding had become common through the population, with similar proportions of males and females, but it was far from universal. A substantial proportion of the population was never seen to lobtail feed. Lobtail feeders would feed in the same area, sometimes on the same fish aggregation, as whales using other methods, primarily standard bubble-cloud feeding, without the lobtails.",
+        "question": "As used in the text, what does the word “substantial” most nearly mean?",
+        "options": {
+            "A": "extraordinary.",
+            "B": "comfortable.",
+            "C": "considerable.",
+            "D": "physical."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 18,
+        "source": "2022-03-US-P2",
+        "passage": "Online reviews can play a big role in influencing people's purchase decisions, but what makes a review most persuasive one way or the other? Our research on persuasion and marketing is the first to find that a moderately positive review can be more persuasive than an extremely positive review. We found that a moderately positive review is even more persuasive when the default review selection is extremely positive. This is because reviews that deviate from a default review selection are perceived to be more thoughtful-and thus more accurate-than reviews that conform to the default.",
+        "question": "As used in the passage, \"conform to\" most nearly means",
+        "options": {
+            "A": "adjust to.",
+            "B": "correspond to.",
+            "C": "reconcile with.",
+            "D": "combine with."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 19,
+        "source": "2022-03-US-P3",
+        "passage": " Paragobiodon xanthosomus is an obligate coral-dwelling goby (Gobiidae), and within groups, only the largest male and female breed monogamously with each other, and all other group members are nonbreeding subordinate females that are reproductively suppressed. To determine whether food limitation was the cause of female reproductive suppression, biologist Marian Y. L. Wong and her colleagues have performed a field experiment. The result demonstrates the females that were fed laid significantly larger clutches than those that were unfed, which suggests that food was a limiting factor for female reproduction.",
+        "question": "As used in the passage, \"determine\" most nearly means",
+        "options": {
+            "A": "discover.",
+            "B": "dictate.",
+            "C": "choose.",
+            "D": "predict."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 20,
+        "source": "2022-03-U.S.-P5",
+        "passage": "The theory that the Earth was once completely frozen emerged in the 1960s, and in the late 1980s, Joe Kirschvink nicknamed this state 'Snowball Earth'. Despites of numerous attempts, it was still unclear what could have tipped the world into that state in the first place. Recently, Yannick Donnadieu in Gif sur Yvette, France, and co-workers have run several computer simulations, trying to solve that puzzle. They suggest the 'Snowball Earth' is related to the break-up of Rodinia (a supercontinent), which was prompted in part by the eruption of great plains of volcanic rock. The fresh rock from a volcano is more reactive than old rock, and so it weathers more quickly, sucking up even more carbon dioxide.",
+        "question": "As used in the passage, \"fresh\" most nearly means",
+        "options": {
+            "A": "pure.",
+            "B": "new.",
+            "C": "natural.",
+            "D": "vivid."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 21,
+        "source": "2021-12-AS-P2",
+        "passage": "Serious fossil-fuel use began in a specific place at a specific time. The great difference between the industrial revolution and the two earlier transformations in energy capture, though, was that industrialization changed the world much more It made so much energy available so suddenly that once Britain began its industrial revolution, there was no time for anyone else to invent fossil-fuel industry independently.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "Overwhelmingly",
+            "B": "Torpidly",
+            "C": "Abruptly",
+            "D": "Predominantly"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 22,
+        "source": "2021-10-U.S.-25",
+        "passage": "Thornton and McAuliffe were also able to provide experimental evidence that the helpers' behavior skill acquisition. Pups that were artificially given additional opportunities to handle live, stingless scorpions subsequently outperformed siblings that had been given dead scorpions, showing that the opportunity to practice on disabled but live scorpions facilitates skill acquisition",
+        "question": "Which choice completes the text with the most logical and precise word?",
+        "options": {
+            "A": "elevated.",
+            "B": "promoted.",
+            "C": "announced.",
+            "D": "recommended."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 23,
+        "source": "2021-10-U.S.-45",
+        "passage": "Various places in the ocean offer abundant nitrate and phosphate but no phytoplankton. In the 1930s, a Norwegian oceanographer named Haaken Hasberg Gran suggested that the phytoplankton were absent because there wasn't enough iron to them.",
+        "question": "Which choice completes the text with the most logical and precise word?",
+        "options": {
+            "A": "bolster.",
+            "B": "endure.",
+            "C": "encourage.",
+            "D": "maintain. "
+        },
+        "answer": "D"
+    },
+    {
+        "id": 24,
+        "source": "2021-5-AS-P3",
+        "passage": "In ancestral reptiles, a pair of small bones makes up the tip of the snout. In today's birds, those premaxillary bones are long, narrow, and fused, producing the upper bill. Earlier studies suggest that two genes- Fibroblast growth factor 8 (Fgf8) and WNT-play a key role in controlling development of these bones.To explore these genes' role, Bhullar and Abzhanov treated bird embryos with inhibitors of the WNT and Fgf8 proteins. When the two signals were curbed, the premaxillary bones became round and never fused, as in birds' dinosaur relatives, instead of growing long and pointy.",
+        "question": "As used in the passage, \"curbed\" most nearly means",
+        "options": {
+            "A": "evaded.",
+            "B": "suppressed.",
+            "C": "anchored.",
+            "D": "contained."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 25,
+        "source": "2021-5-AS-P5",
+        "passage": "California enjoys a Mediterranean-style climate, with cool and relatively moist winters and dry, hot summers, so it is not surprising that the European yellow star- thistle Centaurea solstitialis and its relative the sulphur star-thistle Centaurea sulphurea established wild populations there. The yellow star-thistle was first found growing in California in 1824, but its journey from Spain to California was an indirect one, via Chile.",
+        "question": "As used in the passage, \"indirect\" most nearly means",
+        "options": {
+            "A": "misleading.",
+            "B": "roundabout",
+            "C": "restrained.",
+            "D": "implicit."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 26,
+        "source": "2021-08-AS",
+        "passage": "In general, there's a lot of experimental evidence showing that you're more likely to have seen someone going from your left to your right than any other direction. This has led some researchers to hypothesize that people have a universal bias to events as going from left to right.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "Disguise",
+            "B": "Picture",
+            "C": "Exaggerate",
+            "D": "Falsify "
+        },
+        "answer": "B"
+    },
+    {
+        "id": 27,
+        "source": "2021-05-U.S.-6",
+        "passage": "Was that why she wanted a house so badly? She hadn't told Sanjay because it was an longing, with her earning only minimum wage, and loans, so many of them.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "excessive.",
+            "B": "unreasonable.",
+            "C": "moody.",
+            "D": "unusual."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 28,
+        "source": "2021-05-U.S.-22",
+        "passage": "My coauthors and I created a database collecting every study we could find that recorded plastic ingestion by tube-nosed seabirds over the past years. This database information from over 20,000 birds of more than 70 species.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "contained",
+            "B": "controlled",
+            "C": "limited",
+            "D": "accommodated  "
+        },
+        "answer": "A"
+    },
+    {
+        "id": 29,
+        "source": "2021-05-U.S.-28",
+        "passage": "Populations of hard-to-observe burrow-nesting seabirds are more difficult to count than surface nesting species, because they often are not as closely. Therefore, we recommend increased monitoring of these less charismatic species that may be at greater risk of plastic ingestion.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "judged.",
+            "B": "polled.",
+            "C": "surveyed.",
+            "D": "explored "
+        },
+        "answer": "C"
+    },
+    {
+        "id": 30,
+        "source": "2021-08-U.S.-2",
+        "passage": "Spring was my favorite time of year, and it took extra energy to stay in a bad mood. The sun came home to the Arctic and shone tirelessly on the shimmering world of snow. Midwinter into memory and the Darkness of next winter seemed inconceivable.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "reappeared",
+            "B": "gained",
+            "C": "interspersed",
+            "D": "diminished"
+        },
+        "answer": "D"
+    },
+    {
+        "id": 31,
+        "source": "2021-08-U.S.-19",
+        "passage": "Findings underscore the notion that incentives persuaders' ability to convey sincerity. Barasch and colleagues are currently planning follow-up studies to examine the cues-both verbal and nonverbal-that might compromise sincerity.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "impair",
+            "B": "expose",
+            "C": "settle",
+            "D": "concede"
+        },
+        "answer": "A"
+    },
+    {
+        "id": 32,
+        "source": "2021-03-AS-11",
+        "passage": "The timing of the peopling of Australia has been for decades. Many archaeologists split into two camps, favoring settlement either 60,000 years ago or sometime after 50,000 years ago, depending on whether they trusted the dates from certain sites. Last year, geneticists analyzing DNA from living Aborigines joined the fray, but they came up with a wide range of dates, from 50,000 to 70,000 years ago.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "contentious",
+            "B": "argumentative",
+            "C": "litigious",
+            "D": "impassioned"
+        },
+        "answer": "A"
+    },
+    {
+        "id": 33,
+        "source": "2021-03-AS-24",
+        "passage": "Among male primates, cooperation may be rather limited in those social organizations where dominance hierarchies are strong and maintained by aggression. Cooperation among female primates may also be rank, as it is in baboons. Research on the question of social tension and its effect on cooperation has been undertaken by psychologist Brian Hare.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "compassionate about い",
+            "B": "responsive to",
+            "C": "disregarded by",
+            "D": "drawn to 34(Words in context) -:2021-03-AS-27 Bonobo females within a group bond closely, especially along kin lines, and although males have a dominance hierarchy, a coalition of females can gang up on a male. A female bonobo will take food from a male, and bite one who resists, a behavior rarely seen in chimpanzees though also in ringtail lemurs. Which choice completes the text with the most logical and precise word or phrase? A) unrefined B) popular C) plain D) typical "
+        },
+        "answer": "B"
+    },
+    {
+        "id": 35,
+        "source": "2021-04-SchoolDay-13",
+        "passage": "Because the desire for profit is seen as based on selfish intent, we extrapolate to assume that the activities of for-profit companies and industries must be bad for society, disregarding the reality that selfish intents can have consequences.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "certain",
+            "B": "appreciative",
+            "C": "beneficial",
+            "D": "optimistic"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 36,
+        "source": "2021-03-U.S.-31",
+        "passage": "Neurobiology and modelling research suggests that a very neurons(even just a few) can accomplish some rather complex cognitive tasks. number of",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "reduced.",
+            "B": "limited.",
+            "C": "restricted.",
+            "D": "exclusive. "
+        },
+        "answer": "B"
+    },
+    {
+        "id": 37,
+        "source": "2021-03-U.S.-28",
+        "passage": "When learning from others, will bees simply copy what they see or can they improve upon it? During each of the observation trials, there were three balls positioned at varying distances from the centre of the platform, but it was always the furthest ball that was moved during the demonstration. But during the test trials, on their own, the observer bees almost always moved the closest ball to the centre. This suggests bees weren't simply copying what they saw during the demonstration but actually improved on the task by using the easiest means.",
+        "question": "As used in the text, what does the word \"means\" most nearly mean?",
+        "options": {
+            "A": "instrument.",
+            "B": "approach.",
+            "C": "design.",
+            "D": "results.  "
+        },
+        "answer": "B"
+    },
+    {
+        "id": 38,
+        "source": "2021-03-U.S.-48",
+        "passage": "In a new study, Przemek Mroz of the Astronomical Observatory of the University of Warsaw and colleagues estimated the number of large, rogue planets in our galaxy using a technique called microlensing. When an object with a mass of a planet passes in front of a distant, background star, the gravity of the planet acts as a gravitational magnifying glass. It distorts and focuses the light, giving up the planet's existence.",
+        "question": "As used in the text, what does the word \"giving up\" most nearly mean?",
+        "options": {
+            "A": "transferring.",
+            "B": "abandoning.",
+            "C": "interrupting.",
+            "D": "revealing."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 39,
+        "source": "2020-12-U.S-P2",
+        "passage": "Watching funny cat videos at work may not be such a bad thing after all. A study conducted by Australian National University management professors David Cheng and Lu Wang suggests that exposure to humorous stimuli may actually help people persevere in completing tedious tasks. Prior research also has found that humor can help facilitate recovery from stressful situations, even prolonging people's tolerance for physical pain. In the business world, many successful organizations such as Zappos, Virgin, and Google deliberately build play areas into their workspaces and organize fun events to ameliorate the stressful nature of work, boost morale, and increase productivity. As used in passage, \"nature\" most nearly means",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "view.",
+            "B": "structure.",
+            "C": "character.",
+            "D": "description."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 40,
+        "source": "2020-12-U.S-P3",
+        "passage": "Anna Kis at the Hungarian Academy of Sciences in Budapest set out to explore how what happens after a training session affects how well a dog remembers what he has learned. One group of dogs was given a very simple learning task, namely to respond to a new command label on a task which they had already mastered. The researchers began with a group of pet dogs who had already learned the basic tasks of sitting or lying down when given a command in Hungarian. For the purposes of this study they were next trained to respond with these same actions when given the command in English. The dogs were allowed to take a nap for three hours, while their brain waves were recorded. The electrical patterns in their brains were compared to another group of dogs who simply practiced the commands that they had already learned in Hungarian (no new learning).",
+        "question": "As used in the passage, \"respond\" most nearly means",
+        "options": {
+            "A": "reply.",
+            "B": "return.",
+            "C": "revert.",
+            "D": "react. "
+        },
+        "answer": "D"
+    },
+    {
+        "id": 41,
+        "source": "2020-10-U.S.-5",
+        "passage": "I'd seen almost nothing of the world; a trip to Rome and Florence with my parents when I was fifteen had been spent in the protection of good hotels and pinned behind the green-glass windows oftour buses, looking at stone fountains in piazzas from an unreal remove.",
+        "question": "As used in the text, what does the word \"pinned behind” most nearly mean?",
+        "options": {
+            "A": ". suspended.",
+            "B": ". displayed.",
+            "C": ". attached.",
+            "D": ". confined."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 42,
+        "source": "2020-10-U.S.-21",
+        "passage": "To encourage rainfall, scientists use \"cloud seeding,\" a weather modification process designed to increase precipitation amounts by dispersing chemicals into the clouds. But research now reveals that the common _of cloud seeding with materials such as silver iodide and frozen carbon dioxide may not be as effective as it had been hoped.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": ". procedure.",
+            "B": ". profession.",
+            "C": ". background.",
+            "D": ". rehearsal"
+        },
+        "answer": "A"
+    },
+    {
+        "id": 43,
+        "source": "2020-10-U.S.-37",
+        "passage": "If where people voted didn't matter, then the percent supporting the initiative should be the same at schools and other polling locations. But it wasn't. More than ten thousand more people voted in favor of the school funding initiative when the polling place was a school. Polling location had a impact on voting behavior.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "theatrical.",
+            "B": "abrupt.",
+            "C": "dramatic.",
+            "D": "sensational"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 44,
+        "source": "2020-10-U.S.-42",
+        "passage": "In the 1970s, we were astonished to find lizards, particularly Anolis sagrei, on some tiny islands, a discovery that multiplied by at least two orders of magnitude the list of Bahamian islands surmised or known to have resident populations of vertebrates. We realized we had to check many quite small islands to determine such thresholds, and in the course of that endeavor we came upon a large number of islands without lizards.",
+        "question": "As used in the text, what does the word \"check” most nearly mean?",
+        "options": {
+            "A": "counter.",
+            "B": "stop.",
+            "C": "mark.",
+            "D": "inspect."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 45,
+        "source": "2020-10-U.S.-48",
+        "passage": "We staked out nine approximately 83-square-meter plots on Staniel Cay in 1985. Three of the plots were unenclosed, and the others had wood-framed fences made of hardware cloth topped with smooth plastic to impede lizard locomotion in and out. Three of the enclosed plots were randomly chosen to _ lizards at natural densities, whereas the other three had lizards removed.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "maintain.",
+            "B": "promote.",
+            "C": "defend.",
+            "D": "declare. "
+        },
+        "answer": "A"
+    },
+    {
+        "id": 46,
+        "source": "2020-11-U.S.-29",
+        "passage": "Watching footage of their experiment, Hochner and his team noticed that when the animals couldn't see the box with the dot-because they had positioned themselves poorly-they weren't likely to select it. \"Animals learned to themselves to get an unobstructed view of the target,\" they noted in their paper. When researchers tried the same experiment with an opaque maze, the octopuses aligned themselves randomly.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "focus",
+            "B": "familiarize",
+            "C": "orient",
+            "D": "train"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 47,
+        "source": "2020-09-AS-13",
+        "passage": "Cognitive psychologist Quentin Atkinson has recently suggested an alternative. According to Atkinson, in seeking the origins of language we are better off looking not at words as a whole, but at the individual sound components-the phonemes-of which they are comprised. This makes sense, because the phonemes are much more bound by biology than are the ideas that their combinations represent.",
+        "question": "In the passage, \"bound\" most nearly means?",
+        "options": {
+            "A": "restricted.",
+            "B": "resolved.",
+            "C": "secured.",
+            "D": "bordered."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 48,
+        "source": "2020-09-AS-13",
+        "passage": "A side effect of high lactate levels is an increase in the acidity of the muscle cells, along with disruptions of other metabolites. The same metabolic pathways that permit the breakdown of glucose to energy perform poorly in this acidic environment. On the surface, it seems counterproductive that a working muscle would produce something that would slow its capacity for more work. In reality, this is a natural defense mechanism for the body; it prevents permanent damage during extreme exertion by slowing the key systems needed to maintain muscle contraction.",
+        "question": "In the passage, \"maintain” most nearly means?",
+        "options": {
+            "A": "justify.",
+            "B": "contend.",
+            "C": "sustain.",
+            "D": "repair. In the passage, \"maintain” most nearly means?"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 49,
+        "source": "2022-10-AS-8",
+        "passage": "This text is adapted from Haruki Murakami' s novel 1Q84. In this novel, Tengo, a writer, has just completed a project of editing another author's book, Air Chrysalis, for his publisher Komatsu. Once he had completed the work and handed it to Komatsu, however, Tengo was assaulted by a profound sense of powerlessness. Once the powerlessness began to abate, a kind of rage surged up from deep inside him. The rage was directed at Tengo himself I used another person's story to create a rewrite that amounts to a literary fraud, and I did it with far more passion than I bring to my own work. Isn’t a writer someone who finds the story hidden inside and uses the proper words to express it?",
+        "question": "As used in the text, what does the word \"proper\" most nearly mean?",
+        "options": {
+            "A": "respectable",
+            "B": "suitable",
+            "C": "formal",
+            "D": "legitimate"
+        },
+        "answer": "B"
+    },
+    {
+        "id": 50,
+        "source": "2022-10-AS-16",
+        "passage": "In comparing the prospect of different formats of newspaper, researcher Chyi claims that “the (supposedly dying) print edition still outperforms the(supposedly hopeful) digital product by almost every , be it readership, engagement, advertising revenue,\" and especially willingness to actually pay for the product.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "Standard",
+            "B": "Requirement",
+            "C": "Exemplar",
+            "D": "Convention"
+        },
+        "answer": "A"
+    },
+    {
+        "id": 51,
+        "source": "2009-10-U.S.-6",
+        "passage": "Every summer a shifting-over took place in small degrees as you moved closer to the person who was waiting for you to catch up and some younger version of yourself elbowed you out of the way. Who was I replacing? Maybe he didn't exist and I was the first of my line. The mutant strain. Or I was in his vicinity, but I couldn't recognize him because I didn't believe I could grow into that one day, smiling and assured and at peace.",
+        "question": "As used in the text, what does the word \"line” most nearly mean?",
+        "options": {
+            "A": "path.",
+            "B": "ridge.",
+            "C": "kind.",
+            "D": "occupation."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 52,
+        "source": "2020-09-U.S.-29",
+        "passage": "If killer whale predation caused the sea otter decline, it seemed reasonable to us that this process might have figured prominently in the sea lion declines as well. Demographic and energetic analyses have demonstrated that relatively small changes in killer whale behavior here too could have driven the sea lion declines.",
+        "question": "As used in the text, what does the word “figured\" most nearly mean?",
+        "options": {
+            "A": "played a role.",
+            "B": "made sense.",
+            "C": "estimated.",
+            "D": "believed."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 53,
+        "source": "2020-03-AS-5",
+        "passage": "This passage is from Elizabeth Gaskell, North and South. Originally published in 1854- friends the Hales in Crampton. 'I never complained, I'm sure.', say Mrs. Thornton. 'No. My mother is not given to complaints,' said John Thornton, a little proudly.' But so much the more I have to watch over you. Now as for Fanny there, a little hardship would do her good.",
+        "question": "As used in the text, what does the word \"given\" most nearly mean?",
+        "options": {
+            "A": "bestowed.",
+            "B": "devoted.",
+            "C": "conveyed.",
+            "D": "inclined."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 54,
+        "source": "2020-03-AS-25",
+        "passage": "Tonal sounds that slowly increase in intensity and that are high frequency (such as the A note) are generally difficult for avian predators, and many other animals, to locate. In contrast, noisy sounds with rapid increases in intensity, like the D note, are easier to locate. Thus, the production of more A notes in these calls when a flying predator is detected in the area seems adaptive, as it could alert flockmates to the predator's presence but not the location of the signaler to the predator.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "award.",
+            "B": "reveal.",
+            "C": "donate.",
+            "D": "assign."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 55,
+        "source": "2020-03-AS-27",
+        "passage": "Carolina chickadees produce more calls, and often more D notes in those calls, when they detect a perched avian predator model than when no model is present. For example, in a 2009 study, Chad Soard and Gary Ritchison of Eastern Kentucky University placed six perched avian-predator models in the habitat of Carolina chickadees. The models, all of which_ hawk and owl species, ranged in size and type from small, agile predators like Eastern screech owls (Megascops asio) and sharp-shinned hawks to large, relatively slow-moving predators like great horned owls (Bubo virginianus) and red- tailed hawks (Buteo jamaicensis). The former predators represent real threats to small songbird species, whereas the latter do not. ",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "performed.",
+            "B": "depicted.",
+            "C": "enacted.",
+            "D": "described."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 56,
+        "source": "2020-03-AS-28",
+        "passage": "In a 2009 study, Chad Soard and Gary Ritchison of Eastern Kentucky University placed six perched avian-predator models in the habitat of Carolina chickadees. Chickadees produced more D notes in their calls when smaller, more threatening avian predators were present. Later the researchers played back chick-a-dee calls recorded in these different threat contexts to chickadees in their habitat. The authors found that chickadees were more likely to mob (behavior that is frequently linked to approaching and harassing predators) the playback speaker-to approach it closely in large numbers- when it was playing calls recorded when a small predator model was present than when the speaker was playing calls recorded when a large predator model was present. Thus, it can reasonably be inferred from the passage that researchers included the playback- speaker experiment in their study in order to Which choice most logically completes the text?",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "determine whether the absence of immediate threats would alter the makeup of notes produced during the perched-predator experiment.",
+            "B": "clarify whether the size of models in the perched-predator experiment affects the pattern of notes in chick-a-dee calls.",
+            "C": "resolve contradictory results produced during the perched-predator experiment.",
+            "D": "confirm the significance of one of the findings of the perched-predator experiment. -"
+        },
+        "answer": "D"
+    },
+    {
+        "id": 57,
+        "source": "2020-03-AS-34",
+        "passage": "In a study, when the participants stepped out of the elevator and into the lab, they were met by another experimenter, who sat them down and asked them to read a description of someone called only Person A, who was characterized as skillful, intelligent, determined, practical, industrious, and cautious. Unbeknownst to the participants, Person A was a fictitious composite character. They were then asked to rate Person A from a list of ten additional tional not included in the written description.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "virtues.",
+            "B": "oddities.",
+            "C": "attributes.",
+            "D": "patterns."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 58,
+        "source": "2020-03-AS-44",
+        "passage": " Jousset was captivated with the Jena Experiment-a series of biodiverse grassland plots in Germany that have been continuously maintained since 2002, allowing researchers to study the impacts of species richness and diversity on soil fertility.",
+        "question": "As used in the text, what does the word \"maintained\" most nearly mean?",
+        "options": {
+            "A": "assisted.",
+            "B": "protected.",
+            "C": "tended.",
+            "D": "repaired."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 59,
+        "source": "2020-03-US-26",
+        "passage": "Frog populations adapted to life at higher altitudes, and therefore naturally higher UVB exposures, showed experiencing less DNA damage than did their lower-altitude brethren when exposed to UVB intensities typical of high altitude. Identifying the genetic mechanism of this adaption-rapid evolution, increased protein production, or both-will require further study. Interested in other ways frogs might DNA damage, they studied the effects of benzo(a)pyrene(BaP), a well-characterized carcinogen present in cigarette smoke, coal tar, oil, and myriad other combustion products.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "undergo.",
+            "B": "practice.",
+            "C": "withstand.",
+            "D": "feel."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 60,
+        "source": "2020-08-AS-10",
+        "passage": "This passage is adapted from Juan Gabriel Vásquez Reputations.©2013 by Juan Gabriel Vásquez. Translation by Anne McLean. ©2016 by Anne McLean. The novel's main character, Javier Mallarino, is a political cartoonist who works for a newspaper in Bogotá, the capital city of Colombia. This afternoon Mallarino had come down to the city in his old car and left it in a car park at Fifth and Nineteenth: he wanted to arrive on foot to his own apotheosis, approach like everybody else, appear suddenly at a corner and feel that his mere presence might send a tremor through the air, spark conversations, make heads turn.",
+        "question": "As used in the text, what does the word \"spark\" most nearly mean?",
+        "options": {
+            "A": "Aggravate",
+            "B": "Stimulate",
+            "C": "Illuminate",
+            "D": "Hasten"
+        },
+        "answer": "B"
+    },
+    {
+        "id": 61,
+        "source": "2020-08-AS-21",
+        "passage": "Mammals and birds tend to become better parents as they produce more and more offspring. _experience as a parent, however, is only one way to learn how to become a successful mother or father. Developmental factors early in life can also potentially affect future parental behavior. For example, in many species of birds and mammals, some individuals remain in their natal group, even after they themselves are capable ofreproduction, and they often help their parents raise additional broods of offspring",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "Prompt",
+            "B": "",
+            "C": "Direct",
+            "D": "Straightforward"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 62,
+        "source": "2019-10-US-5",
+        "passage": "It was Alexandra who read the papers and followed the markets, and who learned by the mistakes of their neighbors. It was Alexandra who could always tell about what it had cost to fatten each steer, and who could guess the weight of a hog before it went on the scales closer than John Bergson himself.",
+        "question": "As used in the text, what does the word \"followed” most nearly mean?",
+        "options": {
+            "A": "came after.",
+            "B": "imitated closely.",
+            "C": "kept under guard.",
+            "D": "stayed informed about."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 63,
+        "source": "2019-10-US-27",
+        "passage": "",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "",
+            "B": "",
+            "C": "",
+            "D": ""
+        },
+        "answer": "C"
+    },
+    {
+        "id": 8,
+        "source": "",
+        "passage": "For decades, the Canadian geologist Martin Gibling has been intrigued by the tough-to prove hypothesis that land plants created the shape of modern rivers hundreds of millions of years ago. When comparing a much-improved plant fossil record with evidence of how rivers changed very long ago, they found more complex and diverse river remains _, including more traces of mud, probably due to the enhanced chemical weathering that plants assist; smaller-sized sand grains; and samples of organic remains. Significantly, shapes shift too.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "rise",
+            "B": "proceed.",
+            "C": "emerge.",
+            "D": "flow."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 64,
+        "source": "2019-10-US-35",
+        "passage": "Why is a decline from 5% to 0% so much more valuable than a decline from 10% to 5%? Because it delivers more than a 5% reduction in risk. It delivers certainty. Both 0% and 100% weigh far more heavily in our minds than the mathematical models of economists say they should.",
+        "question": "As used in the text, what does the word \"delivers” most nearly mean?",
+        "options": {
+            "A": "surrenders.",
+            "B": "releases.",
+            "C": "transports.",
+            "D": "provides."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 65,
+        "source": "2019-10-AS-7",
+        "passage": "This passage is adapted from Anita Desai, \"The Artist's Life 2000\" by Anita Desai. The main character Polly had been introduced to Art as an infant. Seeing one unroll its lifeline and drop, cautiously and investigatively, closer and closer to the nest of her hair, Polly swatted at it, and upset a mug of water over a painting of a volcano spewing blood-red and orange paint. The water and paint seeped through several layers of paper, staining not only one but several other paintings as well. ",
+        "question": "In the passage, “upset\" most nearly means?",
+        "options": {
+            "A": "attacked.",
+            "B": "spoiled.",
+            "C": "overturned.",
+            "D": "distressed."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 66,
+        "source": "2019-10-AS-30",
+        "passage": "Declining diversity does not mark the interval with the mixed fauna, called the epilogue episode by Yin Hongfu; rather, it is a time of stable diversity marked by the appearance of new species and the loss of others. In South China the epilogue episode has a diversity level of around 150 species. The appearance of many new",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "reliable",
+            "B": "rigid.",
+            "C": "steady",
+            "D": "calm."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 67,
+        "source": "2019-10-AS-45",
+        "passage": "When you want to find something out about an animal's behavior, it is critically important to test it in a setting similar to its natural environment. Admittedly for example, this is very difficult-it is hard enough to carry out electrophysiology with the animal in a normal soundproof booth, and trying to keep an electrical system running with the degree of delicacy needed to record individual neural responses while keeping the animal's head under water is almost impossible.",
+        "question": "In the passage, \"normal\" most nearly means?",
+        "options": {
+            "A": "natural.",
+            "B": "habitual",
+            "C": "conventional.",
+            "D": "universal."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 68,
+        "source": "2019-11-US-4",
+        "passage": "This passage is adapted from Alexander McCall Smith’s 2013 novel The Minor Adjustment Beauty Salon. There was also a column called Dr. Profit's Business Clinic, to which readers could write with their business problems and receive free advice from Dr. Profit himself, a man who was pictured wearing a large square pair of glasses and a broad smile- the look of somebody, she thought, who was probably always in healthy profit.",
+        "question": "As used in the text, what does the word \"healthy\" most nearly mean?",
+        "options": {
+            "A": "safe.",
+            "B": "considerable",
+            "C": "beneficial.",
+            "D": "vigorous. "
+        },
+        "answer": "B"
+    },
+    {
+        "id": 69,
+        "source": "2019-05-US-15",
+        "passage": "When a tunnel providing water to the city of Bogotá, Colombia, partially collapsed in 1997, triggering a water shortage, the city government declared a public emergency and initiated a communication program to warn inhabitants of the threat of a crisis. The city's strategy was based on the assumption that if individuals were informed of the situation, they would adjust their behavior and reduce usage-after all, no one wants to be without water. But the assumption was wrong. In fact, the city's strategy increased water consumption. Many people did not change their behavior because they did not think they could make a difference and did not know which steps were most important. Some people even started to stockpile water.",
+        "question": "As used in the text, what does the word “steps” most nearly mean?",
+        "options": {
+            "A": "measures.",
+            "B": "strides.",
+            "C": "stairs.",
+            "D": "phases."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 70,
+        "source": "2019-05-US-17",
+        "passage": "When a tunnel providing water to the city of Bogotá, Colombia, partially collapsed, the city imposed sanctions for squanderers, those with the highest levels of overconsumption. While the sanctions were minor-squanderers had to participate in a water-saving workshop and were subject to an extra day of water cuts-they were nevertheless effective because they targeted highly visible actors.",
+        "question": "As used in the text, what does the word \"cuts\" most nearly mean?",
+        "options": {
+            "A": "channels.",
+            "B": "reductions.",
+            "C": "grades. ",
+            "D": "shares."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 71,
+        "source": "2019-05-US-28",
+        "passage": "A painter and naturalist Abbott Handerson Thayer suggests that predators locate their prey by looking for their outlines, so animals with high-contrast markings that disrupt telltale edges and create false ones can evade detection. Then researchers found that moths with black markings on their edges were less likely to be attacked by birds than those with central markings or colors.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "indistinguishable.",
+            "B": "simple.",
+            "C": "uniform.",
+            "D": "symmetric."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 72,
+        "source": "2019-05-US-51",
+        "passage": "The upper and lower layers of the seas have measurable differences in density, a stratification that, according to theory, would reduce the efficiency of any biomixing. In a research, Noss and colleague Andreas Lorke, fluid dynamicists of Koblenz-Landau, studied the effects of large crowds of aquatic creatures called Daphnia as they migrated up and down in a tank of mildly stratified water. As expected, stratification quelched biomixing generated by the swimming.",
+        "question": "As used in the text, what does the word \"mildly\" most nearly mean?",
+        "options": {
+            "A": "pleasantly.",
+            "B": "humbly.",
+            "C": "vaguely.",
+            "D": "moderately."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 73,
+        "source": "2019-06-US-3",
+        "passage": "This text is adapted from Chimamanda Ngozi Adichie's 2013 story Americanah. Ifemelu is about to move back to Nigeria, where her former boyfriend Obinze lives. Ifemelu decided then that she did not like Aisha at all. She wanted to curtail the conversation now, so that they would say only what they needed to say during the six hours it would take to braid her hair, and so she pretended not to have heard and instead brought out her phone. Aisha was not discouraged. Once Ifemelu looked up from her phone, Aisha asked again, \"How long you in America?\"",
+        "question": "As used in the text, what does the word \"discouraged\" most nearly mean?",
+        "options": {
+            "A": "deterred.",
+            "B": "unmotivated.",
+            "C": "saddened.",
+            "D": "Convinced"
+        },
+        "answer": "A"
+    },
+    {
+        "id": 74,
+        "source": "2019-06-US-8",
+        "passage": "This text is adapted from Chimamanda Ngozi Adichie’s 2013 story Americanah. Ifemelu is about to move back to Nigeria, where her former boyfriend Obinze lives. When Ifemelu's friend finally accepted that Ifemelu was serious about moving back- Will you be able to cope? -and the suggestion, that she was somehow irrevocably altered by America, had grown thorns on her skin. Her parents, too, seemed to think that she might not be able to \"cope\" with Nigeria. \"At least you are now an American citizen so you can always return to America,\" her father had said. Both of them had asked if Blaine would be coming with her, their question heavy with hope. It amused her how often they asked about Blaine now, since it had taken them a while to make peace with the idea of her black American boyfriend.",
+        "question": "As used in the text, what does the word \"make peace with\" most nearly mean?",
+        "options": {
+            "A": "Negotiate",
+            "B": "Allay",
+            "C": "Accept",
+            "D": "Forgive"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 75,
+        "source": "2019-05-US-25",
+        "passage": "When testing snakes with different colors, the researchers found that black snakes supported significantly more algal cover than black-and-white snakes. \"Once we knew there was a relationship between a snake's colour and the amount of algal fouling, the next step was to determine if a snake's dark colour was the actual cause of the higher algal levels, Professor Shine said. To do this, the researchers suspended plastic snake models-in black, white and black-and-white -in mid water and scored the amount of algal colonisation over the subsequent days. The results showed that colour directly affects the amount of algal growth, with black surfaces attracting the most algae, followed by black-and-white, and white the least. D",
+        "question": "As used in the text, what does the word \"scored” most nearly mean?",
+        "options": {
+            "A": "Composed",
+            "B": "Achieved",
+            "C": "Tallied",
+            "D": "Gained"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 76,
+        "source": "2019-05-AS-1",
+        "passage": "This passage is adapted from Edith Wharton,\"Mrs. Mansley's View.\" Originally published in 1891. Mrs.Manstey,in the long hours which she spent at her window,was not idle.She read a little,and knitted numberless stockings;but the view surrounded and shaped her life as the sea does a lonely island. When her rare callers came it was difficult for her to detach herself from the contemplation of the opposite window-washing,or the scrutiny of certain green points in a neighboring flower-bed which might,or might not,turn into hyacinths, while she feigned an interest in her visitor's anecdotes about some unknown grandchild.",
+        "question": "In the passage, \"idle\" most nearly means?",
+        "options": {
+            "A": "indifferent.",
+            "B": "unoccupied.",
+            "C": "superficial.",
+            "D": "lethargic."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 77,
+        "source": "2019-05-AS-4",
+        "passage": "This passage is adapted from Edith Wharton,\"Mrs. Mansley's View.\" Originally published in 1891. One April day,as Mrs. Mansley sat in her usual place, with knitting cast aside and eyes fixed on the blue sky mottled with round clouds,a knock at the door announced the entrance of her landlady. Mrs. Manstey did not care for her landlady,but she submitted to her visits with ladylike resignation. То- day, however, it seemed harder than usual to turn from the blue sky and the blossoming magnolia to Mrs. Sampson's unsuggestive face,and Mrs. Manstey was conscious of a distinct effort as she did so. \"The magnolia is out earlier than usual this year, Mrs. Sampson,\"she remarked, yielding to a rare impulse, for she seldom alluded to the absorbing interest of her life. In the first place it was a topic not likely to appeal to her visitors and, besides, she lacked the power of expression and could not have given utterance to her feelings had she wished to.",
+        "question": "In the passage, \"absorbing” most nearly means?",
+        "options": {
+            "A": "relaxing.",
+            "B": "amusing.",
+            "C": "engaging.",
+            "D": "transforming."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 78,
+        "source": "2019-05-AS-22",
+        "passage": "Melanosomes are small,pigment-filled sacs located inside the cells of feathers and other pigmented tissues of vertebrates. The identification of these small bodies in fossilized preserved feathers has led tospeculation about the physiology, habitats,coloration,and lifestyles of the extinct animals, including dinosaurs,that once possessed them. The microbes that drove the decomposition of the animal prior to fossilization share the same size and shape as melanosomes,and they would also be present in feathers during decay.",
+        "question": "In the passage, \"drove” most nearly means?",
+        "options": {
+            "A": "chased.",
+            "B": "prodded.",
+            "C": "caused.",
+            "D": "transported. "
+        },
+        "answer": "C"
+    },
+    {
+        "id": 79,
+        "source": "2019-05-AS-1",
+        "passage": "Participants who received the voice messages accurately gleaned the sarcasm (or lack thereof) 73 percent of the time, but those who received the statements via e-mail did so only 56 percent of the time,hardly better than chance.The e-mailers had anticipated that 78 percent of the participants would pick up on the sarcasm inherent in their messages. That is, they badly overestimated their ability to communicate the tenor of these statements via e-mail. And the recipients of the sarcastic e-mail were even more overconfident. They guessed they would correctly interpret the tone of the e-mail messages about 90 percent of the time. ",
+        "question": "In the passage, \"badly\" most nearly means?",
+        "options": {
+            "A": "severely.",
+            "B": "inadequately.",
+            "C": "unfavorably.",
+            "D": "regretfully. 7. In the passage, \"badly\" most nearly means?"
+        },
+        "answer": "A"
+    },
+    {
+        "id": 80,
+        "source": "2019-05-AS-43",
+        "passage": "Imagine you're on a particularly boring leg of a road trip and you start counting houses. You pass through long stretches of country without counting anything. When you do see houses, they're clustered into towns,and may have spacious yards with tire swings.As you approach a city (finally!),rows of houses appear at intervals instead of clumping, just like the consistent little apartments going by too fast for you to count.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "usual.",
+            "B": "traditional.",
+            "C": "habitual",
+            "D": "regular."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 81,
+        "source": "2019-05-AS-46",
+        "passage": "In order to understand European rabbits, researchers scoured nine city parks in Frankfurt for rabbit burrows, along with four more suburban parks and three nearby rural sites.In all, they found 191 burrows. Then they rated each site for its \"urbanity,\"a measure that included three variables: How many people live within half a kilometer of the burrow site?How many pedestrians, bikers, or dogs pass by at dawn and dusk, when rabbits are most active? And how much of the ground is covered by something artificial, such as pavement or playground turf?",
+        "question": "In the passage, \"artificial\" most nearly means?",
+        "options": {
+            "A": "alternate.",
+            "B": "counterfeit.",
+            "C": "affected.",
+            "D": "synthetic."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 82,
+        "source": "2019-04-SD-3",
+        "passage": "This passage is adapted from Cristina Henríquez, The Book of Unknown Americans. by Cristina Henríquez. The narrator is visiting her neigbour Celia. Celia gossiped about people in the building. She said that Quisqueya dyed her hair, which was hardly news-I had assumed as much when I met her. \"It's the most unnatural shade of red,\" Celia said. \"Rafael says it looks like she dumped a pot of tomato sauce on her head.\" She chortled. \"Quisqueya is a busybody, but it's only because she's so insecure. She doesn't know how to connect with people. Don't let her put you off.\"",
+        "question": "As used in the passage, \"let her put you off\" mostly means",
+        "options": {
+            "A": "be offended by Quisqueya.",
+            "B": "be deceived by Quisqueya.",
+            "C": "be avoided by Quisqueya.",
+            "D": "be stalled by Quisqueya."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 83,
+        "source": "2019-04-SD-13",
+        "passage": "Voters are not often reasoned positions: most citizens opt instead for simplistic explanations, assuming wrongly that they comprehend the nuances of issues. Psychological scientists have a name for this easy, automatic, simplistic thinking: the illusion of explanatory depth. We strongly believe that we understand complex matters, when in fact we are clueless, and these false and extreme beliefs shape our preferences, judgments, and actions-including our votes.",
+        "question": "As used in the passage, \"illusion\" most nearly means",
+        "options": {
+            "A": "misconception.",
+            "B": "dream.",
+            "C": "charade.",
+            "D": "phantom."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 84,
+        "source": "2019-04-SD-27",
+        "passage": "Matthew Klooster from Harvard University and colleagues empirically investigated whether the dried bracts (specialized leaves) on a rare woodland plant, Monotropsis odorata, might serve a similar purpose as the stripes on a tiger or the grey coloration of the wings of the peppered moth: namely, to hide. \"Monotropsis odorata is a fascinating plant species, as it relies exclusively upon mycorrhizal fungus, that associates with its roots, for all of the resources it needs to live,\" notes Klooster. \"Because this plant no longer requires photosynthetic pigmentation (i.e., green coloration) to produce its own energy, it is free to adopt a broader range of possibilities in coloration, much like fungi or animals.",
+        "question": "As used in the passage, \"broader\" most nearly means more",
+        "options": {
+            "A": "extensive.",
+            "B": "obvious.",
+            "C": "tolerant.",
+            "D": "spacious."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 85,
+        "source": "2019-04-SD-46",
+        "passage": "Proponents of the Younger Dryas impact hypothesis have claimed various kinds of evidence for the hypothesis, including deposits of the element iridium (rare on Earth but abundant in meteorites), microscopic diamonds (called nanodiamonds), and magnetic particles in deposits at sites supposedly dated to about 12,800 years ago. These claims were sharply contested by some specialists in the relevant fields, however, who either did not detect such evidence or argued that the deposits had other causes 45 than a cosmic impact.",
+        "question": "As used in the passage, \"sharply\" most nearly means",
+        "options": {
+            "A": "suddenly.",
+            "B": "promptly.",
+            "C": "strongly.",
+            "D": "deliberately."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 86,
+        "source": "2019-03-US-13",
+        "passage": "In 1999, the behavioral medicine specialist Carolyn Schwartz, then at the University of Massachusetts, and her colleagues divided multiple sclerosis patients into two groups and had members of one group call members of the other regularly to provide them with emotional support. After tracking the groups for three years, Schwartz found that the helpers—the people in the phone- call group-reported profound improvements in their self-worth and their moods. \"These people seemed to be blossoming,\" Schwartz says. \"They talked about how helping other people transformed their experience of multiple sclerosis from something that victimized them to something that enabled them to be a force in the world.'",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "confident.",
+            "B": "practical.",
+            "C": "specific.",
+            "D": "beneficial. "
+        },
+        "answer": "D"
+    },
+    {
+        "id": 87,
+        "source": "2019-03-US-12",
+        "passage": "While many survey studies have found more or less strong _ between helping and happiness, the University of California, Riverside, psychologist Sonja Lyubomirsky wanted to test the connection in a real-world setting.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "associations.",
+            "B": "organizations",
+            "C": "combinations.",
+            "D": "partnerships. "
+        },
+        "answer": "A"
+    },
+    {
+        "id": 88,
+        "source": "2019-03-US-46",
+        "passage": "Hauri's team has revisited the colorful glass beads collected during lunar missions in the late 1960s and early 1970s. Other scientists had examined the glass beads for signs of water decades earlier, but their detection capacities were no match for the ion microprobe's ability to resolve measurements at the scale of a millionth of an inch. ",
+        "question": "As used in the text, what does the word \"resolve\" most nearly mean?",
+        "options": {
+            "A": "distinguish between.",
+            "B": "change into.",
+            "C": "convert to.",
+            "D": "clear from. 89 (Words in context) -:2019-03-US-47 Researchers speculate that a great amount of water powered volcanoes in the Moon's past. Hauri and his colleagues calculate that the original water content of the Moon's magma may have been as high as 750 parts per million-a lot of water, comparable to many volcanic rocks on Earth, and more than enough to drive surface volcanism that would have dispersed magma in explosive eruptions billions of years ago. As used in the text, what does the word \"drive\" most nearly mean? A) coerce. B) fuel. C) transport. D) maneuver."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 90,
+        "source": "2019-03-AS-23",
+        "passage": "There are two small islets off the Croatian coast called Pod Kopiste and Pod Mrcaru. In 1971 a population of common Mediterranean lizards, Podarcis sicula, which mainly eat insects, was present on Pod Kopiste but there were none on Pod Mrcaru. In that year experimenters transported five pairs of Podarcis sicula from Pod Kopiste and released them on Pod Mrcaru. Then, in 2008, another group of mainly Belgian scientists, associated with Anthony Herrel, visited the islands to see what had happened. They found a flourishing population of lizards on Pod Mrcaru, which DNA analysis confirmed were indeed Podarcis sicula.These are presumed to have descended from the original five pairs that were transported.",
+        "question": "As used in the text, what does the word \"original\" most nearly mean?",
+        "options": {
+            "A": "innovative.",
+            "B": "standard.",
+            "C": "initial.",
+            "D": "resourceful."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 91,
+        "source": "2019-03-AS-27",
+        "passage": "Why would an animal need a stronger bite when shifting to a vegetarian diet? Because plant, but not animal, cells have walls stiffened by cellulose. Herbivorous mammals like horses, cattle, and elephants have great millstone-like teeth for grinding cellulose, quite different from the shearing teeth of carnivores and the needly teeth of insectivores. And they have massive jaw muscles, and correspondingly robust skulls for the muscle attachments (think of the stout midline crest along the top of a gorilla's skull).",
+        "question": "As used in the text, what does the word “robust\" most nearly mean?",
+        "options": {
+            "A": "sturdy.",
+            "B": "versatile.",
+            "C": "rough.",
+            "D": "vigorous. "
+        },
+        "answer": "D"
+    },
+    {
+        "id": 92,
+        "source": "2019-03-AS-35",
+        "passage": "Oppenheimer and Alter asked a group of volunteers to estimate how much of various commodities they could buy with a dollar. They were ordinary things like paper clips and gumballs and paper napkins. Some of the volunteers were given a regular old dollar bill, with George Washington on it, while others were given less familiar currency of the same value: a Susan B. Anthony $1 coin, for example. Invariably, the volunteers believed that the familiar old dollar bill was worth more-that it had more buying power—than the unusual currency.",
+        "question": "As used in the text, what does the word \"old\" most nearly mean?",
+        "options": {
+            "A": "threadbare.",
+            "B": "commonplace.",
+            "C": "antiquated.",
+            "D": "long-standing."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 93,
+        "source": "2019-03-AS-46",
+        "passage": "Modern life relies on two complexly interrelated molecules: DNA, which carries information, and proteins, which perform chemical functions. This interdependence leads to a kind of chicken-and- egg dilemma: Proteins make and maintain DNA, but DNA carries the instructions to make proteins. Which came first? RNA, it turns out, has the potential to do both jobs. To buttress the RNA World hypothesis, scientists use 21st century technology to create ribozymes (which served as the most functioning part in RN",
+        "question": "As used in the text, what does the word \"isolated” most nearly mean?",
+        "options": {
+            "A": "that serve as catalysts. \"But most of those synthetic ribozymes,\" Carter said, \"bear little resemblance to anything anyone has ever isolated from a living system.\" As used in the text, what does the word \"isolated” most nearly mean? A) quarantined.",
+            "B": "alienated.",
+            "C": "concealed.",
+            "D": "extracted."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 94,
+        "source": "2019-03-MU-46",
+        "passage": "This passage is adapted from Ruth Prawer Jhabvala, My Nine Lives, @2004 by Ruth Prawer Jhabvala. I have gone back to live in India, partly for economic reasons. It's cheaper for me here than in New York, and that has been a consideration during these last years. Of course, I no longer live where I used to when I came here over forty years ago - with my friend Somnath and his family in their crammed flat in the crammed house in a maze of alleys leading off the bazar. The house is still standing, though a part of it, cracked and crumbled during a particularly heavy monsoon, has had to be propped up. Another family is occupying Somnath's old flat, which has been divided into even smaller sections; the whole house is now a warren of subdivided living spaces let out to large families sharing sanitary facilities.",
+        "question": "As used in the text, what does the word \"let out\" most nearly mean?",
+        "options": {
+            "A": "released.",
+            "B": "rented.",
+            "C": "expanded.",
+            "D": "unleashed. 95 (Words in context) -:2019-03-MU-12 One way to understand roads is to look at a map. I love doing this-following routes, tracing them with my fingertip, choosing turns, seeing a squiggly line and trying to_the road it represents. A) Picture B) Draw C) Describe D) Illustrate"
+        },
+        "answer": "B"
+    },
+    {
+        "id": 96,
+        "source": "2018-12-US-2",
+        "passage": "This passage is adapted from Gail Tsukiyama, Night of Many Dreams. 1998 by Gail Tsukiyama. Emma has sailed from Hong Kong to the United States in 1950 to attend college. Not quite three weeks after leaving Hong Kong, Emma changed into a cotton cheongsam and finally set foot on Pier 19 in San Francisco. The late-afternoon sun felt much cooler than she expected. By the time she said a tearful good-bye to the other passengers, then found her luggage waiting on the dock, Emma felt scared and alone. Sister Madeleine from the college had promised in her last letter to have someone waiting for her, but no one appeared. The air smelled salty and metallic. The sunlight had given way to shade. Emma waited as the passengers disembarked and the crowd dissipated. What would become of her? Alone on the pier, she listened for the voices of Mah-mee and Auntie Go telling her what to do, but they seemed lost across the ocean. Emma took a deep breath and thought of her sister Joan's advice: What would Lauren Bacall do? She decided to take a taxi to Lone Mountain College. In saying that the voices of Mah-mee and Auntie Go seem \"lost\", the narrator most likely means that they seem",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "strange and unfamiliar.",
+            "B": "desperate and unsure.",
+            "C": "distant and irretrievable.",
+            "D": "unappreciated and misjudged."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 97,
+        "source": "2018-12-US-4",
+        "passage": "This passage is adapted from Gail Tsukiyama, Night of Many Dreams. 1998 by Gail Tsukiyama. Emma has sailed from Hong Kong to the United States in 1950 to attend college. Not quite three weeks after leaving Hong Kong, Emma changed into a cotton cheongsam and finally set foot on Pier 19 in San Francisco. A sympathetic cabdriver, himself an immigrant from Russia, was kind and helpful. \"You're a smart one, taking taxi. These docks is no good at night,\" he said, his thick, bushy mustache moving up and down as he talked. \"Don't worry, Sergei is getting you to your school nice and safe.\" Emma watched as he boded her luggage into the trunk, then opened the rear door and waited for her to step in. He was short and heavyset, yet light and quick on his feet. His hair was longer than any other man's she'd ever seen before, having in uneven strands below the back collar of his plaid shirt. She wrapped her sweater closer against the cold wind, happy to be in the safe confines of the cab. Which choice best represents the two distinct meanings of \"safe\"",
+        "question": "as used in the passage?",
+        "options": {
+            "A": "cozy; sheltered",
+            "B": "convenient, reliable",
+            "C": "cautious; uncontroversial",
+            "D": "unharmed; protected"
+        },
+        "answer": "D"
+    },
+    {
+        "id": 98,
+        "source": "2018-12-US-12",
+        "passage": "Whether genetically modified (GM) crops are good or bad for the world remains one of the most controversial problems. Opponents of genetically modified o organisms (GMOs) tell the story that \"Franken\" organisms are a new technology that poses known and unknowable dangers to human health, the environment, and society at large. On the other side, proponents argue that GMOs are a harmless and necessary tool for saving a world threatened by overpopulation and a changing climate.",
+        "question": "As used in the passage, the word \"poses\" most nearly means",
+        "options": {
+            "A": "arranges.",
+            "B": "presents. -",
+            "C": "questions.",
+            "D": "imitates."
+        },
+        "answer": "B"
+    },
+    {
+        "id": 99,
+        "source": "2018-12-US-14",
+        "passage": "The diversity of engineering processes and the products that result will probably continue to grow. For example, the relatively new CRISPR technology, which allows for superprecise gene editing. may soon become a GMO tool of choice. But generally speaking, the technologies behind GMOS are decades old. And despite fears of unknown risks, GMOs have been studied extensively  The author cites CRISPR as an example of",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "recent technological innovations related to GMOs.",
+            "B": "a GMO technique whose impact has been extensively studied.",
+            "C": "an especially risky method of modifying genes.",
+            "D": "less controversial approaches to increasing crop yields."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 100,
+        "source": "2018-12-US-27",
+        "passage": "A black hole is a region in space containing a mass so dense that not even light can escape its gravity. Black holes are invisible, but astronomers can find them by tracking their gravitational pull on other objects. Matter being pulled into a black hole gathers around it like storm debris circling a tornado's center. As this cosmic stuff rubs together it produces friction and light, making black holes among the universes brightest objects.",
+        "question": "As used in the passage, \"tracking\" most nearly means",
+        "options": {
+            "A": "trailing.",
+            "B": "traversing.",
+            "C": "monitoring.",
+            "D": "paralleling. -"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 101,
+        "source": "2018-12-US-42",
+        "passage": "One of the most important effects of the Pleistocene Ice Age is something that is difficult to observe visually but is quite predictable if you think about it a bit. It is the fact that there was a massive transfer of water from the oceans to the land during the glacial periods. It has been estimated that at the maximum of the most recent glacial period, about twenty thousand years ago, sea level was approximately 120 meters lower than it is at present.",
+        "question": "As used in the passage, \"predictable\" most nearly means",
+        "options": {
+            "A": "commonplace.",
+            "B": "reliable.",
+            "C": "unsurprising.",
+            "D": "well known."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 102,
+        "source": "2018-10-US-13",
+        "passage": "To have environmental value, new transit has to replace and eliminate driving on a scale sufficient to cut energy consumption overall. That means that a new transit system has to be backed up by something that impels complementary reductions in car use-say, the physical elimination of traffic lanes or the conversion of existing roadways into bike or bus lanes, ideally in combination with higher fuel taxes, parking fees, and tolls.",
+        "question": "As used in the text, what does the phrase \"backed up\" most nearly mean?",
+        "options": {
+            "A": "supported.",
+            "B": "copied.",
+            "C": "substituted. ",
+            "D": "jammed."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 103,
+        "source": "2018-10-US-18",
+        "passage": "One of the arguments that cities inevitably make in promoting transit plans is that the new system, by relieving automobile congestion, will improve the lives of those who continue to drive. No one ever promotes a transit scheme by arguing that it would make traveling less convenient-even though, from an environmental perspective, inconvenient travel is a worthy goal.",
+        "question": "As used in the text, what does the phrase \"promotes\" most nearly mean?",
+        "options": {
+            "A": "upgrades.",
+            "B": "serves.",
+            "C": "advocates.",
+            "D": "develops."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 104,
+        "source": "2018-10-US-24",
+        "passage": "Researchers wondered if slow fibers responsive to gentle pressure might be in humans as well as in other mammals. In 1993, they corralled 28 young volunteers and recorded nerve signals while gently brushing the subjects' arms with their fingertips. The scientists showed that soft stroking prompted two different signals, one immediate and one delayed.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "active.",
+            "B": "attentive",
+            "C": "movable.",
+            "D": "restless. 105 (Words in context) -:2018-10-US-25 Researchers wondered if slow fibers responsive to gentle pressure might be active in humans as well as in other mammals. In 1993, they corralled 28 young volunteers and recorded nerve signals while gently brushing the subjects' arms with their fingertips. Using a technique called microneurography, in which a fine filament is inserted into a single nerve to capture its electrical  impulses, the scientists were able to measure how quickly-or slowly-the nerves fired. As used in the text, what does the word \"capture” most nearly mean? A)occupy. B)seize. C)record. D)influence. "
+        },
+        "answer": "A"
+    },
+    {
+        "id": 106,
+        "source": "2018-10-US-24",
+        "passage": "Plant physiologists have shown that seeds buried more than about one centimeter below the soil surface do not receive enough light to germinate. Do the blades of a plow, which can reach more than a foot beneath the soil surface, bring some of these buried seeds to the surface where their germination is by exposure to sunlight?",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "lured.",
+            "B": "established.",
+            "C": "convinced.",
+            "D": "induced."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 107,
+        "source": "2018-10-US-38",
+        "passage": "In practice, most forecasters combine the two approaches and inject, when necessary, a dose of common sense. The International Monetary Fund (IMF), for instance, relies on a global model, built in part on economic theory and in part on data analysis. The global projections generated by that hybrid model are combined with country-specific details to produce country-level forecasts. The country forecasts are then checked for consistency against the global projections and adjusted when necessary—to make sure, for example, that most countries do not show strong trade growth when the global projection heralds a decline in trade.",
+        "question": "In the passage, \"produce\" most nearly means?",
+        "options": {
+            "A": "create",
+            "B": "exhibit",
+            "C": "cause",
+            "D": "extend In the passage, \"produce\" most nearly means?"
+        },
+        "answer": "A"
+    },
+    {
+        "id": 108,
+        "source": "2018-10-US-45",
+        "passage": " Some researchers grew corn seedlings of a common variety, called B73, and exposed some to caterpillars. They then seeded them with aphids and counted the number offspring that the aphids produced on the pristine plants, compared to previously nibbled ones. The aphids consistently produced more offspring on corn that had been pre-chewed by caterpillars. But, when the researchers tested other corn varieties, individual results would vary. They repeated the experiment with 17 different lines of corn from around the world. Like B73, some varieties supported more aphid offspring after a caterpillar feeding, while the pre-feeding reduced the number of aphids or had no effect on other varieties.",
+        "question": "In the passage, \"lines\" most nearly means?",
+        "options": {
+            "A": "rows",
+            "B": "fields",
+            "C": "strains",
+            "D": "routes"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 109,
+        "source": "2018-12-AS-2",
+        "passage": "This passage is adapted from R.K Narayan, \"The Edge.\"©1994 by R.K. Narayan. When pressed to state his age, Ranga would generally reply, \"Fifty, sixty or eighty. \" You might change your tactics and inquire, \"How long have you been at this job?\" \"Which job?\" \"Carrying that grinding wheel around and sharpening knives.\"",
+        "question": "As used in the text, what is the meaning of the text \"pressed\"?",
+        "options": {
+            "A": "urged.",
+            "B": "occupied.",
+            "C": "rushed.",
+            "D": "afflicted."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 110,
+        "source": "2018-12-AS-23",
+        "passage": "The coffee-berry borer is a pesky beetle. It is thought to destroy $500 million worth of unpicked coffee beans a year, thus diminishing the incomes of some 20 million farmers. The borer spends most of its life as a larva, buried inside a coffee berry, feeding on the beans within. As used in line 3, \"diminishing\" most nearly means",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "belittling",
+            "B": "reducing",
+            "C": "discrediting ",
+            "D": "underestimating "
+        },
+        "answer": "B"
+    },
+    {
+        "id": 111,
+        "source": "2018-12-US-2",
+        "passage": "This passage is adapted from Gail Tsukiyama, Night of Many Dreams. 1998 by Gail Tsukiyama. Emma has sailed from Hong Kong to the United States in 1950 to attend college. Not quite three weeks after leaving Hong Kong, Emma changed into a cotton cheongsam and finally set foot on Pier 19 in San Francisco. The late-afternoon sun felt much cooler than she expected. By the time she said a tearful good-bye to the other passengers, then found her luggage waiting on the dock, Emma felt scared and alone. Sister Madeleine from the college had promised in her last letter to have someone waiting for her, but no one appeared. The air smelled salty and metallic. The sunlight had given way to shade. Emma waited as the passengers disembarked and the crowd dissipated. What would become of her? Alone on the pier, she listened for the voices of Mah-mee and Auntie Go telling her what to do, but they seemed lost across the ocean. Emma took a deep breath and thought of her sister Joan's advice: What would Lauren Bacall do? She decided to take a taxi to Lone Mountain College. In saying that the voices of Mah-mee and Auntie Go seem \"lost\", the narrator most likely means that they seem",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "strange and unfamiliar.",
+            "B": "desperate and unsure.",
+            "C": "distant and irretrievable.",
+            "D": "unappreciated and misjudged. "
+        },
+        "answer": "C"
+    },
+    {
+        "id": 112,
+        "source": "2018-12-US-4",
+        "passage": "This passage is adapted from Gail Tsukiyama, Night of Many Dreams. 1998 by Gail Tsukiyama. Emma has sailed from Hong Kong to the United States in 1950 to attend college. Not quite three weeks after leaving Hong Kong, Emma changed into a cotton cheongsam and finally set foot on Pier 19 in San Francisco. A sympathetic cabdriver, himself an immigrant from Russia, was kind and helpful. \"You're a smart one, taking taxi. These docks is no good at night,\" he said, his thick, bushy mustache moving up and down as he talked. \"Don't worry, Sergei is getting you to your school nice and safe.\" Emma watched as he boded her luggage into the trunk, then opened the rear door and waited for her to step in. He was short and heavyset, yet light and quick on his feet. His hair was longer than any other man's she'd ever seen before, having in uneven strands below the back collar of his plaid shirt. She wrapped her sweater closer against the cold wind, happy to be in the safe confines of the cab. Which choice best represents the two distinct meanings of \"safe\"",
+        "question": "as used in the passage?",
+        "options": {
+            "A": "cozy; sheltered",
+            "B": "convenient, reliable",
+            "C": "cautious; uncontroversial",
+            "D": "unharmed; protected"
+        },
+        "answer": "D"
+    },
+    {
+        "id": 113,
+        "source": "2018-12-US-12",
+        "passage": "Whether genetically modified (GM) crops are good or bad for the world remains one of the most controversial problems. Opponents of genetically modified o organisms (GMOs) tell the story that \"Franken\" organisms are a new technology that poses known and unknowable dangers to human health, the environment, and society at large. On the other side, proponents argue that GMOs are a harmless and necessary tool for saving a world threatened by overpopulation and a changing climate.",
+        "question": "As used in the passage, the word \"poses\" most nearly means",
+        "options": {
+            "A": "arranges.",
+            "B": "presents.",
+            "C": "questions.",
+            "D": "imitates. "
+        },
+        "answer": "B"
+    },
+    {
+        "id": 114,
+        "source": "2018-12-US-14",
+        "passage": "The diversity of engineering processes and the products that result will probably continue to grow. For example, the relatively new CRISPR technology, which allows for superprecise gene editing, may soon become a GMO tool of choice. But generally speaking, the technologies behind GMOs are decades old. And despite fears of unknown risks, GMOs have been studied extensively. The author cites CRISPR as an example of",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "recent technological innovations related to GMOs.",
+            "B": "a GMO technique whose impact has been extensively studied.",
+            "C": "an especially risky method of modifying genes.",
+            "D": "less controversial approaches to increasing crop yields."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 115,
+        "source": "2018-12-US-27",
+        "passage": "A black hole is a region in space containing a mass so dense that not even light can escape its gravity. Black holes are invisible, but astronomers can find them by tracking their gravitational pull on other objects. Matter being pulled into a black hole gathers around it like storm debris circling a tornado's center. As this cosmic stuff rubs together it produces friction and light, making black holes among the universes brightest objects.",
+        "question": "As used in the passage, \"tracking\" most nearly means",
+        "options": {
+            "A": "trailing.",
+            "B": "traversing.",
+            "C": "monitoring.",
+            "D": "paralleling"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 116,
+        "source": "2018-12-US-42",
+        "passage": "One of the most important effects of the Pleistocene Ice Age is something that is difficult to observe visually but is quite predictable if you think about it a bit. It is the fact that there was a massive transfer of water from the oceans to the land during the glacial periods. It has been estimated that at the maximum of the most recent glacial period, about twenty thousand years ago, sea level was approximately 120 meters lower than it is at present.",
+        "question": "As used in the passage, \"predictable\" most nearly means",
+        "options": {
+            "A": "commonplace.",
+            "B": "reliable.",
+            "C": "unsurprising",
+            "D": "well known."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 117,
+        "source": "2018-10-US-13",
+        "passage": "To have environmental value, new transit has to replace and eliminate driving on a scale sufficient to cut energy consumption overall. That means that a new transit system has to be backed up by something that impels complementary reductions in car use-say, the physical elimination of traffic lanes or the conversion of existing roadways into bike or bus lanes, ideally in combination with higher fuel taxes, parking fees, and tolls. supported B) copied. C) substituted. D) jammed.",
+        "question": "As used in the text, what does the phrase “backed up\" most nearly mean?",
+        "options": {
+            "A": "",
+            "B": "copied.",
+            "C": "substituted.",
+            "D": "C) substituted."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 118,
+        "source": "2018-10-US-18",
+        "passage": "One of the arguments that cities inevitably make in promoting transit plans is that the new system, by relieving automobile congestion, will improve the lives of those who continue to drive. No one ever promotes a transit scheme by arguing that it would make traveling less convenient-even though, from an environmental perspective, inconvenient travel is a worthy goal.",
+        "question": "As used in the text, what does the phrase \"promotes” most nearly mean?",
+        "options": {
+            "A": "upgrades.",
+            "B": "serves.",
+            "C": "advocates.",
+            "D": "develops."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 119,
+        "source": "2018-10-US-24",
+        "passage": "Researchers wondered if slow fibers responsive to gentle pressure might be in humans as well as in other mammals. In 1993, they corralled 28 young volunteers and recorded nerve signals while gently brushing the subjects arms with their fingertips. The scientists showed that soft stroking prompted two different signals, one immediate and one delayed.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "active.",
+            "B": "attentive",
+            "C": "movable.",
+            "D": "restless."
+        },
+        "answer": "A"
+    },
+    {
+        "id": 120,
+        "source": "2018-10-US-25",
+        "passage": "Researchers wondered if slow fibers responsive to gentle pressure might be active in humans as well as in other mammals. In 1993, they corralled 28 young volunteers and registered nerve signals while gently brushing the subjects' arms with their fingertips. Using a technique called microneurography, in which a fine filament is inserted into a single nerve to capture its electrical impulses, the scientists were able to measure how quickly-or slowly-the nerves fired.",
+        "question": "As used in the text, what does the word \"capture” most nearly mean?",
+        "options": {
+            "A": "occupy.",
+            "B": "seize.",
+            "C": "record.",
+            "D": "influence."
+        },
+        "answer": "C"
+    },
+    {
+        "id": 121,
+        "source": "2018-10-US-24",
+        "passage": "Plant physiologists have shown that seeds buried more than about one centimeter below the soij surface do not receive enough light to germinate. Do the blades of a plow, which can reach more than a foot beneath the soil surface, bring some of these buried seeds to the surface where their germination is by exposure to sunlight?",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "lured.",
+            "B": "established.",
+            "C": "convinced.",
+            "D": "induced."
+        },
+        "answer": "D"
+    },
+    {
+        "id": 122,
+        "source": "2018-11-US-38",
+        "passage": "In practice, most forecasters combine the two approaches and inject, when necessary, a dose of common sense. The International Monetary Fund (IMF), for instance, relies on a global model, built in part on economic theory and in part on data analysis. The global projections generated by that hybrid model are combined with country-specific details to produce country-level forecasts. The country forecasts are then checked for consistency against the global projections and adjusted when necessary-to make sure, for example, that most countries do not show strong trade growth when the global projection heralds a decline in trade.",
+        "question": "In the passage, \"produce\" most nearly means?",
+        "options": {
+            "A": "create",
+            "B": "exhibit ",
+            "C": "cause",
+            "D": "extend "
+        },
+        "answer": "A"
+    },
+    {
+        "id": 123,
+        "source": "2018-11-US-45",
+        "passage": "Some researchers grew corn seedlings of a common variety, called B73, and exposed some to caterpillars. They then seeded them with aphids and counted the number offspring that the aphids produced on the pristine plants, compared to previously nibbled ones. The aphids consistently produced more offspring on corn that had been pre-chewed by caterpillars. But, when the researchers tested other corn varieties, individual results would vary. They repeated the experiment with 17 different lines of corn from around the world. Like B73, some varieties supported more aphid offspring after a caterpillar feeding,while the pre-feeding reduced the number of aphids or had no effect on other varieties.",
+        "question": "In the passage, \"lines\" most nearly means?",
+        "options": {
+            "A": "rows",
+            "B": "fields",
+            "C": "strains",
+            "D": "routes"
+        },
+        "answer": "C"
+    },
+    {
+        "id": 124,
+        "source": "2018-12-AS-2",
+        "passage": "This passage is adapted from R.K Narayan, \"The Edge.\"©1994 by R.K. Narayan. When pressed to state his age, Ranga would generally reply, \"Fifty, sixty or eighty. \" You might change your tactics to make the inquiry less offensive , \"How long have you been at this job?\" \"Which job?\" \"Carrying that grinding wheel around and sharpening knives.\"",
+        "question": "As used in the text, what is the meaning ofthe text \"pressed\"?",
+        "options": {
+            "A": "urged.",
+            "B": "occupied.",
+            "C": "rushed.",
+            "D": "afflicted. "
+        },
+        "answer": "A"
+    },
+    {
+        "id": 125,
+        "source": "2018-12-AS-23",
+        "passage": "The coffee-berry borer is a pesky beetle. It is thought to destroy $500 million worth of unpicked coffee beans a year, thus diminishing the incomes of some 20 million farmers. The borer spends most of its life as a larva, buried inside a coffee berry, feeding on the beans within. As used in line 3, \"diminishing\" most nearly means",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "options": {
+            "A": "belittling",
+            "B": "reducing",
+            "C": "discrediting",
+            "D": "underestimating  "
+        },
+        "answer": "B"
+    }
+];
+
+    // Khởi tạo giao diện
+    const quizContainer = document.getElementById('quiz');
+    const navGrid = document.getElementById('navGrid');
+    const progressText = document.getElementById('progressText');
+    const scoreText = document.getElementById('scoreText');
+    let startTime = new Date();
+
+    function renderQuiz() {
+        quizContainer.innerHTML = '';
+        navGrid.innerHTML = '';
+        progressText.textContent = `0/${quizData.length}`;
+
+        quizData.forEach((q, index) => {
+            // Render giao diện câu hỏi
+            const qBlock = document.createElement('div');
+            qBlock.className = 'question-block';
+            qBlock.id = `q-block-${q.id}`;
+            
+            let optionsHTML = '';
+            for (const key in q.options) {
+                optionsHTML += `
+                    <li>
+                        <label id="label-${q.id}-${key}">
+                            <input type="radio" name="question${q.id}" value="${key}" data-qid="${q.id}">
+                            <strong>${key}.</strong> ${q.options[key]}
+                        </label>
+                    </li>
+                `;
+            }
+
+            qBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${q.question}</div>
+                <ul class="options">${optionsHTML}</ul>
+                <div class="explanation" id="exp-${q.id}">
+                    <strong>Giải thích:</strong> ${q.explanation}
+                </div>
+            `;
+            quizContainer.appendChild(qBlock);
+
+            // Render danh sách nút điều hướng bên Sidebar
+            const btn = document.createElement('button');
+            btn.className = 'nav-grid-btn';
+            btn.textContent = index + 1;
+            btn.id = `nav-btn-${q.id}`;
+            btn.addEventListener('click', () => {
+                document.getElementById(`q-block-${q.id}`).scrollIntoView({ behavior: 'smooth' });
+            });
+            navGrid.appendChild(btn);
+        });
+
+        // Lắng nghe thay đổi chọn đáp án để cập nhật tiến độ & màu nút điều hướng
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const qid = e.target.getAttribute('data-qid');
+                document.getElementById(`nav-btn-${qid}`).classList.add('answered');
+                updateProgress();
+            });
+        });
+    }
+
+    function updateProgress() {
+        const selectedCount = document.querySelectorAll('input[type="radio"]:checked').length;
+        progressText.textContent = `${selectedCount}/${quizData.length}`;
+    }
+
+    // Xử lý sự kiện nút "Kiểm tra"
+    document.getElementById('checkBtn').addEventListener('click', async () => {
+        let score = 0;
+        let answeredTotal = 0;
+
+        quizData.forEach((data) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const expDiv = document.getElementById(`exp-${data.id}`);
+
+            if (selected) {
+                answeredTotal++;
+                const userChoice = selected.value;
+                expDiv.style.display = 'block'; // Hiển thị giải thích
+
+                // Đánh dấu đúng/sai
+                if (userChoice === data.correctAnswer) {
+                    score++;
+                    document.getElementById(`label-${data.id}-${userChoice}`).classList.add('correct-answer-label');
+                } else {
+                    document.getElementById(`label-${data.id}-${userChoice}`).classList.add('wrong-answer-label');
+                    document.getElementById(`label-${data.id}-${data.correctAnswer}`).classList.add('correct-answer-label');
+                }
+            }
+        });
+
+        scoreText.textContent = `${score}/${quizData.length}`;
+        
+        if (answeredTotal > 0) {
+            await saveScoreToFirebase(score, quizData.length);
+            alert(`Bạn đã nộp bài thành công! Số câu đúng: ${score}/${quizData.length}`);
+        } else {
+            alert('Vui lòng chọn ít nhất 1 câu hỏi để kiểm tra!');
+        }
+    });
+
+    // Xử lý sự kiện nút "Làm lại"
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        if (confirm('Bạn có chắc chắn muốn làm lại từ đầu?')) {
+            startTime = new Date();
+            renderQuiz();
+            scoreText.textContent = '0';
+        }
+    });
+
+    // Xử lý Sidebar & Footer Toggle
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        stickyFooter.classList.toggle('hidden');
+        const isHidden = stickyFooter.classList.contains('hidden');
+        toggleIcon.textContent = isHidden ? '🙈' : '👁️';
+        toggleText.textContent = isHidden ? 'Hiện thanh công cụ' : 'Ẩn thanh công cụ';
+    });
+
+    const questionListPanel = document.getElementById('questionListPanel');
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+
+    if (window.innerWidth <= 768) {
+        questionListPanel.classList.add('collapsed');
+    }
+
+    toggleSidebarBtn.addEventListener('click', () => {
+        questionListPanel.classList.toggle('collapsed');
+    });
+
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const userChoice = selectedOption ? selectedOption.value : "Bỏ trống";
+            const isCorrect = userChoice === data.correctAnswer;
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.question,
+                userChoice: userChoice,
+                correctAnswer: data.correctAnswer,
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+
+    // Chạy render ban đầu
+    renderQuiz();
+</script>
+</body>
+</html>
