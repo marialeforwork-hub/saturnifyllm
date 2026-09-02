@@ -9,6 +9,10 @@
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
         .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
         .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
         .options { list-style-type: none; padding: 0; }
         .options li { margin-bottom: 10px; }
@@ -190,7 +194,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
     const quizData = [
   {
     "id": 1,
@@ -1897,185 +1900,328 @@
     "explanation": "Choice A is the best answer because it most logically completes the text’ s discussion of Ronyoung Kim ’ s novel Clay Walls. In this context, \"distinct\" means clearly separate and different. The text indicates that the novel consists of three sections and that each section is narrated from the perspective of a different character. This context suppor ts the idea that Kim ’ s novel features three distinct perspectives. Choice B is incorrect because describing the three perspectives in Kim ’ s novel as \"required,\" or demanded as necessary to be done or provided, wouldn ’t make sense in context. When writing a novel, a novelist is free to choose to narrate the story from any number of perspectives. There ’ s nothing in the text to indicate that providing three perspectives was demanded of Kim. Instead, the text focuses on identifying the three different perspectives featured in Kim ’ s novel. Choice C is incorrect because describing the three perspectives in Kim ’ s novel as \"unintended,\" or not planned as a purpose or goal, wouldn ’t make sense in context. Authors make deliberate choices about the perspectives they feature in their works, and the text indicates that Kim chose to incorporate three different perspectives in her novel. Choice D is incorrect because describing the three perspectives in Kim ’ s novel as \"unknown,\" or not revealed, wouldn ’t make sense in context. The text directly identifies the three perspectives that appear in her novel as those of Faye and her two parents, Haesu and Chun, which indicates that the novel’ s perspectives are in fact known."
   }
 ];
-
-    // Khởi tạo giao diện
+ 
     const quizContainer = document.getElementById('quiz');
-    const navGrid = document.getElementById('navGrid');
-    const progressText = document.getElementById('progressText');
-    const scoreText = document.getElementById('scoreText');
-    let startTime = new Date();
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
 
-    function renderQuiz() {
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
         quizContainer.innerHTML = '';
-        navGrid.innerHTML = '';
-        progressText.textContent = `0/${quizData.length}`;
+        createNavigatorBox(); 
 
-        quizData.forEach((q, index) => {
-            // Render giao diện câu hỏi
-            const qBlock = document.createElement('div');
-            qBlock.className = 'question-block';
-            qBlock.id = `q-block-${q.id}`;
-            
-            let optionsHTML = '';
-            for (const key in q.options) {
-                optionsHTML += `
-                    <li>
-                        <label id="label-${q.id}-${key}">
-                            <input type="radio" name="question${q.id}" value="${key}" data-qid="${q.id}">
-                            <strong>${key}.</strong> ${q.options[key]}
-                        </label>
-                    </li>
-                `;
-            }
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
 
-            qBlock.innerHTML = `
-                <div class="question-text">Câu ${index + 1}: ${q.question}</div>
-                <ul class="options">${optionsHTML}</ul>
-                <div class="explanation" id="exp-${q.id}">
-                    <strong>Giải thích:</strong> ${q.explanation}
-                </div>
-            `;
-            quizContainer.appendChild(qBlock);
-
-            // Render danh sách nút điều hướng bên Sidebar
-            const btn = document.createElement('button');
-            btn.className = 'nav-grid-btn';
-            btn.textContent = index + 1;
-            btn.id = `nav-btn-${q.id}`;
-            btn.addEventListener('click', () => {
-                document.getElementById(`q-block-${q.id}`).scrollIntoView({ behavior: 'smooth' });
-            });
-            navGrid.appendChild(btn);
-        });
-
-        // Lắng nghe thay đổi chọn đáp án để cập nhật tiến độ & màu nút điều hướng
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const qid = e.target.getAttribute('data-qid');
-                document.getElementById(`nav-btn-${qid}`).classList.add('answered');
-                updateProgress();
-            });
-        });
-    }
-
-    function updateProgress() {
-        const selectedCount = document.querySelectorAll('input[type="radio"]:checked').length;
-        progressText.textContent = `${selectedCount}/${quizData.length}`;
-    }
-
-    // Xử lý sự kiện nút "Kiểm tra"
-    document.getElementById('checkBtn').addEventListener('click', async () => {
-        let score = 0;
-        let answeredTotal = 0;
-
-        quizData.forEach((data) => {
-            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
-            const expDiv = document.getElementById(`exp-${data.id}`);
-
-            if (selected) {
-                answeredTotal++;
-                const userChoice = selected.value;
-                expDiv.style.display = 'block'; // Hiển thị giải thích
-
-                // Đánh dấu đúng/sai
-                if (userChoice === data.correctAnswer) {
-                    score++;
-                    document.getElementById(`label-${data.id}-${userChoice}`).classList.add('correct-answer-label');
-                } else {
-                    document.getElementById(`label-${data.id}-${userChoice}`).classList.add('wrong-answer-label');
-                    document.getElementById(`label-${data.id}-${data.correctAnswer}`).classList.add('correct-answer-label');
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
                 }
             }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
         });
-
-        scoreText.textContent = `${score}/${quizData.length}`;
         
-        if (answeredTotal > 0) {
-            await saveScoreToFirebase(score, quizData.length);
-            alert(`Bạn đã nộp bài thành công! Số câu đúng: ${score}/${quizData.length}`);
-        } else {
-            alert('Vui lòng chọn ít nhất 1 câu hỏi để kiểm tra!');
-        }
-    });
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
 
-    // Xử lý sự kiện nút "Làm lại"
-    document.getElementById('resetBtn').addEventListener('click', () => {
-        if (confirm('Bạn có chắc chắn muốn làm lại từ đầu?')) {
-            startTime = new Date();
-            renderQuiz();
-            scoreText.textContent = '0';
-        }
-    });
+        renderMath();
+    }
 
-    // Xử lý Sidebar & Footer Toggle
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
     const toggleNavBtn = document.getElementById('toggleNavBtn');
     const stickyFooter = document.getElementById('stickyFooter');
     const toggleIcon = document.getElementById('toggleIcon');
     const toggleText = document.getElementById('toggleText');
 
     toggleNavBtn.addEventListener('click', () => {
-        stickyFooter.classList.toggle('hidden');
-        const isHidden = stickyFooter.classList.contains('hidden');
-        toggleIcon.textContent = isHidden ? '🙈' : '👁️';
-        toggleText.textContent = isHidden ? 'Hiện thanh công cụ' : 'Ẩn thanh công cụ';
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
     });
 
-    const questionListPanel = document.getElementById('questionListPanel');
-    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
 
-    if (window.innerWidth <= 768) {
-        questionListPanel.classList.add('collapsed');
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
     }
 
-    toggleSidebarBtn.addEventListener('click', () => {
-        questionListPanel.classList.toggle('collapsed');
-    });
-
-    async function saveScoreToFirebase(score, total) {
-        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
-        const studentId = sessionStorage.getItem('studentId') || "N/A";
-        const quizName = document.title;
-        const endTime = new Date();
-
-        let detailedAnswers = {};
-        quizData.forEach((data, index) => {
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
-            const userChoice = selectedOption ? selectedOption.value : "Bỏ trống";
-            const isCorrect = userChoice === data.correctAnswer;
-
-            detailedAnswers[`Câu ${index + 1}`] = {
-                questionText: data.question,
-                userChoice: userChoice,
-                correctAnswer: data.correctAnswer,
-                isCorrect: isCorrect
-            };
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
         });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
 
-        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
-        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
 
-        try {
-            await addDoc(collection(db, "results"), {
-                name: studentName,
-                id: studentId,
-                quizTitle: quizName,
-                score: score,
-                total: total,
-                percentage: Math.round((score / total) * 100) + '%',
-                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
-                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
-                duration: durationText,
-                answers: detailedAnswers,
-                timestamp: new Date()
-            });
-            console.log("Đã lưu chi tiết bài làm lên Firebase!");
-        } catch (error) {
-            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
         }
     }
 
-    // Chạy render ban đầu
-    renderQuiz();
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
 </script>
 </body>
 </html>
