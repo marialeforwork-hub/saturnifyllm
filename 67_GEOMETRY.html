@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>67_GEOMETRY</title>
+    
+    <!-- Tích hợp MathJax để hiển thị công thức toán học -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .fill-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .correct-input {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .wrong-input {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        .answer-feedback {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        /* Nút Sidebar và Nav Box Styles */
+        .toggle-sidebar-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 10001;
+            background: #3498db; color: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .toggle-sidebar-btn:hover { transform: scale(1.05); }
+
+        #quizNavBox {
+            position: fixed; top: 75px; right: 20px; width: 220px; max-height: 75vh;
+            background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            display: none; /* Mặc định ẩn */
+        }
+
+        .toggle-nav-btn {
+            position: fixed; bottom: 85px; right: 20px; z-index: 1001;
+            background: #e67e22; color: #fff; border: none; padding: 10px 18px;
+            border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: bottom 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nút Toggle Sidebar danh sách câu hỏi -->
+<button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+
+<!-- Khối danh sách câu hỏi -->
+<div id="quizNavBox">
+    <h3 style="text-align: center; margin-top: 0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">📌 Danh Sách Câu Hỏi</h3>
+    <div id="navGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+        <!-- Danh sách nút sẽ được JS chèn tự động vào đây -->
+    </div>
+</div>
+
+<div class="container">
+    <h1>67_GEOMETRY</h1>
+    <p style="text-align: center; color: #7f8c8d;">Chọn đáp án hoặc nhập kết quả, sau đó bấm <strong>"Kiểm tra"</strong> để xem đáp án.</p>
+    <div id="quiz"></div>
+</div>
+
+<!-- Nút Toggle ẩn hiện Footer -->
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<!-- Sticky Footer Công Cụ -->
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let startTime = new Date();
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            let userChoice = "Bỏ trống";
+            const expected = data.answer || data.correctAnswer || '';
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userChoice = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userChoice = inputEl.value.trim();
+            }
+
+            const isCorrect = userChoice.toString().trim().toLowerCase() === expected.toString().trim().toLowerCase();
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.text || data.question,
+                userChoice: userChoice,
+                correctAnswer: expected,
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+  const quizData =[
+  {
+    "id": 1,
+    "text": "In the xy-plane, a circle has center C with coordinates $(h, k)$. Points A and B lie on the circle. Point A has coordinates $(h+1, k+\\sqrt{230})$, and $\\angle ACB$ is a right angle. What is the length of AB?\n\nA. $231\\sqrt{3}$\nB. $231\\sqrt{2}$\nC. $2\\sqrt{230}$\nD. $\\sqrt{462}$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 2,
+    "text": "A circle has center O, and points A and B lie on the circle. The measure of arc AB is $20^{\\circ}$ and the length of this arc is 4 inches. What is the circumference, in inches, of the circle?\n\nA. 8\nB. 72\nC. 16\nD. 4",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 3,
+    "text": "In triangle ABC and triangle DEF, sides AB and DE each have a side length of 10 inches, and angles A and D each have an angle measure of $40^{\\circ}$. Which of the following additional pieces of information is (are) sufficient to prove whether triangle ABC is congruent to triangle DEF?\n\nI. The measures of angles B and C are equal.\nII. The lengths of sides AC and DF are equal.\nIII. The lengths of sides BC and EF are equal.\n\nA. I is sufficient, but II and III are not\nB. II is sufficient, but I and III are not.\nC. III is sufficient, but I and II are not.\nD. II is sufficient and III is sufficient, but I is not.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 4,
+    "text": "In triangle RST, the measure of angle R is $39^{\\circ}$, the measure of angle S is $x^{\\circ}$, and the measure of angle T is $(8x-3)^{\\circ}$. Point L lies on $\\overline{RS}$, point K lies on $\\overline{ST}$, and $\\overline{LK}$ is parallel to $\\overline{RT}$. What is the measure, in degrees, of angle SKL? (Disregard the degree symbol when entering your answer.)",
+    "type": "free_response",
+    "answer": "125"
+  },
+  {
+    "id": 5,
+    "text": "A line intersects two parallel lines, forming four acute angles and four obtuse angles. The measure of one of these eight angles is $(7x-250)^{\\circ}$. The sum of the measures of four of the eight angles is k. Which of the following could NOT be equivalent to k, for all values of x?\n\nA. $-14x+1,540$\nB. $14x-320$\nC. $-28x+1,720$\nD. 360",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 9,
+    "text": "For triangle PQR and triangle STU, angles P and S each measure $30^{\\circ}$, $QR=16$, and $TU=12$. Which additional piece(s) of information is (are) sufficient to prove that triangle PQR is similar to triangle STU?\n\nI. The length of PQ is $\\frac{4}{3}$ the length of ST.\nII. The length of PR is $\\frac{4}{3}$ the length of SU.\n\nA. I is sufficient, but II is not.\nB. II is sufficient, but I is not.\nC. I is sufficient, and II is sufficient.\nD. Neither I nor II is sufficient.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 11,
+    "text": "In $\\triangle ABC$, B is a right angle and the length of BC is 260 millimeters. If $\\cos A = \\frac{3}{5}$, what is the length, in millimeters, of AB?\n\nA. 325\nB. 260\nC. 195\nD. 65",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 13,
+    "text": "The volume of a right rectangular prism with a square base is 539 cubic centimeters. If the area of each of the four lateral faces is 77 square centimeters, what is the height, in centimeters, of the prism?\n\nA. 77\nB. 49\nC. 11\nD. 7",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 14,
+    "text": "If the perimeter of an equilateral triangle with a height of 21 is $a\\sqrt{3}$, what is the value of a?",
+    "type": "free_response",
+    "answer": "42"
+  },
+  {
+    "id": 15,
+    "text": "To study fluctuations in leaf water potential, samples of wood were taken from 24 trees and cut in the shape of a cube. The length of the edge of one of these cubes is 2.00 centimeters. If this cube has a mass of 4.48 grams, what is the density of this cube, in grams per cubic centimeter?",
+    "type": "free_response",
+    "answer": "0.56"
+  },
+  {
+    "id": 16,
+    "text": "A polygon has exactly 87 sides. If the measure of each of the 87 interior angles of this polygon is $(180p)^{\\circ}$, what is the value of p?",
+    "type": "free_response",
+    "answer": "85/87"
+  },
+  {
+    "id": 17,
+    "text": "The floor of a business office has an area of 1,575 square meters. An architect creates a scale model of the floor of the business office, where the length of each side of the model is $\\frac{1}{15}$ times the length of the corresponding side of the actual floor of the business office. What is the area, in square meters, of the scale model?\n\nA. 7\nB. 15\nC. 105\nD. 175",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 20,
+    "text": "Right rectangular prism X is similar to right rectangular prism Y. The surface area of right rectangular prism X is 59 square centimeters ($\\text{cm}^2$), and the surface area of right rectangular prism Y is $1,475\\text{ cm}^2$. The volume of right rectangular prism Y is 1,500 cubic centimeters ($\\text{cm}^3$). What is the sum of the volumes, in $\\text{cm}^3$, of right rectangular prism X and right rectangular prism Y?",
+    "type": "free_response",
+    "answer": "1512"
+  },
+  {
+    "id": 21,
+    "text": "Right rectangular prism X is similar to right rectangular prism Y. The surface area of right rectangular prism X is 52 square centimeters ($\\text{cm}^2$), and the surface area of right rectangular prism Y is $3,328\\text{ cm}^2$. The volume of right rectangular prism X is 10.5 cubic centimeters ($\\text{cm}^3$). What is the volume, in $\\text{cm}^3$, of right rectangular prism Y?",
+    "type": "free_response",
+    "answer": "5376"
+  },
+  {
+    "id": 22,
+    "text": "To study fluctuations in leaf water potential, samples of wood were taken from 24 trees and cut in the shape of a cube. The length of the edge of one of these cubes is 2.00 centimeters. If this cube has a mass of 4.48 grams, what is the density of this cube, in grams per cubic centimeter?",
+    "type": "free_response",
+    "answer": "0.56"
+  },
+  {
+    "id": 23,
+    "text": "A circle is inscribed in a square such that the circumference of the circle touches the midpoint of each side of the square. The length of the diagonal of the square is 228 units. What is the area, in square units, of the circle?\n\nA. $6,498\\pi$\nB. $12,996\\pi$\nC. $25,992\\pi$\nD. $51,984\\pi$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 24,
+    "text": "A rectangular region of land is divided into 88 square lots of equal area $R$, in square units. The length of the region is 5.5 times the width of the region. If the width of the region is $x\\sqrt{R}$ units, what is the value of x?",
+    "type": "free_response",
+    "answer": "4"
+  },
+  {
+    "id": 25,
+    "text": "Point F lies on a unit circle in the xy-plane and has coordinates $(1, 0)$. Point G is the center of the circle and has coordinates $(0, 0)$. Point H also lies on the circle and has coordinates $(-1, y)$, where y is a constant. Which of the following could be the positive measure of angle FGH, in radians?\n\nA. $\\frac{27\\pi}{2}$\nB. $\\frac{29\\pi}{2}$\nC. $24\\pi$\nD. $25\\pi$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 26,
+    "text": "A right square pyramid has a total surface area of 28,160 square inches, and the combined surface area of the four lateral faces of this pyramid is 16,060 square inches. What is the height, in inches, of this pyramid?\n\nA. 48\nB. 55\nC. 73\nD. 110",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 28,
+    "text": "The perimeter of an equilateral triangle is 876 centimeters. The three vertices of the triangle lie on a circle. The radius of the circle is $w\\sqrt{3}$ centimeters. What is the value of w?",
+    "type": "free_response",
+    "answer": "292/3"
+  },
+  {
+    "id": 30,
+    "text": "In triangle FGH and triangle KLM, the measures of angles G and L are each $60^{\\circ}$. The lengths of GH and LM are each 34 centimeters, and $\\frac{GH}{GF} = \\frac{LM}{LK}$. Which additional piece of information would be necessary to prove that triangle FGH is congruent to triangle KLM?\n\nA. The lengths of FG and KM are each 17 centimeters.\nB. The measures of angles H and M are each $30^{\\circ}$.\nC. The measures of angles F and K are each $90^{\\circ}$.\nD. No additional information is necessary.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 31,
+    "text": "Parallelogram ABCD is similar to parallelogram PQRS. The length of each side of parallelogram PQRS is 2 times the length of its corresponding side of parallelogram ABCD. The area of parallelogram ABCD is 5 square centimeters. What is the area, in square centimeters, of parallelogram PQRS?\n\nA. 7\nB. 10\nC. 20\nD. 25",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 32,
+    "text": "A line intersects two parallel lines, forming four acute angles and four obtuse angles. The measure of one of the acute angles is $(7x-610)^{\\circ}$. The sum of the measures of one of the acute angles and three of the obtuse angles is $(-14x+w)^{\\circ}$. What is the value of w?",
+    "type": "free_response",
+    "answer": "1760"
+  },
+  {
+    "id": 34,
+    "text": "In triangle XYZ, angle Y is a right angle, the measure of angle Z is $39^{\\circ}$, and the length of $\\overline{YZ}$ is 22 units. If the area, in square units, of triangle XYZ can be represented by the expression $k\\tan 39^{\\circ}$, where k is a constant, what is the value of k?",
+    "type": "free_response",
+    "answer": "242"
+  },
+  {
+    "id": 36,
+    "text": "In triangle RST, the measure of angle R is 18 degrees and the measure of angle T is 72 degrees. Point L lies on $\\overline{RS}$, point K lies on $\\overline{ST}$, and $\\overline{LK}$ is parallel to $\\overline{RT}$. What is the measure, in degrees, of angle SKL? (Disregard the degree symbol when entering your answer.)",
+    "type": "free_response",
+    "answer": "72"
+  },
+  {
+    "id": 37,
+    "text": "In triangle ABC, the measure of angle A is $52^{\\circ}$ and $AC=35$. In triangle PQR, the measure of angle P is $52^{\\circ}$ and $PR=105$. Which additional piece of information is sufficient to prove that triangle ABC is similar to triangle PQR?\n\nA. $AB=30$ and $PQ=30$.\nB. $AB=30$ and $QR=90$.\nC. The measures of angle B and angle R are $34^{\\circ}$ and $94^{\\circ}$, respectively.\nD. The measures of angle B and angle Q are $52^{\\circ}$ and $34^{\\circ}$, respectively.",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 38,
+    "text": "The length of each edge of a box is 48 centimeters. Each side of the box is in the shape of a square. The box does not have a lid. What is the exterior surface area, in square meters, of this box without a lid? ($1\\text{ meter} = 100\\text{ centimeters}$)",
+    "type": "free_response",
+    "answer": "1.152"
+  },
+  {
+    "id": 39,
+    "text": "The edge length, in inches, of cube Y is $\\frac{3}{64}$ the edge length, in inches, of cube X. The surface area, in square inches, of cube Y is n times the surface area, in square inches, of cube X. What is the value of n?\n\nA. $\\frac{9}{4,096}$\nB. $\\frac{27}{2,048}$\nC. $\\frac{3}{64}$\nD. $\\frac{9}{32}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 40,
+    "text": "A line intersects two parallel lines, forming four acute angles and four obtuse angles. The measure of one of the acute angles is $(9x-490)^{\\circ}$. The sum of the measures of one of the acute angles and three of the obtuse angles is $(-18x+w)^{\\circ}$. What is the value of w?",
+    "type": "free_response",
+    "answer": "1520"
+  },
+  {
+    "id": 42,
+    "text": "In isosceles triangle ABC, sides AB and AC are congruent. Point D divides side BC such that the length of BD is $\\frac{4}{7}$ of the length of BC. Point E lies on side AB and point F lies on side AC such that when segments DE and DF are drawn, angle BED is congruent to angle CFD. If the length of BE is 8, what is the length of CF?\n\nA. 6\nB. 14\nC. 32\nD. 56",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 43,
+    "text": "A cube has an edge length of 82 inches. A solid sphere with a radius of 41 inches is inside the cube, such that the sphere touches the center of each face of the cube. To the nearest cubic inch, what is the volume of the space in the cube not taken up by the sphere?\n\nA. 262,672\nB. 288,532\nC. 334,846\nD. 546,087",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 45,
+    "text": "In triangle ABC and triangle DEF, AB and DE are each equal to 5 centimeters, and angles A and D each have measure $35^{\\circ}$. Which additional piece of information is sufficient to prove that triangle ABC is congruent to triangle DEF?\n\nA. The lengths of sides BC and EF are equal.\nB. The lengths of sides AC and DF are equal.\nC. The measures of angles B and C are equal.\nD. No additional information is necessary to prove that the two triangles are congruent.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 46,
+    "text": "Two lines intersect at exactly one point, forming two acute angles and two obtuse angles. The measure of one of these angles is $(9x-110)^{\\circ}$. Which of the following could NOT be the sum of the measures of any two of these angles?\n\nA. $(-18x+220)^{\\circ}$\nB. $(-18x+580)^{\\circ}$\nC. $(18x-220)^{\\circ}$\nD. $180^{\\circ}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 47,
+    "text": "The measure of angle S is $\\frac{8\\pi}{13}$ radians. The measure of angle T is 3 times the measure of angle S. Which expression represents the measure, in degrees, of angle T?\n\nA. $\\frac{8}{13}(90)(3)$\nB. $\\frac{8}{13}(180)(3)$\nC. $\\frac{8}{13\\pi}(90)(3)$\nD. $\\frac{8\\pi}{13}(180)(3)$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 48,
+    "text": "If the perimeter of an equilateral triangle with a height of 46 units is $a\\sqrt{3}$ units, what is the value of a?\n\nA. 46\nB. 92\nC. $\\frac{2,116}{3}$\nD. $\\frac{4,232}{3}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 49,
+    "text": "A right rectangular prism has a base area of $16t$ square centimeters ($\\text{cm}^2$). The length of the base of the rectangular prism is $\\frac{8}{3}\\text{ cm}$, and the height of the rectangular prism is $9\\text{ cm}$. Which expression represents the surface area, in $\\text{cm}^2$, of the right rectangular prism?\n\nA. $32t+96$\nB. $140t+48$\nC. $800t+48$\nD. $144t$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 50,
+    "text": "Triangles PQR and LMN are graphed in the xy-plane. Triangle PQR has vertices P, Q, and R at $(5,2)$, $(5,4)$, and $(7,2)$, respectively. Triangle LMN has vertices L, M, and N at $(5,2)$, $(5,4+k)$, and $(7+k,2)$, respectively, where k is a positive constant. If the measure of $\\angle Q$ is $t^{\\circ}$, what is the measure of $\\angle N$?\n\nA. $(90-(t-k))^{\\circ}$\nB. $(90-(t+k))^{\\circ}$\nC. $(90-t)^{\\circ}$\nD. $(90+k)^{\\circ}$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 51,
+    "text": "The perimeter of an isosceles right triangle is $52+52\\sqrt{2}$ inches. What is the length, in inches, of the hypotenuse of this triangle?\n\nA. 26\nB. $16\\sqrt{2}$\nC. 52\nD. $52\\sqrt{2}$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 53,
+    "text": "In triangle PQR, the measure of angle P is $(3x+5)^{\\circ}$, the measure of angle Q is $(2x+9)^{\\circ}$, and the measure of angle R is $(4y+5)^{\\circ}$. If side QR is extended through point R to point S and the measure of angle PRS is $(x+y)^{\\circ}$, what is the value of $x+y$?",
+    "type": "free_response",
+    "answer": "39"
+  },
+  {
+    "id": 57,
+    "text": "A right circular cone has a volume of 2,700 cubic centimeters and the area of its base is 225 square centimeters. What is the slant height, in centimeters, of this cone?\n\nA. 12\nB. 15\nC. 36\nD. 39",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 58,
+    "text": "A right triangular pyramid has exactly six edges. Each of these edges is 96 centimeters long. If the surface area of the pyramid is $k\\sqrt{3}$ square centimeters, what is the value of k?",
+    "type": "free_response",
+    "answer": "9216"
+  },
+  {
+    "id": 59,
+    "text": "A right square pyramid has a height of 11 centimeters (cm). A second right square pyramid has a height of 22 centimeters. The area of the bases of each of the two pyramids is $100\\text{ cm}^2$. Which of the following is closest to the difference in the surface area of the second pyramid and the surface area of the first pyramid, in $\\text{cm}^2$?\n\nA. 209\nB. 220\nC. 367\nD. 551",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 60,
+    "text": "The volume of a right rectangular prism with a square base is 2,448 cubic centimeters. If the area of the square base is 144 square centimeters, what is the area, in square centimeters, of one of the four lateral faces of the prism?\n\nA. 17\nB. 204\nC. 540\nD. 816",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 61,
+    "text": "A right square pyramid has a surface area of 75,264 square inches, which includes a base area of 36,864 square inches. What is the slant height, in inches, of this pyramid?",
+    "type": "free_response",
+    "answer": "100"
+  },
+  {
+    "id": 62,
+    "text": "For two acute angles, $\\angle Q$ and $\\angle R$, $\\cos Q = \\sin R$. The measures, in degrees, of $\\angle Q$ and $\\angle R$ are $x+27$ and $4x+3$, respectively. What is the value of x?\n\nA. 8\nB. 12\nC. 30\nD. 63",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 63,
+    "text": "Parallelogram ABCD is similar to parallelogram PQRS. The length of each side of parallelogram PQRS is 2 times the length of its corresponding side of parallelogram ABCD. The area of parallelogram ABCD is 30 square centimeters. What is the area, in square centimeters, of parallelogram PQRS?\n\nA. 32\nB. 60\nC. 120\nD. 900",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 64,
+    "text": "An equilateral triangle has a height of $47\\sqrt{3}$ units. What is the length, in units, of one side of this triangle?\n\nA. $94\\sqrt{3}$\nB. 94\nC. $47\\sqrt{3}$\nD. 47",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 65,
+    "text": "A circle in the xy-plane has its center at $(3, 7)$. Line t is tangent to this circle at the point $(a, 4)$, where a is a constant. The slope of line t is $\\frac{5}{4}$. What is the value of a?\n\nA. $-\\frac{43}{4}$\nB. $-\\frac{29}{5}$\nC. $\\frac{59}{5}$\nD. $\\frac{67}{4}$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 66,
+    "text": "The table shows the volume of two similar solids, right circular cylinder A and right circular cylinder B.\n\nRight circular cylinder A: Volume = $72\\pi$\nRight circular cylinder B: Volume = $4,608\\pi$\n\nThe radius of right circular cylinder A is 3 units. The surface area of right circular cylinder A is $k\\pi$ square units, and the surface area of right circular cylinder B is $n\\pi$ square units, where k and n are constants. What is the value of $n-k$?\n(The surface area of a right circular cylinder with radius r and height h is $2\\pi r^2 + 2\\pi rh$.)",
+    "type": "free_response",
+    "answer": "990"
+  },
+  {
+    "id": 67,
+    "text": "A right rectangular prism has a base area of $28p$ square centimeters ($\\text{cm}^2$). The length of the base of the rectangular prism is $12\\text{ cm}$, and the height of the rectangular prism is $4\\text{ cm}$. Which expression represents the surface area, in $\\text{cm}^2$, of the right rectangular prism?\n\nA. $\\frac{512p}{3}$\nB. $\\frac{224p}{3}+96$\nC. $56p+192$\nD. $560p+96$",
+    "type": "multiple_choice",
+    "answer": "B"
+  }
+]; 
+   quizData.forEach(data => {
+        // Tự động bóc tách các lựa chọn A, B, C, D từ text đưa vào options
+        if (data.type === 'multiple_choice' && !data.options) {
+            data.options = {};
+            let lines = data.text.split('\n');
+            let qText = [];
+            lines.forEach(line => {
+                let match = line.match(/^([A-D])\.\s+(.*)/);
+                if (match) {
+                    data.options[match[1]] = match[2];
+                } else {
+                    if (line.trim() !== '') qText.push(line);
+                }
+            });
+            // Thêm các thẻ xuống dòng HTML chuẩn
+            data.text = qText.join('<br/><br/>');
+        } else if (data.text) {
+            // Fix lỗi xuống dòng cho các câu Fill in the blank
+            data.text = data.text.replace(/\n/g, '<br/>');
+        }
+    });
+
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); // Chèn các nút vào khối Nav đã tạo trong HTML
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px"; // Đảm bảo cuộn tới không bị khuất
+
+            let contentHtml = '';
+
+            // Nếu câu trắc nghiệm (đã được bóc tách ở tiền xử lý)
+            if (data.options && Object.keys(data.options).length > 0) {
+                let optionsHtml = '';
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+                contentHtml = `<ul class="options">${optionsHtml}</ul>`;
+            } else {
+                contentHtml = `
+                    <div style="margin-top: 10px;">
+                        <input type="text" class="fill-input" id="input-${data.id}" name="question${data.id}" placeholder="Nhập đáp án của bạn...">
+                        <div id="feedback-${data.id}" class="answer-feedback"></div>
+                    </div>
+                `;
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.text}</div>
+                ${contentHtml}
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    // Gắn trực tiếp các nút vào khối Div đã có sẵn bên ngoài thay vì tự tạo box nổi
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; // Làm sạch trước khi load
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 35px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em;
+                transition: background 0.2s;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    // ==========================================
+    // LOGIC CHO 2 NÚT ẨN HIỆN GIAO DIỆN MỚI
+    // ==========================================
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const quizNavBox = document.getElementById('quizNavBox');
+    
+    toggleSidebarBtn.addEventListener('click', () => {
+        if (quizNavBox.style.display === 'none' || quizNavBox.style.display === '') {
+            quizNavBox.style.display = 'block';
+        } else {
+            quizNavBox.style.display = 'none';
+        }
+    });
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.style.display === 'none') {
+            stickyFooter.style.display = 'flex';
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+            toggleNavBtn.style.bottom = '85px'; // Đẩy nút lên trên footer
+        } else {
+            stickyFooter.style.display = 'none';
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+            toggleNavBtn.style.bottom = '20px'; // Hạ nút xuống dưới cùng khi ẩn footer
+        }
+    });
+
+
+    // (Giữ nguyên các hàm checkAndRestoreProgress, checkCurrentAnswers, updateNavigatorState, v.v.. của bạn bên dưới)
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) hasAnswered = true;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') hasAnswered = true;
+            }
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; btn.style.color = '#ffffff'; btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; btn.style.color = '#2c3e50'; btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userAnswers[data.id] = inputEl.value.trim();
+            }
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const data = quizData.find(q => q.id == qId);
+                    if (data) {
+                        if (data.options && Object.keys(data.options).length > 0) {
+                            const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                            if (radio) radio.checked = true;
+                        } else {
+                            const inputEl = document.getElementById(`input-${qId}`);
+                            if (inputEl) inputEl.value = value;
+                        }
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.answer || data.correctAnswer || '').toString().trim().toLowerCase();
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) {
+                    checkedAny = true;
+                    const userAnswer = selectedOption.value.trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                        currentScore++;
+                    } else {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                        const correctKey = (data.answer || data.correctAnswer);
+                        if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                            document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                        }
+                    }
+
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => radio.disabled = true);
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') {
+                    checkedAny = true;
+                    const userAnswer = inputEl.value.trim().toLowerCase();
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+
+                    if (userAnswer === correctAnswer) {
+                        inputEl.classList.add('correct-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #27ae60;">Chính xác!</span>`;
+                        currentScore++;
+                    } else {
+                        inputEl.classList.add('wrong-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #c0392b;">Sai rồi. Đáp án đúng: <strong>${data.answer || data.correctAnswer}</strong></span>`;
+                    }
+
+                    inputEl.disabled = true;
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn hoặc nhập đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            let val = 'Bỏ trống';
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) val = selected.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') val = inputEl.value.trim();
+            }
+            studentAnswers[`Câu ${index + 1}`] = val;
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                if (data.options && Object.keys(data.options).length > 0) {
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => {
+                        radio.disabled = false;
+                        radio.checked = false;
+                    });
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                } else {
+                    const inputEl = document.getElementById(`input-${data.id}`);
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.value = '';
+                        inputEl.classList.remove('correct-input', 'wrong-input');
+                    }
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+                    if (feedbackEl) feedbackEl.innerHTML = '';
+                }
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script>
+    (function() {
+        // Tự động lấy tên bài học từ thẻ <title> của file btap
+        const QUIZ_KEY = document.title.trim() || "August SAT Math"; 
+        const studentId = sessionStorage.getItem('studentId') || 'GUEST';
+
+        function saveProgressAndNotify() {
+            const answers = {};
+            
+            // Lấy các câu trắc nghiệm đã chọn
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                answers[radio.name] = radio.value;
+            });
+
+            // Lấy các câu điền ô trống
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                if (input.value.trim() !== '' && input.name) {
+                    answers[input.name] = input.value.trim();
+                }
+            });
+
+            // Đếm tổng số câu trong bài
+            let totalQuestions = document.querySelectorAll('.question-block, .question').length;
+            if (totalQuestions === 0) {
+                const radioNames = new Set([...document.querySelectorAll('input[type="radio"]')].map(i => i.name));
+                totalQuestions = radioNames.size || 1;
+            }
+
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            localStorage.setItem(storageKey, JSON.stringify(answers));
+            localStorage.setItem(storageKey + '_total', totalQuestions);
+
+            // Báo cho trang chính index.html cập nhật ngay lập tức
+            if (window.parent) {
+                window.parent.postMessage({ type: 'SAT_PROGRESS_UPDATE' }, '*');
+            }
+        }
+
+        function restoreDraftAnswers() {
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            try {
+                const answers = JSON.parse(saved);
+                Object.keys(answers).forEach(name => {
+                    const val = answers[name];
+                    const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+
+                    const textInput = document.querySelector(`input[name="${name}"]`);
+                    if (textInput && textInput.type !== 'radio') textInput.value = val;
+                });
+            } catch(e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            restoreDraftAnswers();
+            saveProgressAndNotify();
+
+            document.addEventListener('change', saveProgressAndNotify);
+            document.addEventListener('input', saveProgressAndNotify);
+        });
+    })();
+    </script>
+</body>
+</html>
