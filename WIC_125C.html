@@ -1892,6 +1892,7 @@
     const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
 
     function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
         quizContainer.innerHTML = '';
         createNavigatorBox();
 
@@ -1904,18 +1905,18 @@
 
             const letters = ['A', 'B', 'C', 'D'];
 let optionsHtml = '';
-
-(data.options || []).forEach((optionText, idx) => {
-    const letter = letters[idx]; // Lấy chữ cái tương ứng: A, B, C, D
-    optionsHtml += `
-        <li>
-            <label id="label-${data.id}-${letter}">
-                <input type="radio" name="question${data.id}" value="${letter}">
-                ${optionText}
-            </label>
-        </li>
-    `;
-});
+if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
 
             questionBlock.innerHTML = `
                 <div class="question-text">Câu ${index + 1}: ${data.question}</div>
@@ -1928,45 +1929,23 @@ let optionsHtml = '';
             quizContainer.appendChild(questionBlock);
         });
         
-        quizContainer.addEventListener('change', (e) => {
-            saveProgress();
-            updateNavigatorState();
-        });
+       quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
         
         const progressEl = document.getElementById('progressText');
         if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
     }
-
-    function createNavigatorBox() {
-        let oldBox = document.getElementById('quizNavBox');
-        if (oldBox) oldBox.remove();
-
-        const navBox = document.createElement('div');
-        navBox.id = 'quizNavBox';
-        navBox.style.cssText = `
-            position: fixed; top: 20px; right: 20px; width: 210px; max-height: 75vh;
-            background: #ffffff; border: 2px solid #3498db; border-radius: 10px; padding: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        `;
-
-        const title = document.createElement('div');
-        title.innerText = '📌 Danh Sách Câu Hỏi';
-        title.style.cssText = 'font-weight: bold; color: #2c3e50; font-size: 0.9em; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
-        navBox.appendChild(title);
-
-        const grid = document.createElement('div');
-        grid.style.cssText = 'display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;';
+  function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
 
         quizData.forEach((data, index) => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
             btn.innerText = index + 1;
-            btn.style.cssText = `
-                width: 100%; height: 32px; border: 1px solid #bdc3c7; background: #f8f9fa;
-                color: #2c3e50; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;
-            `;
 
             btn.onclick = () => {
                 const targetBlock = document.getElementById(`question-${data.id}`);
@@ -1974,19 +1953,51 @@ let optionsHtml = '';
             };
             grid.appendChild(btn);
         });
-
-        navBox.appendChild(grid);
-        document.body.appendChild(navBox);
     }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
 
     function updateNavigatorState() {
         quizData.forEach((data) => {
+            let hasAnswered = false;
             const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
             const btn = document.getElementById(`nav_btn_${data.id}`);
-            if (btn && selected) {
-                btn.style.background = '#2ecc71';
-                btn.style.color = '#ffffff';
-                btn.style.borderColor = '#27ae60';
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
             }
         });
     }
@@ -1995,9 +2006,7 @@ let optionsHtml = '';
         let userAnswers = {};
         quizData.forEach(data => {
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
-            if (selectedOption) {
-                userAnswers[data.id] = selectedOption.value;
-            }
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
         });
         localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
     }
@@ -2048,28 +2057,33 @@ let optionsHtml = '';
             const block = document.getElementById(`question-${data.id}`);
             if (block.dataset.locked === "true") return;
 
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
             
             if (selectedOption) {
                 checkedAny = true;
-                const userAnswer = selectedOption.value;
-                const correctAnswer = data.correctAnswer || data.answer;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
                 
                 if (userAnswer === correctAnswer) {
-                    document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
                     currentScore++;
                 } else {
-                    document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('wrong-answer-label');
-                    document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
                 }
 
                 const explanationEl = document.getElementById(`explanation-${data.id}`);
-                if (explanationEl) explanationEl.style.display = 'block';
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
 
                 const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
                 radios.forEach(radio => radio.disabled = true);
                 block.dataset.locked = "true";
-                
                 answeredCount++;
             }
         });
@@ -2090,6 +2104,8 @@ let optionsHtml = '';
             }
         }
     }
+
+    let startTime = new Date();
 
     function saveAdminResultData() {
         const endTime = new Date();
@@ -2134,6 +2150,7 @@ let optionsHtml = '';
         currentScore = 0;
         answeredCount = 0;
         startTime = new Date();
+        
         localStorage.removeItem(QUIZ_STORAGE_KEY);
         
         quizData.forEach(data => {
@@ -2146,16 +2163,17 @@ let optionsHtml = '';
                     radio.disabled = false;
                     radio.checked = false;
                 });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
 
                 const explanationEl = document.getElementById(`explanation-${data.id}`);
                 if (explanationEl) explanationEl.style.display = 'none';
-                
-               ['A', 'B', 'C', 'D'].forEach(letter => {
-    const lbl = document.getElementById(`label-${data.id}-${letter}`);
-    if (lbl) {
-        lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
-    }
-});
 
                 const navBtn = document.getElementById(`nav_btn_${data.id}`);
                 if (navBtn) {
@@ -2165,7 +2183,6 @@ let optionsHtml = '';
                 }
             }
         });
-        
         updateScoreBoard();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -2185,3 +2202,4 @@ let optionsHtml = '';
 </script>
 </body>
 </html>
+    
