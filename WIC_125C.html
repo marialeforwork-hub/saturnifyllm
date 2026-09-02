@@ -239,23 +239,19 @@
 
         try {
             await addDoc(collection(db, "results"), {
-                name: studentName,
-                id: studentId,
-                quizTitle: quizName,
-                score: score,
-                total: total,
-                percentage: Math.round((score / total) * 100) + '%',
-                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
-                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
-                duration: durationText,
-                answers: detailedAnswers,
+                // ... (các trường dữ liệu)
                 timestamp: new Date()
             });
             console.log("Đã lưu chi tiết bài làm lên Firebase!");
         } catch (error) {
             console.error("Lỗi khi lưu điểm lên Firebase: ", error);
         }
-    const quizData = [
+    }
+
+    const quizData = [ 
+    {
+        "id": 1,
+        "source": "2022-10-AS-36",
   [
     {
         "id": 1,
@@ -1843,7 +1839,7 @@
         },
         "answer": "B"
     }
-]
+];
     const quizContainer = document.getElementById('quiz');
     let currentScore = 0;
     let answeredCount = 0;
