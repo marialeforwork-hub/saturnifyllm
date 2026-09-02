@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATURNIFY - YOUR SAT TUTOR </title>
+    <title>SATURNIFY - YOUR SAT TUTOR</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -16,10 +16,15 @@
 
         .category-title { font-size: 1.3em; color: #2980b9; margin-top: 25px; border-left: 4px solid #3498db; padding-left: 10px; font-weight: bold; }
         .quiz-list { list-style: none; padding: 0; }
-        .quiz-item { background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 10px; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .quiz-item span { font-weight: bold; color: #2c3e50; font-size: 1.05em; }
-        .btn-start { background: #2ecc71; color: white; padding: 8px 18px; border-radius: 4px; text-decoration: none; font-size: 0.95em; font-weight: bold; cursor: pointer; border: none; transition: background 0.2s; }
+        .quiz-item { background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 15px; padding: 15px; border-radius: 6px; display: flex; flex-direction: column; align-items: stretch; }
+        .quiz-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .quiz-title { font-weight: bold; color: #2c3e50; font-size: 1.05em; }
+        
+        .action-btns { display: flex; gap: 8px; }
+        .btn-start { background: #2ecc71; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 0.9em; font-weight: bold; cursor: pointer; border: none; transition: background 0.2s; }
         .btn-start:hover { background: #27ae60; }
+        .btn-reset { background: #7f8c8d; color: white; padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: background 0.2s; }
+        .btn-reset:hover { background: #6c7a89; }
         .btn-admin { background: #e74c3c; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; font-weight: bold; margin-bottom: 15px; }
         
         .hidden { display: none !important; }
@@ -30,20 +35,16 @@
         #timerHeader { background: #2c3e50; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 1.1em; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
         #quizIframe { flex: 1; border: none; width: 100%; height: 100%; }
         .btn-exit { background: #e74c3c; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
         /* Khung tìm kiếm */
-.search-box { margin-bottom: 20px; display: flex; justify-content: center; align-items: center; }
-.search-box input { width: 70%; padding: 12px; font-size: 1em; border: 2px solid #3498db; border-radius: 20px; outline: none; transition: box-shadow 0.3s; }
-.search-box input:focus { box-shadow: 0 0 8px rgba(52, 152, 219, 0.5); }
+        .search-box { margin-bottom: 20px; display: flex; justify-content: center; align-items: center; }
+        .search-box input { width: 70%; padding: 12px; font-size: 1em; border: 2px solid #3498db; border-radius: 20px; outline: none; transition: box-shadow 0.3s; }
+        .search-box input:focus { box-shadow: 0 0 8px rgba(52, 152, 219, 0.5); }
 
-/* Điều chỉnh lại quiz-item để chứa thanh tiến độ */
-.quiz-item { flex-direction: column; align-items: stretch; }
-.quiz-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.quiz-title { font-weight: bold; color: #2c3e50; font-size: 1.1em; }
-
-/* Thanh Tiến Độ */
-.progress-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; overflow: hidden; height: 16px; margin-top: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-.progress-bar { height: 100%; text-align: center; color: white; font-size: 0.75em; line-height: 16px; font-weight: bold; background: linear-gradient(90deg, #f1c40f, #2ecc71); width: 0%; transition: width 0.4s ease; }
-.progress-text { font-size: 0.85em; color: #7f8c8d; margin-top: 4px; font-weight: bold; text-align: right; }
+        /* Thanh Tiến Độ */
+        .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; overflow: hidden; height: 16px; margin-top: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        .progress-bar { height: 100%; text-align: center; color: white; font-size: 0.75em; line-height: 16px; font-weight: bold; background: linear-gradient(90deg, #f1c40f, #2ecc71); width: 0%; transition: width 0.4s ease; }
+        .progress-text { font-size: 0.85em; color: #7f8c8d; margin-top: 4px; font-weight: bold; text-align: right; }
     </style>
 </head>
 <body>
@@ -67,43 +68,51 @@
 
     <!-- Danh mục bài tập -->
     <div id="quizContent" class="hidden">
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 Nhập tên bài tập để tìm kiếm..." onkeyup="filterQuizzes()">
-    </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Nhập tên bài tập để tìm kiếm..." onkeyup="filterQuizzes()">
+        </div>
 
-    <div id="adminLink" class="hidden" style="text-align: right;">
-        <a href="admin.html" class="btn-admin">⚙️ Trang Quản Lý Admin</a>
-    </div>
+        <div id="adminLink" class="hidden" style="text-align: right;">
+            <a href="admin.html" class="btn-admin">⚙️ Trang Quản Lý Admin</a>
+        </div>
 
         <!-- Group 1: SAT Math -->
         <div id="catMath" class="quiz-category hidden">
             <div class="category-title">📐 Dạng Bài: SAT Math</div>
             <ul class="quiz-list">
                 <li class="quiz-item" data-title="August SAT Math" data-storage-key="August SAT Math">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 August SAT Math (Tổng hợp)</span>
-        <button class="btn-start" onclick="openTimerModal('augustmath.html', 'August SAT Math')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 August SAT Math (Tổng hợp)</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('augustmath.html', 'August SAT Math')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('August SAT Math')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
                 <li class="quiz-item" data-title="Đề Practice EX10" data-storage-key="Đề Practice EX10">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 Đề Practice EX10</span>
-        <button class="btn-start" onclick="openTimerModal('ELITEX10.html', 'Đề Practice EX10')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
-
-<li class="quiz-item" data-title="BASIC ARITHMETIC - EASY" data-storage-key="BASIC ARITHMETIC - EASY">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 BASIC ARITHMETIC - EASY</span>
-        <button class="btn-start" onclick="openTimerModal('EASY ARITHMETIC.html', 'BASIC ARITHMETIC - EASY')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 Đề Practice EX10</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('ELITEX10.html', 'Đề Practice EX10')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('Đề Practice EX10')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="BASIC ARITHMETIC - EASY" data-storage-key="BASIC ARITHMETIC - EASY">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 BASIC ARITHMETIC - EASY</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('EASY ARITHMETIC.html', 'BASIC ARITHMETIC - EASY')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('BASIC ARITHMETIC - EASY')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
             </ul>
         </div>
 
@@ -112,66 +121,82 @@
             <div class="category-title">📖 Dạng Bài: SAT Reading & Writing</div>
             <ul class="quiz-list">
                 <li class="quiz-item" data-title="Transitions Quiz" data-storage-key="Transitions Quiz">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 Transitions Quiz</span>
-        <button class="btn-start" onclick="openTimerModal('Transitions_quiz.html', 'Transitions Quiz')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
-
-<li class="quiz-item" data-title="Boundaries Quiz 107" data-storage-key="Boundaries Quiz 107">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 Boundaries Quiz 107</span>
-        <button class="btn-start" onclick="openTimerModal('Boundaries_Quiz_107.html', 'Boundaries Quiz 107')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 Transitions Quiz</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('Transitions_quiz.html', 'Transitions Quiz')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('Transitions Quiz')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="Boundaries Quiz 107" data-storage-key="Boundaries Quiz 107">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 Boundaries Quiz 107</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('Boundaries_Quiz_107.html', 'Boundaries Quiz 107')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('Boundaries Quiz 107')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
                 <li class="quiz-item" data-title="Form Structure and Sense" data-storage-key="Form Structure and Sense">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 Form Structure and Sense</span>
-        <button class="btn-start" onclick="openTimerModal('Form structure and sense.html', 'Form Structure and Sense')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
-
-<li class="quiz-item" data-title="Word In Context - Question Bank - Easy" data-storage-key="WIC_QB_EASY">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 Word In Context - Question Bank - Easy</span>
-        <button class="btn-start" onclick="openTimerModal('WIC_QB_EASY.html', 'WIC_QB_EASY')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
-
-<li class="quiz-item" data-title="Word In Context - Question Bank - Medium" data-storage-key="WIC_QB_MEDIUM">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 Word In Context - Question Bank - Medium</span>
-        <button class="btn-start" onclick="openTimerModal('WIC_QB_MEDIUM.html', 'WIC_QB_MEDIUM')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
-
-<li class="quiz-item" data-title="Word In Context - Question Bank - HARD" data-storage-key="WIC_QB_HARD">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 Word In Context - Question Bank - HARD</span>
-        <button class="btn-start" onclick="openTimerModal('WIC_QB_HARD.html', 'WIC_QB_HARD')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
-
-<li class="quiz-item" data-title="Word In Context - 125C" data-storage-key="WORD IN CONTEXT - 125C">
-    <div class="quiz-item-header">
-        <span class="quiz-title">📝 Word In Context - 125C</span>
-        <button class="btn-start" onclick="openTimerModal('WIC_125C.html', 'WIC_125C')">Làm bài</button>
-    </div>
-    <div class="progress-container"><div class="progress-bar"></div></div>
-    <div class="progress-text">Chưa bắt đầu</div>
-</li>
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 Form Structure and Sense</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('Form structure and sense.html', 'Form Structure and Sense')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('Form Structure and Sense')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="Word In Context - Question Bank - Easy" data-storage-key="WIC_QB_EASY">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 Word In Context - Question Bank - Easy</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('WIC_QB_EASY.html', 'WIC_QB_EASY')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('WIC_QB_EASY')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="Word In Context - Question Bank - Medium" data-storage-key="WIC_QB_MEDIUM">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 Word In Context - Question Bank - Medium</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('WIC_QB_MEDIUM.html', 'WIC_QB_MEDIUM')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('WIC_QB_MEDIUM')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="Word In Context - Question Bank - HARD" data-storage-key="WIC_QB_HARD">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 Word In Context - Question Bank - HARD</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('WIC_QB_HARD.html', 'WIC_QB_HARD')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('WIC_QB_HARD')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="Word In Context - 125C" data-storage-key="WORD IN CONTEXT - 125C">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 Word In Context - 125C</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('WIC_125C.html', 'WIC_125C')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('WORD IN CONTEXT - 125C')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
             </ul>
         </div>
     </div>
@@ -221,48 +246,36 @@
 
 <script>
     // === TỰ ĐỘNG ĐẾM TỔNG SỐ CÂU CHO TẤT CẢ CÁC BÀI TẬP ===
-async function autoDetectTotalQuestions() {
-    const items = document.querySelectorAll('.quiz-item');
-    for (let item of items) {
-        const btn = item.querySelector('.btn-start');
-        if (!btn) continue;
-        
-        // Trích xuất tên file HTML từ hàm openTimerModal('tên_file.html', ...)
-        const match = btn.getAttribute('onclick')?.match(/openTimerModal\('([^']+)'/);
-        if (match && match[1]) {
-            const quizUrl = match[1];
-            try {
-                const res = await fetch(quizUrl);
-                const htmlText = await res.text();
-                const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-                
-                // Đếm số lượng câu hỏi (tìm thẻ .question-block hoặc thẻ .question)
-                let count = doc.querySelectorAll('.question-block, .question').length;
-                
-                // Nếu file không có class trên, tự đếm số nhóm câu hỏi trắc nghiệm
-                if (count === 0) {
-                    const radioNames = new Set([...doc.querySelectorAll('input[type="radio"]')].map(i => i.name));
-                    count = radioNames.size;
+    async function autoDetectTotalQuestions() {
+        const items = document.querySelectorAll('.quiz-item');
+        for (let item of items) {
+            const btn = item.querySelector('.btn-start');
+            if (!btn) continue;
+            
+            const match = btn.getAttribute('onclick')?.match(/openTimerModal\('([^']+)'/);
+            if (match && match[1]) {
+                const quizUrl = match[1];
+                try {
+                    const res = await fetch(quizUrl);
+                    const htmlText = await res.text();
+                    const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+                    
+                    let count = doc.querySelectorAll('.question-block, .question').length;
+                    if (count === 0) {
+                        const radioNames = new Set([...doc.querySelectorAll('input[type="radio"]')].map(i => i.name));
+                        count = radioNames.size;
+                    }
+                    if (count > 0) {
+                        item.setAttribute('data-total', count);
+                    }
+                } catch (e) {
+                    console.log("Chưa quét được file: " + quizUrl);
                 }
-                
-                if (count > 0) {
-                    item.setAttribute('data-total', count);
-                }
-            } catch (e) {
-                console.log("Chưa quét được file: " + quizUrl);
             }
         }
+        updateAllProgressBars();
     }
-    // Cập nhật lại thanh tiến độ sau khi đã tự động đếm xong
-    updateAllProgressBars();
-}
 
-// Gọi hàm quét ngay khi học sinh đăng nhập thành công
-const originalApplyAccessRights = applyAccessRights;
-applyAccessRights = function() {
-    originalApplyAccessRights();
-    autoDetectTotalQuestions(); // Tự động đếm tổng số câu khi vào trang
-};
     const STUDENT_PASSCODES = {
         "THUVINH":  { name: "Thu Vinh", role: "math_only" },
         "GIAHIEN":  { name: "Gia Hiển", role: "math_only" },
@@ -276,7 +289,7 @@ applyAccessRights = function() {
     let selectedQuizTitle = "";
     let timerInterval = null;
     let totalSeconds = 0;
-    let currentQuizMode = "practice"; // Biến lưu chế độ đang chọn
+    let currentQuizMode = "practice";
 
     function checkPasscode() {
         const code = document.getElementById('passcode').value.trim().toUpperCase();
@@ -285,7 +298,7 @@ applyAccessRights = function() {
             document.getElementById('errorMsg').style.display = 'none';
             sessionStorage.setItem('studentName', student.name);
             sessionStorage.setItem('userRole', student.role);
-            sessionStorage.setItem('studentId', code); // Lưu lại ID để load tiến độ
+            sessionStorage.setItem('studentId', code);
             applyAccessRights();
         } else {
             document.getElementById('errorMsg').style.display = 'block';
@@ -314,8 +327,8 @@ applyAccessRights = function() {
             document.getElementById('catEng').classList.remove('hidden');
         }
 
-        // Gọi hàm cập nhật thanh tiến độ khi vừa đăng nhập thành công
         updateAllProgressBars();
+        autoDetectTotalQuestions();
     }
 
     function logout() {
@@ -323,7 +336,6 @@ applyAccessRights = function() {
         location.reload();
     }
 
-    // --- TÍNH NĂNG TÌM KIẾM BÀI TẬP ---
     function filterQuizzes() {
         let input = document.getElementById('searchInput').value.toLowerCase();
         let items = document.querySelectorAll('.quiz-item');
@@ -338,7 +350,6 @@ applyAccessRights = function() {
         });
     }
 
-    // --- TÍNH NĂNG PROGRESS BAR (TỰ ĐỘNG 100%) ---
     function updateAllProgressBars() {
         const studentId = sessionStorage.getItem('studentId');
         if (!studentId) return;
@@ -349,24 +360,22 @@ applyAccessRights = function() {
             const title = item.getAttribute('data-title');
             const documentTitleMap = item.getAttribute('data-storage-key') || title; 
 
-            // Tự động quét LocalStorage tìm số câu đã làm và tổng số câu
             const storageKey = `quiz_draft_${studentId}_${documentTitleMap}`;
             const savedDraft = localStorage.getItem(storageKey);
-            const savedTotal = localStorage.getItem(storageKey + '_total'); // Đọc tổng số câu do bài tập gửi ra
+            const savedTotal = localStorage.getItem(storageKey + '_total');
             
             let answeredCount = 0;
             if (savedDraft) {
                 try { answeredCount = Object.keys(JSON.parse(savedDraft)).length; } catch(e) {}
             }
 
-            // Ưu tiên số hệ thống tự quét, nếu không có thì lấy data-total trên HTML
             let total = parseInt(savedTotal) || parseInt(item.getAttribute('data-total')) || 0;
 
             const bar = item.querySelector('.progress-bar');
             const text = item.querySelector('.progress-text');
             
             if (bar && text) {
-                if (total > 0) { // Nếu đã biết tổng số câu
+                if (total > 0) {
                     let percent = Math.round((answeredCount / total) * 100) || 0;
                     
                     bar.style.width = percent + '%';
@@ -377,7 +386,6 @@ applyAccessRights = function() {
                     else if (percent > 0) bar.style.background = 'linear-gradient(90deg, #f1c40f, #f39c12)';
                     else bar.style.background = '#bdc3c7';
                 } else {
-                    // Bài này học sinh chưa từng bấm vào xem
                     bar.style.width = '0%';
                     bar.innerText = '';
                     text.innerText = `Chưa bắt đầu`;
@@ -385,6 +393,20 @@ applyAccessRights = function() {
                 }
             }
         });
+    }
+
+    // Xóa tiến độ làm nháp để học sinh làm lại bài từ đầu
+    function resetQuizProgress(quizStorageKey) {
+        const studentId = sessionStorage.getItem('studentId');
+        if (!studentId) return;
+
+        if (confirm(`Bạn có chắc muốn xóa toàn bộ nháp bài "${quizStorageKey}" để làm lại từ đầu?`)) {
+            const draftKey = `quiz_draft_${studentId}_${quizStorageKey}`;
+            localStorage.removeItem(draftKey);
+            localStorage.removeItem(draftKey + '_total');
+            updateAllProgressBars();
+            alert("Đã xóa tiến độ! Bạn có thể nhấn 'Làm bài' để bắt đầu lại.");
+        }
     }
 
     function openTimerModal(url, title) {
@@ -426,9 +448,13 @@ applyAccessRights = function() {
         document.getElementById('quizTitleDisplay').innerText = `📝 ${selectedQuizTitle}`;
         
         const iframe = document.getElementById('quizIframe');
-        iframe.src = selectedQuizUrl;
+        
+        // Truyền tên & mã ID học sinh vào URL parameter của iframe
+        const curName = sessionStorage.getItem('studentName') || '';
+        const curId = sessionStorage.getItem('studentId') || '';
+        const joinChar = selectedQuizUrl.includes('?') ? '&' : '?';
+        iframe.src = selectedQuizUrl + joinChar + 'studentName=' + encodeURIComponent(curName) + '&studentId=' + encodeURIComponent(curId);
 
-        // Lắng nghe nút Nộp bài bên trong iframe
         iframe.onload = function() {
             setupIframeSubmitInterceptor();
         };
@@ -436,17 +462,14 @@ applyAccessRights = function() {
         document.getElementById('quizRunner').classList.remove('hidden');
     }
 
-    // Hàm thiết lập chặn Nộp bài nếu chưa chọn đủ đáp án ở Chế Độ Thi Thử
     function setupIframeSubmitInterceptor() {
         try {
             const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
-            // Bắt cả hai tên hàm nộp bài phòng hờ file dùng tên cũ hoặc mới
             const submitBtn = iframeDoc.querySelector('button[onclick*="submit"], button[onclick*="checkCurrentAnswers"]');
 
             if (submitBtn) {
-                // Đổi kiểu bắt sự kiện để kiểm tra điều kiện trước khi nộp
                 const originalOnClick = submitBtn.onclick;
-                submitBtn.onclick = null; // Gỡ sự kiện onclick cũ
+                submitBtn.onclick = null;
 
                 submitBtn.addEventListener('click', function(e) {
                     if (currentQuizMode === 'test') {
@@ -456,7 +479,6 @@ applyAccessRights = function() {
                         questionBlocks.forEach((block, index) => {
                             const checked = block.querySelector('input[type="radio"]:checked');
                             const inputFilled = block.querySelector('input[type="text"]');
-                            // Kiểm tra xem là trắc nghiệm hay điền khuyết, nếu đều trống thì đánh dấu chưa làm
                             if (!checked && (!inputFilled || inputFilled.value.trim() === '')) {
                                 unansweredQuestions.push(index + 1);
                             }
@@ -470,7 +492,6 @@ applyAccessRights = function() {
                         }
                     }
 
-                    // Nếu làm hết bài hoặc ở chế độ Luyện tập => Tiến hành nộp bài
                     if (typeof originalOnClick === 'function') {
                         originalOnClick.call(this, e);
                     }
@@ -481,7 +502,6 @@ applyAccessRights = function() {
         }
     }
 
-    // Ép nộp bài khi hết giờ
     function forceSubmitQuiz() {
         try {
             const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
@@ -507,7 +527,6 @@ applyAccessRights = function() {
             document.getElementById('quizRunner').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
             
-            // Cập nhật lại thanh progress bar khi thoát ra
             updateAllProgressBars();
         }
     }
@@ -518,28 +537,41 @@ applyAccessRights = function() {
         }
     };
 
-    // Lắng nghe kết quả gửi từ iframe bài tập ra trang chính (Đã gộp từ 2 hàm cũ)
+    // Lắng nghe sự kiện từ iframe gửi ra (Nộp bài & Cập nhật tiến độ nháp realtime)
     window.addEventListener('message', function(event) {
-        if (event.data && event.data.type === 'SAT_SUBMIT_RESULT') {
-            const resultData = event.data.data;
+        if (!event.data) return;
+
+        // 1. Khi Học sinh NỘP BÀI
+        if (event.data.type === 'SAT_SUBMIT_RESULT') {
+            const resultData = event.data.data || {};
+            const loggedName = sessionStorage.getItem('studentName');
+            const loggedId = sessionStorage.getItem('studentId');
+
+            if (loggedName) {
+                resultData.studentName = loggedName;
+                resultData.name = loggedName;
+            }
+            if (loggedId) {
+                resultData.studentId = loggedId;
+            }
+
             let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
-            
-            // Tính số lần làm bài
             const attempt = history.filter(h => h.studentName === resultData.studentName && h.quizTitle === resultData.quizTitle).length + 1;
             resultData.attempt = attempt;
 
-            // Tránh lưu trùng lặp
             if (!history.some(h => h.id === resultData.id)) {
                 history.push(resultData);
                 localStorage.setItem('sat_results', JSON.stringify(history));
-                console.log("Đã cập nhật kết quả vào Admin Storage!");
+                console.log("Đã lưu kết quả bài làm cho:", resultData.studentName);
             }
 
-            // Update lại thanh tiến độ ngay khi có thay đổi
             updateAllProgressBars();
-
-            // Bắt buộc trình duyệt cập nhật sang tab Admin đang mở
             window.dispatchEvent(new Event('storage'));
+        }
+
+        // 2. Khi Học sinh ĐANG LÀM BÀI (Cập nhật tiến độ nháp ngay lập tức)
+        if (event.data.type === 'SAT_SAVE_DRAFT' || event.data.type === 'UPDATE_PROGRESS') {
+            updateAllProgressBars();
         }
     });
 </script>
