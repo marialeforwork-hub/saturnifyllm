@@ -6,7 +6,7 @@
     <title>SATURNIFY - TRANG QUẢN LÝ ADMIN</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1100px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .container { max-width: 1150px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 5px; }
         .sub-title { text-align: center; color: #7f8c8d; margin-bottom: 25px; font-weight: bold; }
         
@@ -16,6 +16,12 @@
         .btn-home:hover { background: #2980b9; }
         .btn-clear { background: #e74c3c; color: white; }
         .btn-clear:hover { background: #c0392b; }
+
+        .btn-act { padding: 5px 10px; border-radius: 4px; border: none; font-size: 0.85em; font-weight: bold; cursor: pointer; margin: 2px; }
+        .btn-view { background: #3498db; color: white; }
+        .btn-view:hover { background: #2980b9; }
+        .btn-del { background: #e74c3c; color: white; }
+        .btn-del:hover { background: #c0392b; }
 
         /* Stats Cards */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
@@ -40,10 +46,21 @@
         tr:nth-child(even) { background: #f9f9f9; }
         tr:hover { background: #f1f4f8; }
         
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.82em; font-weight: bold; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.82em; font-weight: bold; display: inline-block; }
         .badge-success { background: #d4edda; color: #155724; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
         .badge-warning { background: #fff3cd; color: #856404; }
         .badge-info { background: #d1ecf1; color: #0c5460; }
+
+        /* MODAL DETAIL STYLING */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fff; margin: 4% auto; padding: 25px; border-radius: 10px; width: 90%; max-width: 750px; max-height: 82vh; overflow-y: auto; position: relative; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .close-btn { position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; }
+        .close-btn:hover { color: #000; }
+        .q-item { border-bottom: 1px solid #edf2f7; padding: 12px 0; text-align: left; }
+        .q-item:last-child { border-bottom: none; }
+        .q-title { font-weight: bold; color: #2c3e50; line-height: 1.4; }
+        .q-ans { font-size: 0.92em; color: #4a5568; }
 
         .hidden { display: none; }
     </style>
@@ -75,7 +92,7 @@
         </div>
     </div>
 
-    <!-- KHU VỰC BỘ LỌC DỮ LIỆU (FILTER) -->
+    <!-- BỘ LỌC DỮ LIỆU -->
     <div class="filter-section">
         <div class="filter-control">
             <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm Học sinh theo Tên hoặc Mã ID..." oninput="applyFilters()">
@@ -104,10 +121,11 @@
                     <th>Số Câu Đúng</th>
                     <th>Tỷ Lệ</th>
                     <th>Thời Gian Nộp</th>
+                    <th>Hành Động</th>
                 </tr>
             </thead>
             <tbody id="resultsTableBody">
-                <tr><td colspan="6" style="color: #7f8c8d;">Đang tải dữ liệu từ Cloud Firebase...</td></tr>
+                <tr><td colspan="7" style="color: #7f8c8d;">Đang tải dữ liệu từ Cloud Firebase...</td></tr>
             </tbody>
         </table>
     </div>
@@ -123,12 +141,23 @@
                     <th>Tổng Số Câu</th>
                     <th>Tiến Độ %</th>
                     <th>Cập Nhật Lần Cuối</th>
+                    <th>Hành Động</th>
                 </tr>
             </thead>
             <tbody id="draftsTableBody">
-                <tr><td colspan="6" style="color: #7f8c8d;">Chưa có học sinh nào đang làm dở...</td></tr>
+                <tr><td colspan="7" style="color: #7f8c8d;">Chưa có học sinh nào đang làm dở...</td></tr>
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- MODAL XEM CHI TIẾT CÂU HỎI & ĐÁP ÁN -->
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2 id="modalStudentName" style="margin-top:0; color:#2c3e50; font-size: 1.3em;">Chi Tiết Bài Làm</h2>
+        <div id="modalSubInfo" style="margin-bottom: 15px; border-bottom: 2px solid #f0f2f5; padding-bottom: 12px; line-height: 1.6;"></div>
+        <div id="modalQuestionsBody"></div>
     </div>
 </div>
 
@@ -145,12 +174,20 @@
             document.getElementById('tabDrafts').classList.remove('hidden');
         }
     }
+
+    function closeModal() {
+        document.getElementById('detailModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('detailModal');
+        if (event.target == modal) modal.style.display = 'none';
+    }
 </script>
 
-<!-- TÍCH HỢP FIREBASE REALTIME LẮNG NGHE & FILTER DỮ LIỆU -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, query, orderBy, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, orderBy, writeBatch, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
@@ -165,19 +202,19 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Mảng lưu trữ dữ liệu gốc phục vụ filter
     let rawResultsData = [];
     let rawDraftsData = [];
 
-    // 1. LẮNG NGHE KẾT QUẢ NỘP BÀI REALTIME
+    // 1. LẮNG NGHE KẾT QUẢ REALTIME
     const resultsQuery = query(collection(db, "results"), orderBy("timestamp", "desc"));
     onSnapshot(resultsQuery, (snapshot) => {
         rawResultsData = [];
         let totalSubmits = 0;
         let accumCorrect = 0;
 
-        snapshot.forEach((doc) => {
-            const data = doc.data();
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            data._docId = docSnap.id;
             rawResultsData.push(data);
             totalSubmits++;
             accumCorrect += (Number(data.score) || 0);
@@ -190,13 +227,15 @@
         renderFilteredData();
     });
 
-    // 2. LẮNG NGHE TIẾN ĐỘ ĐANG LÀM DỞ (DRAFTS) REALTIME
+    // 2. LẮNG NGHE DRAFTS REALTIME
     onSnapshot(collection(db, "drafts"), (snapshot) => {
         rawDraftsData = [];
         let activeCount = 0;
 
-        snapshot.forEach((doc) => {
-            rawDraftsData.push(doc.data());
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            data._docId = docSnap.id;
+            rawDraftsData.push(data);
             activeCount++;
         });
 
@@ -204,12 +243,11 @@
         renderFilteredData();
     });
 
-    // 3. TỰ ĐỘNG CẬP NHẬT DANH SÁCH BÀI TẬP VÀO DROPDOWN FILTER
+    // 3. DROPDOWN FILTER
     function updateQuizDropdownOptions() {
         const select = document.getElementById('quizFilter');
         const currentValue = select.value;
         
-        // Lấy danh sách tên bài tập duy nhất
         const quizTitles = new Set();
         rawResultsData.forEach(item => { if (item.quizTitle) quizTitles.add(item.quizTitle); });
         rawDraftsData.forEach(item => { 
@@ -228,7 +266,7 @@
         select.value = currentValue;
     }
 
-    // 4. HÀM XỬ LÝ LỌC DỮ LIỆU & RENDER LẠI BẢNG
+    // 4. LỌC & RENDER DỮ LIỆU BẢNG
     window.applyFilters = function() {
         renderFilteredData();
     };
@@ -237,7 +275,7 @@
         const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
         const selectedQuiz = document.getElementById('quizFilter').value;
 
-        // --- Render Bảng Kết Quả ---
+        // Render Kết quả
         const resultsBody = document.getElementById('resultsTableBody');
         resultsBody.innerHTML = '';
 
@@ -249,7 +287,7 @@
         });
 
         if (filteredResults.length === 0) {
-            resultsBody.innerHTML = '<tr><td colspan="6" style="color: #7f8c8d; padding: 20px;">Không tìm thấy kết quả phù hợp.</td></tr>';
+            resultsBody.innerHTML = '<tr><td colspan="7" style="color: #7f8c8d; padding: 20px;">Không tìm thấy kết quả phù hợp.</td></tr>';
         } else {
             filteredResults.forEach(data => {
                 const scoreNum = Number(data.score) || 0;
@@ -265,12 +303,16 @@
                     <td><strong style="color: #27ae60;">${scoreNum} / ${totalNum}</strong></td>
                     <td><span class="badge badge-success">${pctStr}</span></td>
                     <td>${timeStr}</td>
+                    <td>
+                        <button class="btn-act btn-view" onclick="viewDetail('${data._docId}')">👁️ Chi tiết</button>
+                        <button class="btn-act btn-del" onclick="deleteSingleResult('${data._docId}')">🗑️ Xóa</button>
+                    </td>
                 `;
                 resultsBody.appendChild(tr);
             });
         }
 
-        // --- Render Bảng Bài Dở (Drafts) ---
+        // Render Bài dở
         const draftsBody = document.getElementById('draftsTableBody');
         draftsBody.innerHTML = '';
 
@@ -283,7 +325,7 @@
         });
 
         if (filteredDrafts.length === 0) {
-            draftsBody.innerHTML = '<tr><td colspan="6" style="color: #7f8c8d; padding: 20px;">Không có bài làm dở phù hợp.</td></tr>';
+            draftsBody.innerHTML = '<tr><td colspan="7" style="color: #7f8c8d; padding: 20px;">Không có bài làm dở phù hợp.</td></tr>';
         } else {
             filteredDrafts.forEach(draft => {
                 const answered = draft.answeredCount || 0;
@@ -299,23 +341,127 @@
                     <td>${total} câu</td>
                     <td><span class="badge badge-warning">${pct}%</span></td>
                     <td>${updatedTime}</td>
+                    <td>
+                        <button class="btn-act btn-del" onclick="deleteSingleDraft('${draft._docId}')">🗑️ Xóa bài dở</button>
+                    </td>
                 `;
                 draftsBody.appendChild(tr);
             });
         }
     }
 
-    // 5. XÓA DỮ LIỆU KẾT QUẢ TRÊN FIREBASE FIRESTORE
+    // 5. HIỂN THỊ CHI TIẾT ĐÁP ÁN ĐÃ CHỌN / CÂU ĐÚNG / CÂU CHƯA LÀM
+    window.viewDetail = function(docId) {
+        const item = rawResultsData.find(r => r._docId === docId);
+        if (!item) return;
+
+        document.getElementById('modalStudentName').innerText = `👤 ${item.name || item.studentName || 'Học sinh'} (ID: ${item.id || item.studentId || 'N/A'})`;
+
+        const body = document.getElementById('modalQuestionsBody');
+        body.innerHTML = '';
+
+        const details = item.details || item.answers || item.userAnswers;
+
+        if (!details) {
+            body.innerHTML = '<p style="color: #7f8c8d; font-style: italic;">Lượt nộp này không lưu chi tiết câu hỏi.</p>';
+            document.getElementById('detailModal').style.display = 'block';
+            return;
+        }
+
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let unansweredCount = 0;
+        let htmlContent = '';
+
+        if (Array.isArray(details)) {
+            details.forEach((q, idx) => {
+                const userChoice = q.userChoice || q.selected || q.userAnswer || '';
+                const correctChoice = q.correctChoice || q.answer || 'N/A';
+                
+                // Kiểm tra xem câu hỏi có được trả lời hay không
+                const isAnswered = userChoice !== '' && userChoice !== null && userChoice !== undefined && userChoice !== 'Chưa chọn';
+                const isCorrect = q.isCorrect !== undefined ? q.isCorrect : (isAnswered && userChoice === correctChoice);
+
+                let badgeHTML = '';
+                let userChoiceText = '';
+
+                if (!isAnswered) {
+                    unansweredCount++;
+                    badgeHTML = '<span class="badge badge-warning">⚪ CHƯA LÀM</span>';
+                    userChoiceText = '<span style="color: #d35400; font-style: italic;">Chưa chọn đáp án</span>';
+                } else if (isCorrect) {
+                    correctCount++;
+                    badgeHTML = '<span class="badge badge-success">🟢 ĐÚNG</span>';
+                    userChoiceText = `<strong style="color: #27ae60;">${userChoice}</strong>`;
+                } else {
+                    incorrectCount++;
+                    badgeHTML = '<span class="badge badge-danger">🔴 SAI</span>';
+                    userChoiceText = `<strong style="color: #e74c3c;">${userChoice}</strong>`;
+                }
+
+                htmlContent += `
+                    <div class="q-item">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;" class="q-title">
+                            <div><strong>Câu ${idx + 1}:</strong> ${q.questionText || q.title || 'Nội dung câu hỏi'}</div>
+                            <div>${badgeHTML}</div>
+                        </div>
+                        <div class="q-ans" style="margin-top: 6px;">
+                            <span>Đã chọn: ${userChoiceText}</span> &nbsp;|&nbsp; 
+                            <span>Đáp án đúng: <strong style="color: #27ae60;">${correctChoice}</strong></span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Cập nhậtHeader Thống kê trong Modal
+        document.getElementById('modalSubInfo').innerHTML = `
+            📘 Bài tập: <strong>${item.quizTitle || 'Bài làm'}</strong><br>
+            📊 Thống kê câu hỏi: 
+            <span class="badge badge-success">Đúng: ${correctCount}</span> 
+            <span class="badge badge-danger">Sai: ${incorrectCount}</span> 
+            <span class="badge badge-warning">Chưa làm: ${unansweredCount}</span>
+        `;
+
+        body.innerHTML = htmlContent;
+        document.getElementById('detailModal').style.display = 'block';
+    };
+
+    // 6. XÓA 1 KẾT QUẢ
+    window.deleteSingleResult = async function(docId) {
+        if (confirm("⚠️ Bạn có chắc chắn muốn xóa lượt nộp bài này?")) {
+            try {
+                await deleteDoc(doc(db, "results", docId));
+                alert("✅ Đã xóa kết quả thành công!");
+            } catch (err) {
+                alert("❌ Lỗi khi xóa: " + err.message);
+            }
+        }
+    };
+
+    // 7. XÓA 1 BÀI DỞ
+    window.deleteSingleDraft = async function(docId) {
+        if (confirm("⚠️ Bạn có chắc chắn muốn xóa tiến độ làm dở này?")) {
+            try {
+                await deleteDoc(doc(db, "drafts", docId));
+                alert("✅ Đã xóa bài dở thành công!");
+            } catch (err) {
+                alert("❌ Lỗi khi xóa: " + err.message);
+            }
+        }
+    };
+
+    // 8. XÓA TẤT CẢ DỮ LIỆU KẾT QUẢ
     window.confirmClearCloudData = async function() {
-        if (confirm("⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA SẠCH toàn bộ kết quả nộp bài của tất cả học sinh trên Cloud?")) {
+        if (confirm("⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA SẠCH toàn bộ kết quả nộp bài trên Cloud?")) {
             try {
                 const snapshot = await getDocs(collection(db, "results"));
                 const batch = writeBatch(db);
-                snapshot.forEach((doc) => {
-                    batch.delete(doc.ref);
+                snapshot.forEach((docSnap) => {
+                    batch.delete(docSnap.ref);
                 });
                 await batch.commit();
-                alert("✅ Đã xóa toàn bộ dữ liệu kết quả thành công!");
+                alert("✅ Đã xóa toàn bộ dữ liệu thành công!");
             } catch (err) {
                 alert("❌ Lỗi khi xóa dữ liệu: " + err.message);
             }
