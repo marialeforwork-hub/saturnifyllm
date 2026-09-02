@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BASIC ARITHMETIC - HARD</title>
+    
+    <!-- Tích hợp MathJax để hiển thị công thức toán học -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .fill-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .correct-input {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .wrong-input {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        .answer-feedback {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        /* Nút Sidebar và Nav Box Styles */
+        .toggle-sidebar-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 10001;
+            background: #3498db; color: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .toggle-sidebar-btn:hover { transform: scale(1.05); }
+
+        #quizNavBox {
+            position: fixed; top: 75px; right: 20px; width: 220px; max-height: 75vh;
+            background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            display: none; /* Mặc định ẩn */
+        }
+
+        .toggle-nav-btn {
+            position: fixed; bottom: 85px; right: 20px; z-index: 1001;
+            background: #e67e22; color: #fff; border: none; padding: 10px 18px;
+            border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: bottom 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nút Toggle Sidebar danh sách câu hỏi -->
+<button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+
+<!-- Khối danh sách câu hỏi -->
+<div id="quizNavBox">
+    <h3 style="text-align: center; margin-top: 0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">📌 Danh Sách Câu Hỏi</h3>
+    <div id="navGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+        <!-- Danh sách nút sẽ được JS chèn tự động vào đây -->
+    </div>
+</div>
+
+<div class="container">
+    <h1>BASIC ARITHMETIC - HARD</h1>
+    <p style="text-align: center; color: #7f8c8d;">Chọn đáp án hoặc nhập kết quả, sau đó bấm <strong>"Kiểm tra"</strong> để xem đáp án.</p>
+    <div id="quiz"></div>
+</div>
+
+<!-- Nút Toggle ẩn hiện Footer -->
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<!-- Sticky Footer Công Cụ -->
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let startTime = new Date();
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            let userChoice = "Bỏ trống";
+            const expected = data.answer || data.correctAnswer || '';
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userChoice = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userChoice = inputEl.value.trim();
+            }
+
+            const isCorrect = userChoice.toString().trim().toLowerCase() === expected.toString().trim().toLowerCase();
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.text || data.question,
+                userChoice: userChoice,
+                correctAnswer: expected,
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+  const quizData =[
+  {
+    "id": 1,
+    "text": "The speeds of particles A, B, and C are $a$ meters per second, $b$ meters per second, and $c$ meters per second, respectively. If the speed of particle A is 6,000% of the speed of particle C and the speed of particle C is 0.008% of the speed of particle B, which expression represents the value of $a+b$ in terms of $c$?\n\nA. $12,560c$\nB. $6,125c$\nC. $6,008c$\nD. $1,850c$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 2,
+    "text": "If $x \\ge -8$ represents all solutions to the inequality $ax - 18 \\le 14$, where $a$ is a constant, what is the greatest possible value of $a$?",
+    "type": "free_response",
+    "answer": "-4"
+  },
+  {
+    "id": 3,
+    "text": "$|x - 8| = -|x - 8| + 20$\n\nWhat is the sum of the solutions to the given equation?",
+    "type": "free_response",
+    "answer": "16"
+  },
+  {
+    "id": 4,
+    "text": "For a certain circuit, its power $P$, in watts; current $C$, in amperes; voltage $V$, in volts; and resistance $R$, in ohms, are related as $\\frac{CV^{2}}{P} = \\sqrt{PR}$ where $P$, $C$, $V$, and $R$ are positive. When $R = 18$, which equation correctly expresses $P$ in terms of $C$ and $V$?\n\nA. $P = \\frac{CV^{2}}{\\sqrt{18P}}$\nB. $P = \\frac{CV^{2}}{\\sqrt{18}}$\nC. $P = \\sqrt[3]{\\frac{C^{2}V^{4}}{18}}$\nD. $P = \\sqrt[3]{\\frac{18}{C^{2}V^{4}}}$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 5,
+    "text": "In a set of four consecutive odd integers, where the integers are ordered from least to greatest, the first integer is represented by $x$. The product of 28 and the third odd integer in the set is at most the value of 50 less than the sum of the first and fourth odd integers in the set. What is the greatest possible value of $x$?",
+    "type": "free_response",
+    "answer": "-7"
+  },
+  {
+    "id": 6,
+    "text": "$\\sqrt[5]{119n}(\\sqrt[6]{119n})^{2}$\n\nFor what value of $x$ is the given expression equivalent to $(119n)^{30x}$, where $n > 1$?",
+    "type": "free_response",
+    "answer": "4/225"
+  },
+  {
+    "id": 7,
+    "text": "An object's speed is increasing at a rate of 4.9 meters per second squared. What is this rate, in miles per minute squared, rounded to the nearest tenth?\n(Use $1\\text{ mile} = 1,609\\text{ meters}$.)\n\nA. 0.2\nB. 11\nC. 131.4\nD. 328.4",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 8,
+    "text": "The positive number $a$ is 2,800% of the number $c$, and $c$ is 25% of the number $b$. If $a - b = wc$ where $w$ is a constant, what is the value of $w$?",
+    "type": "free_response",
+    "answer": "24"
+  },
+  {
+    "id": 9,
+    "text": "$\\sqrt[5]{p^{2}} = t^{\\frac{3}{4}}$\n\nIn the given equation, $p > 1$ and $t > 1$. If $t = p^{2n-1}$, where $n$ is a constant, what is the value of $n$?",
+    "type": "free_response",
+    "answer": "23/30"
+  },
+  {
+    "id": 10,
+    "text": "$\\frac{1}{5xy} + xyz = \\frac{1}{4yz}$\n\nIn the given equation, $x$, $y$, and $z$ are positive numbers. Which expression is equivalent to $y$?\n\nA. $\\sqrt{\\frac{5x-4z}{20x^{2}z^{2}}}$\nB. $\\sqrt{\\frac{1}{4xz^{2}-5x^{2}z}}$\nC. $\\frac{1}{4xz^{2}-5x^{2}z}$\nD. $\\frac{5x-4z}{20x^{2}z^{2}}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 11,
+    "text": "On average, a certain tree grows 51 centimeters every $m$ months. At this rate, which expression represents the number of centimeters, on average, the tree grows every $k$ years?\n\nA. $\\frac{17m}{4k}$\nB. $\\frac{17k}{4m}$\nC. $\\frac{612m}{k}$\nD. $\\frac{612k}{m}$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 12,
+    "text": "The mass of object A is 498% of the mass of object B, and the mass of object A is 0.830% of the mass of object C. If the mass of object C is $p$\\% of the mass of object B, what is the value of $p$?",
+    "type": "free_response",
+    "answer": "60000"
+  },
+  {
+    "id": 13,
+    "text": "$f(x) = x + 4$\n$g(x) = 8x^{2} - rx + 128$\n\nThe functions $f$ and $g$ are given. In function $g$, $r$ is a constant. If $f(x) \\cdot g(x) = 8x^{3} + 512$, what is the value of $r$?",
+    "type": "free_response",
+    "answer": "32"
+  },
+  {
+    "id": 14,
+    "text": "$\\frac{2}{c} - \\frac{7}{d} = 5$\n\nThe given equation relates the variables $c$ and $d$, where $c$ and $d$ are greater than 1. Which equation correctly expresses $d$ in terms of $c$?\n\nA. $d = \\frac{c}{7(2-5c)}$\nB. $d = \\frac{7c}{2-5c}$\nC. $d = \\frac{7(2-5c)}{c}$\nD. $d = \\frac{2-5c}{7c}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 15,
+    "text": "The mass of object A is 416% of the mass of object B, and the mass of object A is 0.064% of the mass of object C. If the mass of object C is $p$\\% of the mass of object B, what is the value of $\\frac{p}{1,000}$?",
+    "type": "free_response",
+    "answer": "6500"
+  },
+  {
+    "id": 16,
+    "text": "If $n$ and $k$ are numbers greater than 1 and $\\sqrt[3]{k^{2}}$ is equivalent to $\\sqrt[4]{n^{5}}$, for what value of $a$ is $n^{2a+1}$ equal to $k$?",
+    "type": "free_response",
+    "answer": "7/16"
+  },
+  {
+    "id": 17,
+    "text": "The positive number $a$ is 2,106% of the sum of the positive numbers $b$ and $c$, and $b$ is 81% of $c$. What percent of $b$ is $a$?\n\nA. 4,706%\nB. 2,600%\nC. 38.12%\nD. 21.87%",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 18,
+    "text": "A researcher investigated two species of mites: a predator and its prey. At the start of a week, there was an equal number of the two species. At the end of the week, the number of prey had increased by 2,700% of the number of prey at the start of the week, and the number of predators had increased by 180% of the number of predators at the start of the week. The number of prey at the end of the week was $p$\\% greater than the number of predators at the end of the week. What is the value of $p$?",
+    "type": "free_response",
+    "answer": "900"
+  },
+  {
+    "id": 19,
+    "text": "$y > 17$\n$4x + y < 21$\n\nThe point $(x, 54)$ is a solution to the given system of inequalities in the $xy$-plane. Which of the following could be the value of $x$?\n\nA. 9\nB. 5\nC. -5\nD. -9",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 20,
+    "text": "A square map has a side length of 35 inches, and 1 inch on the map represents an actual distance of 17 miles. A smaller version of the same map is printed as a square with the side length 55% shorter than the side length of the previous map. On the smaller map, which of the following is closest to the actual distance, in miles, represented by 1 inch?\n\nA. 7.65\nB. 10.97\nC. 19.25\nD. 37.78",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 21,
+    "text": "The area of a rectangular region is increasing at a rate of 280 square feet per hour. Which of the following is closest to this rate in square meters per minute? (Use $1\\text{ meter} = 3.28\\text{ feet}$.)\n\nA. 0.43\nB. 1.42\nC. 15.31\nD. 26.03",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 22,
+    "text": "If $\\frac{x-4}{5} = \\frac{x-4}{7}$, the value of $x-4$ is between which of the following pairs of values?\n\nA. -7 and -5\nB. -3 and 3\nC. 3.5 and 4.5\nD. 4.75 and 7.25",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 23,
+    "text": "For a certain type of rope, the equation $y = 900ax^{2}$, where $a$ is a constant, gives the estimated breaking strength $y$, in pounds, of a rope with a circumference of $x$ inches. Based on this equation, if a rope of this type has a circumference of 0.75 inches, it has an estimated breaking strength of 708.75 pounds. What is the estimated breaking strength, in pounds, of a rope of this type that has a circumference of 4.50 inches?",
+    "type": "free_response",
+    "answer": "25515"
+  },
+  {
+    "id": 24,
+    "text": "$\\frac{x-18}{6} + \\frac{y+25}{3} = -5$\n$\\frac{x-18}{3} - \\frac{y+25}{6} = 5$\n\nThe solution to the given system of equations is $(x, y)$. What is the value of $x-y$?",
+    "type": "free_response",
+    "answer": "67"
+  },
+  {
+    "id": 25,
+    "text": "Which expression is NOT a factor of $37,500x^{4} - 960$?\n\nA. $25x^{2}+4$\nB. $5x^{2}-2$\nC. $5x+2$\nD. 60",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 26,
+    "text": "$\\sqrt[7]{p^{4}} = t^{\\frac{5}{6}}$\n\nIn the given equation, $p > 1$ and $t > 1$. If $t = p^{2n-1}$, where $n$ is a constant, what is the value of $n$?",
+    "type": "free_response",
+    "answer": "59/70"
+  },
+  {
+    "id": 27,
+    "text": "A raised garden is in the shape of a right rectangular prism. Its base has a width of 3 feet and a length of 27 feet, and it will be filled 24 inches high with topsoil. The total cost of the topsoil needed to fill the garden to this height is 234 dollars. What is the unit cost, in dollars per cubic yard, for the topsoil? ($1\\text{ yard} = 3\\text{ feet}$; $1\\text{ foot} = 12\\text{ inches}$)",
+    "type": "free_response",
+    "answer": "39"
+  },
+  {
+    "id": 28,
+    "text": "A container has a volume of 0.84 cubic meters. Which of the following is closest to this volume, in quarts?\n(Note: $100.00\\text{ centimeters} = 1\\text{ meter}$. Use $946.35\\text{ cubic centimeters} = 1.00\\text{ quart}$.)\n\nA. 0.09\nB. 7.95\nC. 794.93\nD. 887.62",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 29,
+    "text": "If $x \\ge -6$ represents all solutions to the inequality $ax - 27 \\le 15$, where $a$ is a constant, what is the greatest possible value of $a$?",
+    "type": "free_response",
+    "answer": "-7"
+  },
+  {
+    "id": 30,
+    "text": "An object's speed is increasing at a rate of 2.7 meters per second squared. What is this rate, in miles per minute squared, rounded to the nearest tenth?\n(Use $1\\text{ mile} = 1,609\\text{ meters}$.)\n\nA. 0.1\nB. 6.0\nC. 72.4\nD. 595.9",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 31,
+    "text": "If $n$ and $k$ are numbers greater than 1 and $\\sqrt[2]{n^{5}}$ is equivalent to $\\sqrt[2]{k^{4}}$, for what value of $a$ is $n^{4a+1}$ equal to $k$?",
+    "type": "free_response",
+    "answer": "1/16"
+  },
+  {
+    "id": 32,
+    "text": "A linear model estimates the population of a city from 1993 to 2017. The model estimates the population was 52 thousand in 1993, 219 thousand in 2013, and $x$ thousand in 2017. To the nearest whole number, what is the value of $x$?",
+    "type": "free_response",
+    "answer": "252"
+  },
+  {
+    "id": 33,
+    "text": "The expression $\\frac{x^{20}(x-4)}{5x^{2}} + \\frac{4x^{20}}{5x^{2}}$ is equivalent to $\\frac{1}{5}x^{c}$, where $c$ is a constant and $x > 0$. What is the value of $c$?\n\nA. 4\nB. 5\nC. 19\nD. 21",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 34,
+    "text": "The positive number $a$ is 2,352% of the sum of the positive numbers $b$ and $c$, and $b$ is 84% of $c$. What percent of $b$ is $a$?\n\nA. 5,152%\nB. 2,436%\nC. 51.52%\nD. 24.36%",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 35,
+    "text": "On average, a certain tree grows 39 centimeters every $m$ months. At this rate, which expression represents the number of centimeters, on average, the tree grows every $k$ years?\n\nA. $\\frac{13m}{4k}$\nB. $\\frac{13k}{4m}$\nC. $\\frac{468m}{k}$\nD. $\\frac{468k}{m}$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 36,
+    "text": "$\\sqrt{(x+15)^{2}} = x + 15$\n\nWhat is the least value of $x$ that is a solution to the given equation?\n\nA. -16\nB. -15\nC. 0\nD. 15",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 37,
+    "text": "$\\frac{1}{R} = \\frac{1}{p} + \\frac{1}{q} + \\frac{1}{s} + \\frac{1}{13}$\n\nA parallel electric circuit contains four resistors with resistances of $p$ ohms, $q$ ohms, $s$ ohms, and 13 ohms. The given equation relates the resistance $R$, in ohms, of the circuit, to the resistances of the four individual resistors it contains. Which equation correctly expresses $R$ in terms of $p$, $q$, and $s$?\n\nA. $R = \\frac{13pqs}{p+q+s+13}$\nB. $R = \\frac{13pqs}{13qs+13ps+13pq+pqs}$\nC. $R = \\frac{13qs+13ps+13pq+pqs}{13pqs}$\nD. $R = p+q+s+13$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 38,
+    "text": "The function $g$ is defined as $g(x) = \\frac{2x-4}{(x+13)(x-5)}$, and $g(a) = 1/4$, where $a$ is a constant, what is the value of $a$?",
+    "type": "free_response",
+    "answer": "7 or -7"
+  },
+  {
+    "id": 39,
+    "text": "For a certain type of rope, the equation $y = 900ax^{2}$, where $a$ is a constant, gives the estimated breaking strength $y$, in pounds, of a rope with a circumference of $x$ inches. Based on this equation, if a rope of this type has a circumference of 2.75 inches, it has an estimated breaking strength of 9,528.75 pounds. What is the estimated breaking strength, in pounds, of a rope of this type that has a circumference of 7.50 inches?",
+    "type": "free_response",
+    "answer": "70875"
+  },
+  {
+    "id": 40,
+    "text": "$-16(5x-3)^{2} + 4(5x-2)^{2}$\n\nThe given expression can be rewritten as $\\frac{a}{4}x^{2} + \\frac{b}{4}x + \\frac{c}{4}$, where $a$, $b$, and $c$ are constants. What is the value of $a+b+c$?\n\nA. -112\nB. -56\nC. -28\nD. -7",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 41,
+    "text": "$\\frac{49}{p} = \\frac{49}{q} - \\frac{49}{r} - \\frac{49}{s}$\n\nThe given equation relates the positive variables $p$, $q$, $r$, and $s$. Which of the following is equivalent to $q$?\n\nA. $p+r+s$\nB. $49(p+r+s)$\nC. $\\frac{prs}{pr+ps+rs}$\nD. $\\frac{prs}{49p+49r+49s}$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 42,
+    "text": "The function $q$ is defined by $q(x) = a|x-9|^{2} - 87|x-9| + b$, where $a$ and $b$ are constants, and $a > b > 87$. If $q(639) = h$ and $q(-621) = k$, where $h$ and $k$ are constants, what is the value of $9(-639)^{h-k} + 621(9)^{k-h}$?",
+    "type": "free_response",
+    "answer": "630"
+  },
+  {
+    "id": 43,
+    "text": "The expression $kx$ represents the result of decreasing a positive force, $x$, acting on an object by 0.34%. What is the value of $k$?",
+    "type": "free_response",
+    "answer": "0.9966"
+  },
+  {
+    "id": 44,
+    "text": "The area of a rectangular region is increasing at a rate of 180 square centimeters per hour. What is this rate, in square meters per minute? ($1\\text{ meter} = 100\\text{ centimeters}$)",
+    "type": "free_response",
+    "answer": "0.0003"
+  },
+  {
+    "id": 45,
+    "text": "If $(\\frac{1}{2}x - \\frac{33}{2})^{2} - 64 = 0$, what is the value of $(x - 33)^{2}$?\n\nA. 8\nB. 33\nC. 128\nD. 256",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 46,
+    "text": "In a set of four consecutive odd integers, where the integers are ordered from least to greatest, the first integer is represented by $x$. The product of 24 and the third odd integer in the set is at most the value of 86 less than the sum of the first and fourth odd integers in the set. What is the greatest possible value of $x$?",
+    "type": "free_response",
+    "answer": "-9"
+  },
+  {
+    "id": 47,
+    "text": "Which expression is a factor of $36x^{2}(x+12) - 36(x+12)^{3}$?\n\nA. $-12x+144$\nB. $2x+12$\nC. $6x+6$\nD. $24x-144$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 48,
+    "text": "A sphere has a volume of 247.00 cubic yards. What is the volume of the sphere, in cubic meters? (Use $1\\text{ yard} = 0.914\\text{ meter}$.)",
+    "type": "free_response",
+    "answer": "188.6"
+  },
+  {
+    "id": 49,
+    "text": "$\\frac{\\sqrt[3]{x^{17}y^{5}}}{5x^{2}(\\sqrt[8]{y^{8}})}$\n\nFor all positive values of $x$ and $y$, the given expression is equivalent to which of the following?\n\nI. $\\frac{(x^{\\frac{14}{5}})(y^{\\frac{5}{5}})}{5xy}$\nII. $\\frac{\\sqrt[3]{x^{11}y^{2}}}{5}$\n\nA. I only\nB. II only\nC. I and II\nD. Neither I nor II",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 50,
+    "text": "A square map has a side length of 55 inches, and 1 inch on the map represents an actual distance of 13 miles. A larger version of the same map is printed as a square with the side length 90% longer than the side length of the previous map. On the larger map, which of the following is closest to the actual distance, in miles, represented by 1 inch?\n\nA. 1.30\nB. 6.84\nC. 24.70\nD. 49.50",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 51,
+    "text": "As the size of a firework's shell increases, the height above the ground when the firework bursts increases. For a firework to burst 1,075 feet above the ground, a firework's shell in the shape of a sphere with a volume of 514.23 cubic inches could be used. To the nearest whole number, what is the volume of this firework's shell in cubic centimeters?\n(1 inch $= 2.54$ centimeters)",
+    "type": "free_response",
+    "answer": "8427"
+  },
+  {
+    "id": 52,
+    "text": "One gallon of sealant costs $23 and will cover 250 square feet of a surface. A deck has a total surface area of $d$ square feet. Which equation represents the cost $c$, in dollars, of the sealant needed to cover the deck twice?\n\nA. $c = \\frac{250d}{23}$\nB. $c = \\frac{500d}{23}$\nC. $c = 23(\\frac{d}{125})$\nD. $c = 23(\\frac{d}{250})$",
+    "type": "multiple_choice",
+    "answer": "C"
+  }
+]; 
+   quizData.forEach(data => {
+        // Tự động bóc tách các lựa chọn A, B, C, D từ text đưa vào options
+        if (data.type === 'multiple_choice' && !data.options) {
+            data.options = {};
+            let lines = data.text.split('\n');
+            let qText = [];
+            lines.forEach(line => {
+                let match = line.match(/^([A-D])\.\s+(.*)/);
+                if (match) {
+                    data.options[match[1]] = match[2];
+                } else {
+                    if (line.trim() !== '') qText.push(line);
+                }
+            });
+            // Thêm các thẻ xuống dòng HTML chuẩn
+            data.text = qText.join('<br/><br/>');
+        } else if (data.text) {
+            // Fix lỗi xuống dòng cho các câu Fill in the blank
+            data.text = data.text.replace(/\n/g, '<br/>');
+        }
+    });
+
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); // Chèn các nút vào khối Nav đã tạo trong HTML
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px"; // Đảm bảo cuộn tới không bị khuất
+
+            let contentHtml = '';
+
+            // Nếu câu trắc nghiệm (đã được bóc tách ở tiền xử lý)
+            if (data.options && Object.keys(data.options).length > 0) {
+                let optionsHtml = '';
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+                contentHtml = `<ul class="options">${optionsHtml}</ul>`;
+            } else {
+                contentHtml = `
+                    <div style="margin-top: 10px;">
+                        <input type="text" class="fill-input" id="input-${data.id}" name="question${data.id}" placeholder="Nhập đáp án của bạn...">
+                        <div id="feedback-${data.id}" class="answer-feedback"></div>
+                    </div>
+                `;
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.text}</div>
+                ${contentHtml}
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    // Gắn trực tiếp các nút vào khối Div đã có sẵn bên ngoài thay vì tự tạo box nổi
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; // Làm sạch trước khi load
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 35px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em;
+                transition: background 0.2s;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    // ==========================================
+    // LOGIC CHO 2 NÚT ẨN HIỆN GIAO DIỆN MỚI
+    // ==========================================
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const quizNavBox = document.getElementById('quizNavBox');
+    
+    toggleSidebarBtn.addEventListener('click', () => {
+        if (quizNavBox.style.display === 'none' || quizNavBox.style.display === '') {
+            quizNavBox.style.display = 'block';
+        } else {
+            quizNavBox.style.display = 'none';
+        }
+    });
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.style.display === 'none') {
+            stickyFooter.style.display = 'flex';
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+            toggleNavBtn.style.bottom = '85px'; // Đẩy nút lên trên footer
+        } else {
+            stickyFooter.style.display = 'none';
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+            toggleNavBtn.style.bottom = '20px'; // Hạ nút xuống dưới cùng khi ẩn footer
+        }
+    });
+
+
+    // (Giữ nguyên các hàm checkAndRestoreProgress, checkCurrentAnswers, updateNavigatorState, v.v.. của bạn bên dưới)
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) hasAnswered = true;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') hasAnswered = true;
+            }
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; btn.style.color = '#ffffff'; btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; btn.style.color = '#2c3e50'; btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userAnswers[data.id] = inputEl.value.trim();
+            }
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const data = quizData.find(q => q.id == qId);
+                    if (data) {
+                        if (data.options && Object.keys(data.options).length > 0) {
+                            const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                            if (radio) radio.checked = true;
+                        } else {
+                            const inputEl = document.getElementById(`input-${qId}`);
+                            if (inputEl) inputEl.value = value;
+                        }
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.answer || data.correctAnswer || '').toString().trim().toLowerCase();
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) {
+                    checkedAny = true;
+                    const userAnswer = selectedOption.value.trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                        currentScore++;
+                    } else {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                        const correctKey = (data.answer || data.correctAnswer);
+                        if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                            document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                        }
+                    }
+
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => radio.disabled = true);
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') {
+                    checkedAny = true;
+                    const userAnswer = inputEl.value.trim().toLowerCase();
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+
+                    if (userAnswer === correctAnswer) {
+                        inputEl.classList.add('correct-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #27ae60;">Chính xác!</span>`;
+                        currentScore++;
+                    } else {
+                        inputEl.classList.add('wrong-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #c0392b;">Sai rồi. Đáp án đúng: <strong>${data.answer || data.correctAnswer}</strong></span>`;
+                    }
+
+                    inputEl.disabled = true;
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn hoặc nhập đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            let val = 'Bỏ trống';
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) val = selected.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') val = inputEl.value.trim();
+            }
+            studentAnswers[`Câu ${index + 1}`] = val;
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                if (data.options && Object.keys(data.options).length > 0) {
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => {
+                        radio.disabled = false;
+                        radio.checked = false;
+                    });
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                } else {
+                    const inputEl = document.getElementById(`input-${data.id}`);
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.value = '';
+                        inputEl.classList.remove('correct-input', 'wrong-input');
+                    }
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+                    if (feedbackEl) feedbackEl.innerHTML = '';
+                }
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script>
+    (function() {
+        // Tự động lấy tên bài học từ thẻ <title> của file btap
+        const QUIZ_KEY = document.title.trim() || "August SAT Math"; 
+        const studentId = sessionStorage.getItem('studentId') || 'GUEST';
+
+        function saveProgressAndNotify() {
+            const answers = {};
+            
+            // Lấy các câu trắc nghiệm đã chọn
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                answers[radio.name] = radio.value;
+            });
+
+            // Lấy các câu điền ô trống
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                if (input.value.trim() !== '' && input.name) {
+                    answers[input.name] = input.value.trim();
+                }
+            });
+
+            // Đếm tổng số câu trong bài
+            let totalQuestions = document.querySelectorAll('.question-block, .question').length;
+            if (totalQuestions === 0) {
+                const radioNames = new Set([...document.querySelectorAll('input[type="radio"]')].map(i => i.name));
+                totalQuestions = radioNames.size || 1;
+            }
+
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            localStorage.setItem(storageKey, JSON.stringify(answers));
+            localStorage.setItem(storageKey + '_total', totalQuestions);
+
+            // Báo cho trang chính index.html cập nhật ngay lập tức
+            if (window.parent) {
+                window.parent.postMessage({ type: 'SAT_PROGRESS_UPDATE' }, '*');
+            }
+        }
+
+        function restoreDraftAnswers() {
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            try {
+                const answers = JSON.parse(saved);
+                Object.keys(answers).forEach(name => {
+                    const val = answers[name];
+                    const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+
+                    const textInput = document.querySelector(`input[name="${name}"]`);
+                    if (textInput && textInput.type !== 'radio') textInput.value = val;
+                });
+            } catch(e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            restoreDraftAnswers();
+            saveProgressAndNotify();
+
+            document.addEventListener('change', saveProgressAndNotify);
+            document.addEventListener('input', saveProgressAndNotify);
+        });
+    })();
+    </script>
+</body>
+</html>
