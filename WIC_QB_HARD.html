@@ -194,6 +194,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
     const quizData = [
   {
     "id": 1,
@@ -928,6 +929,7 @@
     "explanation": "Choice C is the best answer because it most logically completes the text’ s discussion of the study of female participation in hunting among prehistoric peoples. In this context, “ negligible” means not significant enough to be wor th considering. The text says that the study challenged the accepted view of female par ticipation in hunting among prehistoric peoples. The text goes on to say that the researchers found that “in fact, as many as half” the hunters in the groups studied were female. The phrase “in fact” establishes a contrast indicating that the finding that as many as half the hunters were female differs from the accepted view. This context suggests, then, that the accepted view is that female par ticipation in hunting was negligible. Choice A is incorrect because the text indicates that the study challenged the accepted view by showing that as many as half of hunters among prehistoric peoples were female, which suggests that the accepted view is that female par ticipation was low, not that female par ticipation was “inevitable, ” or unavoidable. Nothing in the text suggests that the accepted view is that prehistoric peoples could not avoid female par ticipation in hunting. Choice B is incorrect because nothing in the text suggests that the accepted view of female par ticipation in hunting among prehistoric peoples is that such par ticipation was “ satisfactory, ” or sufficient to meet a requirement or demand. There is no information in the text about any demands or requirements regarding female par ticipation in hunting, let alone any information about how much female par ticipation in hunting would be enough to satisfy those demands or requirements. Instead, the text indicates that the study challenged the accepted view by showing that as many as half the hunters in the groups studied were female, suggesting that the accepted view is that female par ticipation in hunting was low. Choice D is incorrect because the text indicates that the study challenged the accepted view by showing that as many as half of hunters among the prehistoric peoples studied were female, which suggests that the accepted view is that female par ticipation was low, not that female par ticipation was “ commonplace, ” or ordinary or unremarkable. Although the study under discussion suggests that female par ticipation may have been commonplace, that study is presented as challenging the accepted view, not as reinforcing the accepted view."
   }
     ];
+    
     const quizContainer = document.getElementById('quiz');
     let currentScore = 0;
     let answeredCount = 0;
@@ -936,82 +938,66 @@
     const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
     const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
 
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
     function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
         quizContainer.innerHTML = '';
-        
-        // 📌 1. TỰ ĐỘNG TẠO HỘP NAVIGATOR CHỌN CÂU CỐ ĐỊNH GÓC PHẢI
-        createNavigatorBox();
+        createNavigatorBox(); 
 
         quizData.forEach((data, index) => {
             const questionBlock = document.createElement('div');
             questionBlock.classList.add('question-block');
             questionBlock.id = `question-${data.id}`;
             questionBlock.dataset.locked = "false";
-            questionBlock.style.scrollMarginTop = "80px";
+            questionBlock.style.scrollMarginTop = "100px";
 
             let optionsHtml = '';
-            for (const [key, value] of Object.entries(data.options|| {})) {
-                optionsHtml += `
-                    <li>
-                        <label id="label-${data.id}-${key}">
-                            <input type="radio" name="question${data.id}" value="${key}">
-                            <strong>${key}.</strong> ${value}
-                        </label>
-                    </li>
-                `;
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
             }
 
             questionBlock.innerHTML = `
                 <div class="question-text">Câu ${index + 1}: ${data.question}</div>
-                <ul class="options">
-                    ${optionsHtml}
-                </ul>
-                <div class="explanation" id="explanation-${data.id}">${data.explanation}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
             `;
             quizContainer.appendChild(questionBlock);
         });
         
-        // Lắng nghe sự kiện chọn đáp án để lưu bản nháp & đổi màu Navigator
-        quizContainer.addEventListener('change', (e) => {
-            saveProgress();
-            updateNavigatorState();
-        });
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
         
         const progressEl = document.getElementById('progressText');
         if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
     }
 
-    // 🛠️ HÀM TẠO HỘP NAVIGATOR DẠNG LƯỚI
     function createNavigatorBox() {
-        let oldBox = document.getElementById('quizNavBox');
-        if (oldBox) oldBox.remove();
-
-        const navBox = document.createElement('div');
-        navBox.id = 'quizNavBox';
-        navBox.style.cssText = `
-            position: fixed; top: 20px; right: 20px; width: 210px; max-height: 75vh;
-            background: #ffffff; border: 2px solid #3498db; border-radius: 10px; padding: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        `;
-
-        const title = document.createElement('div');
-        title.innerText = '📌 Danh Sách Câu Hỏi';
-        title.style.cssText = 'font-weight: bold; color: #2c3e50; font-size: 0.9em; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
-        navBox.appendChild(title);
-
-        const grid = document.createElement('div');
-        grid.style.cssText = 'display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;';
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
 
         quizData.forEach((data, index) => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
             btn.innerText = index + 1;
-            btn.style.cssText = `
-                width: 100%; height: 32px; border: 1px solid #bdc3c7; background: #f8f9fa;
-                color: #2c3e50; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;
-            `;
 
             btn.onclick = () => {
                 const targetBlock = document.getElementById(`question-${data.id}`);
@@ -1019,20 +1005,51 @@
             };
             grid.appendChild(btn);
         });
-
-        navBox.appendChild(grid);
-        document.body.appendChild(navBox);
     }
 
-    // 🔄 ĐỔI MÀU Ô NAVIGATOR KHI ĐÃ CHỌN CÂU HỎI
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
     function updateNavigatorState() {
         quizData.forEach((data) => {
+            let hasAnswered = false;
             const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
             const btn = document.getElementById(`nav_btn_${data.id}`);
-            if (btn && selected) {
-                btn.style.background = '#2ecc71';
-                btn.style.color = '#ffffff';
-                btn.style.borderColor = '#27ae60';
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
             }
         });
     }
@@ -1041,9 +1058,7 @@
         let userAnswers = {};
         quizData.forEach(data => {
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
-            if (selectedOption) {
-                userAnswers[data.id] = selectedOption.value;
-            }
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
         });
         localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
     }
@@ -1081,7 +1096,6 @@
                     }
                 }
             } else {
-                // Làm lại từ đầu -> Đặt lại thời gian bắt đầu lượt làm mới
                 startTime = new Date();
                 localStorage.removeItem(QUIZ_STORAGE_KEY);
             }
@@ -1095,28 +1109,33 @@
             const block = document.getElementById(`question-${data.id}`);
             if (block.dataset.locked === "true") return;
 
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
             
             if (selectedOption) {
                 checkedAny = true;
-                const userAnswer = selectedOption.value;
-                const correctAnswer = data.correctAnswer;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
                 
                 if (userAnswer === correctAnswer) {
-                    document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
                     currentScore++;
                 } else {
-                    document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('wrong-answer-label');
-                    document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
                 }
 
                 const explanationEl = document.getElementById(`explanation-${data.id}`);
-                if (explanationEl) explanationEl.style.display = 'block';
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
 
                 const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
                 radios.forEach(radio => radio.disabled = true);
                 block.dataset.locked = "true";
-                
                 answeredCount++;
             }
         });
@@ -1125,8 +1144,6 @@
             alert('Bạn chưa chọn đáp án nào để kiểm tra!');
         } else {
             updateScoreBoard();
-            
-            // 📊 2. LƯU DỮ LIỆU CHI TIẾT SANG DÀNH CHO ADMIN
             saveAdminResultData();
 
             if (typeof saveScoreToFirebase === 'function') {
@@ -1140,7 +1157,8 @@
         }
     }
 
-    // 📤 HÀM TỔNG HỢP & GỬI DỮ LIỆU KẾT QUẢ SANG TRANG ADMIN
+    let startTime = new Date();
+
     function saveAdminResultData() {
         const endTime = new Date();
         const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
@@ -1173,7 +1191,6 @@
         history.push(resultData);
         localStorage.setItem('sat_results', JSON.stringify(history));
 
-        // Bắn dữ liệu ra ngoài iframe nếu có
         if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
         }
@@ -1184,8 +1201,6 @@
         
         currentScore = 0;
         answeredCount = 0;
-        
-        // 🕒 ĐẶT LẠI MỐC THỜI GIAN BẮT ĐẦU CHO LẦN LÀM MỚI
         startTime = new Date();
         
         localStorage.removeItem(QUIZ_STORAGE_KEY);
@@ -1200,18 +1215,18 @@
                     radio.disabled = false;
                     radio.checked = false;
                 });
-
-                const explanationEl = document.getElementById(`explanation-${data.id}`);
-                if (explanationEl) explanationEl.style.display = 'none';
-                
-                for (const key of Object.keys(data.options)) {
-                    const lbl = document.getElementById(`label-${data.id}-${key}`);
-                    if (lbl) {
-                        lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
                     }
                 }
 
-                // Đặt lại màu ô Navigator
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
                 const navBtn = document.getElementById(`nav_btn_${data.id}`);
                 if (navBtn) {
                     navBtn.style.background = '#f8f9fa';
@@ -1220,7 +1235,6 @@
                 }
             }
         });
-        
         updateScoreBoard();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
