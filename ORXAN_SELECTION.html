@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATH PRACTICE - ORXAN SELECTION</title>
+    
+    <!-- Tích hợp MathJax để hiển thị công thức toán học -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .fill-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .correct-input {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .wrong-input {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        .answer-feedback {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        /* Nút Sidebar và Nav Box Styles */
+        .toggle-sidebar-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 10001;
+            background: #3498db; color: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .toggle-sidebar-btn:hover { transform: scale(1.05); }
+
+        #quizNavBox {
+            position: fixed; top: 75px; right: 20px; width: 220px; max-height: 75vh;
+            background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            display: none; /* Mặc định ẩn */
+        }
+
+        .toggle-nav-btn {
+            position: fixed; bottom: 85px; right: 20px; z-index: 1001;
+            background: #e67e22; color: #fff; border: none; padding: 10px 18px;
+            border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: bottom 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nút Toggle Sidebar danh sách câu hỏi -->
+<button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+
+<!-- Khối danh sách câu hỏi -->
+<div id="quizNavBox">
+    <h3 style="text-align: center; margin-top: 0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">📌 Danh Sách Câu Hỏi</h3>
+    <div id="navGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+        <!-- Danh sách nút sẽ được JS chèn tự động vào đây -->
+    </div>
+</div>
+
+<div class="container">
+    <h1>MATH PRACTICE - ORXAN SELECTION</h1>
+    <p style="text-align: center; color: #7f8c8d;">Chọn đáp án hoặc nhập kết quả, sau đó bấm <strong>"Kiểm tra"</strong> để xem đáp án. Module 1: Reading and Writing (câu 1->27), Module 1: Reading and Writing (câu 28->54), Module 1: Math (câu 55->75), Module 2: Math (câu 76->98)</p>
+    <div id="quiz"></div>
+</div>
+
+<!-- Nút Toggle ẩn hiện Footer -->
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<!-- Sticky Footer Công Cụ -->
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let startTime = new Date();
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            let userChoice = "Bỏ trống";
+            const expected = data.answer || data.correctAnswer || '';
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userChoice = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userChoice = inputEl.value.trim();
+            }
+
+            const isCorrect = userChoice.toString().trim().toLowerCase() === expected.toString().trim().toLowerCase();
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.text || data.question,
+                userChoice: userChoice,
+                correctAnswer: expected,
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+  const quizData =[
+  {
+    "id": 1,
+    "text": "$\\frac{5}{9}(5x+9)(x+\\sqrt{5k+9})(x-\\sqrt{5k+9})=0$\n\nIn the given equation, $k$ is a positive constant. The product of the solutions to the equation is 72. What is the value of $k$?",
+    "type": "free_response",
+    "answer": "6.2"
+  },
+  {
+    "id": 2,
+    "text": "The equation $N(m)=65(Q)^{\\frac{m}{4}}$ gives the predicted population $N(m)$, in thousands, of a certain bacteria colony $m$ minutes after the initial measurement, where $Q$ is a constant greater than 1. The predicted population increases by $p\\%$ every 120 seconds. What is the value of $p$ in terms of $Q$?\n\nA. $100(Q^{\\frac{1}{2}}+1)$\nB. $100(Q^{30}+1)$\nC. $100(Q^{\\frac{1}{2}}-1)$\nD. $100(Q^{30}-1)$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 3,
+    "text": "$f(x)=3(x-a)(x-b)(x-c)$\n\nThe function $f$ is defined by the given equation, where $a$, $b$, and $c$ are distinct constants. When $a<x<b$, the value of $f(x)$ is positive. The graph of $y=f(x)$ in the $xy$-plane contains the point $(r,s)$, where $r$ and $s$ are constants. If $s=8$, which of the following could be true?\n\nI. $r<a$\nII. $b<r<c$\nIII. $r>c$\n\nA. I only\nB. III only\nC. I and III only\nD. II and III only",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 4,
+    "text": "A right square pyramid has a surface area of $16+8\\sqrt{293}$ square inches, which includes a base area of 16 square inches. What is the height, in inches, of this pyramid?",
+    "type": "free_response",
+    "answer": "17"
+  },
+  {
+    "id": 5,
+    "text": "$(x-k)^{2}=(k-4a)(x-k)$\n\nIn the given equation, $a$ and $k$ are constants, where $k>4a$. The sum of the solutions to the equation is $3k+35$. What is the value of $a$?",
+    "type": "free_response",
+    "answer": "-8.75"
+  },
+  {
+    "id": 6,
+    "text": "A circle in the $xy$-plane has a diameter with endpoints $(a,11)$ and $(a,d)$, where $a$ and $d$ are constants. An equation of this circle is $(x-a)^{2}+(y-17)^{2}=r^{2}$, where $r$ is a positive constant. What is the value of $d$?\n\nA. 5\nB. 12\nC. 17\nD. 23",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 7,
+    "text": "$2\\cos(90-a)^{\\circ}\\cdot\\cos b^{\\circ}+\\sin(a+y)^{\\circ}\\cdot\\sin(90-b)^{\\circ}$\n\nIn the given expression, $a$ and $b$ are constants such that $\\sin a^{\\circ}=0.5$, $\\cos b^{\\circ}=0.99$, and $0<b<90$. What is the value of the given expression when $y=0$?",
+    "type": "free_response",
+    "answer": "1.485"
+  },
+  {
+    "id": 8,
+    "text": "The function $h$ is defined by $h(x)=-\\sqrt{x^{2}+bx+c}$, where $b$ and $c$ are constants. In the $xy$-plane, the graph of $y=h(x)$ contains the points $(3,0)$ and $(0,-\\sqrt{180})$. If $h(m)=0$, what is the greatest possible value of $m$?",
+    "type": "free_response",
+    "answer": "60"
+  },
+  {
+    "id": 9,
+    "text": "The function $f$ is defined by $f(x)=-39^{x}$. The function $g$ is a decreasing linear function. In the $xy$-plane, the graphs of $y=f(x)$ and $y=g(x)$ intersect at two points, $(h,j)$ and $(k,m)$, where $j>m$. When $g(x)<f(x)$, which of the following must also be true?\n\nA. $x>k$\nB. $x<h$\nC. $x>k$ or $x<h$\nD. $h<x<k$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 10,
+    "text": "In triangle $FGH$ and triangle $KLM$, the measures of angles $G$ and $L$ are each $60^{\\circ}$. The lengths of $GH$ and $LM$ are each 34 centimeters, and $\\frac{GH}{GF}=\\frac{LM}{LK}$. Which additional piece of information would be necessary to prove that triangle $FGH$ is congruent to triangle $KLM$?\n\nA. The lengths of $FG$ and $KM$ are each 17 centimeters.\nB. The measures of angles $H$ and $M$ are each $30^{\\circ}$.\nC. The measures of angles $F$ and $K$ are each $90^{\\circ}$.\nD. No additional information is necessary.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 11,
+    "text": "A right square pyramid has a height of 11 centimeters (cm). A second right square pyramid has a height of 22 centimeters. The area of the base of each of the two pyramids is $100\\text{ cm}^{2}$. Which of the following is closest to the difference in the surface area of the second pyramid and the surface area of the first pyramid, in $\\text{cm}^{2}$?\n\nA. 209\nB. 220\nC. 429\nD. 440",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 12,
+    "text": "$f(x)=66(b)^{x}$\n\nIn the given function, $b$ is a positive constant. For every increase in the value of $x$ by 1, the value of $f(x)$ increases by $c\\%$, where $0<c<100$. Which expression gives the value of $c$ in terms of $b$?\n\nA. $1+\\frac{b}{100}$\nB. $b+100$\nC. $100(b+1)$\nD. $100(b-1)$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 13,
+    "text": "The volume of a right rectangular prism with a square base is 539 cubic centimeters. If the area of each of the four lateral faces is 77 square centimeters, what is the height, in centimeters, of the prism?\n\nA. 77\nB. 49\nC. 11\nD. 7",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 14,
+    "text": "The function $p$ is defined by $p(x)=((x+6)^{2}-a)((x+6)^{2}-b)$, where $a$ and $b$ are constants. In the $xy$-plane, the graph of $y=p(x)$ passes through the points $(-7,24)$ and $(0,899)$. What is the value of $p(-12)+p(-5)$?",
+    "type": "free_response",
+    "answer": "923"
+  },
+  {
+    "id": 15,
+    "text": "A grove has 6 rows of birch trees and 5 rows of maple trees. Each row of birch trees has 8 trees 20 feet or taller and 6 trees shorter than 20 feet. Each row of maple trees has 9 trees 20 feet or taller and 7 trees shorter than 20 feet. A tree from one of these rows will be selected at random. What is the probability of selecting a maple tree, given that the tree is 20 feet or taller?",
+    "type": "free_response",
+    "answer": "15/31"
+  },
+  {
+    "id": 16,
+    "text": "In a triangle $ABC$ with sides 6 and 19 and an angle of $x^{\\circ}$ between them, the expression $k\\cdot\\cos x^{\\circ}$ represents the area of the triangle. What is the value of $k$?",
+    "type": "free_response",
+    "answer": "0.542"
+  },
+  {
+    "id": 17,
+    "text": "$9x^{2}+8=nx$\n\nIn the given equation, $n$ is a constant. The equation has exactly one solution. What is the value of $\\frac{n^{2}}{8}$?",
+    "type": "free_response",
+    "answer": "36"
+  },
+  {
+    "id": 18,
+    "text": "In the $xy$-plane, a unit circle with center at the origin $O$ contains point $A$ with coordinates $(1,0)$ and point $B$ with coordinates $(-\\frac{5}{\\sqrt{89}},\\frac{8}{\\sqrt{89}})$. If the measure of angle $AOB$ is $w$ radians, what is the value of $\\tan w$?",
+    "type": "free_response",
+    "answer": "-8/5"
+  },
+  {
+    "id": 19,
+    "text": "In a set of four consecutive odd integers, where the integers are ordered from least to greatest, the first integer is represented by $x$. The product of 28 and the third odd integer in the set is at most the value of 50 less than the sum of the first and fourth odd integers in the set. What is the greatest possible value of $x$?",
+    "type": "free_response",
+    "answer": "-7"
+  },
+  {
+    "id": 20,
+    "text": "Triangle $QRS$ is similar to triangle $FGH$ such that $Q$, $R$, and $S$ correspond to $F$, $G$, and $H$, respectively. Each side of triangle $FGH$ has $\\frac{1}{4}$ the length of its corresponding side in triangle $QRS$. In triangle $FGH$, the measure of angle $F$ is $35^{\\circ}$, the measure of angle $G$ is $8^{\\circ}$, and $FG=a$. In triangle $QRS$, the measure of angle $Q$ is $b^{\\circ}$ and $QR=20$. What is the value of $a+b$?",
+    "type": "free_response",
+    "answer": "40"
+  },
+  {
+    "id": 21,
+    "text": "A shipping service restricts the dimensions of the boxes it will ship for a certain type of service. The restriction states that for boxes shaped like rectangular prisms, the sum of the perimeter of the base of the box and the height of the box cannot exceed 130 inches. The perimeter of the base is determined using the width and length of the box. If a box has a height of 60 inches and its length is 2.5 times the width, which inequality shows the allowable width $x$, in inches, of the box?\n\nA. $0<x\\le10$\nB. $0<x\\le11\\frac{2}{3}$\nC. $0<x\\le13$\nD. $0<x\\le15$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 22,
+    "text": "Point $O$ is the center of a unit circle in the $xy$-plane, and its coordinates are $(0,0)$. Point $A$ lies on the unit circle, and its coordinates are $(0,1)$. Point $P$ on the unit circle is obtained by rotating point $A$ $\\frac{7\\pi}{6}$ radians about the origin in the counterclockwise direction. What are the coordinates of point $P$?\n\nA. $(-\\frac{\\sqrt{3}}{2},-\\frac{1}{2})$\nB. $(-\\frac{\\sqrt{3}}{2},\\frac{1}{2})$\nC. $(\\frac{1}{2},-\\frac{\\sqrt{3}}{2})$\nD. $(-\\frac{1}{2},-\\frac{\\sqrt{3}}{2})$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 23,
+    "text": "An online store is offering two different discounts on its sweaters: a bulk discount for large orders and a coupon discount. For orders of $n$ sweaters, where $10<n<50$, a bulk discount of $n\\%$ off the original price of \\$41 is applied to the price of each sweater. If a coupon is applied to the order, a discount of an additional \\$4 is applied to the price of each sweater. If the total price for a certain order with the coupon discount was \\$741, how many sweaters were in this order?\n\nA. 18\nB. 20\nC. 30\nD. 44",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 24,
+    "text": "$2x^{2}-x\\sqrt{k}+2y^{2}+y\\sqrt{t}-18=0$\n\nThe given equation, where $k$ and $t$ are positive constants, defines a circle in the $xy$-plane. The radius of this circle is $\\sqrt{57}$. Which expression represents the value of $t$?\n\nA. $156-k$\nB. $k-624$\nC. $624-k$\nD. $768-k$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 25,
+    "text": "A right square pyramid has a surface area of $100+20\\sqrt{146}$ square inches, which includes a base area of 100 square inches. What is the height, in inches, of this pyramid?",
+    "type": "free_response",
+    "answer": "11"
+  },
+  {
+    "id": 26,
+    "text": "$f(x)=7000(1.005)^{3x}$\n\nThe given function $f$ models the balance of a bank account, in dollars, $x$ years after it is opened. Which statement is the best interpretation of $(1.005)^{3x}$?\n\nA. Every 4 months, the balance increases by about \\$5.\nB. Every 3 years, the balance increases by about \\$5.\nC. At the end of every 4-month interval, the balance increases by about 0.5\\% of the balance at the beginning of the 4-month interval.\nD. At the end of every 3-year interval, the balance increases by about 0.5\\% of the balance at the beginning of the 2-year interval.",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 27,
+    "text": "In triangle $JKL$, the measure of angle $J$ is $(90b)^{\\circ}$, the measure of angle $K$ is $(71a)^{\\circ}$, and the measure of angle $L$ is $(19a)^{\\circ}$, where $a$ and $b$ are constants. Which of the following must be true?\n\nA. $\\cos L > \\sin K$\nB. $\\cos L = \\sin K$\nC. $\\cos L < \\sin K$\nD. There is not enough information to compare the values of $\\cos L$ and $\\sin K$.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 28,
+    "text": "For the function $f(x)=x^{3}$, the function $g(x)$ is defined by $g(x)=a\\cdot f(x+b)+c$, where $a, b, c$ are constants. The graph of $g(x)$ passes through $(4,4)$ and $(5,16)$. What is the value of $a\\cdot b$?\n\nA. 48\nB. -48\nC. 16\nD. -16",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 29,
+    "text": "A right square pyramid has a surface area of $100+20\\sqrt{146}$ square inches, which includes a base area of 100 square inches. What is the height, in inches, of this pyramid?",
+    "type": "free_response",
+    "answer": "11"
+  },
+  {
+    "id": 30,
+    "text": "The net force on an object can be found by adding all individual forces acting on it. An object is subject to a constant gravitational force of -53 N. Several balloons, each exerting an identical positive force, and several cubes, each exerting an identical negative force, are attached to the object. When there are 7 balloons and 5 cubes, the net force on the object is 49 N. When there are 5 balloons and 3 cubes, the net force is 29 N. What is the net force when there is 1 balloon and 1 cube?",
+    "type": "free_response",
+    "answer": "-43"
+  },
+  {
+    "id": 31,
+    "text": "In 2013, Chloe earned 11\\% more than in 2012, and in 2014 Chloe earned 6\\% more than in 2013. If Chloe earned $y$ times as much in 2012 as in 2014, which of the following is closest to the value of $y$?",
+    "type": "free_response",
+    "answer": "0.85"
+  },
+  {
+    "id": 32,
+    "text": "A parabola in the $xy$-plane has a vertex of $(1, 17)$. The equation $y=-ax^{2}+bx+c$ represents this parabola, where $a, b,$ and $c$ are positive integer constants. What is the greatest possible value of $b$?",
+    "type": "free_response",
+    "answer": "32"
+  },
+  {
+    "id": 33,
+    "text": "In the $xy$-plane, line $r$ passes through the points $(3, 12)$ and $(7, 13)$. Line $s$ passes through the point $(1, 2)$ and is perpendicular to line $r$. An equation of line $s$ is $ax+7y=c$, where $a$ and $c$ are constants. What is the value of $c$?",
+    "type": "free_response",
+    "answer": "42"
+  },
+  {
+    "id": 34,
+    "text": "The function $f$ is defined by $f(x)=a^{x}-b$, where $a$ and $b$ are constants. In the $xy$-plane, the graph of $y=f(x)$ passes through the points $(c,5)$ and $(2c,137)$, where $c$ is a constant. Which of the following could be the value of $b$?\n\nA. 7\nB. 16\nC. 132\nD. 142",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 35,
+    "text": "For a right circular cone, $\\overline{OP}$ is a radius of the base and $V$ is the vertex. The cone's lateral surface area, in square meters, is $rL\\pi$, where $r$ is the length, in meters, of $\\overline{OP}$ and $L$ is the length, in meters, of $\\overline{VP}$. The cone has a base area of $16\\pi$ square meters and a lateral surface area of $51\\pi$ square meters. What is the height of the cone, to the nearest meter?",
+    "type": "free_response",
+    "answer": "12"
+  },
+  {
+    "id": 36,
+    "text": "A hollow steel pipe is in the shape of a right circular cylinder. The steel pipe has an outside diameter of 60 inches, a wall thickness of $\\frac{5}{8}$ inches, and a height of 132 inches. Which of the following is closest to the volume, in cubic inches, of the wall of this steel pipe?",
+    "type": "free_response",
+    "answer": "15389"
+  },
+  {
+    "id": 37,
+    "text": "$g(x)=\\frac{1}{11}(6(2)^{x}+7)$\n\nThe function $g$ is defined by the given equation. For all values of $x$, the value of $g(x)$ is greater than $k$, where $k$ is a constant. What is the greatest possible value of $k$?\n\nA. 0\nB. \\frac{13}{11}\nC. \\frac{7}{11}\nD. 7",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 38,
+    "text": "$x^{2}+y^{2}=36$\n$y=mx+\\frac{b}{4}$\n\nIn the given system of equations, $m$ and $b$ are negative constants. In the $xy$-plane, the graphs of the equations in the given system intersect at the point $(-5,y)$, where $y<0$. Which expression represents the value of $b$?\n\nA. -\\frac{5m}{4}+\\frac{\\sqrt{11}}{4}\nB. \\frac{5m}{4}-\\frac{\\sqrt{11}}{4}\nC. -20m+4\\sqrt{11}\nD. 20m-4\\sqrt{11}$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 39,
+    "text": "Each 3.0-ounce serving of cheddar cheese and each 1.2-ounce serving of tuna provides about 1 microgram of vitamin B12. If a total of 1.7 micrograms of vitamin B12 are consumed from eating $x$ ounces of cheese and $y$ ounces of tuna, which equation best represents this situation?\n\nA. $3.0x+1.2y=1.7$\nB. $0.33x+0.83y=1.7$\nC. $0.83x+0.33y=1.7$\nD. $1.2x+3.0y=1.7$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 40,
+    "text": "For a particular car, the linear function $f$ gives the predicted power, in brake horsepower (bhp), for engine speeds between 1,000 rpm and 6,000 rpm. According to this function, the car's predicted power is 433 bhp at an engine speed of 3,331 rpm and 600 bhp at an engine speed of 4,500 rpm. The equation $f(x)=\\frac{1}{7}(x-a)+433$ defines $f$, where $x$ is the engine speed, in rpm, and $a$ is a constant. What is the value of $a$?",
+    "type": "free_response",
+    "answer": "5410"
+  },
+  {
+    "id": 41,
+    "text": "A circle has center $G$, and points $M$ and $N$ lie on the circle. Line segments $MH$ and $NH$ are tangent to the circle at points $M$ and $N$, respectively. If the radius of the circle is 247 millimeters and the perimeter of quadrilateral $GMHN$ is 5,174 millimeters, what is the distance, in millimeters, between points $G$ and $H$?",
+    "type": "free_response",
+    "answer": "2353"
+  },
+  {
+    "id": 42,
+    "text": "The height of a right circular cylinder is 31 inches, and the circumference of its base is 310 inches. Which expression represents the total surface area, in square inches, of the cylinder?\n\nA. $31\\cdot 310$\nB. $\\pi \\frac{155^{2}}{\\pi}\\cdot 31$\nC. $31\\cdot 310+\\pi \\frac{155^{2}}{\\pi}$\nD. $31\\cdot 310+2\\pi \\frac{155^{2}}{\\pi}$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 43,
+    "text": "$ax-by=52$\n$2ax-8y=48$\n\nIn the given system of equations, $a$ and $b$ are constants. The graphs of these equations in the $xy$-plane intersect at the point $(2,4)$. What is the value of $b$?\n\nA. 3\nB. 4\nC. -8\nD. -3",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 44,
+    "text": "$a, 26, 29, b, 31, 47, c$\n\nFor the given data set, the data values are listed in ascending order, where $a, b$, and $c$ are constants. For this data set, the mean is 36, the median is 29, and the range is 72. What is the value of $c$?\n\nA. 54\nB. 72\nC. 81\nD. 98",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 45,
+    "text": "A reindeer population was introduced into an area and researched for 19 years. Function $P$ models this reindeer population $t$ years after the population was introduced into the area.\n\n$P(t)=67(\\frac{5}{4})^{t}$\n\nWhich statement is the best interpretation of $\\frac{5}{4}$ in this context?\n\nA. For every 4 reindeer there were in this population in a certain year, it is predicted that there will be 5 reindeer the next year.\nB. For every 5 reindeer there were in this population in a certain year, it is predicted that there will be 4 reindeer the next year.\nC. It is predicted that this reindeer population grows by 4 reindeer every 5 years.\nD. It is predicted that this reindeer population grows by 5 reindeer every 4 years.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 46,
+    "text": "The functions $f$ and $g$ are defined by the given equations, where $x\\ge0$, $a$ and $b$ are integer constants, $a<b$ and $a>1$. If $y=f(x)$ and $y=g(x)$ are graphed in the $xy$-plane, which of the following equations displays, as a constant or coefficient, the minimum value of the function it defines, where $x\\ge0$?\n\nI. $f(x)=a(0.63)^{-bx}$\nII. $g(x)=a(1.37)^{x+2}+b$\n\nA. I only\nB. II only\nC. I and II\nD. Neither I nor II",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 47,
+    "text": "$4x^{2}-px+w=-85$\n\nIn the given equation, $p$ and $w$ are integer constants. The equation has exactly one real solution. Which is NOT a possible value of $w$?\n\nA. 111\nB. 15\nC. 64\nD. 315",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 48,
+    "text": "\\begin{cases}50x+49y=c\\\\ 49x-50y=c\\end{cases}\n\nIn the given system of equations, $c$ is a positive constant. Which of the following could be the point where the graphs of the equations in this system intersect in the $xy$-plane?\n\nA. $(10,-\\frac{10}{99})$\nB. $(10,990)$\nC. $(c,\\frac{c}{99})$\nD. $(c, 0)$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 49,
+    "text": "A circle whose equation is listed below only intersects both the $x$-axis and $y$-axis once each. What is the value of $q+w$, where $q$ and $w$ are positive integer constants?\n\n$(x+q)^{2}+(y-34)^{2}=w$",
+    "type": "free_response",
+    "answer": "1190"
+  },
+  {
+    "id": 50,
+    "text": "$x^{2}+y^{2}-6x-10y-4n=0$\n\nThe given equation represents circle A in the $xy$-plane, where $n$ is a constant. Point $(5, 7)$ lies on circle B, which has the same center but twice the diameter as circle A. What is the value of $n$?",
+    "type": "free_response",
+    "answer": "-8"
+  },
+  {
+    "id": 51,
+    "text": "The function $f(x)=0.07x^{2}+6.07$ is the result of averaging all the points on the graph below. The function $g(x)=ax^{2}+c$ is made by using the same set of points but removing the point at $x=0$. Which of the following is true about $g(x)$?\n\nI. $a>0.07$\nII. $c<6.07$\n\nA. I only\nB. II only\nC. Both I and II\nD. Neither I nor II",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 52,
+    "text": "In the figure, line $m$ is parallel to line $n$, and lines $AE$ and $CD$ intersect at point $B$. Which additional piece of information is sufficient to determine that triangle $ABC$ is congruent to triangle $EBD$?\n\nA. $AB=16$ and $DB=16$.\nB. $AB=16$ and $EB=16$.\nC. Triangles $ABC$ and $EBD$ are isosceles.\nD. No additional information is necessary to determine that the two triangles are congruent.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 53,
+    "text": "The function $f$ is defined by $f(x)=\\frac{x^{2}+ax+b}{2x+c}$, where $a, b,$ and $c$ are constants. The graph of the function $f$ in the $xy$-plane, where $y=f(x)$, does not intersect the line $x=4$. If $f(5)=f(6)=0$, what is the value of $a+b+c$?",
+    "type": "free_response",
+    "answer": "11"
+  },
+  {
+    "id": 54,
+    "text": "The function $q$ is defined by $q(x)=a|x-9|^{2}-87|x-9|+b$, where $a$ and $b$ are constants, and $a>b>87$. If $q(639)=h$ and $q(-621)=k$, where $h$ and $k$ are constants, what is the value of $9(-639)^{h-k}+621(9)^{k-h}$?",
+    "type": "free_response",
+    "answer": "630"
+  },
+  {
+    "id": 55,
+    "text": "One of the factors of $8x^{4}+26x^{2}+21$ is $ax^{2}+b$, where $a$ and $b$ are positive constants. Which of the following is a possible value of $ab$?",
+    "type": "free_response",
+    "answer": "6 or 28"
+  },
+  {
+    "id": 56,
+    "text": "$4x^{2}+4y^{2}+bx+by=32$\n\nThe given equation, where $b$ is a positive constant, defines a circle in the $xy$-plane. The radius of the circle is $\\sqrt{106}$. What is the value of $b$?",
+    "type": "free_response",
+    "answer": "56"
+  },
+  {
+    "id": 57,
+    "text": "Solve for $x$:\n\n$x=\\sqrt[2n]{7x^{n}+30}$",
+    "type": "free_response",
+    "answer": "10"
+  },
+  {
+    "id": 58,
+    "text": "Data set A: 24, 34, 44, 54, 64\n\nData set A, which consists of the 5 values shown, has a mean of 44 and a standard deviation of approximately 14.10. Data set B consists of the 5 values from data set A and one additional value $k$. For which of the following values of $k$ will the standard deviation of data set B be less than the standard deviation of data set A?\n\nA. 14\nB. 49\nC. 74\nD. There is no value of $k$ such that the standard deviation of data set B will be less than the standard deviation of data set A.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 59,
+    "text": "The graph of $y=g(x)$ is shown. If $g(x+28)=\\frac{1}{10}(x-a)^{2}(x-b)^{2}(x-c)$, where $a, b,$ and $c$ are constants, which of the following could be the value of $a+b+c$?\n\nA. 31\nB. 9\nC. -2\nD. -25",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 60,
+    "text": "In triangle $JKL$, the measure of angle $J$ is $(90b)^{\\circ}$, the measure of angle $K$ is $(71a)^{\\circ}$, and the measure of angle $L$ is $(19a)^{\\circ}$, where $a$ and $b$ are constants. Which of the following must be true?\n\nA. $\\cos L > \\sin K$\nB. $\\cos L = \\sin K$\nC. $\\cos L < \\sin K$\nD. There is not enough information to compare the values of $\\cos L$ and $\\sin K$.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 61,
+    "text": "In the figure shown, points $A, B, C$, and $E$ lie on the circle, and $AB<BC$. Segment $AC$ is perpendicular to segment $BE$ at point $D$, and $BD=\\sqrt{322}$. The diameter of the circle is 163. If $\\frac{CD}{AD}=r$, what is the value of $r$?",
+    "type": "free_response",
+    "answer": "80.5 or 161/2"
+  },
+  {
+    "id": 62,
+    "text": "The points $(0,15)$, $(10,8)$, and $(10,3)$ are shown in the $xy$-plane, where the $x$-axis and $y$-axis are measured in units. These points define one of the bases of a triangular prism. The distance between the two bases of the prism is 20 units. What is the volume, in cubic units, of the prism?",
+    "type": "free_response",
+    "answer": "500"
+  },
+  {
+    "id": 63,
+    "text": "In triangles $RST$ and $XYZ$ shown, $XY$ is parallel to $TS$ and $\\tan R = \\frac{180}{299}$. What is the value of $\\sin X$ in triangle $XYZ$?\n\nA. $\\frac{180}{349}$\nB. $\\frac{299}{349}$\nC. $\\frac{180}{479}$\nD. $\\frac{299}{180}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 64,
+    "text": "A beekeeper's initial observation of the population of a certain bee colony was 1,600 bees. The beekeeper set a goal to increase the population to 2,975 bees. The beekeeper uses a model that predicts the population of this bee colony begins at 1,600 and increases by 110 bees per week in the first two weeks after the initial observation, and then increases by 165 bees per week until the beekeeper's goal is reached. According to this model, at the end of week $w$ after the initial observation, where $w>2$, which of the following functions gives the predicted number of bees still needed to reach the beekeeper's goal?\n\nA. $p(w)=-110+165w$\nB. $p(w)=1,485-165w$\nC. $p(w)=2,865+165w$\nD. $p(w)=2,975-165w$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 65,
+    "text": "In quadrilateral $KLMN$, $KL=3$, $LM=3$, $KN=27$, and $MN=27$. Diagonals intersect at point $G$, where $GK=1$ and $GM=1$. If the length of diagonal $LN$ is $\\sqrt{p}+\\sqrt{w}$, what is $p+w$?",
+    "type": "free_response",
+    "answer": "736"
+  },
+  {
+    "id": 66,
+    "text": "During the first 8.00 seconds after a car started moving, its speed increased to 11.0 meters per second. From 8.00 seconds to 14.0 seconds after the car started moving, its speed increased from 11.0 meters per second to 23.0 meters per second. To the nearest hundredth, what is the positive difference between the average rate of change of the speed of the car, in meters per second per second, during the first 8.00 seconds after the car started moving and the average rate of change of the speed of the car, in meters per second per second, from 8.00 seconds to 14.0 seconds after the car started moving?",
+    "type": "free_response",
+    "answer": "0.63"
+  },
+  {
+    "id": 67,
+    "text": "The equation for a circle is listed below. Find the expression for the radius in terms of $a$, which is a constant.\n\n$x^{2}-2ax+y^{2}-6y-14a=40$\n\nA. $a-7$\nB. $a+7$\nC. $(a-7)^{2}$\nD. $(a+7)^{2}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 68,
+    "text": "The expression $6x^{4}+17x^{2}+7$ can be rewritten as $(3x^{2}+a)(2x^{2}+b)$, where $a$ and $b$ are positive integers, or as $(3x^{2}+c)(2x^{2}+d)$, where $c$ and $d$ are positive nonintegers. What is the value of $a+c$?",
+    "type": "free_response",
+    "answer": "8.5"
+  },
+  {
+    "id": 69,
+    "text": "In the diagram below, point $O$ is the center of the circle, $BD$ is a diameter, and $AC=BC$. Find the measure of angle $DBA$.",
+    "type": "free_response",
+    "answer": "52"
+  },
+  {
+    "id": 70,
+    "text": "Compound A is 0.9\\% potassium chloride. Compound B is 0.025\\% potassium chloride. Compounds A and B are mixed together to form a new compound that weighs 140 grams and contains 28 grams of potassium chloride. What is the total mass of compound B, in grams?",
+    "type": "free_response",
+    "answer": "-3054"
+  }
+]; 
+   quizData.forEach(data => {
+        // Tự động bóc tách các lựa chọn A, B, C, D từ text đưa vào options
+        if (data.type === 'multiple_choice' && !data.options) {
+            data.options = {};
+            let lines = data.text.split('\n');
+            let qText = [];
+            lines.forEach(line => {
+                let match = line.match(/^([A-D])\.\s+(.*)/);
+                if (match) {
+                    data.options[match[1]] = match[2];
+                } else {
+                    if (line.trim() !== '') qText.push(line);
+                }
+            });
+            // Thêm các thẻ xuống dòng HTML chuẩn
+            data.text = qText.join('<br/><br/>');
+        } else if (data.text) {
+            // Fix lỗi xuống dòng cho các câu Fill in the blank
+            data.text = data.text.replace(/\n/g, '<br/>');
+        }
+    });
+
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); // Chèn các nút vào khối Nav đã tạo trong HTML
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px"; // Đảm bảo cuộn tới không bị khuất
+
+            let contentHtml = '';
+
+            // Nếu câu trắc nghiệm (đã được bóc tách ở tiền xử lý)
+            if (data.options && Object.keys(data.options).length > 0) {
+                let optionsHtml = '';
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+                contentHtml = `<ul class="options">${optionsHtml}</ul>`;
+            } else {
+                contentHtml = `
+                    <div style="margin-top: 10px;">
+                        <input type="text" class="fill-input" id="input-${data.id}" name="question${data.id}" placeholder="Nhập đáp án của bạn...">
+                        <div id="feedback-${data.id}" class="answer-feedback"></div>
+                    </div>
+                `;
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.text}</div>
+                ${contentHtml}
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    // Gắn trực tiếp các nút vào khối Div đã có sẵn bên ngoài thay vì tự tạo box nổi
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; // Làm sạch trước khi load
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 35px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em;
+                transition: background 0.2s;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    // ==========================================
+    // LOGIC CHO 2 NÚT ẨN HIỆN GIAO DIỆN MỚI
+    // ==========================================
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const quizNavBox = document.getElementById('quizNavBox');
+    
+    toggleSidebarBtn.addEventListener('click', () => {
+        if (quizNavBox.style.display === 'none' || quizNavBox.style.display === '') {
+            quizNavBox.style.display = 'block';
+        } else {
+            quizNavBox.style.display = 'none';
+        }
+    });
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.style.display === 'none') {
+            stickyFooter.style.display = 'flex';
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+            toggleNavBtn.style.bottom = '85px'; // Đẩy nút lên trên footer
+        } else {
+            stickyFooter.style.display = 'none';
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+            toggleNavBtn.style.bottom = '20px'; // Hạ nút xuống dưới cùng khi ẩn footer
+        }
+    });
+
+
+    // (Giữ nguyên các hàm checkAndRestoreProgress, checkCurrentAnswers, updateNavigatorState, v.v.. của bạn bên dưới)
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) hasAnswered = true;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') hasAnswered = true;
+            }
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; btn.style.color = '#ffffff'; btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; btn.style.color = '#2c3e50'; btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userAnswers[data.id] = inputEl.value.trim();
+            }
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const data = quizData.find(q => q.id == qId);
+                    if (data) {
+                        if (data.options && Object.keys(data.options).length > 0) {
+                            const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                            if (radio) radio.checked = true;
+                        } else {
+                            const inputEl = document.getElementById(`input-${qId}`);
+                            if (inputEl) inputEl.value = value;
+                        }
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.answer || data.correctAnswer || '').toString().trim().toLowerCase();
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) {
+                    checkedAny = true;
+                    const userAnswer = selectedOption.value.trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                        currentScore++;
+                    } else {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                        const correctKey = (data.answer || data.correctAnswer);
+                        if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                            document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                        }
+                    }
+
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => radio.disabled = true);
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') {
+                    checkedAny = true;
+                    const userAnswer = inputEl.value.trim().toLowerCase();
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+
+                    if (userAnswer === correctAnswer) {
+                        inputEl.classList.add('correct-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #27ae60;">Chính xác!</span>`;
+                        currentScore++;
+                    } else {
+                        inputEl.classList.add('wrong-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #c0392b;">Sai rồi. Đáp án đúng: <strong>${data.answer || data.correctAnswer}</strong></span>`;
+                    }
+
+                    inputEl.disabled = true;
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn hoặc nhập đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            let val = 'Bỏ trống';
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) val = selected.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') val = inputEl.value.trim();
+            }
+            studentAnswers[`Câu ${index + 1}`] = val;
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                if (data.options && Object.keys(data.options).length > 0) {
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => {
+                        radio.disabled = false;
+                        radio.checked = false;
+                    });
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                } else {
+                    const inputEl = document.getElementById(`input-${data.id}`);
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.value = '';
+                        inputEl.classList.remove('correct-input', 'wrong-input');
+                    }
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+                    if (feedbackEl) feedbackEl.innerHTML = '';
+                }
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script>
+    (function() {
+        // Tự động lấy tên bài học từ thẻ <title> của file btap
+        const QUIZ_KEY = document.title.trim() || "August SAT Math"; 
+        const studentId = sessionStorage.getItem('studentId') || 'GUEST';
+
+        function saveProgressAndNotify() {
+            const answers = {};
+            
+            // Lấy các câu trắc nghiệm đã chọn
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                answers[radio.name] = radio.value;
+            });
+
+            // Lấy các câu điền ô trống
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                if (input.value.trim() !== '' && input.name) {
+                    answers[input.name] = input.value.trim();
+                }
+            });
+
+            // Đếm tổng số câu trong bài
+            let totalQuestions = document.querySelectorAll('.question-block, .question').length;
+            if (totalQuestions === 0) {
+                const radioNames = new Set([...document.querySelectorAll('input[type="radio"]')].map(i => i.name));
+                totalQuestions = radioNames.size || 1;
+            }
+
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            localStorage.setItem(storageKey, JSON.stringify(answers));
+            localStorage.setItem(storageKey + '_total', totalQuestions);
+
+            // Báo cho trang chính index.html cập nhật ngay lập tức
+            if (window.parent) {
+                window.parent.postMessage({ type: 'SAT_PROGRESS_UPDATE' }, '*');
+            }
+        }
+
+        function restoreDraftAnswers() {
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            try {
+                const answers = JSON.parse(saved);
+                Object.keys(answers).forEach(name => {
+                    const val = answers[name];
+                    const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+
+                    const textInput = document.querySelector(`input[name="${name}"]`);
+                    if (textInput && textInput.type !== 'radio') textInput.value = val;
+                });
+            } catch(e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            restoreDraftAnswers();
+            saveProgressAndNotify();
+
+            document.addEventListener('change', saveProgressAndNotify);
+            document.addEventListener('input', saveProgressAndNotify);
+        });
+    })();
+    </script>
+</body>
+</html>
