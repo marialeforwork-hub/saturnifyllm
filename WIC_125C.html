@@ -9,6 +9,10 @@
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
         .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
         .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
         .options { list-style-type: none; padding: 0; }
         .options li { margin-bottom: 10px; }
@@ -18,121 +22,28 @@
         .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
         .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
         .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
         /* Khung chứa danh sách câu hỏi */
-.question-list-panel {
-    position: fixed;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.3s ease;
-    z-index: 999;
-}
-
-/* Khi có lớp 'collapsed' sẽ trượt ẩn sang phải */
-.question-list-panel.collapsed {
-    transform: translate(calc(100% + 20px), -50%);
-}
-
-/* Nút bấm ẩn/hiện đính kèm bên mép trái của bảng */
-.toggle-sidebar-btn {
-    position: absolute;
-    left: -40px;
-    top: 20px;
-    width: 40px;
-    height: 40px;
-    background: #3498db;
-    color: white;
-    border: none;
-    border-radius: 8px 0 0 8px;
-    cursor: pointer;
-    font-size: 1.2em;
-    box-shadow: -3px 0 6px rgba(0,0,0,0.1);
-}
-        .sticky-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #fff;
-    padding: 15px 20px;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 1000;
-    box-sizing: border-box;
-    border-top: 3px solid #3498db;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-/* Các lớp mới dùng để ẩn/hiện và tạo nút bấm */
-.sticky-footer.hidden {
-    transform: translateY(100%);
-    opacity: 0;
-    pointer-events: none;
-}
-
-.toggle-nav-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1001;
-    background-color: #3498db;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 0.9em;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: background 0.3s, transform 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
-.toggle-nav-btn:active { transform: translateY(0); }
-        .stats {
-            font-size: 1.1em;
-            color: #2c3e50;
-        }
+        .question-list-panel { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); transition: transform 0.3s ease; z-index: 999; }
+        .question-list-panel.collapsed { transform: translate(calc(100% + 20px), -50%); }
+        .toggle-sidebar-btn { position: absolute; left: -40px; top: 20px; width: 40px; height: 40px; background: #3498db; color: white; border: none; border-radius: 8px 0 0 8px; cursor: pointer; font-size: 1.2em; box-shadow: -3px 0 6px rgba(0,0,0,0.1); }
+        
+        .sticky-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 15px 20px; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 1000; box-sizing: border-box; border-top: 3px solid #3498db; transition: transform 0.3s ease, opacity 0.3s ease; }
+        .sticky-footer.hidden { transform: translateY(100%); opacity: 0; pointer-events: none; }
+        
+        .toggle-nav-btn { position: fixed; bottom: 20px; right: 20px; z-index: 1001; background-color: #3498db; color: #fff; border: none; border-radius: 20px; padding: 8px 16px; font-size: 0.9em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: background 0.3s, transform 0.2s; display: flex; align-items: center; gap: 6px; }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        
+        .stats { font-size: 1.1em; color: #2c3e50; }
         .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
         .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
         
-        .global-check-btn {
-            padding: 12px 30px;
-            font-size: 1.1em;
-            background-color: #2ecc71;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
-        }
+        .global-check-btn { padding: 12px 30px; font-size: 1.1em; background-color: #2ecc71; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s; box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3); }
         .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
-        .global-check-btn:active { transform: translateY(1px); }
-        .reset-btn {
-            padding: 12px 20px;
-            font-size: 1.1em;
-            background-color: #e74c3c;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
-        }
+        .reset-btn { padding: 12px 20px; font-size: 1.1em; background-color: #e74c3c; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.3s; box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3); }
         .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
-        .reset-btn:active { transform: translateY(1px); }
         
-        @media (max-width: 600px) {
-            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
-            .global-check-btn { width: 100%; }
-        }
+        @media (max-width: 600px) { .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; } .global-check-btn { width: 100%; } }
     </style>
 </head>
 <body>
@@ -142,24 +53,22 @@
     <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
 </div>
-    <div class="question-list-panel" id="questionListPanel">
-    <!-- Nút bật/tắt dạng tab nhỏ nhô ra bên hông -->
+
+<div class="question-list-panel" id="questionListPanel">
     <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
-    
-    <!-- Nội dung bảng danh sách câu hỏi hiện tại của bạn nằm ở đây -->
     <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
         <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
-        <!-- Danh sách nút từ 1 đến 61... -->
+        <!-- Khối chứa các nút bấm sẽ được sinh ra từ JS -->
+        <div id="navGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-height: 60vh; overflow-y: auto;"></div>
     </div>
 </div>
-<!-- Thêm nút này nằm ngay TRÊN thẻ sticky-footer -->
+
 <button class="toggle-nav-btn" id="toggleNavBtn">
     <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
 </button>
 
-<!-- Thêm id="stickyFooter" vào thẻ bên dưới -->
+<!-- Đã sửa lỗi thừa thẻ div sticky-footer ở đây -->
 <div class="sticky-footer" id="stickyFooter">
-<div class="sticky-footer">
     <div class="stats">
         Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
         Điểm số:<span id="scoreText">0</span>
@@ -186,7 +95,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    // Xử lý sự kiện Hiện/Ẩn Thanh Navigator
+
     const toggleNavBtn = document.getElementById('toggleNavBtn');
     const stickyFooter = document.getElementById('stickyFooter');
     const toggleIcon = document.getElementById('toggleIcon');
@@ -198,6 +107,7 @@
         toggleIcon.textContent = isHidden ? '🙈' : '👁️';
         toggleText.textContent = isHidden ? 'Hiện thanh công cụ' : 'Ẩn thanh công cụ';
     });
+
     const questionListPanel = document.getElementById('questionListPanel');
     const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
 
@@ -209,7 +119,6 @@
         questionListPanel.classList.toggle('collapsed');
     });
 
-    // 🕒 LƯU MỐC THỜI GIAN BẮT ĐẦU CỦA LẦN LÀM BÀI HIỆN TẠI
     let startTime = new Date();
 
     async function saveScoreToFirebase(score, total) {
@@ -218,28 +127,33 @@
         const quizName = document.title;
         const endTime = new Date();
 
-        // Thu thập chi tiết từng câu làm đúng hay sai
         let detailedAnswers = {};
         quizData.forEach((data, index) => {
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
             const userChoice = selectedOption ? selectedOption.value : "Bỏ trống";
-            const isCorrect = userChoice === data.correctAnswer;
+            // Đã sửa correctAnswer thành data.answer
+            const isCorrect = userChoice === (data.answer || data.correctAnswer); 
 
             detailedAnswers[`Câu ${index + 1}`] = {
-                questionText: data.question,
+                questionText: data.question || "N/A",
                 userChoice: userChoice,
-                correctAnswer: data.correctAnswer,
+                correctAnswer: data.answer || data.correctAnswer,
                 isCorrect: isCorrect
             };
         });
 
-        // Tính thời gian làm bài thực tế của lượt này (giây / phút)
         const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
         const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
 
         try {
             await addDoc(collection(db, "results"), {
-                // ... (các trường dữ liệu)
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                duration: durationText,
+                answers: detailedAnswers,
                 timestamp: new Date()
             });
             console.log("Đã lưu chi tiết bài làm lên Firebase!");
@@ -248,11 +162,8 @@
         }
     }
 
-    const quizData = [ 
-    {
-        "id": 1,
-        "source": "2022-10-AS-36",
-  [
+    // ĐÃ SỬA LỖI CÚ PHÁP (DƯ DẤU NGOẶC) TRONG MẢNG DỮ LIỆU Ở ĐÂY
+    const quizData = [
     {
         "id": 1,
         "source": "2022-10-AS-36",
@@ -383,7 +294,7 @@
         },
         "answer": "D"
     },
-    {
+   {
         "id": 11,
         "source": "2022-05-US-15",
         "passage": "A second experiment was even more startling. This time, a new group of blindfolded participants explored the same objects by touch. Rather than carefully and complex study, they _ rated how pleasant each object felt.30",
@@ -1839,7 +1750,8 @@
         },
         "answer": "B"
     }
-];
+    ];
+
     const quizContainer = document.getElementById('quiz');
     let currentScore = 0;
     let answeredCount = 0;
@@ -1850,8 +1762,6 @@
 
     function buildQuiz() {
         quizContainer.innerHTML = '';
-        
-        // 📌 1. TỰ ĐỘNG TẠO HỘP NAVIGATOR CHỌN CÂU CỐ ĐỊNH GÓC PHẢI
         createNavigatorBox();
 
         quizData.forEach((data, index) => {
@@ -1873,17 +1783,20 @@
                 `;
             }
 
+            // ĐÃ SỬA LỖI: Thêm việc in data.passage vào HTML (nếu câu hỏi có văn bản đọc hiểu)
+            const passageHtml = data.passage ? `<div class="question-passage">${data.passage}</div>` : '';
+
             questionBlock.innerHTML = `
+                ${passageHtml}
                 <div class="question-text">Câu ${index + 1}: ${data.question}</div>
                 <ul class="options">
                     ${optionsHtml}
                 </ul>
-                <div class="explanation" id="explanation-${data.id}">${data.explanation}</div>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || 'Không có giải thích.'}</div>
             `;
             quizContainer.appendChild(questionBlock);
         });
         
-        // Lắng nghe sự kiện chọn đáp án để lưu bản nháp & đổi màu Navigator
         quizContainer.addEventListener('change', (e) => {
             saveProgress();
             updateNavigatorState();
@@ -1893,27 +1806,10 @@
         if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
     }
 
-    // 🛠️ HÀM TẠO HỘP NAVIGATOR DẠNG LƯỚI
     function createNavigatorBox() {
-        let oldBox = document.getElementById('quizNavBox');
-        if (oldBox) oldBox.remove();
-
-        const navBox = document.createElement('div');
-        navBox.id = 'quizNavBox';
-        navBox.style.cssText = `
-            position: fixed; top: 20px; right: 20px; width: 210px; max-height: 75vh;
-            background: #ffffff; border: 2px solid #3498db; border-radius: 10px; padding: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        `;
-
-        const title = document.createElement('div');
-        title.innerText = '📌 Danh Sách Câu Hỏi';
-        title.style.cssText = 'font-weight: bold; color: #2c3e50; font-size: 0.9em; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
-        navBox.appendChild(title);
-
-        const grid = document.createElement('div');
-        grid.style.cssText = 'display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;';
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
 
         quizData.forEach((data, index) => {
             const btn = document.createElement('button');
@@ -1931,20 +1827,22 @@
             };
             grid.appendChild(btn);
         });
-
-        navBox.appendChild(grid);
-        document.body.appendChild(navBox);
     }
 
-    // 🔄 ĐỔI MÀU Ô NAVIGATOR KHI ĐÃ CHỌN CÂU HỎI
     function updateNavigatorState() {
         quizData.forEach((data) => {
             const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
             const btn = document.getElementById(`nav_btn_${data.id}`);
-            if (btn && selected) {
-                btn.style.background = '#2ecc71';
-                btn.style.color = '#ffffff';
-                btn.style.borderColor = '#27ae60';
+            if (btn) {
+                if (selected) {
+                    btn.style.background = '#2ecc71';
+                    btn.style.color = '#ffffff';
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa';
+                    btn.style.color = '#2c3e50';
+                    btn.style.borderColor = '#bdc3c7';
+                }
             }
         });
     }
@@ -1993,7 +1891,6 @@
                     }
                 }
             } else {
-                // Làm lại từ đầu -> Đặt lại thời gian bắt đầu lượt làm mới
                 startTime = new Date();
                 localStorage.removeItem(QUIZ_STORAGE_KEY);
             }
@@ -2012,18 +1909,24 @@
             if (selectedOption) {
                 checkedAny = true;
                 const userAnswer = selectedOption.value;
-                const correctAnswer = data.correctAnswer;
+                // ĐÃ SỬA LỖI: gọi đúng biến data.answer thay vì data.correctAnswer
+                const correctAnswer = data.answer || data.correctAnswer;
                 
                 if (userAnswer === correctAnswer) {
                     document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('correct-answer-label');
                     currentScore++;
                 } else {
                     document.getElementById(`label-${data.id}-${userAnswer}`).classList.add('wrong-answer-label');
-                    document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
+                    if (document.getElementById(`label-${data.id}-${correctAnswer}`)) {
+                        document.getElementById(`label-${data.id}-${correctAnswer}`).classList.add('correct-answer-label');
+                    }
                 }
 
-                const explanationEl = document.getElementById(`explanation-${data.id}`);
-                if (explanationEl) explanationEl.style.display = 'block';
+                // Nếu có giải thích, hiện lên, tuy file json của bạn không có biến này nhưng vẫn giữ hàm để tương thích
+                if (data.explanation) {
+                    const explanationEl = document.getElementById(`explanation-${data.id}`);
+                    if (explanationEl) explanationEl.style.display = 'block';
+                }
 
                 const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
                 radios.forEach(radio => radio.disabled = true);
@@ -2037,8 +1940,6 @@
             alert('Bạn chưa chọn đáp án nào để kiểm tra!');
         } else {
             updateScoreBoard();
-            
-            // 📊 2. LƯU DỮ LIỆU CHI TIẾT SANG DÀNH CHO ADMIN
             saveAdminResultData();
 
             if (typeof saveScoreToFirebase === 'function') {
@@ -2052,7 +1953,6 @@
         }
     }
 
-    // 📤 HÀM TỔNG HỢP & GỬI DỮ LIỆU KẾT QUẢ SANG TRANG ADMIN
     function saveAdminResultData() {
         const endTime = new Date();
         const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
@@ -2085,7 +1985,6 @@
         history.push(resultData);
         localStorage.setItem('sat_results', JSON.stringify(history));
 
-        // Bắn dữ liệu ra ngoài iframe nếu có
         if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
         }
@@ -2096,8 +1995,6 @@
         
         currentScore = 0;
         answeredCount = 0;
-        
-        // 🕒 ĐẶT LẠI MỐC THỜI GIAN BẮT ĐẦU CHO LẦN LÀM MỚI
         startTime = new Date();
         
         localStorage.removeItem(QUIZ_STORAGE_KEY);
@@ -2116,14 +2013,15 @@
                 const explanationEl = document.getElementById(`explanation-${data.id}`);
                 if (explanationEl) explanationEl.style.display = 'none';
                 
-                for (const key of Object.keys(data.options)) {
-                    const lbl = document.getElementById(`label-${data.id}-${key}`);
-                    if (lbl) {
-                        lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
                     }
                 }
 
-                // Đặt lại màu ô Navigator
                 const navBtn = document.getElementById(`nav_btn_${data.id}`);
                 if (navBtn) {
                     navBtn.style.background = '#f8f9fa';
