@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATURNIFY - YOUR </title>
+    <title>SATURNIFY - YOUR SAT TUTOR </title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -49,7 +49,7 @@
 <body>
 
 <div id="mainContent" class="container">
-    <h1>📚 Thư Viện Luyện Thi SAT</h1>
+    <h1>📚 SATURNIFY - YOUR SAT TUTOR</h1>
 
     <!-- Khung nhập Passcode cá nhân -->
     <div id="loginSection" class="login-box">
@@ -67,13 +67,13 @@
 
     <!-- Danh mục bài tập -->
     <div id="quizContent" class="hidden">
-        <div id="adminLink" class="hidden" style="text-align: right;">
-            <!-- Ô Tìm kiếm Bài Tập -->
-<div class="search-box">
-    <input type="text" id="searchInput" placeholder="🔍 Nhập tên bài tập để tìm kiếm..." onkeyup="filterQuizzes()">
-</div>
-            <a href="admin.html" class="btn-admin">⚙️ Trang Quản Lý Admin</a>
-        </div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 Nhập tên bài tập để tìm kiếm..." onkeyup="filterQuizzes()">
+    </div>
+
+    <div id="adminLink" class="hidden" style="text-align: right;">
+        <a href="admin.html" class="btn-admin">⚙️ Trang Quản Lý Admin</a>
+    </div>
 
         <!-- Group 1: SAT Math -->
         <div id="catMath" class="quiz-category hidden">
@@ -220,6 +220,49 @@
 </div>
 
 <script>
+    // === TỰ ĐỘNG ĐẾM TỔNG SỐ CÂU CHO TẤT CẢ CÁC BÀI TẬP ===
+async function autoDetectTotalQuestions() {
+    const items = document.querySelectorAll('.quiz-item');
+    for (let item of items) {
+        const btn = item.querySelector('.btn-start');
+        if (!btn) continue;
+        
+        // Trích xuất tên file HTML từ hàm openTimerModal('tên_file.html', ...)
+        const match = btn.getAttribute('onclick')?.match(/openTimerModal\('([^']+)'/);
+        if (match && match[1]) {
+            const quizUrl = match[1];
+            try {
+                const res = await fetch(quizUrl);
+                const htmlText = await res.text();
+                const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+                
+                // Đếm số lượng câu hỏi (tìm thẻ .question-block hoặc thẻ .question)
+                let count = doc.querySelectorAll('.question-block, .question').length;
+                
+                // Nếu file không có class trên, tự đếm số nhóm câu hỏi trắc nghiệm
+                if (count === 0) {
+                    const radioNames = new Set([...doc.querySelectorAll('input[type="radio"]')].map(i => i.name));
+                    count = radioNames.size;
+                }
+                
+                if (count > 0) {
+                    item.setAttribute('data-total', count);
+                }
+            } catch (e) {
+                console.log("Chưa quét được file: " + quizUrl);
+            }
+        }
+    }
+    // Cập nhật lại thanh tiến độ sau khi đã tự động đếm xong
+    updateAllProgressBars();
+}
+
+// Gọi hàm quét ngay khi học sinh đăng nhập thành công
+const originalApplyAccessRights = applyAccessRights;
+applyAccessRights = function() {
+    originalApplyAccessRights();
+    autoDetectTotalQuestions(); // Tự động đếm tổng số câu khi vào trang
+};
     const STUDENT_PASSCODES = {
         "THUVINH":  { name: "Thu Vinh", role: "math_only" },
         "GIAHIEN":  { name: "Gia Hiển", role: "math_only" },
