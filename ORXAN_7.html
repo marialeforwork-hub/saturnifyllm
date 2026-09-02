@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATH PRACTICE - ORXAN 7</title>
+    
+    <!-- Tích hợp MathJax để hiển thị công thức toán học -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .fill-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .correct-input {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .wrong-input {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        .answer-feedback {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        /* Nút Sidebar và Nav Box Styles */
+        .toggle-sidebar-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 10001;
+            background: #3498db; color: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .toggle-sidebar-btn:hover { transform: scale(1.05); }
+
+        #quizNavBox {
+            position: fixed; top: 75px; right: 20px; width: 220px; max-height: 75vh;
+            background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            display: none; /* Mặc định ẩn */
+        }
+
+        .toggle-nav-btn {
+            position: fixed; bottom: 85px; right: 20px; z-index: 1001;
+            background: #e67e22; color: #fff; border: none; padding: 10px 18px;
+            border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: bottom 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nút Toggle Sidebar danh sách câu hỏi -->
+<button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+
+<!-- Khối danh sách câu hỏi -->
+<div id="quizNavBox">
+    <h3 style="text-align: center; margin-top: 0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">📌 Danh Sách Câu Hỏi</h3>
+    <div id="navGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+        <!-- Danh sách nút sẽ được JS chèn tự động vào đây -->
+    </div>
+</div>
+
+<div class="container">
+    <h1>MATH PRACTICE - ORXAN 7</h1>
+    <p style="text-align: center; color: #7f8c8d;">Chọn đáp án hoặc nhập kết quả, sau đó bấm <strong>"Kiểm tra"</strong> để xem đáp án. Module 1: Reading and Writing (câu 1->27), Module 1: Reading and Writing (câu 28->54), Module 1: Math (câu 55->75), Module 2: Math (câu 76->98)</p>
+    <div id="quiz"></div>
+</div>
+
+<!-- Nút Toggle ẩn hiện Footer -->
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<!-- Sticky Footer Công Cụ -->
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let startTime = new Date();
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            let userChoice = "Bỏ trống";
+            const expected = data.answer || data.correctAnswer || '';
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userChoice = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userChoice = inputEl.value.trim();
+            }
+
+            const isCorrect = userChoice.toString().trim().toLowerCase() === expected.toString().trim().toLowerCase();
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.text || data.question,
+                userChoice: userChoice,
+                correctAnswer: expected,
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+  const quizData =[
+  {
+    "id": 1,
+    "text": "The table summarizes the distribution of age and assigned group for 90 participants in a study.\n\nGroup A: 15 (0-9 years), 14 (10-19 years), 1 (20+ years), Total: 30\nGroup B: 5 (0-9 years), 7 (10-19 years), 18 (20+ years), Total: 30\nGroup C: 10 (0-9 years), 9 (10-19 years), 11 (20+ years), Total: 30\nTotal: 30 (0-9 years), 30 (10-19 years), 30 (20+ years), Total: 90\n\nOne of these participants will be selected at random. What is the probability of selecting a participant from group A, given that the participant is at least 10 years of age?\n\nA. $\\frac{1}{6}$\nB. $\\frac{1}{4}$\nC. $\\frac{1}{16}$\nD. $\\frac{1}{2}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 2,
+    "text": "The table shows three values of x and their corresponding values of $g(x)$, where $g(x)=\\frac{f(x)}{x+4}$ and f is a linear function. What is the y-intercept of the graph of $y=f(x)$ in the xy-plane?\n\nx | g(x)\n-28 | 5\n-8 | 0\n20 | 7\n\nA. (0, -8)\nB. (0, 6)\nC. (0, 12)\nD. (0, 48)",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 3,
+    "text": "$\\frac{1}{cx}=\\frac{x}{124}+\\frac{1}{c}$\n\nIn the given equation, c is a constant. If the equation has exactly one solution, what is the value of c?",
+    "type": "student_produced",
+    "answer": "-31"
+  },
+  {
+    "id": 4,
+    "text": "A conservation specialist hung artificial nesting structures each in the shape of a right rectangular prism for a species of native duck. Each structure has a height of 20 inches. The length of each structure's base is x inches, which is 2 inches more than the width of the structure's base. Which function V gives the volume of each structure, in cubic inches, in terms of the length of the structure's base?\n\nA. $V(x)=20x(x-2)$\nB. $V(x)=20x(x+2)$\nC. $V(x)=x(x+20)(x-2)$\nD. $V(x)=x(x+20)(x+2)$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 5,
+    "text": "What is the value of $\\tan\\left(-\\frac{50\\pi}{3}\\right)$?\n\nA. $-\\sqrt{3}$\nB. $-\\frac{\\sqrt{3}}{3}$\nC. $\\frac{\\sqrt{3}}{3}$\nD. $\\sqrt{3}$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 6,
+    "text": "Each side of equilateral triangle S is multiplied by a scale factor of k to create equilateral triangle T. The length of each side of triangle T is greater than the length of each side of triangle S. Which of the following could be the value of k?\n\nA. 0\nB. $\\frac{37}{38}$\nC. 1\nD. $\\frac{38}{37}$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 7,
+    "text": "$\\sqrt[5]{88n}(\\sqrt[6]{88n})^{2}$\n\nFor what value of x is the given expression equivalent to $(88n)^{30x}$, where $n>1$?",
+    "type": "student_produced",
+    "answer": "4/225"
+  },
+  {
+    "id": 8,
+    "text": "$f(x)=25(1.20)^{\\frac{x}{4}}$\n\nFor the given function f, the value of $f(x)$ increases by $p\\%$ for every increase of x by 8. What is the value of p?\n\nA. 20\nB. 31\nC. 40\nD. 44",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 9,
+    "text": "The mass of object A is 497% of the mass of object B, and the mass of object A is 0.071% of the mass of object C. If the mass of object C is $p\\%$ of the mass of object B, what is the value of $\\frac{p}{1,000}$?",
+    "type": "student_produced",
+    "answer": "700"
+  },
+  {
+    "id": 10,
+    "text": "The scatterplot shows the relationship between two variables, x and y. A line of best fit for the data is also shown.\n\nFor how many of the 9 data points is the actual y-value less than the y-value predicted by the line of best fit?\n\nA. 7\nB. 5\nC. 4\nD. 2",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 11,
+    "text": "The function g is defined by $g(x)=10^{3x-7}$. What is the value of x when $g(x)$ is equal to 10,000?\n\nA. 3\nB. $\\frac{10}{3}$\nC. $\\frac{11}{3}$\nD. 4",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 12,
+    "text": "$y=-0.5$\n$y=x^{2}+10x+a$\n\nIn the given system of equations, a is a positive integer constant. The system has no real solutions. What is the least possible value of a?",
+    "type": "student_produced",
+    "answer": "25"
+  },
+  {
+    "id": 13,
+    "text": "$\\sqrt[3]{285n}(\\sqrt[4]{285n})^{2}$\n\nFor what value of x is the given equation equivalent to $(285n)^{12x}$, where $n>1$?",
+    "type": "student_produced",
+    "answer": "5/72"
+  },
+  {
+    "id": 14,
+    "text": "The table shows three values of x and their corresponding values of $g(x)$, where $g(x)=\\frac{f(x)}{x+4}$ and f is a linear function. What is the y-intercept of the graph of $y=f(x)$ in the xy-plane?\n\nx | g(x)\n-24 | 3\n-9 | 0\n16 | 5\n\nA. (0, 36)\nB. (0, 9)\nC. (0, 4)\nD. (0, -9)",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 15,
+    "text": "The graph gives the estimated population y, in thousands, of a town x years since 2007 where $0\\le x\\le5$. Which of the following best describes the increase in the estimated population from $x=0$ to $x=1$?\n\nA. The estimated population at $x=1$ is 3.5 times the estimated population at $x=0$.\nB. The estimated population at $x=1$ is 2.5 times the estimated population at $x=0$.\nC. The estimated population at $x=1$ is 1.5 times the estimated population at $x=0$.\nD. The estimated population at $x=1$ is 0.5 times the estimated population at $x=0$.",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 16,
+    "text": "$\\frac{8(cx+3)}{5}=4x-3$\n\nIn the given equation, c is a constant. If the equation has no solution, what is the value of c?\n\nA. $-\\frac{5}{2}$\nB. $-\\frac{2}{5}$\nC. $\\frac{5}{2}$\nD. $\\frac{2}{5}$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 17,
+    "text": "There is a proportional relationship between p and t. If $p=2,340$ when $t=3,120$, then what is the value of p when $t=2,496$?\n\nA. 1,716\nB. 1,872\nC. 3,276\nD. 3,328",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 18,
+    "text": "A cube has a volume of 79,507 cubic units. What is the surface area, in square units, of the cube?",
+    "type": "student_produced",
+    "answer": "11094"
+  },
+  {
+    "id": 19,
+    "text": "The function $f(x)$ is defined as 17 more than 3 times a number x. If $y=f(x)$ is graphed in the xy-plane, what is the best interpretation of the x-intercept?\n\nA. When $f(x)=0$, the number is $-\\frac{17}{3}$.\nB. When the number is 0, $f(x)=17$.\nC. For each increase of 1 in the value of the number, $f(x)$ increases by 3.\nD. The value of $f(x)$ increases by 1 for each increase of 3 in the value of the number.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 20,
+    "text": "$\\sqrt[5]{p^{2}}=t^{\\frac{3}{4}}$\n\nIn the given equation, $p>1$ and $t>1$. If $t=p^{2n-1}$, where n is a constant, what is the value of n?",
+    "type": "student_produced",
+    "answer": "23/30"
+  },
+  {
+    "id": 21,
+    "text": "The equation $4|x-3|=k$, where k is a constant, has exactly one solution. Which of the following could be the value of $\\frac{k}{4}$?\n\nA. -3 only\nB. -3 or 3\nC. 0 only\nD. 3 only",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 22,
+    "text": "$-4x^{2}+bx-25=0$\n\nIn the given equation, b is a positive integer. The equation has no real solution. What is the largest possible value of b?",
+    "type": "student_produced",
+    "answer": "19"
+  },
+  {
+    "id": 23,
+    "text": "The function f is defined by $f(x)=a(3.1^{x}+3.1^{b})$, where a and b are integer constants and $0<a<b$. The functions g and h are equivalent to function f, where k and m are constants. Which of the following equations displays the y-coordinate of the y-intercept of the graph of $y=f(x)$ in the xy-plane as a constant or coefficient?\n\nI. $g(x)=a(3.1^{x}+k)$\nII. $h(x)=a(3.1)^{x}+m$\n\nA. I only\nB. II only\nC. I and II\nD. Neither I nor II",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 24,
+    "text": "The mass of object A is 498% of the mass of object B, and the mass of object A is 0.830% of the mass of object C. If the mass of object C is $p\\%$ of the mass of object B, what is the value of p?",
+    "type": "student_produced",
+    "answer": "60000"
+  },
+  {
+    "id": 25,
+    "text": "For triangle PQR and triangle STU, angles P and S each measure $30^{\\circ}$, $QR=16$ and $TU=12$. Which additional piece(s) of information is (are) sufficient to prove that triangle PQR is similar to triangle STU?\n\nI. The length of $\\overline{PQ}$ is $\\frac{4}{3}$ the length of $\\overline{ST}$\nII. The length of $\\overline{PR}$ is $\\frac{4}{3}$ the length of $\\overline{SU}$\n\nA. I is sufficient, but II is not.\nB. II is sufficient, but I is not.\nC. I is sufficient, and II is sufficient.\nD. Neither I nor II is sufficient.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 26,
+    "text": "Time (years) | Total amount (dollars)\n0 | 867.00\n1 | 870.47\n2 | 873.95\n\nSam opened a savings account at a bank. The table shows the exponential relationship between the time t, in years, since Sam opened the account and the total amount n, in dollars, in the account. If Sam made no additional deposits or withdrawals, which of the following equations best represents the relationship between t and n?\n\nA. $n=0.004(1+867)^{t}$\nB. $n=867(1+0.004)^{t}$\nC. $n=(1+0.004)^{t}$\nD. $n=(1+867)^{t}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 27,
+    "text": "$y=2x^{2}-19x+40$\n$y=x+a$\n\nIn the given system of equations, a is a constant. The graphs of the equations in the given system intersect at exactly one point, (x, y), in the xy-plane. What is the value of x?\n\nA. -10\nB. -5\nC. 5\nD. 10",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 28,
+    "text": "Square P has a side length of x inches. Square Q has a perimeter that is 32 inches greater than the perimeter of square P. The function f gives the area of square Q, in square inches. Which of the following defines f?\n\nA. $f(x)=(x+8)^{2}$\nB. $f(x)=(x+32)^{2}$\nC. $f(x)=(32x+8)^{2}$\nD. $f(x)=(32x+32)^{2}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 29,
+    "text": "A circle in the xy-plane has a diameter with endpoints (a, 11) and (a, d), where a and d are constants. An equation of this circle is $(x-a)^{2}+(y-17)^{2}=r^{2}$, where r is a positive constant. What is the value of d?\n\nA. 5\nB. 12\nC. 17\nD. 23",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 30,
+    "text": "A quadratic function models the height, in feet, of an object above the ground in terms of the time, in seconds, after the object was launched. According to the model, the object was launched from a height of 0 feet and reached its maximum height of 1,600 feet 10 seconds after it was launched. Based on the model, what was the height, in feet, of the object 15 seconds after it was launched?",
+    "type": "student_produced",
+    "answer": "1200"
+  },
+  {
+    "id": 31,
+    "text": "The function f is defined by $f(x)=ax^{2}+bx+c$, where a, b, and c are constants. The graph of $y=f(x)$ in the xy-plane passes through the points (9, 0) and (-2, 0). If a is an integer greater than 1, which of the following could be the value of $a+b$?\n\nA. 8\nB. 7\nC. -6\nD. -12",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 32,
+    "text": "$x^{2}-6x+y^{2}-12y-36=0$\n\nIn the xy-plane, the graph of the given equation is a circle. If this circle is inscribed in a square, what is the perimeter of the square?\n\nA. 18\nB. 36\nC. 72\nD. 144",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 33,
+    "text": "$f(x)=240(2)^{x}$\n\nThe function f is defined by the given equation. If $g(x)=f(x-3)$, which of the following equations defines the function g?\n\nA. $g(x)=30(2)^{x}$\nB. $g(x)=80(2)^{x}$\nC. $g(x)=240(8)^{x}$\nD. $g(x)=240(6)^{x}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 34,
+    "text": "A raised garden is in the shape of a right rectangular prism. Its base has a width of 3 feet and a length of 27 feet, and it will be filled 24 inches high with topsoil. The total cost of the topsoil needed to fill the garden to this height is 234 dollars. What is the unit cost, in dollars per cubic yard, for the topsoil? (1 yard = 3 feet; 1 foot = 12 inches)",
+    "type": "student_produced",
+    "answer": "39"
+  },
+  {
+    "id": 35,
+    "text": "The perimeter of an equilateral triangle is 642 centimeters. The three vertices of the triangle lie on a circle. The radius of the circle is $w\\sqrt{3}$ centimeters. What is the value of w?",
+    "type": "student_produced",
+    "answer": "214/3"
+  },
+  {
+    "id": 36,
+    "text": "$f(x)=3(x-a)(x-b)(x-c)$\n\nThe function f is defined by the given equation, where a, b, and c are distinct constants. When $a<x<b$, the value of $f(x)$ is positive. The graph of $y=f(x)$ in the xy-plane contains the point (r, s), where r and s are constants. If $s=8$, which of the following could be true?\n\nI. $r<a$\nII. $b<r<c$\nIII. $r>c$\n\nA. I only\nB. III only\nC. I and III only\nD. II and III only",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 37,
+    "text": "A right square pyramid has a total surface area of 36,864 square inches, and the combined surface area of the four lateral faces of this pyramid is 20,480 square inches. What is the height, in inches, of this pyramid?\n\nA. 48\nB. 64\nC. 80\nD. 128",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 38,
+    "text": "A district school board in a certain state is proposing a change to the length of lunch periods for all high schools in the district. A sample of 365 high school students was selected at random from all high school students in the district. The selected students were asked whether they approved of the proposed change, and 211 students responded that they did not approve. Which of the following is the largest population to which the results of the survey can be generalized?\n\nA. All high school students in the district\nB. The 365 students who were surveyed\nC. All high school students in the state\nD. The 211 students who responded that they did not approve of the proposed change",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 39,
+    "text": "$y=-4.9(x-8.8)^{2}+11,900$\n\nThe equation gives the estimated height above ground, y, in meters, of a plane, where x is the number of seconds since it started a parabolic maneuver. If this equation is graphed in the xy-plane, which of the following is the best interpretation of the vertex of the graph?\n\nA. The plane reached an estimated maximum height of 11,900 meters 4.9 seconds after it started the parabolic maneuver.\nB. The plane reached an estimated maximum height of 11,900 meters 8.8 seconds after it started the parabolic maneuver.\nC. The plane reached an estimated maximum height of 4.9 meters 11,900 seconds after it started the parabolic maneuver.\nD. The plane reached an estimated maximum height of 8.8 meters 11,900 seconds after it started the parabolic maneuver.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 40,
+    "text": "The figure shown is a right circular cylinder with a radius of r and height of h. A second right circular cylinder (not shown) has a volume that is 576 times as large as the volume of the cylinder shown. Which of the following could represent the radius R, in terms of r, and the height H, in terms of h, of the second cylinder?\n\nA. $R=9r$ and $H=8h$\nB. $R=9r$ and $H=64h$\nC. $R=8r$ and $H=9h$\nD. $R=64r$ and $H=9h$",
+    "type": "multiple_choice",
+    "answer": "C"
+  }
+]; 
+   quizData.forEach(data => {
+        // Tự động bóc tách các lựa chọn A, B, C, D từ text đưa vào options
+        if (data.type === 'multiple_choice' && !data.options) {
+            data.options = {};
+            let lines = data.text.split('\n');
+            let qText = [];
+            lines.forEach(line => {
+                let match = line.match(/^([A-D])\.\s+(.*)/);
+                if (match) {
+                    data.options[match[1]] = match[2];
+                } else {
+                    if (line.trim() !== '') qText.push(line);
+                }
+            });
+            // Thêm các thẻ xuống dòng HTML chuẩn
+            data.text = qText.join('<br/><br/>');
+        } else if (data.text) {
+            // Fix lỗi xuống dòng cho các câu Fill in the blank
+            data.text = data.text.replace(/\n/g, '<br/>');
+        }
+    });
+
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); // Chèn các nút vào khối Nav đã tạo trong HTML
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px"; // Đảm bảo cuộn tới không bị khuất
+
+            let contentHtml = '';
+
+            // Nếu câu trắc nghiệm (đã được bóc tách ở tiền xử lý)
+            if (data.options && Object.keys(data.options).length > 0) {
+                let optionsHtml = '';
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+                contentHtml = `<ul class="options">${optionsHtml}</ul>`;
+            } else {
+                contentHtml = `
+                    <div style="margin-top: 10px;">
+                        <input type="text" class="fill-input" id="input-${data.id}" name="question${data.id}" placeholder="Nhập đáp án của bạn...">
+                        <div id="feedback-${data.id}" class="answer-feedback"></div>
+                    </div>
+                `;
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.text}</div>
+                ${contentHtml}
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    // Gắn trực tiếp các nút vào khối Div đã có sẵn bên ngoài thay vì tự tạo box nổi
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; // Làm sạch trước khi load
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 35px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em;
+                transition: background 0.2s;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    // ==========================================
+    // LOGIC CHO 2 NÚT ẨN HIỆN GIAO DIỆN MỚI
+    // ==========================================
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const quizNavBox = document.getElementById('quizNavBox');
+    
+    toggleSidebarBtn.addEventListener('click', () => {
+        if (quizNavBox.style.display === 'none' || quizNavBox.style.display === '') {
+            quizNavBox.style.display = 'block';
+        } else {
+            quizNavBox.style.display = 'none';
+        }
+    });
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.style.display === 'none') {
+            stickyFooter.style.display = 'flex';
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+            toggleNavBtn.style.bottom = '85px'; // Đẩy nút lên trên footer
+        } else {
+            stickyFooter.style.display = 'none';
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+            toggleNavBtn.style.bottom = '20px'; // Hạ nút xuống dưới cùng khi ẩn footer
+        }
+    });
+
+
+    // (Giữ nguyên các hàm checkAndRestoreProgress, checkCurrentAnswers, updateNavigatorState, v.v.. của bạn bên dưới)
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) hasAnswered = true;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') hasAnswered = true;
+            }
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; btn.style.color = '#ffffff'; btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; btn.style.color = '#2c3e50'; btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userAnswers[data.id] = inputEl.value.trim();
+            }
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const data = quizData.find(q => q.id == qId);
+                    if (data) {
+                        if (data.options && Object.keys(data.options).length > 0) {
+                            const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                            if (radio) radio.checked = true;
+                        } else {
+                            const inputEl = document.getElementById(`input-${qId}`);
+                            if (inputEl) inputEl.value = value;
+                        }
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.answer || data.correctAnswer || '').toString().trim().toLowerCase();
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) {
+                    checkedAny = true;
+                    const userAnswer = selectedOption.value.trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                        currentScore++;
+                    } else {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                        const correctKey = (data.answer || data.correctAnswer);
+                        if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                            document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                        }
+                    }
+
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => radio.disabled = true);
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') {
+                    checkedAny = true;
+                    const userAnswer = inputEl.value.trim().toLowerCase();
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+
+                    if (userAnswer === correctAnswer) {
+                        inputEl.classList.add('correct-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #27ae60;">Chính xác!</span>`;
+                        currentScore++;
+                    } else {
+                        inputEl.classList.add('wrong-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #c0392b;">Sai rồi. Đáp án đúng: <strong>${data.answer || data.correctAnswer}</strong></span>`;
+                    }
+
+                    inputEl.disabled = true;
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn hoặc nhập đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            let val = 'Bỏ trống';
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) val = selected.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') val = inputEl.value.trim();
+            }
+            studentAnswers[`Câu ${index + 1}`] = val;
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                if (data.options && Object.keys(data.options).length > 0) {
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => {
+                        radio.disabled = false;
+                        radio.checked = false;
+                    });
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                } else {
+                    const inputEl = document.getElementById(`input-${data.id}`);
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.value = '';
+                        inputEl.classList.remove('correct-input', 'wrong-input');
+                    }
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+                    if (feedbackEl) feedbackEl.innerHTML = '';
+                }
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script>
+    (function() {
+        // Tự động lấy tên bài học từ thẻ <title> của file btap
+        const QUIZ_KEY = document.title.trim() || "August SAT Math"; 
+        const studentId = sessionStorage.getItem('studentId') || 'GUEST';
+
+        function saveProgressAndNotify() {
+            const answers = {};
+            
+            // Lấy các câu trắc nghiệm đã chọn
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                answers[radio.name] = radio.value;
+            });
+
+            // Lấy các câu điền ô trống
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                if (input.value.trim() !== '' && input.name) {
+                    answers[input.name] = input.value.trim();
+                }
+            });
+
+            // Đếm tổng số câu trong bài
+            let totalQuestions = document.querySelectorAll('.question-block, .question').length;
+            if (totalQuestions === 0) {
+                const radioNames = new Set([...document.querySelectorAll('input[type="radio"]')].map(i => i.name));
+                totalQuestions = radioNames.size || 1;
+            }
+
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            localStorage.setItem(storageKey, JSON.stringify(answers));
+            localStorage.setItem(storageKey + '_total', totalQuestions);
+
+            // Báo cho trang chính index.html cập nhật ngay lập tức
+            if (window.parent) {
+                window.parent.postMessage({ type: 'SAT_PROGRESS_UPDATE' }, '*');
+            }
+        }
+
+        function restoreDraftAnswers() {
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            try {
+                const answers = JSON.parse(saved);
+                Object.keys(answers).forEach(name => {
+                    const val = answers[name];
+                    const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+
+                    const textInput = document.querySelector(`input[name="${name}"]`);
+                    if (textInput && textInput.type !== 'radio') textInput.value = val;
+                });
+            } catch(e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            restoreDraftAnswers();
+            saveProgressAndNotify();
+
+            document.addEventListener('change', saveProgressAndNotify);
+            document.addEventListener('input', saveProgressAndNotify);
+        });
+    })();
+    </script>
+</body>
+</html>
