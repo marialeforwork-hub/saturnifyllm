@@ -150,7 +150,7 @@
 <body>
 
 <div class="container">
-    <h1>WORD IN CONTEXT: EASY (QUESTION BANK)</h1>
+    <h1>WORD IN CONTEXT - 125C</h1>
     <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
 </div>
@@ -1835,42 +1835,47 @@
         }
     }
 
-quizData.forEach((data, index) => {
-    const questionBlock = document.createElement('div');
-    questionBlock.classList.add('question-block');
-    questionBlock.id = `question-${data.id}`;
-    questionBlock.dataset.locked = "false";
-    questionBlock.style.scrollMarginTop = "100px";
+    // THÊM LẠI KHAI BÁO HÀM VÀ KHỞI TẠO TẠI ĐÂY
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
 
-    // 1. Xử lý hiển thị đáp án ABCD
-    const letters = ['A', 'B', 'C', 'D'];
-    let optionsHtml = '';
-    if (data.options && data.options.length > 0) {
-        data.options.forEach((optionText, idx) => {
-            const letter = letters[idx]; 
-            optionsHtml += `
-                <li>
-                    <label id="label-${data.id}-${letter}">
-                        <input type="radio" name="question${data.id}" value="${letter}">
-                        ${optionText}
-                    </label>
-                </li>
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            // 1. Xử lý hiển thị đáp án ABCD
+            const letters = ['A', 'B', 'C', 'D'];
+            let optionsHtml = '';
+            if (data.options && data.options.length > 0) {
+                data.options.forEach((optionText, idx) => {
+                    const letter = letters[idx]; 
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${letter}">
+                                <input type="radio" name="question${data.id}" value="${letter}">
+                                ${optionText}
+                            </label>
+                        </li>
+                    `;
+                });
+            }
+
+            // 2. Xử lý hiển thị đoạn văn (Passage)
+            const passageHtml = data.passage ? `<div class="question-passage">${data.passage}</div>` : '';
+
+            // 3. Chèn HTML vào câu hỏi 
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                ${passageHtml}
+                <ul class="options">${optionsHtml}</ul>
             `;
+            
+            quizContainer.appendChild(questionBlock);
         });
-    }
-
-    // 2. Xử lý hiển thị đoạn văn (Passage)
-    const passageHtml = data.passage ? `<div class="question-passage">${data.passage}</div>` : '';
-
-    // 3. Chèn HTML vào câu hỏi (ĐÃ BỎ PHẦN EXPLANATION)
-    questionBlock.innerHTML = `
-        <div class="question-text">Câu ${index + 1}: ${data.question}</div>
-        ${passageHtml}
-        <ul class="options">${optionsHtml}</ul>
-    `;
-    
-    quizContainer.appendChild(questionBlock);
-});
         
         quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
         quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
