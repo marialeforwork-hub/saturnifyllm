@@ -1835,7 +1835,6 @@
         }
     }
 
-    // THÊM LẠI KHAI BÁO HÀM VÀ KHỞI TẠO TẠI ĐÂY
     function buildQuiz() {
         quizContainer.innerHTML = '';
         createNavigatorBox(); 
@@ -1867,7 +1866,7 @@
             // 2. Xử lý hiển thị đoạn văn (Passage)
             const passageHtml = data.passage ? `<div class="question-passage">${data.passage}</div>` : '';
 
-            // 3. Chèn HTML vào câu hỏi 
+            // 3. Chèn HTML vào câu hỏi (ĐÃ BỎ PHẦN EXPLANATION)
             questionBlock.innerHTML = `
                 <div class="question-text">Câu ${index + 1}: ${data.question}</div>
                 ${passageHtml}
@@ -1876,6 +1875,15 @@
             
             quizContainer.appendChild(questionBlock);
         });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
         
         quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
         quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
