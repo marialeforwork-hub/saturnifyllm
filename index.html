@@ -37,9 +37,11 @@
         #timerHeader { background: #2c3e50; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 1.05em; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2); flex-wrap: wrap; gap: 10px; }
         #quizIframe { flex: 1; border: none; width: 100%; height: 100%; }
         .btn-exit { background: #e74c3c; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: #f39c12; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 8px; }
+        .btn-save:hover { background: #d35400; }
         
         /* Bảng điều hướng câu hỏi trong bài làm */
-        #questionNavPanel { display: flex; gap: 6px; flex-wrap: wrap; max-width: 50%; max-height: 70px; overflow-y: auto; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 6px; }
+        #questionNavPanel { display: flex; gap: 6px; flex-wrap: wrap; max-width: 45%; max-height: 70px; overflow-y: auto; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 6px; }
         .q-nav-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid #7f8c8d; background: #ecf0f1; color: #2c3e50; font-size: 0.8em; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
         .q-nav-btn.flagged { background: #e67e22 !important; color: white !important; border-color: #d35400 !important; }
         .q-nav-btn.flagged::after { content: '🚩'; font-size: 0.6em; position: absolute; top: -4px; right: -4px; }
@@ -55,6 +57,9 @@
         .progress-bar { height: 100%; text-align: center; color: white; font-size: 0.75em; line-height: 16px; font-weight: bold; background: linear-gradient(90deg, #f1c40f, #2ecc71); width: 0%; transition: width 0.4s ease; }
         .progress-text { font-size: 0.85em; color: #7f8c8d; margin-top: 4px; font-weight: bold; text-align: right; }
 
+        /* Toast thông báo */
+        #toastMessage { position: fixed; bottom: 20px; right: 20px; background: #27ae60; color: white; padding: 12px 20px; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100000; display: none; transition: opacity 0.3s; }
+
         /* Bảng Lịch Sử Làm Bài */
         .history-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .history-table th, .history-table td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 0.9em; }
@@ -65,6 +70,8 @@
     </style>
 </head>
 <body>
+
+<div id="toastMessage">💾 Tiến độ làm bài đã được lưu!</div>
 
 <div id="mainContent" class="container">
     <h1>📚 SATURNIFY - YOUR SAT TUTOR</h1>
@@ -239,7 +246,7 @@
     </div>
 </div>
 
-<!-- TÍNH NĂNG 4: Modal Xem Chi Tiết Đáp Án Lịch Sử -->
+<!-- Modal Xem Chi Tiết Đáp Án Lịch Sử -->
 <div id="historyDetailModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 10002;">
     <div style="background: white; padding: 25px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
@@ -279,7 +286,7 @@
     </div>
 </div>
 
-<!-- TÍNH NĂNG 2: Modal Review Trước Khi Nộp Bài -->
+<!-- Modal Review Trước Khi Nộp Bài -->
 <div id="preSubmitModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 10005;">
     <div style="background: white; padding: 25px 30px; border-radius: 12px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
         <h2 style="margin-top: 0; color: #2c3e50;">📋 Kiểm Tra Bài Trước Khi Nộp</h2>
@@ -303,7 +310,9 @@
         <div id="questionNavPanel"></div>
         <div>
             <span id="timerLabel">📖 Chế độ Luyện tập</span>
-            <span id="timerText" style="color: #f1c40f; font-size: 1.2em; margin-right: 20px; margin-left: 8px;"></span>
+            <span id="timerText" style="color: #f1c40f; font-size: 1.2em; margin-right: 15px; margin-left: 8px;"></span>
+            <!-- NÚT LƯU TIẾN ĐỘ HỦY/THỦ CÔNG -->
+            <button class="btn-save" onclick="manualSaveDraft()">💾 Lưu tiến độ</button>
             <button class="btn-exit" onclick="exitQuiz()">✕ Thoát</button>
         </div>
     </div>
@@ -327,10 +336,23 @@
     let selectedQuizTitle = "";
     let selectedQuizStorageKey = "";
     let timerInterval = null;
+    let autoSaveInterval = null;
     let totalSeconds = 0;
     let currentQuizMode = "practice";
     let pendingSubmitEvent = null;
     let bypassInterceptor = false;
+
+    function showToast(msg) {
+        const toast = document.getElementById('toastMessage');
+        if (!toast) return;
+        toast.innerText = msg || "💾 Tiến độ làm bài đã được lưu!";
+        toast.style.display = 'block';
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => { toast.style.display = 'none'; }, 300);
+        }, 2000);
+    }
 
     async function autoDetectTotalQuestions() {
         const items = document.querySelectorAll('.quiz-item');
@@ -433,13 +455,24 @@
             let total = parseInt(savedTotal) || parseInt(item.getAttribute('data-total')) || 0;
             const bar = item.querySelector('.progress-bar');
             const text = item.querySelector('.progress-text');
+            const startBtn = item.querySelector('.btn-start');
             
             if (bar && text) {
                 if (total > 0) {
                     let percent = Math.round((answeredCount / total) * 100) || 0;
                     bar.style.width = percent + '%';
                     bar.innerText = percent > 0 ? percent + '%' : '';
-                    text.innerText = `Đã làm: ${answeredCount}/${total} (${percent}%)`;
+                    
+                    if (answeredCount > 0 && percent < 100) {
+                        text.innerText = `🔄 Bài đang làm dở: ${answeredCount}/${total} câu (${percent}%)`;
+                        if (startBtn) startBtn.innerText = "▶ Làm tiếp";
+                    } else if (percent === 100) {
+                        text.innerText = `✅ Đã làm xong: ${answeredCount}/${total} câu (100%)`;
+                        if (startBtn) startBtn.innerText = "Làm bài";
+                    } else {
+                        text.innerText = `Chưa bắt đầu`;
+                        if (startBtn) startBtn.innerText = "Làm bài";
+                    }
                     
                     if (percent === 100) bar.style.background = 'linear-gradient(90deg, #2ecc71, #27ae60)';
                     else if (percent > 0) bar.style.background = 'linear-gradient(90deg, #f1c40f, #f39c12)';
@@ -449,6 +482,7 @@
                     bar.innerText = '';
                     text.innerText = `Chưa bắt đầu`;
                     bar.style.background = '#bdc3c7';
+                    if (startBtn) startBtn.innerText = "Làm bài";
                 }
             }
         });
@@ -496,7 +530,6 @@
         });
     }
 
-    // TÍNH NĂNG 4: HÀM HIỂN THỊ CHI TIẾT LỊCH SỬ BÀI LÀM
     function openHistoryDetailModal(index) {
         const currentName = sessionStorage.getItem('studentName');
         const history = JSON.parse(localStorage.getItem('sat_results') || '[]');
@@ -578,16 +611,16 @@
         document.getElementById('countdownInput').style.display = show ? 'block' : 'none';
     }
 
-    // TÍNH NĂNG 1: TỰ ĐỘNG BẢO LƯU THỜI GIAN THI NẾU BẤM F5 HOẶC TẮT BÀI
     function startQuizWithTimer() {
         currentQuizMode = document.querySelector('input[name="quizMode"]:checked').value;
         clearInterval(timerInterval);
+        clearInterval(autoSaveInterval);
 
         const studentId = sessionStorage.getItem('studentId') || 'guest';
         const timerStorageKey = `timer_end_${studentId}_${selectedQuizStorageKey}`;
 
         if (currentQuizMode === 'practice') {
-            document.getElementById('timerLabel').innerText = "📖 Chế độ: Luyện tập (Tự do)";
+            document.getElementById('timerLabel').innerText = "📖 Chế độ: Luyện tập";
             document.getElementById('timerText').innerText = "";
             sessionStorage.removeItem(timerStorageKey);
         } else {
@@ -601,7 +634,7 @@
             }
 
             totalSeconds = Math.max(0, Math.floor((parseInt(savedEndTime) - now) / 1000));
-            document.getElementById('timerLabel').innerText = "⏳ Thời gian thi còn lại: ";
+            document.getElementById('timerLabel').innerText = "⏳ Hết giờ sau: ";
             
             updateTimerDisplay();
             timerInterval = setInterval(() => {
@@ -615,6 +648,11 @@
                 updateTimerDisplay();
             }, 1000);
         }
+
+        // TỰ ĐỘNG LƯU TIẾN ĐỘ ĐỊNH KỲ MỖI 15 GIÂY
+        autoSaveInterval = setInterval(() => {
+            captureAndSaveDraftFromIframe(false);
+        }, 15000);
 
         document.getElementById('timerModal').style.display = 'none';
         document.getElementById('mainContent').classList.add('hidden');
@@ -660,11 +698,12 @@
                     }
                 }
             });
-            console.log("🔄 [Restore] Đã khôi phục nháp bài làm vào iframe!");
-        } catch (e) { console.log("Khôi phục nháp iframe error:", e); }
+            console.log("🔄 [Restore] Đã khôi phục thành công các đáp án đã chọn!");
+        } catch (e) { console.log("Lỗi khôi phục nháp iframe:", e); }
     }
 
-    function captureAndSaveDraftFromIframe() {
+    // TÍNH NĂNG BẢO LƯU TIẾN ĐỘ (SAVE PROGRESS)
+    function captureAndSaveDraftFromIframe(showNotification = false) {
         try {
             const studentId = sessionStorage.getItem('studentId');
             const studentName = sessionStorage.getItem('studentName');
@@ -700,7 +739,15 @@
                     totalQuestions: totalQ
                 });
             }
-        } catch (e) { console.log("Lỗi khi lưu nháp:", e); }
+
+            if (showNotification) {
+                showToast("💾 Đã lưu tiến độ làm bài!");
+            }
+        } catch (e) { console.log("Lỗi khi lưu tiến độ:", e); }
+    }
+
+    function manualSaveDraft() {
+        captureAndSaveDraftFromIframe(true);
     }
 
     function setupBookmarkAndNavigation() {
@@ -769,14 +816,13 @@
 
                     input.addEventListener('change', () => {
                         navBtn.classList.add('answered');
-                        captureAndSaveDraftFromIframe();
+                        captureAndSaveDraftFromIframe(false);
                     });
                 });
             });
         } catch (e) { console.log("Lỗi chèn thanh điều hướng:", e); }
     }
 
-    // TÍNH NĂNG 2: BẢNG KIỂM TRA DANH SÁCH CÂU HỎI TRƯỚC KHINỘP
     function setupIframeSubmitInterceptor() {
         try {
             const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
@@ -810,7 +856,6 @@
                         if (block.classList.contains('flagged-for-review')) flagged.push(qNum);
                     });
 
-                    // Cập nhật giao diện modal review
                     document.getElementById('revTotal').innerText = questionBlocks.length;
                     document.getElementById('revAnswered').innerText = questionBlocks.length - unanswered.length;
                     document.getElementById('revUnanswered').innerText = unanswered.length;
@@ -861,8 +906,11 @@
     }
 
     function exitQuiz() {
-        if (confirm("Bạn có chắc chắn muốn thoát khỏi bài làm? Mọi tiến độ đã chọn vẫn sẽ được lưu nháp.")) {
+        if (confirm("Thoát khỏi bài làm? Tiến độ làm bài của bạn đã được lưu tự động.")) {
             clearInterval(timerInterval);
+            clearInterval(autoSaveInterval);
+            captureAndSaveDraftFromIframe(false);
+            
             document.getElementById('quizIframe').src = "";
             document.getElementById('quizRunner').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
@@ -880,6 +928,7 @@
         if (!event.data) return;
 
         if (event.data.type === 'SAT_SUBMIT_RESULT') {
+            clearInterval(autoSaveInterval);
             const resultData = event.data.data || {};
             const loggedName = sessionStorage.getItem('studentName');
             const loggedId = sessionStorage.getItem('studentId');
@@ -924,7 +973,7 @@
         }
 
         if (event.data.type === 'SAT_SAVE_DRAFT' || event.data.type === 'UPDATE_PROGRESS') {
-            captureAndSaveDraftFromIframe();
+            captureAndSaveDraftFromIframe(false);
             updateAllProgressBars();
         }
     });
