@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BASIC ARITHMETIC - EASY</title>
+    
+    <!-- Tích hợp MathJax để hiển thị công thức toán học -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .fill-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .correct-input {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .wrong-input {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        .answer-feedback {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>BASIC ARITHMETIC - EASY</h1>
+    <p style="text-align: center; color: #7f8c8d;">Chọn đáp án hoặc nhập kết quả, sau đó bấm <strong>"Kiểm tra"</strong> để xem đáp án.</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="sticky-footer">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let startTime = new Date();
+
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            let userChoice = "Bỏ trống";
+            const expected = data.answer || data.correctAnswer || '';
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userChoice = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userChoice = inputEl.value.trim();
+            }
+
+            const isCorrect = userChoice.toString().trim().toLowerCase() === expected.toString().trim().toLowerCase();
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.text || data.question,
+                userChoice: userChoice,
+                correctAnswer: expected,
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+
+const quizData = [
+    {id:255,text:"Justus bought confetti and balloons for $140. Each package of confetti cost $3, and each balloon cost $1. If Justus bought 30 packages of confetti, how many balloons did he buy?",type:"input",answer:"50"},
+    {id:256,text:"A triathlon is a multisport race consisting of three different consecutive events. A triathlon participant plans to complete the cycling event with an average speed of 17,952 yards per hour. What is this average speed, in miles per hour? (1 mile = 1,760 yards)",type:"input",answer:"10.2"},
+    {id:257,text:"A circle has center O, and points P and Q lie on the circle such that segment PQ is a diameter of the circle. The length of arc PQ is 22 centimeters. What is the circumference, in centimeters, of the circle?",type:"mcq",options:{A:"11",B:"22",C:"44",D:"360"},answer:"C"},
+    {id:258,text:"What value of $p$ is the solution to the equation $15p - 16p = 10$?",type:"mcq",options:{A:"-10",B:"$-\\frac{1}{10}$",C:"10",D:"16"},answer:"A"},
+    {id:259,text:"At what point $(x,y)$ do the graphs of the equations $y=8$ and $y=-3x+5$ intersect in the xy plane?",type:"mcq",options:{A:"$(8,-3)$",B:"$(8,5)$",C:"$(8,8)$",D:"$(-1,8)$"},answer:"D"},
+    {id:260,text:"The equation $g=12-\\frac{x}{23}$ gives the estimated amount of gas $g$, in gallons, that remains in the gas tank of a car after being driven $x$ miles. What is the estimated amount of gas, in gallons, that remains when $x=230$?",type:"mcq",options:{A:"0",B:"2",C:"11",D:"12"},answer:"B"},
+    {id:261,text:"The distance $d$, in feet, from the ground to a flag on a flagpole $t$ seconds after a person begins lowering it is given by the function $d(t) = 153 - 15t$. In this context, what does 15 represent?",type:"mcq",options:{A:"The distance before it is lowered",B:"The distance 3 seconds after lowering",C:"The time it takes to fully lower",D:"The rate at which the flag moves"},answer:"D"},
+    {id:262,text:"Given $w=18$ and $1=\\frac{(w-18)^{2}}{81}+\\frac{(p-3)^{2}}{49}$. A solution is $(p,w)$. What is one possible value of $p$?",type:"mcq",options:{A:"9",B:"7",C:"3",D:"-4"},answer:"D"},
+    {id:263,text:"A right square pyramid has a base with side lengths of 14 cm. The height is 15 cm. What is the volume, in cubic cm?",type:"mcq",options:{A:"70",B:"140",C:"980",D:"2,940"},answer:"C"},
+    {id:264,text:"In the triangle shown, $z=31$. Which of the following represents $y$ in terms of $x$?",type:"mcq",options:{A:"$y=211-x$",B:"$y=149-x$",C:"$y=59+x$",D:"$y=31+x$"},answer:"B"},
+    {id:265,text:"An equation of the graph shown is $y=-\\frac{1}{2}(x-p)^{2}+8$, where $p$ is an integer constant. What is the value of $p$?",type:"input",answer:"8"},
+    {id:266,text:"What is the positive solution to the given equation: $8(x-7)^{2}=800$?",type:"input",answer:"17"},
+    {id:267,text:"In the linear function $f$, $f(0)=2$ and $f(3)=2$. Which equation defines $f$?",type:"mcq",options:{A:"$f(x)=0$",B:"$f(x)=3$",C:"$f(x)=2$",D:"$f(x)=x+2$"},answer:"C"},
+    {id:268,text:"At $x=5$, how many units greater is the y-value predicted by the line of best fit than the actual y-value?",type:"mcq",options:{A:"10",B:"6",C:"4",D:"2"},answer:"D"},
+    {id:271,text:"The function $g$ is defined by $g(x)=(x+13)(t-x)$, where $t$ is a constant. The graph of $y=g(x)$ passes through (29, 0). What is the value of $g(0)$?",type:"input",answer:"377"},
+    {id:272,text:"The solution to the system is $(x,y)$. What is the value of $4y$? <br> $7x+3y=51$ <br> $-7x+y=-11$",type:"input",answer:"40"},
+    {id:273,text:"If $4(8-2x)+3=3(8-2x)+19$, what is the value of $8-2x$?",type:"mcq",options:{A:"-16",B:"4",C:"8",D:"16"},answer:"D"},
+    {id:274,text:"One solution to $70x^{2}+70x=-7$ can be written as $x=\\frac{-10-k\\sqrt{15}}{20}$, where $k$ is a constant. What is the value of $k$?",type:"mcq",options:{A:"2",B:"60",C:"70",D:"120"},answer:"A"},
+    {id:275,text:"For all values of $x$, $(5x+10)(2x+1)-(3x-11)$ is equivalent to which? <br> I. $10x^{2}+22x+21$ <br> II. $10x^{2}+25x+10-3x-11$",type:"mcq",options:{A:"I only",B:"II only",C:"I and II",D:"Neither"},answer:"C"},
+    {id:276,text:"In $5x(x+7)=r$, $r$ is a positive constant. Which must be true?",type:"mcq",options:{A:"No real solutions.",B:"Exactly one real solution.",C:"Two distinct real solutions.",D:"Not enough info."},answer:"C"},
+    {id:277,text:"A right rectangular pyramid has length $l=16$, width $w=8$, and height $h=18$. What is the surface area?",type:"input",answer:"432"},
+    {id:278,text:"What is the sum of the solutions to: $|x-7|=13$?",type:"mcq",options:{A:"0",B:"14",C:"20",D:"26"},answer:"B"},
+    {id:279,text:"In triangle XYZ, $\\angle X = 52^\\circ$. $XY = 28$ and $XZ = 17$. What is the area of triangle XYZ?",type:"mcq",options:{A:"238",B:"476",C:"$238 \\sin 52^\\circ$",D:"$476 \\sin 52^\\circ$"},answer:"C"},
+    {id:280,text:"Spheres A and B have a point of tangency. Radius of A is 9 times radius of B. Volume of B is 288 cubic inches. What is the distance between their centers?",type:"input",answer:"120"},
+    {id:281,text:"In right triangle ABC, $\\angle C$ is right and $BC=156$. D on AB and E on AC such that DE is parallel to BC and $CE=5AE$. What is the length of DE?",type:"input",answer:"26"},
+    {id:282,text:"A researcher surveyed 1,377 people. 71% support a bill, margin of error 2.4%. Sample size is doubled. What is true about the new margin of error?",type:"mcq",options:{A:"Between 2.4% and 3.4%",B:"Between 4.4% and 5.4%",C:"Greater than 5.4%",D:"Less than 2.4%"},answer:"D"},
+    {id:283,text:"Plants model $P(t)=124(m)^t$. Decrease by $k\\%$ every year. Which expression gives $k$ in terms of $m$?",type:"mcq",options:{A:"$100-m$",B:"$-100(m+1)$",C:"$1-\\frac{m}{100}$",D:"$100(1-m)$"},answer:"D"},
+    {id:284,text:"Initial mix has 300g X and 70g Y. For each 5g X added, 10g Y are added. Equation for $y$ (total Y) when $x$ is total X?",type:"mcq",options:{A:"$y=2x+70$",B:"$y=46x+70$",C:"$y=60x-295$",D:"$y=2x-530$"},answer:"D"},
+    {id:286,text:"Elijah earned 15% more in 2008 than 2007, and 3% more in 2009 than 2008. If he earned $y$ times as much in 2007 as in 2009, what is $y$?",type:"mcq",options:{A:"0.2000",B:"0.4500",C:"0.8442",D:"1.1845"},answer:"C"},
+    {id:288,text:"$y=5x^2-40x+35$. Which equation displays x-intercepts as constants/coefficients?",type:"mcq",options:{A:"$y=5(x^2-8x)+35$",B:"$y=5x(x-8)+35$",C:"$y=5(x-4)^2-45$",D:"$y=5(x-1)(x-7)$"},answer:"D"},
+    {id:290,text:"Graph of $x^2+16x+y^2=12y+65$ is a circle. What is its diameter length?",type:"mcq",options:{A:"$2\\sqrt{65}$",B:"$\\sqrt{165}$",C:"$2\\sqrt{165}$",D:"$\\sqrt{465}$"},answer:"C"},
+    {id:291,text:"Which expression is equivalent to $110x^2+80$?",type:"mcq",options:{A:"$8(10x^2+11)$",B:"$10(11x^2+8)$",C:"$11(10x^2+1)$",D:"$190(x^2+1)$"},answer:"B"},
+    {id:292,text:"Rectangle with perimeter 154 cm. Which equation gives perimeter in terms of $l$ and $w$?",type:"mcq",options:{A:"$154=2l+2w$",B:"$154=2l-2w$",C:"$154=l+w$",D:"$154=l-w$"},answer:"A"},
+    {id:295,text:"$g(x)=-\\frac{x}{5}+11$. What is the x-intercept of $y=g(x)+6$?",type:"mcq",options:{A:"$(-55,0)$",B:"$(-85,0)$",C:"$(55,0)$",D:"$(85,0)$"},answer:"D"},
+    {id:296,text:"For $x=0$, $y=150$. $y$ increases by 15% for every increase of 1 in $x$. Equation?",type:"mcq",options:{A:"$y=150(x)^{1.15}$",B:"$y=150(x)^{15}$",C:"$y=150(1.15)^x$",D:"$y=150(15)^x$"},answer:"C"},
+    {id:297,text:"In triangle RST, $RS=ST$ and $RT=48$. If $\\tan R = \\frac{7}{24}$, what is the area?",type:"mcq",options:{A:"84",B:"168",C:"288",D:"336"},answer:"B"},
+    {id:299,text:"Price increased $p\\%$ from $78 to $81. Value of $p$? (e.g., 50/13)",type:"input",answer:"50/13"},
+    {id:300,text:"$f(x)=2x^2-3x$. Value of $f(6)$?",type:"input",answer:"54"},
+    {id:301,text:"54 is $p\\%$ of 120. Value of $p$?",type:"input",answer:"45"},
+    {id:302,text:"Sum of solutions to: $|x-8|=-|x-8|+10$?",type:"input",answer:"16"},
+    {id:303,text:"Line contains $(0,2)$ and $(6,0)$ is $ax + by=1$. Value of $a$?",type:"input",answer:"1/6"},
+    {id:304,text:"Marlin swims max 21 m/s. How many meters in 10 seconds?",type:"input",answer:"210"},
+    {id:305,text:"System: $8x+9y=60$ and $8x+36y=168$. Value of $27y$?",type:"mcq",options:{A:"3",B:"4",C:"108",D:"228"},answer:"C"},
+    {id:306,text:"If $32+7(x+3)=6(x+3)-32$, what is $x+3$?",type:"mcq",options:{A:"64",B:"32",C:"0",D:"-64"},answer:"D"},
+    {id:307,text:"Foam height $f(t)=4.10(0.86)^t$. Best interpretation of $f(0.50) \\approx 3.8$?",type:"mcq",options:{A:"3.8 mins, height 0.50",B:"0.50 mins, height 3.8",C:"0.50 mins, height decreased by 3.8",D:"3.8 mins, height decreased by 0.50"},answer:"B"},
+    {id:308,text:"Line $j$: $(0,16), (1,20), (2,24)$. Line $k$: $y=8x$. Intersection?",type:"mcq",options:{A:"(4,32)",B:"(4,68)",C:"(5,40)",D:"(5,36)"},answer:"A"},
+    {id:309,text:"Profit $f(x)=-(x-27)^2+711$ at price $x$. Interpretation of vertex?",type:"mcq",options:{A:"Max profit at $54 is $711",B:"Max profit at $27 is $711",C:"Max profit at $18 is $54",D:"Max profit at $18 is $27"},answer:"B"},
+    {id:310,text:"Survey: 80% support, margin of error 1.8%, population 40,000. Plausible value for total supporters?",type:"mcq",options:{A:"400",B:"1,600",C:"7,640",D:"31,640"},answer:"D"},
+    {id:311,text:"$7x^2+35x+c=0$ has exactly one solution. Value of $c$?",type:"mcq",options:{A:"0",B:"7",C:"42",D:"175/4"},answer:"D"},
+    {id:312,text:"$x^2+(\\sqrt{k}-3)x+42=0$ has exactly one solution. Value of $k$?",type:"mcq",options:{A:"171",B:"168",C:"165",D:"45"},answer:"A"},
+    {id:313,text:"Parallel lines, $y=\\frac{pw}{132}-w$. Value of $p$?",type:"mcq",options:{A:"264",B:"132",C:"66",D:"Not enough info"},answer:"A"},
+    {id:314,text:"Cost for $t \\le 6$ days is $22 for 1st day and $11 each additional. Equation?",type:"mcq",options:{A:"$C=11t+11$",B:"$C=11t+22$",C:"$C=22t+11$",D:"$C=22t-11$"},answer:"A"},
+    {id:315,text:"Rate 7.8 m/s^2. Rate in miles/min^2? (1 mile = 1,609 m)",type:"mcq",options:{A:"0.3",B:"17.5",C:"206.3",D:"209.2"},answer:"B"},
+    {id:316,text:"Mix A increased by 2700%, B by 390%. How many times greater is A than B?",type:"mcq",options:{A:"30.90",B:"23.10",C:"6.92",D:"5.71"},answer:"D"},
+    {id:317,text:"$f(x)=ax^2+bx+c$ passes through (11,0) and (-3,0). Integer $a>1$. Possible value of $a+b$?",type:"mcq",options:{A:"9",B:"8",C:"-7",D:"-14"},answer:"D"},
+    {id:319,text:"1.75 cups for banana, 0.9 for apple. Total 19 cups. 6 batches banana. Greatest batches of apple?",type:"input",answer:"9"},
+    {id:320,text:"System: $y=4x^3+5$, $y=484x+5$. Solution $(a,b)$ with $b<0$. Value of $a$?",type:"input",answer:"-11"},
+    {id:321,text:"Solution to $\\sqrt{x^2-16x+64}-5x=0$?",type:"input",answer:"4/3"},
+    {id:322,text:"$A(x)=x(x+5)$. Interpretation of $A(20)=500$?",type:"mcq",options:{A:"Area 20 when height 500",B:"Area 25 when height 500",C:"Area 500 when height 20",D:"Area 500 when height 25"},answer:"C"},
+    {id:324,text:"$h(x)=-\\sqrt{x^2+bx+c}$. Contains $(2,0)$ and $(0,-\\sqrt{238})$. If $h(m)=0$, greatest $m$?",type:"input",answer:"119"},
+    {id:325,text:"Line through (0,6) and (-4,5), shaded above. Inequality?",type:"mcq",options:{A:"$y < \\frac{1}{4}x+6$",B:"$y < -\\frac{1}{4}x+6$",C:"$y > \\frac{1}{4}x+6$",D:"$y > -\\frac{1}{4}x+6$"},answer:"C"},
+    {id:326,text:"How many solutions: $3(4x+7)=0$?",type:"mcq",options:{A:"Exactly one",B:"Exactly two",C:"Infinitely many",D:"Zero"},answer:"A"},
+    {id:327,text:"3.23 birds in 1990, increased 3.6% yearly. Equation for 2005?",type:"mcq",options:{A:"$0.964(3.23)^{15}$",B:"$3.23(1.036)^{15}$",C:"$1.036(0.964)^{15}$",D:"$3.23(0.964)^{15}$"},answer:"B"},
+    {id:328,text:"Time $t$, dist $d$: $(0.28, 7), (0.52, 13), (0.76, 19)$. Equation?",type:"mcq",options:{A:"$t=25d$",B:"$t=\\frac{1}{25}d$",C:"$t=\\frac{1}{4}d$",D:"$t=4d$"},answer:"A"},
+    {id:329,text:"If $|16-2x|=58$, possible value of $8 - x$?",type:"mcq",options:{A:"0",B:"8",C:"29",D:"42"},answer:"C"},
+    {id:332,text:"Factor of $x^3 - 49xq^2$?",type:"mcq",options:{A:"$x+7q$",B:"$x-49q$",C:"$x^2+7q$",D:"$x^2-49q$"},answer:"A"},
+    {id:333,text:"Linear $f$, $f(-5)=-7$, slope 3. Equation?",type:"mcq",options:{A:"$f(x)=3x+8$",B:"$f(x)=3x-5$",C:"$f(x)=3x-7$",D:"$f(x)=3x-12$"},answer:"A"},
+    {id:334,text:"$\\frac{1}{4}t=(s+47)^2$ and $t=2s+94$. Value of $s$ when $t>0$?",type:"input",answer:"-46.5"},
+    {id:335,text:"$x+21=\\sqrt{x+35}-14$, solutions $s<t$. Value of $s$?",type:"input",answer:"-35"},
+    {id:336,text:"Height of 25 objects. Median?",type:"mcq",options:{A:"356",B:"256",C:"156",D:"56"},answer:"C"},
+    {id:338,text:"$f$ is 120% > $g$. $h$ is 10% < $f$. $h$ is how many times $g$?",type:"mcq",options:{A:"0.12",B:"0.22",C:"1.08",D:"1.98"},answer:"D"},
+    {id:340,text:"Line $k$ through (7,6) and (8,10), $y=mx+b$. Value of $b$?",type:"input",answer:"-22"},
+    {id:341,text:"Right square prism, height 4, volume 256. Edge of base?",type:"input",answer:"8"},
+    {id:342,text:"Rectangle in circle, diagonal = 2 * shortest side. Area = $1,225\\sqrt{3}$. Radius?",type:"input",answer:"35"},
+    {id:343,text:"Rectangle diagonal $\\sqrt{34}$, side 5. Perimeter?",type:"mcq",options:{A:"34",B:"16",C:"15",D:"8"},answer:"B"},
+    {id:344,text:"Which equation has no solution?",type:"mcq",options:{A:"$63x+36=9(7x+4)$",B:"$63x+4=7x+4$",C:"$63x+360=9(7x+16)$",D:"$63x+51=-63x-51$"},answer:"C"},
+    {id:345,text:"$t=14s+11$. Time to make 100 shirts?",type:"mcq",options:{A:"1,114",B:"1,400",C:"1,411",D:"2,500"},answer:"C"},
+    {id:346,text:"Interior angles $26^\\circ$, $52^\\circ$, $x^\\circ$. Value of $x$?",type:"mcq",options:{A:"26",B:"78",C:"102",D:"180"},answer:"C"},
+    {id:347,text:"$f(x)=120+50x$. Charge per hour?",type:"mcq",options:{A:"50",B:"70",C:"120",D:"170"},answer:"A"},
+    {id:348,text:"Line of best fit near (0, 3.4) decreasing. Equation?",type:"mcq",options:{A:"$y=x-17.3$",B:"$y=-x+17.3$",C:"$y=x-3.4$",D:"$y=-x+3.4$"},answer:"D"},
+    {id:349,text:"$\\frac{a}{b+c}=67$. $a$ in terms of $b, c$?",type:"mcq",options:{A:"$a=\\frac{67}{b+c}$",B:"$a=67(b+c)$",C:"$a=67-(b+c)$",D:"$a=b+c$"},answer:"B"},
+    {id:350,text:"Radians equivalent to $(53 \\cdot 180)^\\circ$?",type:"mcq",options:{A:"$53\\pi$",B:"$\\pi+53$",C:"$\\frac{\\pi}{53}$",D:"$\\pi-53$"},answer:"A"},
+    {id:351,text:"$8x-7y=3$ and $4x+y=9$. Value of $x+y$?",type:"input",answer:"3.5"},
+    {id:352,text:"Population doubled every 75 yrs from 1659 to 1959. Was 160k in 1959. Pop in 1659?",type:"input",answer:"10000"},
+    {id:353,text:"$10x+By=70$ intersects y-axis at (0, 2). Value of $B$?",type:"input",answer:"35"},
+    {id:355,text:"$0.0064$ is $0.8\\%$ of $a$, $132$ is $550\\%$ of $b$. What % of $a$ is $b$?",type:"mcq",options:{A:"30%",B:"192%",C:"1,920%",D:"3,000%"},answer:"D"},
+    {id:356,text:"$y=3(x-a)(x+a)(x+b)(x-a)$. How many distinct x-intercepts?",type:"mcq",options:{A:"1",B:"3",C:"2",D:"4"},answer:"B"},
+    {id:357,text:"Sphere A radius $8k$, B radius $152k$. Volume B is how many times Volume A?",type:"mcq",options:{A:"19",B:"152",C:"361",D:"6,859"},answer:"D"},
+    {id:361,text:"Line $j$ through (15,0) and (0,3). Line $k$ through origin perp to $j$. Intersect x-coord?",type:"input",answer:"15/26"},
+    {id:362,text:"Minimum value of $f(x) = (2x-8)(2x+12)$?",type:"input",answer:"-100"},
+    {id:363,text:"Mass increased 279%. $k$ at 110 days, $ak$ at 180 days. Value of $a$?",type:"input",answer:"3.79"},
+    {id:365,text:"Factor of $81p^4 - 121p^2$?",type:"mcq",options:{A:"$9p+11$",B:"$81p^2-121$",C:"$11p-9$",D:"$-49p^4$"},answer:"A"},
+    {id:367,text:"Antwan: $10 + $10.5/hr. Taylor: $7 + $11.25/hr. When is Taylor > Antwan?",type:"mcq",options:{A:"$3 \\le x \\le 4$",B:"$4 \\le x \\le 5$",C:"$x < 3$",D:"$x > 4$"},answer:"D"},
+    {id:369,text:"Triangle PQR, $\\angle R=90^\\circ$. $\\sin Q = \\frac{1}{2}$. $PR=23$. Length of PQ?",type:"input",answer:"46"},
+    {id:370,text:"Isosceles, base $30\\sqrt{6}$, height $20\\sqrt{6}$. Other side $a\\sqrt{6}$. Value of $a$?",type:"mcq",options:{A:"50",B:"35",C:"25",D:"15"},answer:"C"},
+    {id:371,text:"Garden width 3 ft, length 21 ft, height 24 in. Total topsoil $154. Unit cost per cubic yard?",type:"input",answer:"33"},
+    {id:375,text:"Factor of $x^2 + 12x$?",type:"mcq",options:{A:"$x+2$",B:"$x+12$",C:"$x^2$",D:"$x^2+12$"},answer:"B"},
+    {id:377,text:"Radius of $(x+3)^2 + (y+9)^2 = 2809$?",type:"input",answer:"53"},
+    {id:379,text:"$f(x) = 3x - 9$. If $f(a) + 1 = 2a$, value of $a$?",type:"mcq",options:{A:"8",B:"5",C:"1",D:"-1"},answer:"A"},
+    {id:380,text:"$\\frac{5}{2}x - \\frac{1}{5}y = 48$ and $x + 2y = -12$. Value of $x+y$?",type:"mcq",options:{A:"-12",B:"-3",C:"3",D:"12"},answer:"C"},
+    {id:382,text:"Line through (7, 1), (0, 5), (c, 0). Value of $c$?",type:"input",answer:"35/4"},
+    {id:384,text:"$p(x) = (11x^{10} + 3x^8)(-16x^7 + 8x^5)$. Coefficient of $x^{15}$?",type:"mcq",options:{A:"136",B:"88",C:"40",D:"15"},answer:"C"},
+    {id:385,text:"$5x + 3 = rx + 7$ has no solution. Value of $r$?",type:"mcq",options:{A:"21",B:"8",C:"7",D:"5"},answer:"D"},
+    {id:388,text:"If $17 + x = 1$, value of $-22 - 2x$?",type:"mcq",options:{A:"12",B:"10",C:"-4",D:"34"},answer:"B"},
+    {id:389,text:"Square side 68. Area expression?",type:"mcq",options:{A:"$68$ sq in",B:"$68+68$ sq in",C:"$(68)(68)$ sq in",D:"$(180)(68)$ sq in"},answer:"C"},
+    {id:390,text:"$f(x) = 3x - 8$. Value of $f(9)$?",type:"mcq",options:{A:"27",B:"-72",C:"35",D:"19"},answer:"D"},
+    {id:391,text:"180 players, 72 midfielders. % of midfielders?",type:"mcq",options:{A:"72%",B:"40%",C:"7.2%",D:"0.4%"},answer:"B"},
+    {id:392,text:"Photo 7 by 5. Area $S(x) = (7x)(5x)$. Interpretation of $S(3) = 315$?",type:"mcq",options:{A:"Scale 3, area 7",B:"Scale 15, area 35",C:"Scale 3, area 315",D:"Scale 315, area 3"},answer:"C"},
+    {id:393,text:"Equivalent to $7x^3 + 4x - 5 - 9x^3 + 6x + 3$?",type:"mcq",options:{A:"$7x^3 - 9x^2 + 10x - 2$",B:"$7x^3 - 9x^2 - 2x - 8$",C:"$-2x^3 + 2x - 8$",D:"$-2x^3 + 10x - 2$"},answer:"D"},
+    {id:394,text:"Circle C, AC=86. Length of BC?",type:"mcq",options:{A:"172",B:"43",C:"86",D:"344"},answer:"C"},
+    {id:395,text:"Solution to $49x^2 - 18 = 7$?",type:"mcq",options:{A:"25/49",B:"1/49",C:"5/7",D:"11/49"},answer:"C"},
+    {id:396,text:"Line $k$ slope 4, y-int (0, -28). x-int?",type:"input",answer:"7"},
+    {id:397,text:"$w = 48v - u$. $v$ in terms of $u, w$?",type:"mcq",options:{A:"$v = \\frac{w-u}{48}$",B:"$v = w - \\frac{u}{48}$",C:"$v = \\frac{w+u}{48}$",D:"$v = w + u - 48$"},answer:"C"},
+    {id:398,text:"Values 12, 24, 36, 48 with freqs 9, 27, 10, 13. Value with freq 27?",type:"mcq",options:{A:"36",B:"12",C:"48",D:"24"},answer:"D"},
+    {id:399,text:"Solution to $3|x| = 45$?",type:"mcq",options:{A:"42",B:"15",C:"48",D:"135"},answer:"B"},
+    {id:400,text:"Bags $0.06, boxes $0.38. Total $524.72. Equation?",type:"mcq",options:{A:"$0.38x - 0.06y = 524.72$",B:"$0.38x + 0.06y = 524.72$",C:"$0.06x + 0.38y = 524.72$",D:"$0.06x - 0.38y = 524.72$"},answer:"C"},
+    {id:401,text:"Value of $p$: $(p+7) + 6 = 11$?",type:"mcq",options:{A:"13",B:"-2",C:"24",D:"5"},answer:"B"},
+    {id:402,text:"$d=40t$. Feet in 6s?",type:"mcq",options:{A:"46",B:"240",C:"40",D:"280"},answer:"B"},
+    {id:403,text:"6 wings + salad = $15.30. Wing = $1.25. Salad cost?",type:"mcq",options:{A:"$7.50",B:"$14.05",C:"$1.25",D:"$7.80"},answer:"D"},
+    {id:405,text:"If $15 - 3x = 48$, value of $\\frac{1}{6}(15 - 3x)$?",type:"mcq",options:{A:"18",B:"6",C:"8",D:"288"},answer:"C"},
+    {id:406,text:"$y = \\frac{1}{x}$ shifted up 24. Equation?",type:"mcq",options:{A:"$y = \\frac{1}{x+24}$",B:"$y = \\frac{1}{x} - 24$",C:"$y = -\\frac{1}{x}$",D:"$y = \\frac{1}{x} + 24$"},answer:"D"},
+    {id:409,text:"Turkey ($a$), ham ($b$), veggie ($c$). Total 156. Prob not ham?",type:"mcq",options:{A:"$\\frac{a+c}{156}$",B:"$\\frac{a-b}{156}$",C:"$\\frac{c}{156}$",D:"$\\frac{a+b}{156}$"},answer:"A"},
+    {id:410,text:"$h(x) = \\frac{8}{3x-1}$. Value of $h(4)$?",type:"input",answer:"8/11"},
+    {id:411,text:"Line $j$: $y = 4x - 5$. Line $k$ parallel. Slope of $k$?",type:"input",answer:"4"},
+    {id:412,text:"Circle K radius 4mm. L area $81\\pi$ mm$^2$. Total area?",type:"mcq",options:{A:"$26\\pi$",B:"$97\\pi$",C:"$13\\pi$",D:"$52\\pi$"},answer:"B"},
+    {id:413,text:"One solution to $x^2 + 31x + 1 = 0$?",type:"mcq",options:{A:"$\\frac{-31-\\sqrt{965}}{2}$",B:"$\\frac{-31-\\sqrt{957}}{2}$",C:"$\\frac{-31-\\sqrt{953}}{2}$",D:"$\\frac{-31+\\sqrt{970}}{2}$"},answer:"B"},
+    {id:414,text:"300 visitors. Prob A=0.42, B=0.18. How many in C?",type:"input",answer:"120"},
+    {id:416,text:"Equivalent to $\\frac{x^2 - 10x - 24}{x + 2}$ ($x > 5$)?",type:"mcq",options:{A:"$x+12$",B:"$x-12$",C:"$\\frac{x-12}{x+2}$",D:"$\\frac{x+12}{x-2}$"},answer:"B"},
+    {id:417,text:"How many solutions: $7x + 3x + 12 = 10x + 5 + 7$?",type:"mcq",options:{A:"Zero",B:"Infinitely many",C:"Exactly one",D:"Exactly two"},answer:"B"},
+    {id:418,text:"$\\frac{1}{3}x^2 + 58 = k + 4$ has exactly one real solution. Value of $k$?",type:"mcq",options:{A:"58",B:"-174",C:"54",D:"-54"},answer:"C"},
+    {id:419,text:"6,000 bacteria. 4 hrs later: 12,000. $P = C \\cdot 2^{t/r}$. Value of $r$?",type:"mcq",options:{A:"1/4",B:"1/4000",C:"6,000",D:"4"},answer:"D"}
+];
+
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        createNavigatorBox();
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "80px";
+
+            const qText = data.text || data.question || '';
+            let contentHtml = '';
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                let optionsHtml = '';
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+                contentHtml = `<ul class="options">${optionsHtml}</ul>`;
+            } else {
+                contentHtml = `
+                    <div style="margin-top: 10px;">
+                        <input type="text" class="fill-input" id="input-${data.id}" name="question${data.id}" placeholder="Nhập đáp án của bạn...">
+                        <div id="feedback-${data.id}" class="answer-feedback"></div>
+                    </div>
+                `;
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${qText}</div>
+                ${contentHtml}
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => {
+            saveProgress();
+            updateNavigatorState();
+        });
+        quizContainer.addEventListener('input', () => {
+            saveProgress();
+            updateNavigatorState();
+        });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        let oldBox = document.getElementById('quizNavBox');
+        if (oldBox) oldBox.remove();
+
+        const navBox = document.createElement('div');
+        navBox.id = 'quizNavBox';
+        navBox.style.cssText = `
+            position: fixed; top: 20px; right: 20px; width: 210px; max-height: 75vh;
+            background: #ffffff; border: 2px solid #3498db; border-radius: 10px; padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+
+        const title = document.createElement('div');
+        title.innerText = '📌 Danh Sách Câu Hỏi';
+        title.style.cssText = 'font-weight: bold; color: #2c3e50; font-size: 0.9em; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
+        navBox.appendChild(title);
+
+        const grid = document.createElement('div');
+        grid.style.cssText = 'display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;';
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 32px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+
+        navBox.appendChild(grid);
+        document.body.appendChild(navBox);
+    }
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) hasAnswered = true;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') hasAnswered = true;
+            }
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71';
+                    btn.style.color = '#ffffff';
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa';
+                    btn.style.color = '#2c3e50';
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userAnswers[data.id] = inputEl.value.trim();
+            }
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const data = quizData.find(q => q.id == qId);
+                    if (data) {
+                        if (data.options && Object.keys(data.options).length > 0) {
+                            const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                            if (radio) radio.checked = true;
+                        } else {
+                            const inputEl = document.getElementById(`input-${qId}`);
+                            if (inputEl) inputEl.value = value;
+                        }
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.answer || data.correctAnswer || '').toString().trim().toLowerCase();
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) {
+                    checkedAny = true;
+                    const userAnswer = selectedOption.value.trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                        currentScore++;
+                    } else {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                        const correctKey = (data.answer || data.correctAnswer);
+                        if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                            document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                        }
+                    }
+
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => radio.disabled = true);
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') {
+                    checkedAny = true;
+                    const userAnswer = inputEl.value.trim().toLowerCase();
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+
+                    if (userAnswer === correctAnswer) {
+                        inputEl.classList.add('correct-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #27ae60;">Chính xác!</span>`;
+                        currentScore++;
+                    } else {
+                        inputEl.classList.add('wrong-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #c0392b;">Đáp án đúng: <strong>${data.answer || data.correctAnswer}</strong></span>`;
+                    }
+
+                    inputEl.disabled = true;
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn hoặc nhập đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            let val = 'Bỏ trống';
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) val = selected.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') val = inputEl.value.trim();
+            }
+            studentAnswers[`Câu ${index + 1}`] = val;
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                if (data.options && Object.keys(data.options).length > 0) {
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => {
+                        radio.disabled = false;
+                        radio.checked = false;
+                    });
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                } else {
+                    const inputEl = document.getElementById(`input-${data.id}`);
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.value = '';
+                        inputEl.classList.remove('correct-input', 'wrong-input');
+                    }
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+                    if (feedbackEl) feedbackEl.innerHTML = '';
+                }
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+</body>
+</html>
