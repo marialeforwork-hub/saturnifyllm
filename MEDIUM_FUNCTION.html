@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUNCTION - MEDIUM</title>
+    
+    <!-- Tích hợp MathJax để hiển thị công thức toán học -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .fill-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .correct-input {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .wrong-input {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        .answer-feedback {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        /* Nút Sidebar và Nav Box Styles */
+        .toggle-sidebar-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 10001;
+            background: #3498db; color: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .toggle-sidebar-btn:hover { transform: scale(1.05); }
+
+        #quizNavBox {
+            position: fixed; top: 75px; right: 20px; width: 220px; max-height: 75vh;
+            background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            display: none; /* Mặc định ẩn */
+        }
+
+        .toggle-nav-btn {
+            position: fixed; bottom: 85px; right: 20px; z-index: 1001;
+            background: #e67e22; color: #fff; border: none; padding: 10px 18px;
+            border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: bottom 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nút Toggle Sidebar danh sách câu hỏi -->
+<button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+
+<!-- Khối danh sách câu hỏi -->
+<div id="quizNavBox">
+    <h3 style="text-align: center; margin-top: 0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">📌 Danh Sách Câu Hỏi</h3>
+    <div id="navGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+        <!-- Danh sách nút sẽ được JS chèn tự động vào đây -->
+    </div>
+</div>
+
+<div class="container">
+    <h1>FUNCTION - MEDIUM</h1>
+    <p style="text-align: center; color: #7f8c8d;">Chọn đáp án hoặc nhập kết quả, sau đó bấm <strong>"Kiểm tra"</strong> để xem đáp án.</p>
+    <div id="quiz"></div>
+</div>
+
+<!-- Nút Toggle ẩn hiện Footer -->
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<!-- Sticky Footer Công Cụ -->
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let startTime = new Date();
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            let userChoice = "Bỏ trống";
+            const expected = data.answer || data.correctAnswer || '';
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userChoice = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userChoice = inputEl.value.trim();
+            }
+
+            const isCorrect = userChoice.toString().trim().toLowerCase() === expected.toString().trim().toLowerCase();
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.text || data.question,
+                userChoice: userChoice,
+                correctAnswer: expected,
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+  const quizData =[
+  {
+    "id": 1,
+    "text": "The graph of the function $f$ in the $xy$-plane, where $y=f(x)$, has $x$-intercepts $(-5,0)$, $(3, 0)$, and $(6, 0)$. Which of the following must be true?\n\nA. $f(0)=-5$\nB. $f(0)=3$\nC. $f(5)=0$\nD. $f(6)=0$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 2,
+    "text": "$|x-8|+72=88$\nWhat is the sum of the solutions to the given equation?",
+    "type": "free_response",
+    "answer": "16"
+  },
+  {
+    "id": 3,
+    "text": "The table shows three values of $x$ and their corresponding values of $f(x)$, where $f(x)=\\frac{kx+45}{x+2}$ and $k$ is a constant. What is the value of $k$?\n\n| $x$ | $f(x)$ |\n| --- | --- |\n| -37 | 4 |\n| 33 | 6 |",
+    "type": "free_response",
+    "answer": "5"
+  },
+  {
+    "id": 4,
+    "text": "The complete graph of $y=f(x)$ is shown. For how many values of $x$ does $f(x)=0$?\n\nA. Zero\nB. One\nC. Two\nD. Three",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 5,
+    "text": "The graph of the linear equation $10x+By=50$ is shown, where $B$ is a constant. What is the value of $B$?\n\nA. 25\nB. 5\nC. 2\nD. -5",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 6,
+    "text": "The function $g$ is defined by $g(x)=3x$. For what value of $x$ is $g(x)=12$?",
+    "type": "free_response",
+    "answer": "4"
+  },
+  {
+    "id": 7,
+    "text": "$5x-4y=-60$\nFor the given equation, which table gives three values of $x$ and their corresponding values of $y$?\n\nA. x: 0, 4, 8 | y: 15, 20, 25\nB. x: 0, 4, 8 | y: 25, 20, 15\nC. x: 15, 20, 25 | y: 0, 4, 8\nD. x: 15, 20, 25 | y: 8, 4, 0",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 8,
+    "text": "The graph of $y=f(x)$ is shown, where $f(x)=ab^{x}+c,$ and $a$, $b$, and $c$ are constants. For how many values of $x$ does $f(x)=0$?\n\nA. Three\nB. Two\nC. One\nD. Zero",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 9,
+    "text": "The graph of $y=f(x)$ is shown where $f(x)=ax^{3}+bx^{2}+cx+d$ and $a$, $b$, $c$, and $d$ are constants. For how many distinct values of $x$ does $f(x)=0$?\n\nA. One\nB. Two\nC. Three\nD. Four",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 10,
+    "text": "If $f(x)=x+3$ and $g(x)=3x$, what is the value of $6f(3)-g(3)$?\n\nA. -3\nB. 12\nC. 18\nD. 27",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 11,
+    "text": "$p(x)=9(2)^{\\frac{x}{4}}+9$\nWhat is the $y$-intercept of the graph of $y=p(x)$ in the $xy$-plane?\n\nA. $(0,18)$\nB. $(0,27)$\nC. $(0,11)$\nD. $(0,9)$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 12,
+    "text": "What is the $y$-intercept of $y=-(4)^{x}-39$ in the $xy$-plane?\n\nA. $(0,-40)$\nB. $(0,-43)$\nC. $(0,-39)$\nD. $(0,-38)$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 13,
+    "text": "$y>-\\frac{7}{2}x+17$\nFor which of the following tables are all the values of $x$ and their corresponding values of $y$ solutions to the given inequality?\n\nA. x: -2, 2, 4 | y: 26, 12, 5\nB. x: -2, 2, 4 | y: 26, 8, 5\nC. x: -2, 2, 4 | y: 22, 8, 1\nD. x: -2, 2, 4 | y: 24, 12, 5",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 14,
+    "text": "$g(x)=\\frac{2}{7}x+\\frac{8}{5}$\n$h(x)=5x-7$\nThe functions $g$ and $h$ are defined by the equations shown. Which expression is equivalent to $g(x)\\cdot h(x)$?\n\nA. \\frac{10x^{2}}{87}-\\frac{56}{5}\nB. \\frac{10x^{2}}{7}+\\frac{13x}{6}-\\frac{56}{5}\nC. \\frac{10x^{2}}{7}-6x-\\frac{56}{5}\nD. \\frac{10x^{2}}{7}+6x-\\frac{56}{5}",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 15,
+    "text": "$(x-16)(x-10)(x+7)(x+17)=0$\nWhat is a positive solution to the given equation?",
+    "type": "free_response",
+    "answer": "10"
+  },
+  {
+    "id": 16,
+    "text": "For the linear function $f$, $b$ is a constant and $f(x)=-10x+b$. If $f(\\frac{2}{5})=-53$, what is the value of $b$?",
+    "type": "free_response",
+    "answer": "-49"
+  },
+  {
+    "id": 17,
+    "text": "The function $d$ is defined by $d(x)=200-6^{x}$. What is the value of $d(0)$?\n\nA. 4\nB. 140\nC. 199\nD. 200",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 18,
+    "text": "The function $m$ is defined by $m(x)=5x+3$, and the function $p$ is defined by $p(x)=3-x$. What is the value of $2m(3)-p(3)$?",
+    "type": "free_response",
+    "answer": "36"
+  },
+  {
+    "id": 19,
+    "text": "For the function $h$, the table gives three values of $x$ and their corresponding values of $h(x)$.\n\n| $x$ | $h(x)$ |\n| --- | --- |\n| 0 | 30 |\n| 1 | 31 |\n| 2 | 33 |\n\nWhich equation could define $h$?\n\nA. $h(x)=2^{x}$\nB. $h(x)=2^{x}+2$\nC. $h(x)=2^{x}+28$\nD. $h(x)=2^{x}+29$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 20,
+    "text": "$y>5x-6$\nFor which of the following tables are all the values of $x$ and their corresponding values of $y$ solutions to the given inequality?\n\nA. x: 3, 5, 8 | y: 3, 13, 28\nB. x: 3, 5, 8 | y: 9, 19, 34\nC. x: 3, 5, 8 | y: 11, 22, 36\nD. x: 3, 5, 8 | y: 19, 20, 21",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 21,
+    "text": "Each year, the value of an investment increases by 0.69% of its value the previous year. Which of the following functions best models how the value of the investment changes over time?\n\nA. Decreasing exponential\nB. Decreasing linear\nC. Increasing exponential\nD. Increasing linear",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 22,
+    "text": "The function $g$ is defined by $g(x)=10^{3x-1}$. What is the value of $x$ when $g(x)$ is equal to 10,000?\n\nA. $\\frac{4}{3}$\nB. $\\frac{5}{3}$\nC. 2\nD. 3",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 23,
+    "text": "The function $f$ is defined by $f(x)=3x^{5}$. In the $xy$-plane, the graph of $y=g(x)$ is the result of shifting the graph of $y=f(x)$ up 9 units. Which equation defines the function $g$?\n\nA. $g(x)=3x^{5}+9$\nB. $g(x)=3x^{5}-9$\nC. $g(x)=3x^{45}$\nD. $g(x)=27x^{5}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 24,
+    "text": "The function $h$ is defined by $h(x)=(x+p)(x-4)(2x-6),$ where $p$ is a constant. In the $xy$-plane, the graph of $y=h(x)$ passes through the point $(-6,0)$. What is the value of $h(0)$?\n\nA. 144\nB. 1\nC. -6\nD. -72",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 25,
+    "text": "The graph gives the estimated revenue, in dollars, for a company when the price of the company's product is $x$ dollars. What does the $y$-value of the vertex of the graph represent in this context?\n\nA. The price, in dollars, of the company's product\nB. The minimum estimated revenue, in dollars\nC. The maximum estimated revenue, in dollars\nD. The estimated revenue, in dollars, when the price of the company's product is 0 dollars",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 26,
+    "text": "The graph of the linear equation $4x+By=36$ is shown, where $B$ is a constant. What is the value of $B$?\n\nA. $\\frac{2}{9}$\nB. 2\nC. 9\nD. 18",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 27,
+    "text": "$f(x)=x+4$\n$g(x)=3x^{2}-rx+48$\nThe functions $f$ and $g$ are given. In function $g$, $r$ is a constant. If $f(x)\\cdot g(x)=3x^{3}+192$, what is the value of $r$?",
+    "type": "free_response",
+    "answer": "12"
+  },
+  {
+    "id": 28,
+    "text": "$f(x)=x^{3}+8x+17$\nFor the given function $f$, the graph of $y=f(x)$ in the $xy$-plane passes through the point $(0,b)$, where $b$ is a constant. What is the value of $b$?",
+    "type": "free_response",
+    "answer": "17"
+  },
+  {
+    "id": 29,
+    "text": "Exactly how many $x$-intercepts does the graph of $f(x)=x(x-10)^{2}(x-11)^{3}$ have in the $xy$-plane, where $y=f(x)$?\n\nA. 0\nB. 1\nC. 2\nD. 3",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 30,
+    "text": "The graph shows the estimated boiling point $y$, in degrees Celsius, of a straight-chain alkane with a molecular weight of $x$ grams per mole, where $1\\le x\\le280$. Which statement is the best interpretation of the point (141.32, 172.26)?\n\nA. A straight-chain alkane with a molecular weight of 172.26 grams per mole has an estimated boiling point of 141.32 degrees Celsius.\nB. A straight-chain alkane with a molecular weight of 141.32 grams per mole has an estimated boiling point of 172.26 degrees Celsius.\nC. The minimum estimated boiling point for straight-chain alkanes corresponds to an alkane with a molecular weight of 141.32 grams per mole and an estimated boiling point of 172.26 degrees Celsius.\nD. The maximum estimated boiling point for straight-chain alkanes corresponds to an alkane with a molecular weight of 141.32 grams per mole and an estimated boiling point of 172.26 degrees Celsius.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 31,
+    "text": "What is one of the solutions to the given equation?\n$4x(x-3)(x+9)=0$\n\nA. -3\nB. 0\nC. 4\nD. 9",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 32,
+    "text": "$f(x)=29$\nFor the given linear function $f$, which table gives three values of $x$ and their corresponding values of $f(x)$?\n\nA. x: 0, 0, 0 | f(x): 0, 1, 2\nB. x: 0, 1, 2 | f(x): 29, 29, 29\nC. x: 0, 29, 58 | f(x): 0, 1, 2\nD. x: 0, 1, 2 | f(x): 29, 0, -29",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 33,
+    "text": "For $x>0,$ the function $f$ is defined as follows: $f(x)$ equals 111% of $x$. Which of the following could describe this function?\n\nA. Decreasing exponential\nB. Decreasing linear\nC. Increasing exponential\nD. Increasing linear",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 34,
+    "text": "$y=x^{2}+1.3$\n$y=1.3-x$\nWhich graph represents the given system of equations?\n\nA. Graph A\nB. Graph B\nC. Graph C\nD. Graph D",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 35,
+    "text": "$f(x)=3(x-1)(x-8)(x-11)$\nIf the given function $f$ is graphed in the $xy$-plane, where $y=f(x)$, what is the $x$-coordinate of an $x$-intercept of the graph?",
+    "type": "free_response",
+    "answer": "1"
+  },
+  {
+    "id": 36,
+    "text": "The function $f$ is defined by $f(x)=4x^{2}.$ What is the value of $f(11)$?\n\nA. 44\nB. 52\nC. 88\nD. 484",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 37,
+    "text": "The table shows three values of $x$ and their corresponding values of $y$ for the equation $y=4(2)^{x}+5.$ In the table, $a$ is a constant. What is the value of $a$?\n\n| $x$ | $y$ |\n| --- | --- |\n| 1 | 13 |\n| 2 | 21 |\n| 3 | $a$ |\n\nA. 69\nB. 37\nC. 32\nD. 29",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 38,
+    "text": "The variables $x$ and $y$ have a quadratic relationship. When $x=0,$ $y=45.$ When $x=6$, $y=81$. When $x=15$, $y=0$. Which equation represents this relationship?\n\nA. $y=x^{2}-18x+45$\nB. $y=-x^{2}+12x+45$\nC. $y=x^{2}+45$\nD. $y=-3x^{2}+48x-45$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 39,
+    "text": "The shaded region shown in the graph represents all the solutions to which inequality?\n\nA. $x\\le33$\nB. $x\\ge33$\nC. $y\\le33$\nD. $y\\ge33$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 40,
+    "text": "$-5(v-8)(v-2)(v+9)=0$\nWhat value of $v$ is a solution to the given equation?\n\nA. -5\nB. -2\nC. 8\nD. 9",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 41,
+    "text": "$y=-\\frac{1}{7}x$\n$y=\\frac{1}{5}x$\nThe solution to the given system of equations is $(x, y)$. What is the value of $x$?\n\nA. -7\nB. -2\nC. 0\nD. 5",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 42,
+    "text": "$f(x)=3(x-2)(x-6)(x-9)$\nIf the given function $f$ is graphed in the $xy$-plane, where $y=f(x)$, what is the $x$-coordinate of an $x$-intercept of the graph?",
+    "type": "free_response",
+    "answer": "2"
+  },
+  {
+    "id": 43,
+    "text": "The function $f(x)=180(x-2)$ gives the sum of the interior angles, in degrees, for a polygon with $x$ sides. What is the sum of the interior angles, in degrees, for a polygon with 14 sides?",
+    "type": "free_response",
+    "answer": "2160"
+  },
+  {
+    "id": 44,
+    "text": "The scatterplot shows the relationship between two variables, $x$ and $y$. Which of the following equations is the most appropriate model for the data shown?\n\nA. $y=-582+1.2x$\nB. $y=582-1.2x$\nC. $y=-582(1.2)^{x}$\nD. $y=582(1.2)^{x}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 45,
+    "text": "$y=x^{2}+1.7$\n$y=1.7-x$\nWhich graph represents the given system of equations?\n\nA. Graph A\nB. Graph B\nC. Graph C\nD. Graph D",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 46,
+    "text": "The function $f$ is defined by $f(x)=9^{\\frac{x}{8}}+11$. For what value of $x$ is $f(x)$ equal to 38?",
+    "type": "free_response",
+    "answer": "12"
+  },
+  {
+    "id": 47,
+    "text": "The graph of $y=f(x)+2$ is shown. Which equation defines function $f$?\n\nA. $f(x)=-3^{x}+1$\nB. $f(x)=-3^{x}+3$\nC. $f(x)=-3^{x}+4$\nD. $f(x)=-3^{x}+5$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 48,
+    "text": "The graph of the polynomial function $f$ in the $xy$-plane, where $y=f(x)$, has $x$-intercepts of $(-5,0)$ and $(6,0)$. Which of the following must be true?\n\nA. $f(0)=-5$\nB. $f(6)=-5$\nC. $f(-5)=0$\nD. $f(-5)=6$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 49,
+    "text": "$y=81.65^{x}$\nThe $y$-intercept of the graph of $y=81.65^{x}$ in the $xy$-plane is $(0,y)$. What is the value of $y$?",
+    "type": "free_response",
+    "answer": "1"
+  },
+  {
+    "id": 50,
+    "text": "The graph of a system of a linear and a quadratic equation is shown. What system is represented by the graph?\n\nA. $y=-\\frac{7}{25}x^{2}, y=-\\frac{7}{5}x$\nB. $y=-\\frac{7}{25}x^{2}, y=\\frac{7}{5}x$\nC. $y=\\frac{7}{25}x^{2}, y=-\\frac{7}{5}x$\nD. $y=\\frac{7}{25}x^{2}, y=\\frac{7}{5}x$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 51,
+    "text": "The function $f$ is defined by $f(x)=(x-8)(x-5)(x-3)$. In the $xy$-plane, the graph of $y=g(x)$ is the result of translating the graph of $y=f(x)$ up 3 units. What is the value of $g(0)$?",
+    "type": "free_response",
+    "answer": "-117"
+  },
+  {
+    "id": 52,
+    "text": "If $f(x)=x+3$ and $g(x)=3x,$ what is the value of $7f(4)-g(4)?$\n\nA. -5\nB. 19\nC. 21\nD. 37",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 53,
+    "text": "The function $f$ is defined by $f(x)=\\frac{x+16}{5},$ and $f(a)=-19$, where $a$ is a constant. What is the value of $a$?\n\nA. -111\nB. -79\nC. 15\nD. $-\\frac{79}{5}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 54,
+    "text": "The function $h$ is defined by $h(x)=2(9x-10)$. What is the value of $h(10)$?\n\nA. 10\nB. 20\nC. 90\nD. 160",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 55,
+    "text": "The graph of the polynomial function $f$ in the $xy$-plane, where $y=f(x)$, passes through the point $(9, 7)$. What is the value of $f(9)$?\n\nA. 7\nB. 16\nC. 9\nD. 63",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 56,
+    "text": "The shaded region shown represents solutions to an inequality. Which ordered pair $(x,y)$ is a solution to this inequality?\n\nA. $(-8,0)$\nB. $(0,8)$\nC. $(0,-8)$\nD. $(8,0)$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 57,
+    "text": "The function $f$ is defined by $f(x)=-13(5)^{x}+\\frac{1}{k},$ where $k$ is a constant. If $y=f(x)$ is graphed in the $xy$-plane, what is the $y$-coordinate of the $y$-intercept of the graph?\n\nA. -13\nB. \\frac{1-13k}{k}\nC. \\frac{1}{k}\nD. \\frac{1-k}{k}",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 58,
+    "text": "The shaded region shown represents solutions to an inequality. Which ordered pair $(x,y)$ is a solution to this inequality?\n\nA. $(-5,0)$\nB. $(0,5)$\nC. $(0,-5)$\nD. $(5,0)$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 59,
+    "text": "The function $f$ is defined by $f(x)=-10(3)^{x}+\\frac{1}{k}$, where $k$ is a constant. If $y=f(x)$ is graphed in the $xy$-plane, what is the $y$-coordinate of the $y$-intercept of the graph?\n\nA. -10\nB. \\frac{1-10k}{k}\nC. \\frac{1}{k}\nD. \\frac{1-k}{k}",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 60,
+    "text": "The graph of a system of a linear equation and a quadratic equation is shown. A solution to the system is $(x, y)$. What is a possible value of $x$?\n\nA. 4\nB. 5\nC. 6.4\nD. 8",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 61,
+    "text": "The function $f$ is defined by $f(x)=(x-10)(x-8)(x-4)$. In the $xy$-plane, the graph of $y=g(x)$ is the result of translating the graph of $y=f(x)$ up 6 units. What is the value of $g(0)$?",
+    "type": "free_response",
+    "answer": "-314"
+  },
+  {
+    "id": 62,
+    "text": "The function $f$ is defined by $f(x)=4x^{2}$. What is the value of $f(11)$?\n\nA. 44\nB. 52\nC. 89\nD. 484",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 63,
+    "text": "$g(x)=\\frac{1}{9}(5)^{x}$\nIf the given function $g$ is graphed in the $xy$-plane, where $y=g(x)$, what is the $y$-intercept of the graph?\n\nA. $(0,0)$\nB. $(0,\\frac{1}{9})$\nC. $(0,\\frac{5}{9})$\nD. $(0,5)$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 64,
+    "text": "$y=3^{(x-1)}-6$\nFor which of the following tables are all the values of $x$ and their corresponding values of $y$ solutions to the given equation?\n\nA. x: 0, 1, 2 | y: -17/3, -5, -3\nB. x: 0, 1, 2 | y: 9, 15, 33\nC. x: 0, 1, 2 | y: -3, -5, -7\nD. x: 0, 1, 2 | y: -5, -8, -11",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 65,
+    "text": "$(x-16)(x-12)(x+7)(x+13)=0$\nWhat is a positive solution to the given equation?",
+    "type": "free_response",
+    "answer": "16"
+  },
+  {
+    "id": 66,
+    "text": "The table shows three values of $x$ and their corresponding values of $y$, where $s$ is a constant. There is a linear relationship between $x$ and $y$. Which of the following equations represents this relationship?\n\n| $x$ | $y$ |\n| --- | --- |\n| -2s | 28 |\n| -s | 23 |\n| s | 13 |\n\nA. $sx+5y=18s$\nB. $5x+sy=18s$\nC. $5x+sy=18$\nD. $sx+5y=18$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 67,
+    "text": "The graph of $y=f(x)$ is shown, where $f(x)=ab^{x}+c,$ and $a$, $b$, and $c$ are constants. For how many values of $x$ does $f(x)=0$?\n\nA. Three\nB. Two\nC. One\nD. Zero",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 68,
+    "text": "The function $f$ is a polynomial function. The graph of $y=f(x)$ in the $xy$-plane has a $y$-intercept at the point $(0,n),$ where $n$ is an integer constant. If the graph of $y=f(x)$ is shifted up 34 units, which of the following ordered pairs represents the $y$-intercept of the resulting graph?\n\nA. $(0,n)$\nB. $(0,n+34)$\nC. $(0,n-34)$\nD. $(0,34n)$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 69,
+    "text": "The function $g$ is defined by $g(x)=\\sqrt{3x+1}$. What is the value of $g(5)$?\n\nA. $\\frac{4}{3}$\nB. $\\frac{16}{3}$\nC. 4\nD. 16",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 70,
+    "text": "The function $f$ is defined by $f(x)=\\frac{x+11}{3},$ and $f(a)=16,$ where $a$ is a constant. What is the value of $a$?\n\nA. 9\nB. 16\nC. 37\nD. 59",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 71,
+    "text": "The graph of $y=f(x)+2$ is shown. Which equation defines function $f$?\n\nA. $f(x)=-6^{x}+1$\nB. $f(x)=-6^{x}+3$\nC. $f(x)=-6^{x}+4$\nD. $f(x)=-6^{x}+5$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 72,
+    "text": "For $x>0$, the function $f$ is defined as follows: $f(x)$ equals 300% of $x$. Which of the following could describe this function?\n\nA. Decreasing exponential\nB. Decreasing linear\nC. Increasing exponential\nD. Increasing linear",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 73,
+    "text": "The shaded region shown in the graph represents all the solutions to which inequality?\n\nA. $x\\le18$\nB. $x\\ge18$\nC. $y\\le18$\nD. $y\\ge18$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 74,
+    "text": "The function $f$ is defined by $f(x)=4\\sqrt{x}$. For what value of $x$ does $f(x)=28$?\n\nA. 4\nB. 7\nC. 16\nD. 49",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 75,
+    "text": "In the $xy$-plane, the graph of the equation $y=9^{x}$ is translated 8 units down. What is an equation of the resulting graph?\n\nA. $y=9^{x}+8$\nB. $y=9^{x}-8$\nC. $y=9^{(x+8)}$\nD. $y=9^{(x-8)}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 76,
+    "text": "The function $f$ is a polynomial function. The graph of $y=f(x)$ in the $xy$-plane has a $y$-intercept at the point $(0,n)$ where $n$ is an integer constant. If the graph of $y=f(x)$ is shifted up 34 units, which of the following ordered pairs represents the $y$-intercept of the resulting graph?\n\nA. $(0,n)$\nB. $(0,n+34)$\nC. $(0,n-34)$\nD. $(0,34n)$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 77,
+    "text": "The function $f$ is defined by $f(x)=(x-9)(x-6)(x-5).$ In the $xy$-plane, the graph of $y=g(x)$ is the result of translating the graph of $y=f(x)$ up 4 units. What is the value of $g(0)$?",
+    "type": "free_response",
+    "answer": "-266"
+  },
+  {
+    "id": 78,
+    "text": "The function $f$ is defined by $f(x)=9x-308$. If the point $(k, 2k)$ lies on the graph of $y=f(x)$ in the $xy$-plane, where $k$ is a constant, what is the value of $k$?\n\nA. 9\nB. 18\nC. 44\nD. 308",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 79,
+    "text": "If $f(x)=x+2$ and $g(x)=2x,$ what is the value of $6f(3)-g(3)$?\n\nA. -1\nB. 12\nC. 18\nD. 24",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 80,
+    "text": "Line $p$ in the $xy$-plane is defined by $y=x+\\frac{8}{3}$ and passes through the points $(a,0)$ and $(0,b)$, where $a$ and $b$ are constants. What is the value of $a$?",
+    "type": "free_response",
+    "answer": "-8/3"
+  },
+  {
+    "id": 81,
+    "text": "Which shaded region represents the solutions to the inequality $y<-60x+50$?\n\nA. Graph A\nB. Graph B\nC. Graph C\nD. Graph D",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 82,
+    "text": "The $y$-intercept of the graph of $5x+2y=-18$ in the $xy$-plane is $(0,y)$. What is the value of $y$?",
+    "type": "free_response",
+    "answer": "-9"
+  },
+  {
+    "id": 83,
+    "text": "The graph of a system of a linear and a quadratic equation is shown. What system is represented by the graph?\n\nA. $y=-\\frac{7}{16}x^{2}, y=-\\frac{7}{4}x$\nB. $y=-\\frac{7}{16}x^{2}, y=\\frac{7}{4}x$\nC. $y=\\frac{7}{16}x^{2}, y=-\\frac{7}{4}x$\nD. $y=\\frac{7}{16}x^{2}, y=\\frac{7}{4}x$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 84,
+    "text": "Which system of linear equations has infinitely many solutions?\n\nA. $4x+2y=12, 4x+8y=48$\nB. $x+2y=12, x+8y=48$\nC. $x+2y=12, 4x+8y=48$\nD. $4x+2y=12, x+8y=48$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 85,
+    "text": "For the polynomial function $f$, a solution to the equation $f(x)=0$ is $x=7,$ and one of the factors of $f(x)$ is $x+5.$ Which of the following could be the graph of $y=f(x)$ in the $xy$-plane?\n\nA. Graph A\nB. Graph B\nC. Graph C\nD. Graph D",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 86,
+    "text": "The function $g$ is defined by $g(x)=9x$. For what value of $x$ is $g(x)=63$?",
+    "type": "free_response",
+    "answer": "7"
+  },
+  {
+    "id": 87,
+    "text": "The function $f(x)=180(x-2)$ gives the sum of the interior angles, in degrees, for a polygon with $x$ sides. What is the sum of the interior angles, in degrees, for a polygon with 35 sides?",
+    "type": "free_response",
+    "answer": "5940"
+  }
+]; 
+   quizData.forEach(data => {
+        // Tự động bóc tách các lựa chọn A, B, C, D từ text đưa vào options
+        if (data.type === 'multiple_choice' && !data.options) {
+            data.options = {};
+            let lines = data.text.split('\n');
+            let qText = [];
+            lines.forEach(line => {
+                let match = line.match(/^([A-D])\.\s+(.*)/);
+                if (match) {
+                    data.options[match[1]] = match[2];
+                } else {
+                    if (line.trim() !== '') qText.push(line);
+                }
+            });
+            // Thêm các thẻ xuống dòng HTML chuẩn
+            data.text = qText.join('<br/><br/>');
+        } else if (data.text) {
+            // Fix lỗi xuống dòng cho các câu Fill in the blank
+            data.text = data.text.replace(/\n/g, '<br/>');
+        }
+    });
+
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); // Chèn các nút vào khối Nav đã tạo trong HTML
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px"; // Đảm bảo cuộn tới không bị khuất
+
+            let contentHtml = '';
+
+            // Nếu câu trắc nghiệm (đã được bóc tách ở tiền xử lý)
+            if (data.options && Object.keys(data.options).length > 0) {
+                let optionsHtml = '';
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+                contentHtml = `<ul class="options">${optionsHtml}</ul>`;
+            } else {
+                contentHtml = `
+                    <div style="margin-top: 10px;">
+                        <input type="text" class="fill-input" id="input-${data.id}" name="question${data.id}" placeholder="Nhập đáp án của bạn...">
+                        <div id="feedback-${data.id}" class="answer-feedback"></div>
+                    </div>
+                `;
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.text}</div>
+                ${contentHtml}
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    // Gắn trực tiếp các nút vào khối Div đã có sẵn bên ngoài thay vì tự tạo box nổi
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; // Làm sạch trước khi load
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 35px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em;
+                transition: background 0.2s;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    // ==========================================
+    // LOGIC CHO 2 NÚT ẨN HIỆN GIAO DIỆN MỚI
+    // ==========================================
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const quizNavBox = document.getElementById('quizNavBox');
+    
+    toggleSidebarBtn.addEventListener('click', () => {
+        if (quizNavBox.style.display === 'none' || quizNavBox.style.display === '') {
+            quizNavBox.style.display = 'block';
+        } else {
+            quizNavBox.style.display = 'none';
+        }
+    });
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.style.display === 'none') {
+            stickyFooter.style.display = 'flex';
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+            toggleNavBtn.style.bottom = '85px'; // Đẩy nút lên trên footer
+        } else {
+            stickyFooter.style.display = 'none';
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+            toggleNavBtn.style.bottom = '20px'; // Hạ nút xuống dưới cùng khi ẩn footer
+        }
+    });
+
+
+    // (Giữ nguyên các hàm checkAndRestoreProgress, checkCurrentAnswers, updateNavigatorState, v.v.. của bạn bên dưới)
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) hasAnswered = true;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') hasAnswered = true;
+            }
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; btn.style.color = '#ffffff'; btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; btn.style.color = '#2c3e50'; btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userAnswers[data.id] = inputEl.value.trim();
+            }
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const data = quizData.find(q => q.id == qId);
+                    if (data) {
+                        if (data.options && Object.keys(data.options).length > 0) {
+                            const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                            if (radio) radio.checked = true;
+                        } else {
+                            const inputEl = document.getElementById(`input-${qId}`);
+                            if (inputEl) inputEl.value = value;
+                        }
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.answer || data.correctAnswer || '').toString().trim().toLowerCase();
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) {
+                    checkedAny = true;
+                    const userAnswer = selectedOption.value.trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                        currentScore++;
+                    } else {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                        const correctKey = (data.answer || data.correctAnswer);
+                        if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                            document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                        }
+                    }
+
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => radio.disabled = true);
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') {
+                    checkedAny = true;
+                    const userAnswer = inputEl.value.trim().toLowerCase();
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+
+                    if (userAnswer === correctAnswer) {
+                        inputEl.classList.add('correct-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #27ae60;">Chính xác!</span>`;
+                        currentScore++;
+                    } else {
+                        inputEl.classList.add('wrong-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #c0392b;">Sai rồi. Đáp án đúng: <strong>${data.answer || data.correctAnswer}</strong></span>`;
+                    }
+
+                    inputEl.disabled = true;
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn hoặc nhập đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            let val = 'Bỏ trống';
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) val = selected.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') val = inputEl.value.trim();
+            }
+            studentAnswers[`Câu ${index + 1}`] = val;
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                if (data.options && Object.keys(data.options).length > 0) {
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => {
+                        radio.disabled = false;
+                        radio.checked = false;
+                    });
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                } else {
+                    const inputEl = document.getElementById(`input-${data.id}`);
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.value = '';
+                        inputEl.classList.remove('correct-input', 'wrong-input');
+                    }
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+                    if (feedbackEl) feedbackEl.innerHTML = '';
+                }
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script>
+    (function() {
+        // Tự động lấy tên bài học từ thẻ <title> của file btap
+        const QUIZ_KEY = document.title.trim() || "August SAT Math"; 
+        const studentId = sessionStorage.getItem('studentId') || 'GUEST';
+
+        function saveProgressAndNotify() {
+            const answers = {};
+            
+            // Lấy các câu trắc nghiệm đã chọn
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                answers[radio.name] = radio.value;
+            });
+
+            // Lấy các câu điền ô trống
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                if (input.value.trim() !== '' && input.name) {
+                    answers[input.name] = input.value.trim();
+                }
+            });
+
+            // Đếm tổng số câu trong bài
+            let totalQuestions = document.querySelectorAll('.question-block, .question').length;
+            if (totalQuestions === 0) {
+                const radioNames = new Set([...document.querySelectorAll('input[type="radio"]')].map(i => i.name));
+                totalQuestions = radioNames.size || 1;
+            }
+
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            localStorage.setItem(storageKey, JSON.stringify(answers));
+            localStorage.setItem(storageKey + '_total', totalQuestions);
+
+            // Báo cho trang chính index.html cập nhật ngay lập tức
+            if (window.parent) {
+                window.parent.postMessage({ type: 'SAT_PROGRESS_UPDATE' }, '*');
+            }
+        }
+
+        function restoreDraftAnswers() {
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            try {
+                const answers = JSON.parse(saved);
+                Object.keys(answers).forEach(name => {
+                    const val = answers[name];
+                    const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+
+                    const textInput = document.querySelector(`input[name="${name}"]`);
+                    if (textInput && textInput.type !== 'radio') textInput.value = val;
+                });
+            } catch(e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            restoreDraftAnswers();
+            saveProgressAndNotify();
+
+            document.addEventListener('change', saveProgressAndNotify);
+            document.addEventListener('input', saveProgressAndNotify);
+        });
+    })();
+    </script>
+</body>
+</html>
