@@ -376,6 +376,7 @@
     }
 
     // 5A. CHI TIẾT BÀI NỘP CHÍNH THỨC
+    // 5A. CHI TIẾT BÀI NỘP CHÍNH THỨC (ĐÃ SỬA LỖI TRACK ĐÁP ÁN ĐÚNG & BỎ TRỐNG)
     window.viewDetail = function(docId) {
         const item = rawResultsData.find(r => r._docId === docId);
         if (!item) return;
@@ -405,7 +406,7 @@
         let qList = [];
         if (Array.isArray(details)) {
             qList = details;
-        } else if (typeof details === 'object') {
+        } else if (typeof details === 'object' && details !== null) {
             qList = Object.keys(details).map((key, index) => {
                 const val = details[key];
                 if (typeof val === 'object' && val !== null) return val;
@@ -414,11 +415,49 @@
         }
 
         qList.forEach((q, idx) => {
-            const userChoice = q.userChoice || q.selected || q.userAnswer || (typeof q === 'string' ? q : '');
-            const correctChoice = q.correctChoice || q.answer || 'N/A';
-            
-            const isAnswered = userChoice !== '' && userChoice !== null && userChoice !== undefined && userChoice !== 'Chưa chọn';
-            const isCorrect = q.isCorrect !== undefined ? q.isCorrect : (isAnswered && userChoice === correctChoice);
+            // 1. Trích xuất đáp án học sinh chọn
+            let userChoice = '';
+            if (typeof q === 'string' || typeof q === 'number') {
+                userChoice = String(q);
+            } else if (typeof q === 'object' && q !== null) {
+                userChoice = q.userChoice || q.selected || q.userAnswer || q.choice || q.selectedOption || '';
+            }
+
+            // 2. Trích xuất đáp án đúng (Tìm cả trong object câu hỏi q lẫn root của item)
+            let correctChoice = '';
+            if (typeof q === 'object' && q !== null) {
+                correctChoice = q.correctChoice || q.correctAnswer || q.correct_answer || q.correct || q.correctOption || q.rightAnswer || q.answer || q.ans || q.correctKey || q.key;
+            }
+
+            // Nếu không tìm thấy trong từng câu hỏi, tìm ở các danh sách đáp án tại root object
+            if ((!correctChoice || correctChoice === 'N/A') && item) {
+                const rootCorrect = item.correctAnswers || item.answerKey || item.correctKeys || item.quizAnswers || item.answersKey || item.corrects || item.correctList;
+                if (Array.isArray(rootCorrect)) {
+                    correctChoice = rootCorrect[idx];
+                } else if (typeof rootCorrect === 'object' && rootCorrect !== null) {
+                    correctChoice = rootCorrect[idx] || rootCorrect[`q${idx + 1}`] || rootCorrect[idx + 1] || rootCorrect[`question_${idx + 1}`];
+                }
+            }
+
+            if (!correctChoice) correctChoice = 'N/A';
+
+            // 3. Kiểm tra trạng thái đã làm / chưa làm
+            const userChoiceClean = String(userChoice).trim();
+            const isAnswered = userChoiceClean !== '' && 
+                               userChoiceClean !== 'null' && 
+                               userChoiceClean !== 'undefined' && 
+                               userChoiceClean !== 'Chưa chọn' && 
+                               userChoiceClean !== 'Bỏ trống';
+
+            // 4. Kiểm tra đúng / sai
+            let isCorrect = false;
+            if (typeof q === 'object' && q !== null && typeof q.isCorrect === 'boolean') {
+                isCorrect = q.isCorrect;
+            } else if (typeof q === 'object' && q !== null && typeof q.correct === 'boolean') {
+                isCorrect = q.correct;
+            } else if (isAnswered && correctChoice !== 'N/A') {
+                isCorrect = userChoiceClean.toUpperCase() === String(correctChoice).trim().toUpperCase();
+            }
 
             let badgeHTML = '';
             let userChoiceText = '';
@@ -432,23 +471,26 @@
             } else if (isCorrect) {
                 correctCount++;
                 badgeHTML = '<span class="badge badge-success">🟢 ĐÚNG</span>';
-                userChoiceText = `<strong style="color: #27ae60;">${userChoice}</strong>`;
+                userChoiceText = `<strong style="color: #27ae60;">${userChoiceClean}</strong>`;
                 navClass = 'nav-correct';
             } else {
                 incorrectCount++;
                 badgeHTML = '<span class="badge badge-danger">🔴 SAI</span>';
-                userChoiceText = `<strong style="color: #e74c3c;">${userChoice}</strong>`;
+                userChoiceText = `<strong style="color: #e74c3c;">${userChoiceClean}</strong>`;
                 navClass = 'nav-wrong';
             }
 
             // Nút chuyển nhanh
             navHtml += `<button class="q-nav-btn ${navClass}" onclick="scrollToQuestion(${idx})">${idx + 1}</button>`;
 
-            // Thẻ nội dung câu hỏi có ID để navigate tới
+            // Tên câu hỏi
+            const qTitleText = (typeof q === 'object' && q !== null) ? (q.questionText || q.title || q.question || q.qText || `Câu ${idx + 1}`) : `Câu ${idx + 1}`;
+
+            // Nội dung hiển thị
             htmlContent += `
                 <div class="q-item" id="q-item-${idx}">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;" class="q-title">
-                        <div><strong>Câu ${idx + 1}:</strong> ${q.questionText || q.title || `Câu hỏi ${idx + 1}`}</div>
+                        <div><strong>Câu ${idx + 1}:</strong> ${qTitleText}</div>
                         <div>${badgeHTML}</div>
                     </div>
                     <div class="q-ans" style="margin-top: 6px;">
@@ -473,6 +515,7 @@
     };
 
     // 5B. CHI TIẾT BÀI ĐANG LÀM DỞ (DRAFT)
+    // 5B. CHI TIẾT BÀI ĐANG LÀM DỞ (DRAFT) - ĐÃ SỬA LỖI ĐỌC TIẾN ĐỘ
     window.viewDraftDetail = function(docId) {
         const draft = rawDraftsData.find(d => d._docId === docId);
         if (!draft) return;
@@ -484,16 +527,53 @@
         body.innerHTML = '';
         navGrid.innerHTML = '';
 
-        const answers = draft.answers || draft.userAnswers || draft.details || {};
-        const totalQ = draft.totalQuestions || Object.keys(answers).length || 0;
+        // Tự động tìm nguồn chứa câu trả lời dở
+        const answers = draft.answers || draft.userAnswers || draft.details || draft.selectedAnswers || draft.draftAnswers || {};
+        
+        // Xác định tổng số câu hỏi
+        let totalQ = draft.totalQuestions || draft.total || 0;
+        
+        if (!totalQ) {
+            if (Array.isArray(answers)) {
+                totalQ = answers.length;
+            } else if (typeof answers === 'object' && answers !== null) {
+                totalQ = Object.keys(answers).length;
+            }
+        }
 
         let answeredCount = 0;
         let htmlContent = '';
         let navHtml = '';
 
         for (let i = 0; i < totalQ; i++) {
-            const choice = answers[i] !== undefined ? answers[i] : (answers[`q${i+1}`] !== undefined ? answers[`q${i+1}`] : answers[i+1]);
-            const isAnswered = choice !== '' && choice !== null && choice !== undefined;
+            // Quét tất cả các kiểu đặt Key có thể có trong Firebase
+            let rawVal = undefined;
+            if (Array.isArray(answers)) {
+                rawVal = answers[i];
+            } else if (typeof answers === 'object' && answers !== null) {
+                rawVal = answers[i] !== undefined ? answers[i] :
+                         answers[i + 1] !== undefined ? answers[i + 1] :
+                         answers[`q${i + 1}`] !== undefined ? answers[`q${i + 1}`] :
+                         answers[`q${i}`] !== undefined ? answers[`q${i}`] :
+                         answers[`question_${i + 1}`] !== undefined ? answers[`question_${i + 1}`] :
+                         answers[`question${i + 1}`] !== undefined ? answers[`question${i + 1}`] :
+                         answers[`cau${i + 1}`] !== undefined ? answers[`cau${i + 1}`] : undefined;
+            }
+
+            // Trích xuất chuỗi đáp án nếu rawVal là Object
+            let choice = '';
+            if (typeof rawVal === 'object' && rawVal !== null) {
+                choice = rawVal.userChoice || rawVal.selected || rawVal.value || rawVal.answer || rawVal.userAnswer || '';
+            } else if (rawVal !== undefined && rawVal !== null) {
+                choice = String(rawVal);
+            }
+
+            const choiceClean = choice.trim();
+            const isAnswered = choiceClean !== '' && 
+                               choiceClean !== 'null' && 
+                               choiceClean !== 'undefined' && 
+                               choiceClean !== 'Chưa chọn' && 
+                               choiceClean !== 'Bỏ trống';
 
             if (isAnswered) {
                 answeredCount++;
@@ -502,7 +582,7 @@
                     <div class="q-item" id="q-item-${i}">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <strong>Câu ${i + 1}:</strong>
-                            <span class="badge badge-info">🔵 ĐÃ CHỌN: ${choice}</span>
+                            <span class="badge badge-info">🔵 ĐÃ CHỌN: ${choiceClean}</span>
                         </div>
                     </div>
                 `;
@@ -519,9 +599,10 @@
             }
         }
 
+        const pct = totalQ > 0 ? Math.round((answeredCount / totalQ) * 100) : 0;
         document.getElementById('modalSubInfo').innerHTML = `
-            📘 Bài tập: <strong>${draft.quizTitle || draft.storageKey}</strong><br>
-            📊 Tiến độ hiện tại: <strong>${answeredCount} / ${totalQ} câu</strong> (${totalQ > 0 ? Math.round((answeredCount / totalQ) * 100) : 0}%)
+            📘 Bài tập: <strong>${draft.quizTitle || draft.storageKey || 'Bài dở'}</strong><br>
+            📊 Tiến độ hiện tại: <strong>${answeredCount} / ${totalQ} câu</strong> (${pct}%)
         `;
 
         navGrid.innerHTML = navHtml;
