@@ -79,7 +79,7 @@
     <div id="welcomeSection" class="login-box hidden">
         <div class="user-info" id="userInfoText"></div>
         <div>
-            <button onclick="logout()" style="background: #95a5a6; font-size: 0.85em; padding: 8px 15px;">Đăng xuất</button>
+            <button onclick="logout()" style="background: #95a5a6; font-size: 0.85em; padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; color: white;">Đăng xuất</button>
             <button class="btn-history" onclick="toggleHistoryModal(true)">📜 Xem Lịch Sử Nộp Bài</button>
         </div>
     </div>
@@ -287,8 +287,23 @@
     <iframe id="quizIframe" src=""></iframe>
 </div>
 
+<!-- SCRIPT GIAO DIỆN & XỬ LÝ NỘI BỘ -->
 <script>
-    // === TỰ ĐỘNG ĐẾM TỔNG SỐ CÂU CHO TẤT CẢ CÁC BÀI TẬP ===
+    const STUDENT_PASSCODES = {
+        "THUVINH":  { name: "Thu Vinh", role: "math_only" },
+        "GIAHIEN":  { name: "Gia Hiển", role: "math_only" },
+        "DINHANH":  { name: "Đình Anh", role: "full_student" },
+        "TAMDI":    { name: "Tâm Di",   role: "full_student" },
+        "TRIAL":    { name: "Ốc",       role: "full_student" },
+        "6868":     { name: "Admin",    role: "admin" }
+    };
+
+    let selectedQuizUrl = "";
+    let selectedQuizTitle = "";
+    let timerInterval = null;
+    let totalSeconds = 0;
+    let currentQuizMode = "practice";
+
     async function autoDetectTotalQuestions() {
         const items = document.querySelectorAll('.quiz-item');
         for (let item of items) {
@@ -318,21 +333,6 @@
         }
         updateAllProgressBars();
     }
-
-    const STUDENT_PASSCODES = {
-        "THUVINH":  { name: "Thu Vinh", role: "math_only" },
-        "GIAHIEN":  { name: "Gia Hiển", role: "math_only" },
-        "DINHANH":  { name: "Đình Anh", role: "full_student" },
-        "TAMDI":    { name: "Tâm Di",   role: "full_student" },
-        "TRIAL":    { name: "Ốc",       role: "full_student" },
-        "6868":     { name: "Admin",    role: "admin" }
-    };
-
-    let selectedQuizUrl = "";
-    let selectedQuizTitle = "";
-    let timerInterval = null;
-    let totalSeconds = 0;
-    let currentQuizMode = "practice";
 
     function checkPasscode() {
         const code = document.getElementById('passcode').value.trim().toUpperCase();
@@ -456,16 +456,17 @@
             const tr = document.createElement('tr');
             
             let scoreStr = "N/A";
-            if (item.score !== undefined && item.totalQuestions) {
-                const pct = Math.round((item.score / item.totalQuestions) * 100);
-                scoreStr = `${item.score}/${item.totalQuestions} (${pct}%)`;
+            if (item.score !== undefined && (item.total || item.totalQuestions)) {
+                const tot = item.total || item.totalQuestions;
+                const pct = Math.round((item.score / tot) * 100);
+                scoreStr = `${item.score}/${tot} (${pct}%)`;
             } else if (item.scoreText) {
                 scoreStr = item.scoreText;
             } else if (item.score !== undefined) {
                 scoreStr = `${item.score} điểm`;
             }
 
-            const timeStr = item.timestamp || item.dateSubmitted || item.date || "Vừa xong";
+            const timeStr = item.displayTime || item.timestamp || item.dateSubmitted || "Vừa xong";
 
             tr.innerHTML = `
                 <td><strong>${item.quizTitle || item.title || 'Bài làm'}</strong></td>
@@ -553,7 +554,6 @@
         document.getElementById('quizRunner').classList.remove('hidden');
     }
 
-    // TÍNH NĂNG ĐÁNH DẤU CÂU XEM LẠI & BẢNG ĐIỀU HƯỚNG
     function setupBookmarkAndNavigation() {
         try {
             const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
@@ -567,7 +567,6 @@
             questionBlocks.forEach((block, index) => {
                 const qNum = index + 1;
 
-                // 1. Tạo nút chọn nhanh trên header
                 const navBtn = document.createElement('button');
                 navBtn.className = 'q-nav-btn';
                 navBtn.innerText = qNum;
@@ -577,7 +576,6 @@
                 };
                 navPanel.appendChild(navBtn);
 
-                // 2. Chèn Nút "📌 Đánh dấu xem lại" vào góc từng câu hỏi
                 if (!block.querySelector('.btn-flag-question')) {
                     const headerDiv = document.createElement('div');
                     headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 5px;";
@@ -616,7 +614,6 @@
                     block.insertBefore(headerDiv, block.firstChild);
                 }
 
-                // 3. Lắng nghe hành vi chọn đáp án để đổi màu nút điều hướng
                 const inputs = block.querySelectorAll('input[type="radio"], input[type="text"]');
                 inputs.forEach(input => {
                     input.addEventListener('change', () => {
@@ -665,7 +662,7 @@
                 });
             }
         } catch (err) {
-            console.log("Không thể truy cập iframe (khác origin hoặc bài làm chưa load xong).", err);
+            console.log("Không thể truy cập iframe.", err);
         }
     }
 
@@ -704,6 +701,7 @@
         }
     };
 
+    // LẮNG NGHE SỰ KIỆN NỘP BÀI TỪ IFRAME BÀI TẬP
     window.addEventListener('message', function(event) {
         if (!event.data) return;
 
@@ -718,22 +716,25 @@
             }
             if (loggedId) {
                 resultData.studentId = loggedId;
+                resultData.id = loggedId;
             }
 
-            if (!resultData.timestamp) {
-                const now = new Date();
-                resultData.timestamp = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            if (!resultData.quizTitle) {
+                resultData.quizTitle = selectedQuizTitle || 'Bài tập SAT';
             }
 
+            const now = new Date();
+            resultData.displayTime = now.toLocaleTimeString('vi-VN') + ' - ' + now.toLocaleDateString('vi-VN');
+
+            // 1. Lưu LocalStorage làm dự phòng
             let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
-            const attempt = history.filter(h => h.studentName === resultData.studentName && h.quizTitle === resultData.quizTitle).length + 1;
+            const attempt = history.filter(h => (h.studentName === loggedName || h.name === loggedName) && h.quizTitle === resultData.quizTitle).length + 1;
             resultData.attempt = attempt;
 
-            if (!history.some(h => h.id === resultData.id)) {
-                history.push(resultData);
-                localStorage.setItem('sat_results', JSON.stringify(history));
-            }
+            history.push(resultData);
+            localStorage.setItem('sat_results', JSON.stringify(history));
 
+            // Xóa nháp sau khi nộp
             if (loggedId && resultData.quizTitle) {
                 const draftKey = `quiz_draft_${loggedId}_${resultData.quizTitle}`;
                 localStorage.removeItem(draftKey);
@@ -742,7 +743,11 @@
 
             updateAllProgressBars();
             renderStudentHistory();
-            window.dispatchEvent(new Event('storage'));
+
+            // 2. Gửi dữ liệu bài làm lên FIREBASE FIRESTORE cho ADMIN
+            if (typeof window.sendResultToFirebase === 'function') {
+                window.sendResultToFirebase(resultData);
+            }
         }
 
         if (event.data.type === 'SAT_SAVE_DRAFT' || event.data.type === 'UPDATE_PROGRESS') {
@@ -750,5 +755,54 @@
         }
     });
 </script>
+
+<!-- TÍCH HỢP FIREBASE FIRESTORE MODULE -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Hàm toàn cục để đẩy kết quả lên Firebase Firestore
+    window.sendResultToFirebase = async function(data) {
+        try {
+            const scoreNum = data.score !== undefined ? Number(data.score) : 0;
+            const totalNum = data.total !== undefined ? Number(data.total) : (data.totalQuestions ? Number(data.totalQuestions) : 0);
+            
+            const payload = {
+                name: data.name || data.studentName || 'Học sinh ẩn danh',
+                studentName: data.studentName || data.name || 'Học sinh ẩn danh',
+                id: data.id || data.studentId || 'N/A',
+                quizTitle: data.quizTitle || 'Bài tập SAT',
+                score: scoreNum,
+                total: totalNum,
+                percentage: data.percentage || (totalNum > 0 ? Math.round((scoreNum / totalNum) * 100) + '%' : ''),
+                answers: data.answers || {},
+                startTime: data.startTime || '',
+                endTime: data.endTime || '',
+                duration: data.duration || '',
+                displayTime: data.displayTime || new Date().toLocaleString('vi-VN'),
+                timestamp: serverTimestamp()
+            };
+
+            await addDoc(collection(db, "results"), payload);
+            console.log("🚀 [Firebase] Đã lưu thành công bài làm của học sinh:", payload.name);
+        } catch (error) {
+            console.error("❌ [Firebase Error] Không thể gửi dữ liệu lên Firestore:", error);
+        }
+    };
+</script>
+
 </body>
 </html>
