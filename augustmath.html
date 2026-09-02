@@ -421,6 +421,7 @@ const quizData = [
     }
 
     function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
         quizContainer.innerHTML = '';
         createNavigatorBox(); // Chèn các nút vào khối Nav đã tạo trong HTML
 
