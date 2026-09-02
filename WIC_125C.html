@@ -1835,26 +1835,19 @@
         }
     }
 
-    function buildQuiz() {
-        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
-        quizContainer.innerHTML = '';
-        createNavigatorBox(); 
-
-        quizData.forEach((data, index) => {
-            quizData.forEach((data, index) => {
-    // Đoạn gốc của bạn
+quizData.forEach((data, index) => {
     const questionBlock = document.createElement('div');
     questionBlock.classList.add('question-block');
     questionBlock.id = `question-${data.id}`;
     questionBlock.dataset.locked = "false";
     questionBlock.style.scrollMarginTop = "100px";
 
-    // 1. Xử lý hiển thị đáp án ABCD (Bỏ số 0, 1, 2, 3)
+    // 1. Xử lý hiển thị đáp án ABCD
     const letters = ['A', 'B', 'C', 'D'];
     let optionsHtml = '';
     if (data.options && data.options.length > 0) {
         data.options.forEach((optionText, idx) => {
-            const letter = letters[idx]; // Lấy chữ cái tương ứng: A, B, C, D
+            const letter = letters[idx]; 
             optionsHtml += `
                 <li>
                     <label id="label-${data.id}-${letter}">
@@ -1869,12 +1862,11 @@
     // 2. Xử lý hiển thị đoạn văn (Passage)
     const passageHtml = data.passage ? `<div class="question-passage">${data.passage}</div>` : '';
 
-    // 3. Chèn tất cả vào HTML của câu hỏi
+    // 3. Chèn HTML vào câu hỏi (ĐÃ BỎ PHẦN EXPLANATION)
     questionBlock.innerHTML = `
         <div class="question-text">Câu ${index + 1}: ${data.question}</div>
         ${passageHtml}
         <ul class="options">${optionsHtml}</ul>
-        <div class="explanation" id="explanation-${data.id}">${data.explanation ? `<strong>Giải thích:</strong> ${data.explanation}` : ''}</div>
     `;
     
     quizContainer.appendChild(questionBlock);
