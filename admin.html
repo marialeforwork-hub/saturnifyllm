@@ -57,10 +57,20 @@
         .modal-content { background-color: #fff; margin: 4% auto; padding: 25px; border-radius: 10px; width: 90%; max-width: 750px; max-height: 82vh; overflow-y: auto; position: relative; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
         .close-btn { position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; }
         .close-btn:hover { color: #000; }
-        .q-item { border-bottom: 1px solid #edf2f7; padding: 12px 0; text-align: left; }
+        
+        .q-item { border-bottom: 1px solid #edf2f7; padding: 12px; text-align: left; border-radius: 6px; transition: background-color 0.3s ease; }
         .q-item:last-child { border-bottom: none; }
         .q-title { font-weight: bold; color: #2c3e50; line-height: 1.4; }
         .q-ans { font-size: 0.92em; color: #4a5568; }
+
+        /* QUESTION NAVIGATION GRID */
+        .q-nav-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; max-height: 120px; overflow-y: auto; }
+        .q-nav-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #ced4da; background: #fff; font-weight: bold; font-size: 0.82em; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .q-nav-btn:hover { transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .q-nav-btn.nav-correct { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .q-nav-btn.nav-wrong { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .q-nav-btn.nav-unanswered { background: #fff3cd; color: #856404; border-color: #ffeeba; }
+        .q-nav-btn.nav-answered { background: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
 
         .hidden { display: none; }
     </style>
@@ -156,7 +166,11 @@
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
         <h2 id="modalStudentName" style="margin-top:0; color:#2c3e50; font-size: 1.3em;">Chi Tiết Bài Làm</h2>
-        <div id="modalSubInfo" style="margin-bottom: 15px; border-bottom: 2px solid #f0f2f5; padding-bottom: 12px; line-height: 1.6;"></div>
+        <div id="modalSubInfo" style="margin-bottom: 12px; border-bottom: 2px solid #f0f2f5; padding-bottom: 12px; line-height: 1.6;"></div>
+        
+        <!-- Thanh chuyển nhanh tới từng câu -->
+        <div id="modalQuestionNav" class="q-nav-grid"></div>
+        
         <div id="modalQuestionsBody"></div>
     </div>
 </div>
@@ -183,6 +197,16 @@
         const modal = document.getElementById('detailModal');
         if (event.target == modal) modal.style.display = 'none';
     }
+
+    // Hàm chuyển nhanh (scroll) tới câu chỉ định
+    window.scrollToQuestion = function(idx) {
+        const targetEl = document.getElementById(`q-item-${idx}`);
+        if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetEl.style.backgroundColor = '#e8f4f8';
+            setTimeout(() => { targetEl.style.backgroundColor = 'transparent'; }, 1500);
+        }
+    };
 </script>
 
 <script type="module">
@@ -335,13 +359,14 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${draft.studentName || 'Học sinh'} (${draft.studentId})</strong></td>
+                    <td><strong>${draft.studentName || 'Học sinh'} (${draft.studentId || 'N/A'})</strong></td>
                     <td>${draft.quizTitle || draft.storageKey}</td>
                     <td><strong>${answered}</strong> câu</td>
                     <td>${total} câu</td>
                     <td><span class="badge badge-warning">${pct}%</span></td>
                     <td>${updatedTime}</td>
                     <td>
+                        <button class="btn-act btn-view" onclick="viewDraftDetail('${draft._docId}')">👁️ Chi tiết</button>
                         <button class="btn-act btn-del" onclick="deleteSingleDraft('${draft._docId}')">🗑️ Xóa bài dở</button>
                     </td>
                 `;
@@ -350,7 +375,7 @@
         }
     }
 
-    // 5. HIỂN THỊ CHI TIẾT ĐÁP ÁN ĐÃ CHỌN / CÂU ĐÚNG / CÂU CHƯA LÀM
+    // 5A. CHI TIẾT BÀI NỘP CHÍNH THỨC
     window.viewDetail = function(docId) {
         const item = rawResultsData.find(r => r._docId === docId);
         if (!item) return;
@@ -358,7 +383,9 @@
         document.getElementById('modalStudentName').innerText = `👤 ${item.name || item.studentName || 'Học sinh'} (ID: ${item.id || item.studentId || 'N/A'})`;
 
         const body = document.getElementById('modalQuestionsBody');
+        const navGrid = document.getElementById('modalQuestionNav');
         body.innerHTML = '';
+        navGrid.innerHTML = '';
 
         const details = item.details || item.answers || item.userAnswers;
 
@@ -372,49 +399,66 @@
         let incorrectCount = 0;
         let unansweredCount = 0;
         let htmlContent = '';
+        let navHtml = '';
 
+        // Chuẩn hóa dữ liệu về Dạng Mảng (Array)
+        let qList = [];
         if (Array.isArray(details)) {
-            details.forEach((q, idx) => {
-                const userChoice = q.userChoice || q.selected || q.userAnswer || '';
-                const correctChoice = q.correctChoice || q.answer || 'N/A';
-                
-                // Kiểm tra xem câu hỏi có được trả lời hay không
-                const isAnswered = userChoice !== '' && userChoice !== null && userChoice !== undefined && userChoice !== 'Chưa chọn';
-                const isCorrect = q.isCorrect !== undefined ? q.isCorrect : (isAnswered && userChoice === correctChoice);
-
-                let badgeHTML = '';
-                let userChoiceText = '';
-
-                if (!isAnswered) {
-                    unansweredCount++;
-                    badgeHTML = '<span class="badge badge-warning">⚪ CHƯA LÀM</span>';
-                    userChoiceText = '<span style="color: #d35400; font-style: italic;">Chưa chọn đáp án</span>';
-                } else if (isCorrect) {
-                    correctCount++;
-                    badgeHTML = '<span class="badge badge-success">🟢 ĐÚNG</span>';
-                    userChoiceText = `<strong style="color: #27ae60;">${userChoice}</strong>`;
-                } else {
-                    incorrectCount++;
-                    badgeHTML = '<span class="badge badge-danger">🔴 SAI</span>';
-                    userChoiceText = `<strong style="color: #e74c3c;">${userChoice}</strong>`;
-                }
-
-                htmlContent += `
-                    <div class="q-item">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;" class="q-title">
-                            <div><strong>Câu ${idx + 1}:</strong> ${q.questionText || q.title || 'Nội dung câu hỏi'}</div>
-                            <div>${badgeHTML}</div>
-                        </div>
-                        <div class="q-ans" style="margin-top: 6px;">
-                            <span>Đã chọn: ${userChoiceText}</span> &nbsp;|&nbsp; 
-                            <span>Đáp án đúng: <strong style="color: #27ae60;">${correctChoice}</strong></span>
-                        </div>
-                    </div>
-                `;
+            qList = details;
+        } else if (typeof details === 'object') {
+            qList = Object.keys(details).map((key, index) => {
+                const val = details[key];
+                if (typeof val === 'object' && val !== null) return val;
+                return { questionText: `Câu ${index + 1}`, userChoice: val };
             });
         }
 
-        // Cập nhậtHeader Thống kê trong Modal
+        qList.forEach((q, idx) => {
+            const userChoice = q.userChoice || q.selected || q.userAnswer || (typeof q === 'string' ? q : '');
+            const correctChoice = q.correctChoice || q.answer || 'N/A';
+            
+            const isAnswered = userChoice !== '' && userChoice !== null && userChoice !== undefined && userChoice !== 'Chưa chọn';
+            const isCorrect = q.isCorrect !== undefined ? q.isCorrect : (isAnswered && userChoice === correctChoice);
+
+            let badgeHTML = '';
+            let userChoiceText = '';
+            let navClass = '';
+
+            if (!isAnswered) {
+                unansweredCount++;
+                badgeHTML = '<span class="badge badge-warning">⚪ CHƯA LÀM</span>';
+                userChoiceText = '<span style="color: #d35400; font-style: italic;">Chưa chọn đáp án</span>';
+                navClass = 'nav-unanswered';
+            } else if (isCorrect) {
+                correctCount++;
+                badgeHTML = '<span class="badge badge-success">🟢 ĐÚNG</span>';
+                userChoiceText = `<strong style="color: #27ae60;">${userChoice}</strong>`;
+                navClass = 'nav-correct';
+            } else {
+                incorrectCount++;
+                badgeHTML = '<span class="badge badge-danger">🔴 SAI</span>';
+                userChoiceText = `<strong style="color: #e74c3c;">${userChoice}</strong>`;
+                navClass = 'nav-wrong';
+            }
+
+            // Nút chuyển nhanh
+            navHtml += `<button class="q-nav-btn ${navClass}" onclick="scrollToQuestion(${idx})">${idx + 1}</button>`;
+
+            // Thẻ nội dung câu hỏi có ID để navigate tới
+            htmlContent += `
+                <div class="q-item" id="q-item-${idx}">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;" class="q-title">
+                        <div><strong>Câu ${idx + 1}:</strong> ${q.questionText || q.title || `Câu hỏi ${idx + 1}`}</div>
+                        <div>${badgeHTML}</div>
+                    </div>
+                    <div class="q-ans" style="margin-top: 6px;">
+                        <span>Đã chọn: ${userChoiceText}</span> &nbsp;|&nbsp; 
+                        <span>Đáp án đúng: <strong style="color: #27ae60;">${correctChoice}</strong></span>
+                    </div>
+                </div>
+            `;
+        });
+
         document.getElementById('modalSubInfo').innerHTML = `
             📘 Bài tập: <strong>${item.quizTitle || 'Bài làm'}</strong><br>
             📊 Thống kê câu hỏi: 
@@ -423,7 +467,65 @@
             <span class="badge badge-warning">Chưa làm: ${unansweredCount}</span>
         `;
 
+        navGrid.innerHTML = navHtml;
         body.innerHTML = htmlContent;
+        document.getElementById('detailModal').style.display = 'block';
+    };
+
+    // 5B. CHI TIẾT BÀI ĐANG LÀM DỞ (DRAFT)
+    window.viewDraftDetail = function(docId) {
+        const draft = rawDraftsData.find(d => d._docId === docId);
+        if (!draft) return;
+
+        document.getElementById('modalStudentName').innerText = `⏳ Tiến Độ Làm Bài: ${draft.studentName || 'Học sinh'} (ID: ${draft.studentId || 'N/A'})`;
+
+        const body = document.getElementById('modalQuestionsBody');
+        const navGrid = document.getElementById('modalQuestionNav');
+        body.innerHTML = '';
+        navGrid.innerHTML = '';
+
+        const answers = draft.answers || draft.userAnswers || draft.details || {};
+        const totalQ = draft.totalQuestions || Object.keys(answers).length || 0;
+
+        let answeredCount = 0;
+        let htmlContent = '';
+        let navHtml = '';
+
+        for (let i = 0; i < totalQ; i++) {
+            const choice = answers[i] !== undefined ? answers[i] : (answers[`q${i+1}`] !== undefined ? answers[`q${i+1}`] : answers[i+1]);
+            const isAnswered = choice !== '' && choice !== null && choice !== undefined;
+
+            if (isAnswered) {
+                answeredCount++;
+                navHtml += `<button class="q-nav-btn nav-answered" onclick="scrollToQuestion(${i})">${i + 1}</button>`;
+                htmlContent += `
+                    <div class="q-item" id="q-item-${i}">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong>Câu ${i + 1}:</strong>
+                            <span class="badge badge-info">🔵 ĐÃ CHỌN: ${choice}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                navHtml += `<button class="q-nav-btn nav-unanswered" onclick="scrollToQuestion(${i})">${i + 1}</button>`;
+                htmlContent += `
+                    <div class="q-item" id="q-item-${i}">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="color: #7f8c8d;">Câu ${i + 1}:</strong>
+                            <span class="badge badge-warning">⚪ CHƯA CHỌN</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('modalSubInfo').innerHTML = `
+            📘 Bài tập: <strong>${draft.quizTitle || draft.storageKey}</strong><br>
+            📊 Tiến độ hiện tại: <strong>${answeredCount} / ${totalQ} câu</strong> (${totalQ > 0 ? Math.round((answeredCount / totalQ) * 100) : 0}%)
+        `;
+
+        navGrid.innerHTML = navHtml;
+        body.innerHTML = htmlContent || '<p style="color: #7f8c8d; font-style: italic;">Chưa có dữ liệu câu trả lời.</p>';
         document.getElementById('detailModal').style.display = 'block';
     };
 
