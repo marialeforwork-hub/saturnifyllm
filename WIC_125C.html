@@ -44,6 +44,23 @@
             font-size: 1.2em;
             box-shadow: -3px 0 6px rgba(0,0,0,0.1);
         }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
         .sticky-footer {
             position: fixed;
             bottom: 0;
@@ -85,6 +102,7 @@
             gap: 6px;
         }
         .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
         .stats { font-size: 1.1em; color: #2c3e50; }
         .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
         .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
@@ -100,7 +118,8 @@
             transition: background 0.3s;
             box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
         }
-        .global-check-btn:hover { background-color: #27ae60; }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
         .reset-btn {
             padding: 12px 20px;
             font-size: 1.1em;
@@ -113,7 +132,8 @@
             transition: background 0.3s;
             box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
         }
-        .reset-btn:hover { background-color: #c0392b; }
+        .reset-btn:hover { background-color: #c0392b; ; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
         @media (max-width: 600px) {
             .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
             .global-check-btn { width: 100%; }
