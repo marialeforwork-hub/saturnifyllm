@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WORD IN CONTEXT - 125C</title>
+    <title>WORD IN CONTEXT - EASY - QUESTIONBANK</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
         .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
         .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
         .options { list-style-type: none; padding: 0; }
         .options li { margin-bottom: 10px; }
@@ -19,6 +23,7 @@
         .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
         .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
         
+        /* Khung chứa danh sách câu hỏi */
         .question-list-panel {
             position: fixed;
             right: 20px;
@@ -106,6 +111,7 @@
         .stats { font-size: 1.1em; color: #2c3e50; }
         .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
         .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
         .global-check-btn {
             padding: 12px 30px;
             font-size: 1.1em;
@@ -132,8 +138,9 @@
             transition: background 0.3s;
             box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
         }
-        .reset-btn:hover { background-color: #c0392b; ; transform: translateY(-1px); }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
         .reset-btn:active { transform: translateY(1px); }
+        
         @media (max-width: 600px) {
             .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
             .global-check-btn { width: 100%; }
@@ -143,7 +150,7 @@
 <body>
 
 <div class="container">
-    <h1>WORD IN CONTEXT - 125C</h1>
+    <h1>WORD IN CONTEXT: EASY (QUESTION BANK)</h1>
     <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
     <div id="quiz"></div>
 </div>
@@ -153,6 +160,7 @@
     <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
         <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
         <div class="nav-grid" id="navGrid"></div>
+    </div>
 </div>
 
 <button class="toggle-nav-btn" id="toggleNavBtn">
@@ -186,76 +194,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    const toggleNavBtn = document.getElementById('toggleNavBtn');
-    const stickyFooter = document.getElementById('stickyFooter');
-    const toggleIcon = document.getElementById('toggleIcon');
-    const toggleText = document.getElementById('toggleText');
-
-    toggleNavBtn.addEventListener('click', () => {
-        stickyFooter.classList.toggle('hidden');
-        const isHidden = stickyFooter.classList.contains('hidden');
-        toggleIcon.textContent = isHidden ? '🙈' : '👁️';
-        toggleText.textContent = isHidden ? 'Hiện thanh công cụ' : 'Ẩn thanh công cụ';
-    });
-
-    const questionListPanel = document.getElementById('questionListPanel');
-    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
-
-    if (window.innerWidth <= 768) {
-        questionListPanel.classList.add('collapsed');
-    }
-
-    toggleSidebarBtn.addEventListener('click', () => {
-        questionListPanel.classList.toggle('collapsed');
-    });
-
-    let startTime = new Date();
-
-    async function saveScoreToFirebase(score, total) {
-        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
-        const studentId = sessionStorage.getItem('studentId') || "N/A";
-        const quizName = document.title;
-        const endTime = new Date();
-
-        let detailedAnswers = {};
-        quizData.forEach((data, index) => {
-            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
-            const userChoice = selectedOption ? selectedOption.value : "Bỏ trống";
-            const isCorrect = userChoice === data.correctAnswer;
-
-            detailedAnswers[`Câu ${index + 1}`] = {
-                questionText: data.question,
-                userChoice: userChoice,
-                correctAnswer: data.correctAnswer,
-                isCorrect: isCorrect
-            };
-        });
-
-        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
-        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
-
-        try {
-            await addDoc(collection(db, "results"), {
-                name: studentName,
-                id: studentId,
-                quizTitle: quizName,
-                score: score,
-                total: total,
-                percentage: Math.round((score / total) * 100) + '%',
-                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
-                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
-                duration: durationText,
-                answers: detailedAnswers,
-                timestamp: new Date()
-            });
-            console.log("Đã lưu chi tiết bài làm lên Firebase!");
-        } catch (error) {
-            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
-        }
-    }
-
-    // 📌 ĐÃ ĐỐI CHIẾU CHUẨN XÁC 125 CÂU HỎI TỪ FILE PDF GỐC
     const quizData = [
   {
     "id": 1,
@@ -1891,21 +1829,26 @@
     const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
     const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
 
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
     function buildQuiz() {
         localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
         quizContainer.innerHTML = '';
-        createNavigatorBox();
+        createNavigatorBox(); 
 
         quizData.forEach((data, index) => {
             const questionBlock = document.createElement('div');
             questionBlock.classList.add('question-block');
             questionBlock.id = `question-${data.id}`;
             questionBlock.dataset.locked = "false";
-            questionBlock.style.scrollMarginTop = "80px";
+            questionBlock.style.scrollMarginTop = "100px";
 
-            const letters = ['A', 'B', 'C', 'D'];
-let optionsHtml = '';
-if (data.options && Object.keys(data.options).length > 0) {
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
                 for (const [key, value] of Object.entries(data.options)) {
                     optionsHtml += `
                         <li>
@@ -1920,22 +1863,22 @@ if (data.options && Object.keys(data.options).length > 0) {
 
             questionBlock.innerHTML = `
                 <div class="question-text">Câu ${index + 1}: ${data.question}</div>
-                <div style="margin-bottom: 12px; color: #555; background: #fafafa; padding: 10px; border-left: 3px solid #ccc;">${data.passage}</div>
-                <ul class="options">
-                    ${optionsHtml}
-                </ul>
-                <div class="explanation" id="explanation-${data.id}"><strong>Giải thích:</strong> ${data.explanation}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
             `;
             quizContainer.appendChild(questionBlock);
         });
         
-       quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
         quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
         
         const progressEl = document.getElementById('progressText');
         if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
     }
-  function createNavigatorBox() {
+
+    function createNavigatorBox() {
         const grid = document.getElementById('navGrid');
         if(!grid) return;
         grid.innerHTML = ''; 
@@ -2202,4 +2145,3 @@ if (data.options && Object.keys(data.options).length > 0) {
 </script>
 </body>
 </html>
-    
