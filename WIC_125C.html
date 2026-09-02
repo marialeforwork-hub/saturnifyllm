@@ -1825,9 +1825,55 @@
     let currentScore = 0;
     let answeredCount = 0;
     const totalQuestions = quizData.length;
+    let startTime = new Date();
 
     const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
     const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    // --- KHÔI PHỤC: Tính năng lưu điểm lên Firebase ---
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            const userChoice = selectedOption ? selectedOption.value : "Bỏ trống";
+            const correctKey = data.answer || data.correctAnswer;
+            const isCorrect = userChoice.toLowerCase() === (correctKey || '').toString().toLowerCase();
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.question,
+                userChoice: userChoice,
+                correctAnswer: correctKey || '',
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
 
     function renderMath() {
         if (window.MathJax && window.MathJax.typesetPromise) {
@@ -1846,7 +1892,7 @@
             questionBlock.dataset.locked = "false";
             questionBlock.style.scrollMarginTop = "100px";
 
-            // 1. Xử lý hiển thị đáp án ABCD
+            // Xử lý hiển thị đáp án ABCD
             const letters = ['A', 'B', 'C', 'D'];
             let optionsHtml = '';
             if (data.options && data.options.length > 0) {
@@ -1863,10 +1909,10 @@
                 });
             }
 
-            // 2. Xử lý hiển thị đoạn văn (Passage)
+            // Xử lý hiển thị đoạn văn (Passage)
             const passageHtml = data.passage ? `<div class="question-passage">${data.passage}</div>` : '';
 
-            // 3. Chèn HTML vào câu hỏi (ĐÃ BỎ PHẦN EXPLANATION)
+            // Đã ẩn phần Explanation theo yêu cầu
             questionBlock.innerHTML = `
                 <div class="question-text">Câu ${index + 1}: ${data.question}</div>
                 ${passageHtml}
@@ -1875,15 +1921,6 @@
             
             quizContainer.appendChild(questionBlock);
         });
-        
-        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
-        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
-        
-        const progressEl = document.getElementById('progressText');
-        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
-
-        renderMath();
-    }
         
         quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
         quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
@@ -1917,6 +1954,11 @@
     const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
     const questionListPanel = document.getElementById('questionListPanel');
     
+    // --- KHÔI PHỤC: Tự động thu gọn sidebar trên điện thoại ---
+    if (window.innerWidth <= 768 && questionListPanel) {
+        questionListPanel.classList.add('collapsed');
+    }
+
     if (toggleSidebarBtn && questionListPanel) {
         toggleSidebarBtn.addEventListener('click', () => {
             questionListPanel.classList.toggle('collapsed');
@@ -2016,28 +2058,23 @@
             const block = document.getElementById(`question-${data.id}`);
             if (block.dataset.locked === "true") return;
 
-            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const correctKey = data.answer || data.correctAnswer;
+            const correctAnswerStr = (correctKey || '').toString().trim().toLowerCase();
+            
             const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
             
             if (selectedOption) {
                 checkedAny = true;
                 const userAnswer = selectedOption.value.trim().toLowerCase();
                 
-                if (userAnswer === correctAnswer) {
+                if (userAnswer === correctAnswerStr) {
                     document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
                     currentScore++;
                 } else {
                     document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
-                    const correctKey = data.correctAnswer;
                     if (document.getElementById(`label-${data.id}-${correctKey}`)) {
                         document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
                     }
-                }
-
-                const explanationEl = document.getElementById(`explanation-${data.id}`);
-                if (explanationEl && data.explanation) {
-                    explanationEl.style.display = 'block';
-                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
                 }
 
                 const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
@@ -2063,8 +2100,6 @@
             }
         }
     }
-
-    let startTime = new Date();
 
     function saveAdminResultData() {
         const endTime = new Date();
@@ -2122,17 +2157,13 @@
                     radio.disabled = false;
                     radio.checked = false;
                 });
-                if (data.options) {
-                    for (const key of Object.keys(data.options)) {
-                        const lbl = document.getElementById(`label-${data.id}-${key}`);
-                        if (lbl) {
-                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
-                        }
+                
+                ['A', 'B', 'C', 'D'].forEach(letter => {
+                    const lbl = document.getElementById(`label-${data.id}-${letter}`);
+                    if (lbl) {
+                        lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
                     }
-                }
-
-                const explanationEl = document.getElementById(`explanation-${data.id}`);
-                if (explanationEl) explanationEl.style.display = 'none';
+                });
 
                 const navBtn = document.getElementById(`nav_btn_${data.id}`);
                 if (navBtn) {
