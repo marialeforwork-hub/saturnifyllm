@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRACTICE TEST: ELITE X4</title>
+    
+    <!-- Tích hợp MathJax để hiển thị công thức toán học -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        .fill-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .correct-input {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .wrong-input {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        .answer-feedback {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+        .stats {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+        /* Nút Sidebar và Nav Box Styles */
+        .toggle-sidebar-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 10001;
+            background: #3498db; color: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .toggle-sidebar-btn:hover { transform: scale(1.05); }
+
+        #quizNavBox {
+            position: fixed; top: 75px; right: 20px; width: 220px; max-height: 75vh;
+            background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; overflow-y: auto;
+            display: none; /* Mặc định ẩn */
+        }
+
+        .toggle-nav-btn {
+            position: fixed; bottom: 85px; right: 20px; z-index: 1001;
+            background: #e67e22; color: #fff; border: none; padding: 10px 18px;
+            border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: bottom 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nút Toggle Sidebar danh sách câu hỏi -->
+<button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+
+<!-- Khối danh sách câu hỏi -->
+<div id="quizNavBox">
+    <h3 style="text-align: center; margin-top: 0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">📌 Danh Sách Câu Hỏi</h3>
+    <div id="navGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+        <!-- Danh sách nút sẽ được JS chèn tự động vào đây -->
+    </div>
+</div>
+
+<div class="container">
+    <h1>PRACTICE TEST: ELITE X4</h1>
+    <p style="text-align: center; color: #7f8c8d;">Chọn đáp án hoặc nhập kết quả, sau đó bấm <strong>"Kiểm tra"</strong> để xem đáp án. Module 1: Reading and Writing (câu 1->27), Module 1: Reading and Writing (câu 28->54), Module 1: Math (câu 55->75), Module 2: Math (câu 76->98)</p>
+    <div id="quiz"></div>
+</div>
+
+<!-- Nút Toggle ẩn hiện Footer -->
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<!-- Sticky Footer Công Cụ -->
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let startTime = new Date();
+    async function saveScoreToFirebase(score, total) {
+        const studentName = sessionStorage.getItem('studentName') || "Học sinh ẩn danh";
+        const studentId = sessionStorage.getItem('studentId') || "N/A";
+        const quizName = document.title;
+        const endTime = new Date();
+
+        let detailedAnswers = {};
+        quizData.forEach((data, index) => {
+            let userChoice = "Bỏ trống";
+            const expected = data.answer || data.correctAnswer || '';
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userChoice = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userChoice = inputEl.value.trim();
+            }
+
+            const isCorrect = userChoice.toString().trim().toLowerCase() === expected.toString().trim().toLowerCase();
+
+            detailedAnswers[`Câu ${index + 1}`] = {
+                questionText: data.text || data.question,
+                userChoice: userChoice,
+                correctAnswer: expected,
+                isCorrect: isCorrect
+            };
+        });
+
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationText = `${Math.floor(durationSec / 60)} phút ${durationSec % 60} giây`;
+
+        try {
+            await addDoc(collection(db, "results"), {
+                name: studentName,
+                id: studentId,
+                quizTitle: quizName,
+                score: score,
+                total: total,
+                percentage: Math.round((score / total) * 100) + '%',
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: durationText,
+                answers: detailedAnswers,
+                timestamp: new Date()
+            });
+            console.log("Đã lưu chi tiết bài làm lên Firebase!");
+        } catch (error) {
+            console.error("Lỗi khi lưu điểm lên Firebase: ", error);
+        }
+    }
+  const quizData =[
+  {
+    "id": 1,
+    "text": "The National Heritage Fellowship was created to honor exceptional folk and traditional artists in the United States. One artist who received the fellowship is taiko drummer Seiichi Tanaka. Tanaka was chosen for his lifetime ___ the arts.\n\nWhich choice completes the text with the most logical and precise word or phrase?\n\nA. contributions to\nB. imitations of\nC. doubts about\nD. misunderstandings of",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 2,
+    "text": "The following text is adapted from John Matheus's 1926 short story, \"Mr. Bradford Teaches Sunday School.\" Mr. Bradford is driving through the countryside in Florida.\nThe moss in the towering water oaks had become enlivened with a verdant sheen of silver and hung like festoons of carnival or like funeral decorations for the mourning of the dead. The pine green was resplendent. The bald cypresses spread themselves along the water courses while the willows wept as they always did. Mr. Bradford was conscious of this gorgeous display of nature.\n\nAs used in the text, what does the word \"display\" most nearly mean?\n\nA. Exhibition\nB. Concealment\nC. Similarity\nD. Pretentiousness",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 3,
+    "text": "Sarah Marquis, who walked 16,000 kilometers across Asia, Siberia, and Australia, undoubtedly accomplished much, but to ___ a lasting historical legacy for oneself, almost nothing is more effective than being the first to do something. For example, people will always remember that Anesia Pinheiro Machado was the first female pilot in Brazil to carry passengers and the first to make stunt flights.\n\nWhich choice completes the text with the most logical and precise word or phrase?\n\nA. recognize\nB. undermine\nC. constrain\nD. establish",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 4,
+    "text": "Certain features are almost always included in the designs of mosques, like the minaret (or tower), which is considered to be a ___ of mosques architecture. Even mosques that exhibit elements of multiple architectural styles, such as the Shah Jahan Mosque, which incorporates elements from the Mughal, Safavid, and Timurid styles, will also include several of these standard features.\n\nWhich choice completes the text with the most logical and precise word or phrase?\n\nA. hallmark\nB. rejection\nC. motivation\nD. duplicate",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 5,
+    "text": "Text 1\nChemically analyzing bulk rock-core samples from Australia's Mount McRae Shale, Ariel Anbar et al. found a transient but significant increase in molybdenum (Mo) at a point corresponding to roughly 2.5 billion years ago (Ga). On Earth, Mo is released mainly through oxidative weathering of minerals; Anbar et al. therefore concluded that atmospheric oxygen briefly increased 2.5 Ga, then returned to its earlier negligible level.\n\nText 2\nSarah Slotznick et al. reexamined the Mount McRae Shale core. Since chemically analyzing bulk samples can occlude contextual details, Slotznick et al. also employed high-resolution microscopy, which revealed volcanic debris a known Mo host around 2.5 Ga and microfractures in the surrounding matrix. The researchers assert that fluid could have reached the debris through the microfractures and initiated oxidative weathering long after debris deposition.\n\nBased on the texts, Anbar et al. (Text 1) and Slotznick et al. (Text 2) would most likely disagree about the answer to which question about the portion of the Mount McRae Shale rock-core corresponding to 2.5 Ga?\n\nA. Is the increase in Mo in that portion attributable to oxidative weathering of the material found in that portion?\nB. Is the increase in Mo in that portion indicative of an increase in atmospheric oxygen dating to the same time?\nC. Did chemically analyzing bulk samples lead to a false impression that there is an increase in Mo in that portion?\nD. Does the increase in Mo in that portion suggest that atmospheric oxygen levels were not negligible before 2.5 Ga?",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 6,
+    "text": "The Museum of Modern Art (MoMA) in New York City has an exhibition of video games that includes Snake from 1997, which museum visitors can play on site, and SimCity 2000 from 1994, which visitors can see only in a video presentation. MoMA claims the video presentations are only for games that would be impractical to display in a playable form, but video games are an inherently interactive medium, a feature that is grossly absent in a video-only presentation.\n\nWhich choice best describes the function of the underlined portion in the text as a whole?\n\nA. It identifies a feature of video games that is central to the author's criticism of MoMA's decision to use video-only presentations for some games.\nB. It provides a claim about video games as art that both MoMA and the author accept as true.\nC. It describes a characteristic shared by many video games but not by some of the games in MoMA's exhibition.\nD. It presents a view about treating video games as art that the author criticizes in the remainder of the sentence.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 7,
+    "text": "The Federalist Papers are a collection of 85 essays written by Alexander Hamilton, John Jay, and James Madison. They were published pseudonymously in the New York Packet and other New York newspapers in 1787-88 and argue that New Yorkers should vote to ratify the proposed United States Constitution. Though the authorship of most of the individual essays is certain, that of a few is in question: for instance, while No. 6, \"Concerning Dangers from Dissensions between the States,\" was surely penned by Hamilton, No. 62, \"The Senate,\" may have been written by either Hamilton or Madison.\n\nWhich choice best describes the overall structure of the text?\n\nA. The text lists the authors of a collection of essays and then notes that some of the essays were written by one person, while others were written by two people.\nB. The text describes why a collection of essays is notable and then details its publication history.\nC. The text summarizes an argument made in a collection of essays and then suggests that the essays' authors didn't unanimously agree with the argument.\nD. The text mentions a collection of essays and then points out something about these essays that is not completely known.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 8,
+    "text": "Mexican textile artist Victoria Villasana weaves stories of triumph, using her unique method of applying colorful yarn to photographs of people. In some works, Villasana focuses on celebrating cultural icons who are people of color, as she does in her depiction of artist Frida Kahlo. However, in other works, Villasana honors ordinary people, as she does in her captivating portrayal of a woman holding a baby. Villasana sees both of these approaches as ways of depicting the power and interconnectedness of all people.\n\nWhich choice best states the main idea of the text?\n\nA. Villasana's works focus on recognizing both famous and everyday examples of human strength and connection.\nB. Villasana began her artistic career by painting portraits of famous people and then transitioned to depicting everyday people instead.\nC. Villasana's portrayal of a woman holding a baby focuses more on human connection than it does on human resilience.\nD. Villasana's depiction of Frida Kahlo receives more attention from scholars than her depiction of a woman holding a baby does.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 9,
+    "text": "Motivated to sell as many paintings as possible, Alfred Hair, an influential figure among the landscape artists known as the Florida Highwaymen, pioneered \"fast painting\" which in part involved working across multiple canvasses at once. That many of Hair's acolytes, including Isaac Knight, imitated the technique accounts in part for the impressionistic qualities that are now synonymous with the group's shared aesthetic. But not all Highwaymen fully embraced this approach; for instance, though Willie Reagan was also prolific, his paintings were executed with greater attention to detail.\n\nWhat does the text most strongly suggest about paintings by Knight?\n\nA. Because of the manner in which they were created, they likely have visual qualities that are regarded as more typical of Florida Highwaymen paintings than the qualities in works by Reagan are.\nB. Although it is evident that Knight adopted some of Hair's preferred techniques, Knight's works are less derivative of works by Hair than is typically acknowledged.\nC. The lack of precision with which they were executed suggests that they are inferior to works by either Hair or Reagan.\nD. Knight's reliance on the technique of fast painting likely accounts for his works being more aesthetically interesting than works by Reagan are.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 10,
+    "text": "\"Aunt Sue's Stories\" is a 1926 poem by Langston Hughes. In the poem, the speaker indicates that the stories Aunt Sue tells are based on Aunt Sue's personal experiences, saying that ___\n\nWhich choice most effectively uses a quotation from \"Aunt Sue's Stories\" to illustrate the claim?\n\nA. a listening child \"knows that Aunt Sue / Never got her stories out of any book at all, / But that they came / Right out of her own life.\"\nB. the people in the stories \"Mingle themselves softly / In the flow of old Aunt Sue's voice, / Mingle themselves softly.\"\nC. dark shadows \"cross and recross / Aunt Sues stories.\"\nD. the stories are told during \"Summer nights on the front porch.\"",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 11,
+    "text": "The Underdogs is a 1915 novel by Mariano Azuela, originally written in Spanish. In the novel, Azuela depicts a traveling group of soldiers as having a renewed sense of agency and authority as they set off on a new stage of their journey:\n\nWhich quotation from a translation of The Underdogs most effectively illustrates the claim?\n\nA. \"The sonorous, joyful bells rang again. From within the church, the honeyed voices of a female chorus rose melancholy and grave.\"\nB. \"All day long [the soldiers] rode through the canyon, up and down the steep, round hills, dirty and bald as a man's head, hill after hill in endless succession. At last, late in the afternoon, they descried several stone church towers in the heart of a bluish ridge, and, beyond, the white road with its curling spirals of dust and its gray telegraph poles.\"\nC. \"The men threw out their chests as if to breathe the widening horizon, the immensity of the sky, the blue from the mountains and the fresh air, redolent with the various odors of the sierra. They spurred their horses to a gallop as if in that mad race they laid claims of possession to the earth.\"\nD. \"Before Juchipila was lost from sight, Valderrama got off his horse, bent down, kneeled, and gravely kissed the ground.\"",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 12,
+    "text": "Auxins are a class of hormones that influence plant growth, including leaf orientation (the tendency of leaves to be larger on one side of their long central axis than the other). University of California, Berkeley biologist Ciera Martinez and colleagues noted that in certain plants in which leaves grow in pairs, auxins will typically be concentrated in opposite sides of each leaf in the pair (e.g., on the left side of one leaf in the pair and the right side of the other). Accordingly, they hypothesized that paired leaves should tend to show opposite-side orientation, and they tested their hypothesis by examining paired leaves from several species of grapevines.\n\nWhich choice best describes data from the graph that support Martinez and colleagues' hypothesis?\n\nA. Although the number of leaf pairs showing same-side orientation is fairly high in the July grape, it is much lower in both the Amur grape and graybark grape.\nB. In the graybark grape, Amur grape, and July grape, all the leaf pairs show opposite-side orientation.\nC. Although the exact ratio varies by species, the graybark grape, Amur grape, and July grape all show more leaf pairs with opposite-side orientations than with same-side orientations.\nD. The number of leaf pairs showing opposite-side orientation is fairly high in the July grape, but not as high as it is in the graybark grape.",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 13,
+    "text": "The Age of Innocence is a 1920 novel by Edith Wharton set in New York City in the 1870s. In the novel, Newland Archer arrives late to an opera performance, which the narrator attributes to Newland's enjoyment of anticipation:\n\nWhich quotation from The Age of Innocence best illustrates the claim?\n\nA. \"To come to the Opera in a [carriage for hire] was almost as honourable a way of arriving as in one's own carriage.\"\nB. \"[T]hinking over a pleasure to come often gave [Newland] a subtler satisfaction than its realisation.\"\nC. \"When Newland Archer opened the door at the back of the club box the curtain had just gone up on the garden scene. There was no reason why the young man should not have come earlier, for he had dined at seven, alone with his mother and sister.\"\nD. \"No expense had been spared on the setting, which was acknowledged to be very beautiful even by people who shared [Newland's] acquaintance with the Opera houses of Paris and Vienna.\"",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 14,
+    "text": "Mooseberry (Viburnum edule) plants are native to Alaska, where harsh conditions have historically impeded potential invasive species. As the boreal climate has warmed in recent decades, however, common knotgrass (Polygonum aviculare) plants have established themselves in Alaska. It has been suggested that warming-induced delays in the onset of subfreezing temperatures in autumn can benefit invasives more than native species: to evaluate this possibility, biologists Christa Mulder and Katie Spellman tracked V. edule and P. aviculare, along with other native and invasive species, over several years, concluding that invasives are advantaged by delays in subfreezing temperature onset in Alaska.\n\nWhich finding, if true, would most directly support Mulder and Spellman's conclusion?\n\nA. Although V. edule and P. aviculare both tended to produce leaves later into autumn in years with late subfreezing temperature onset, the extension was much greater for P. aviculare than for V. edule.\nB. Although significant interannual variations in subfreezing temperature onset were observed during the study, neither P. aviculare nor V. edule showed any significant interannual variation in the cessation of leaf production.\nC. Although V. edule and P. aviculare tended to stop producing leaves at about the same time in years with historically typical temperature patterns, P. aviculare stopped producing leaves sooner than V. edule did in years with late subfreezing temperature onset.\nD. Although V. edule and P. aviculare both tended to produce more leaves overall in years with late subfreezing temperature onset than they did in years with historically typical temperature patterns, the years with late subfreezing temperature onset also had early growing season onset in spring.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 15,
+    "text": "Museo Francisco Pancho Coimbre, a sports museum in Ponce, Puerto Rico, is one of more than eighty museums in the US territory. Puerto Rico's museums ___ visitors about everything from the territory's sports to its architecture to its coffee.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. inform\nB. having informed\nC. to inform\nD. informing",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 16,
+    "text": "Trade with other societies was vital to the Byzantine Empire, which reigned in the Mediterranean from around 330 CE to 1453 CE. Its people profited by selling salt, textiles, and iron, items that ___ greatly in demand.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. has been\nB. were\nC. was\nD. is",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 17,
+    "text": "In the periodic table, an element's atomic number indicates how many protons there are in an atom of the element. For example, a helium atom ___ 2 protons. Professor Raymond Chang explains this concept in more detail in the textbook Chemistry.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. has had\nB. has\nC. is having\nD. had",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 18,
+    "text": "With one in Finland and another in Australia, the observatory sites that form the Super Dual Auroral Radar Network or SuperDARN, as space physicists like Mark Lester call it number nearly five ___ across the globe, the radars track ionospheric irregularities and other geospace phenomena.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. dozen. Located\nB. dozen, located\nC. dozen, which are located\nD. dozen located",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 19,
+    "text": "The giant sequoia (Sequoiadendron giganteum) known as D-23, located in the United States, was one of the oldest known trees in the world, at 3,075 years old. With over three millennia of climate data in its tree ___ single tree like this, claims dendrochronologist Valerie Trouet, can tell the history of the world.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. rings. A\nB. rings; a\nC. rings and a\nD. rings, a",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 20,
+    "text": "A worker cooperative is a business that is owned and operated by its workers. This model stands in contrast to traditional models in which a smaller group of owners controls a company. Because the profits made by a cooperative are shared by all workers who are also owners the workers ___ directly from its success.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. benefit\nB. had benefited\nC. benefited\nD. were benefiting",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 21,
+    "text": "The Austronesian language family comprises some 1,200 languages, including Minangkabau and Ilokano, which are spoken primarily in Indonesia and the Philippines, ___ accounting for one-fifth of the world's languages, the Austronesian family is of keen interest to linguists like Sandra Chung.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. respectively and\nB. respectively.\nC. respectively;\nD. respectively",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 22,
+    "text": "A blend of gabardine and wool, the material for Elvis Presley's Peacock jumpsuit was flexible enough to allow the singer to perform his signature dance moves. ___ the added weight of the suit's embroidered feathers in shades of blue and green likely limited Elvis's mobility to some degree.\n\nWhich choice completes the text with the most logical transition?\n\nA. However,\nB. Firstly,\nC. In other words,\nD. For this reason,",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 23,
+    "text": "The star Wezen is unvaryingly bright, consistently ranking as one of the brightest stars in the sky (Wezen ranked 36th on a recent list). By contrast, the brightness of the red giant Betelgeuse varies considerably. Indeed, between April and June 2023, Betelgeuse became an astonishing 40% brighter; ___ its ranking rose from 10th to 7th.\n\nWhich choice completes the text with the most logical transition?\n\nA. in sum,\nB. in turn,\nC. specifically,\nD. for example,",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 24,
+    "text": "While researching a topic, a student has taken the following notes:\n- The Mohs scale of mineral hardness is a ten-point scale that orders minerals by hardness based on their ability to scratch other minerals.\n- Minerals with larger numbers are harder than minerals with smaller numbers and can leave visible scratches on them.\n- Minerals with smaller numbers are softer than minerals with larger numbers and cannot leave visible scratches on them.\n- The mineral fluorite has a Mohs scale number of 4.\n- The mineral orthoclase has a Mohs scale number of 6.\n- The mineral corundum has a Mohs scale number of 9.\n\nThe student wants to emphasize orthoclase's Mohs scale number. Which choice most effectively uses relevant information from the notes to accomplish this goal?\n\nA. In the Mohs scale of mineral hardness, corundum (9) is ranked higher than fluorite (4).\nB. Orthoclase has a Mohs scale number of 6, which means that it is harder than fluorite (4) but softer than corundum (9).\nC. Orthoclase, fluorite, and corundum can be ordered by their ability to leave visible scratches on other minerals.\nD. Corundum, which has a Mohs scale number of 9, can scratch both fluorite and orthoclase.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 25,
+    "text": "While researching a topic, a student has taken the following notes:\n- Documentary TV programs in the slow TV genre consist of uninterrupted broadcasts of ordinary events in real time.\n- Reinflytting is a Norwegian slow TV program.\n- The 9-day-long program documented a wild reindeer migration from their winter to summer pastures.\n- It first aired in 2017.\n- Slow TV has been called \"the world's most boring television.\"\n- American journalist Nathan Heller praises it, writing that \"it affords a visceral kind of armchair tourism.\"\n\nThe student wants to use a quotation to refute the claim that slow TV programs are boring. Which choice most effectively uses relevant information from the notes to accomplish this goal?\n\nA. While some have praised slow TV for affording \"a visceral kind of armchair tourism,\" others have called it \"the world's most boring television.\"\nB. Far from boring, slow TV programs can provide a \"visceral kind of armchair tourism,\" as Heller puts it, whereby viewers can watch reindeer migrations in real time.\nC. With broadcasts of ordinary events, like reindeer migrations, occurring in real time, slow TV just might be \"the world's most boring television.\"\nD. Reinflytting can afford a \"visceral kind of armchair tourism,\" as Heller puts it.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 26,
+    "text": "While researching a topic, a student has taken the following notes:\n- Jean-Michel Basquiat was an American artist who produced more than two thousand drawings and paintings.\n- His work Mater was completed in 1982 and sold at auction in 2017.\n- Mater is composed of acrylic and oil stick on canvas and measures 6,048 square inches in area.\n- His work Flash in Naples was completed in 1983 and sold at auction in 2009.\n- Flash in Naples is composed of acrylic, oil stick, and oil on canvas and measures 3,992 square inches in area.\n\nWhich choice most effectively uses information from the given sentences to emphasize how the two works are similar?\n\nA. Between artist Jean-Michel Basquiat's works Mater and Flash in Naples, the former is the larger of the two.\nB. Composed by artist Jean-Michel Basquiat in 1982 and 1983, respectively, both Mater and Flash in Naples use acrylic paint as a medium.\nC. Artist Jean-Michel Basquiat completed Mater in 1982, and Flash in Naples followed in 1983.\nD. Artist Jean-Michel Basquiat's work Mater is composed of acrylic and oil stick, while Flash in Naples is composed of acrylic, oil stick, and oil.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 27,
+    "text": "While researching a topic, a student has taken the following notes:\n- Lighthouses send out crucial light signals to help ships and other watercraft navigate at night.\n- Before automation, lighthouses were run by lighthouse keepers.\n- Elizabeth Lusby was the lighthouse keeper at Turkey Point Light in Maryland.\n- She held this position from 1844 to 1862.\n- Thelma Austin was the lighthouse keeper at Point Fermin Light in California.\n- She held this position from 1925 to 1941.\n\nThe student wants to emphasize a difference between the two lighthouse keepers. Which choice most effectively uses relevant information from the notes to accomplish this goal?\n\nA. Elizabeth Lusby and Thelma Austin both played crucial roles in ensuring safe navigation for watercraft in past centuries.\nB. As the lighthouse keeper at Point Fermin Light, Thelma Austin helped watercraft navigate at night.\nC. Elizabeth Lusby worked as a lighthouse keeper in an earlier century than did Thelma Austin.\nD. From 1844 to 1862, the nighttime waters of Maryland were made more navigable thanks to Elizabeth Lusby.",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 28,
+    "text": "Building additional road capacity may seem like an obvious solution to traffic congestion, but numerous studies have cast doubt on the ___ of that approach. Not only does additional road capacity often fail to relieve congestion, but it can also make traffic worse by encouraging more people to drive.\n\nWhich choice completes the text with the most logical and precise word or phrase?\n\nA. efficacy\nB. aesthetics\nC. originality\nD. popularity",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 29,
+    "text": "The fossil remains of the individual known as Oase 1, discovered in Romania in 2002, can help paleoanthropologists not only ___ steps in the evolution of hominids but also illuminate the Pleistocene epoch generally, revealing important details about the time in which Oase 1 lived.\n\nWhich choice completes the text with the most logical and precise word or phrase?\n\nA. exploit\nB. prioritize\nC. yield\nD. discern",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 30,
+    "text": "The following text is from a 1955 translation of Samuel Beckett's 1951 novel Molloy (translated by the author and Patrick Bowles). In the text, Molloy has arrived at the town ramparts, an elevated walkway atop the city walls.\nAnd having cleared the ramparts I had to confess the sky was clearing, prior to its winding in the other shroud, night. Yes, the great cloud was ravelling, discovering here and there a pale and dying sky, and the sun, already down, was manifest in the livid tongues of fire darting towards the zenith, falling and darting again, ever more pale and languid, and doomed no sooner lit to be extinguished.\n\nAs used in the text, what does the word \"manifest\" most nearly mean?\n\nA. Situated\nB. Perceptible\nC. Realized\nD. Dwindling",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 31,
+    "text": "In 1879, in an effort to determine the longevity of certain seeds left in soil, botanist William Beal buried 20 glass bottles filled with sand and seeds from a variety of plants, including Verbascum, Lepidium virginicum, and Stellaria media. Since then, some of the bottles have been retrieved in the periodic checks of seed viability researchers are conducting. After 60 years had elapsed, most of the seeds in those bottles stopped germinating, but Verbascum seeds have remained viable, including those from a bottle dug up in 2021 by Margaret Fleming, Lars Brudvig, and colleagues.\n\nWhich choice best states the main purpose of the text?\n\nA. To discuss an ongoing experiment\nB. To explain how to get rid of certain plants\nC. To compare two experiments addressing the same questions\nD. To describe difficulties associated with preserving seeds",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 32,
+    "text": "Founded in Long Beach, California, in 1996, the Museum of Latin American Art is dedicated to modern and contemporary art by Latin American artists and Latino artists in the United States. Since its founding, it has acquired more than 1,300 objects for its permanent collection. More recently founded US-based institutions devoted to Latino cultures include the National Hispanic Cultural Center Located in Albuquerque, it focuses on the literature, art, and cultures of Latin America as well as of Latino communities in the United States.\n\nWhich choice best states the main purpose of the text?\n\nA. To trace the founding of two institutions, including how they acquired funding to purchase artworks\nB. To draw a contrast between the collection sizes of two institutions\nC. To present information about two institutions, including each institution's area or focus\nD. To trace a historical development that encouraged the founding of two institutions",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 33,
+    "text": "The following text is from Maria Amparo Ruiz de Burton's 1885 novel The Squatter and the Don. In the novel, Clarence and Mercedes develop a romantic relationship.\nMercedes, being not quite seventeen, her grief at parting from Clarence was wild, vehement and all-absorbing. But she had been trained to obedience, and her battles with the spirit always took place after she carefully locked her bedroom door. Then Clarence was wildly apostrophized, and a torrent of tears relieved the overcharged, aching heart.\n\nWhich choice best states the main purpose of the text?\n\nA. It emphasizes Mercedes's extreme insecurity.\nB. It suggests that the magnitude of Mercedes's feelings are unusual for her age.\nC. It provides background explaining why Clarence has left Mercedes.\nD. It conveys how Mercedes handles her intense feelings about being separated from Clarence.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 34,
+    "text": "Text 1\nIn parts of New Zealand, the stoat is a major predator of the house mouse. Researcher G.L. Blackwell and colleagues found that when this predation pressure on house mice was temporarily reduced, their numbers significantly increased. This finding illustrates a foundational ecological principle: predators control prey population numbers.\n\nText 2\nFrancois Potvin and colleagues found that excluding wolves from a site in Quebec, Canada, where they typically prey on white-tailed deer had no significant effect on white-tailed deer abundance. Many other predation relief studies show an increase in prey abundance, but those studies often focus on small, rapidly reproducing prey, like birds, mice, and frogs, rather than large, slowly reproducing prey, like white-tailed deer which could account for the difference between those results and Potvin and colleagues' results.\n\nBased on the texts, the author of Text 2 would most likely agree with which statement about Blackwell and colleagues' findings (Text 1)?\n\nA. They may have been different if the ratio of the body size of stoats to that of house mice was greater than it is.\nB. They may reflect a response that does not tend to be observed in prey species other than house mice.\nC. They may be partially explained by the fact that stoats are smaller and reproduce more rapidly than wolves.\nD. They may be partially attributable to physical characteristics of house mice that are not shared by white-tailed deer.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 35,
+    "text": "Text 1\nOne challenge faced by researchers studying global urbanization is that countries may define urban settlements differently. Many countries define urban settlements based on the number of people living in them. However, countries do not all use the same number; for example, Greenland uses a minimum population of 200, while the Netherlands uses 20,000. Other countries use a combination of population and other factors. This variation makes it difficult for researchers to compare aspects of urbanization in different countries.\n\nText 2\nRecently, a group of six international organizations developed global definitions of common types of settlements. The group developed a new measure called the \"degree of urbanization.\" This new measure establishes global criteria used to define three types of settlements (cities, towns, and rural areas) and allows researchers to better understand global urbanization rates.\n\nBased on the texts, how would the author of Text 2 most likely respond to the problem presented in Text 1?\n\nA. By suggesting that researchers focus on topics besides urbanization\nB. By noting that a possible solution to the problem is available\nC. By recommending that a specific institution should further investigate the problem\nD. By supplying additional ways in which urbanization research is difficult",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 36,
+    "text": "In 2004, Andrew Rogers created Ancient Language. In this work, Rogers created an 80-meter-long geoglyph out of rocks in the Atacama Desert. Rogers's work is part of the land art movement, in which artists reject the confinement and commercialization of art galleries. These artists usually install large-scale pieces outdoors, often in surprising locations.\n\nBased on the text, what can be inferred about Ancient Language?\n\nA. Its location may be considered surprising.\nB. It marked a shift in the popularity of the land art movement.\nC. It may have had more commercial success in a different outdoor location.\nD. It was created early in Rogers's career.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 37,
+    "text": "Throughout history, tall structures such as Gonbad-e Qabus in Iran or Hwangnyongsa in South Korea have posed a challenge to their architects, since these structures are more susceptible to physical forces than smaller structures. For example, the lower floors of a building must be able to support the enormous weight of the upper floors. To test a hypothesis that steel is more suitable than concrete for construction of a tall building's lower floors, researchers created a computer model of two buildings that were identical except that one had concrete lower floors while one had steel lower floors, and simulated the effects of the forces of wind and gravity on those structures over the course of a century.\n\nWhich finding from the model tests, if true, would support the researchers' hypothesis?\n\nA. During the simulation, the structure with steel lower floors bent in high wind to a greater degree than did the structure with concrete lower floors.\nB. At the end of the simulation, the structure with concrete lower doors was several inches shorter than the structure with steel lower floors.\nC. During the simulation, when sudden forces caused vibrations in the structures, those vibrations took longer to disappear in the structure with steel lower floors than in the structure with concrete lower floors.\nD. At the end of the simulation, the structure with steel lower floors had slightly larger dimensions at its base than it did at the beginning of the simulation.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 38,
+    "text": "In terms of total area, the Choctaw Nation is one of the largest tribal nations in the United States. It covers 10,864 square miles in what is now southeastern Oklahoma. In comparison, the total area of the White Earth Nation in Minnesota is only ___\n\nWhich choice most effectively uses data from the table to complete the comparison?\n\nA. 1,167 square miles.\nB. 4,453 square miles.\nC. 3,606 square miles.\nD. 2,188 square miles.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 39,
+    "text": "Neuroscientist Kiyohito Iigaya and colleagues developed a computational model to predict how much a person will enjoy a particular work of art on a scale from 1 (not at all) to 4 (very much). They then recruited participants to use the same scale to rate several sets of paintings in various styles and calculated the correlation between the ratings predicted by the model and those reported by the participants. Assuming participant P1 gave equal ratings to the impressionist and color-field paintings, the data in the graph suggest that the model predicted that ___\n\nWhich choice most effectively uses data from the graph to complete the statement?\n\nA. P1 would derive more aesthetic pleasure from impressionist paintings than from color-field paintings.\nB. P1's ratings for impressionist and color-field paintings would differ from one another.\nC. P1 would derive less aesthetic pleasure from impressionist paintings than from color-field paintings.\nD. P1's ratings for impressionist and color-field paintings would equal one another.",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 40,
+    "text": "To understand consumer loyalty to specific online retailers, Marina Žižakov and colleagues conducted a survey using 58 statements as proxy indicators of customer experience with receiving online purchases. The statements were categorized by topic e.g., statement 13, \"I am eagerly awaiting the delivery of the ordered items,\" was categorized as joyful anticipation and respondents, all of whom were from Serbia (which is characterized as having a developing economy), rated the importance of each statement to their experience. Researchers found that participants placed low importance on package aesthetics and high importance on speedy delivery and package tracking, but the researchers cautioned against applying the findings to customers generally, suggesting that ___\n\nWhich choice most logically completes the text?\n\nA. additional research is needed with participants from countries of varying levels of economic development to determine whether delivery time and tracking are more important than package design to customers broadly.\nB. customers in countries with higher levels of economic development than that of Serbia are likely to regard package design as relatively more important than delivery time and transparency.\nC. online retailers that operate in a variety of countries are more likely to increase customer loyalty if they make their deliveries in less time and allow customers to track those deliveries than if they improve their packaging.\nD. the greater importance assigned to delivery time and tracking than to package design may not be observed if the survey were to be given to a larger group of Serbian participants.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 41,
+    "text": "Studies conducted in individual Western societies have demonstrated associations between personality traits and five musical factors (mellowness, unpretentiousness, sophistication, intensity, and contemporariness) underlying individual preferences for styles of Western music. To investigate these associations across cultures, David M. Greenberg et al. collected music-preference assessments for Western genres and self-reported personality traits from participants in fifty-three countries across six continents. The study confirmed that the five-factor framework accurately captured participants' tastes in Western music, and, moreover, the study found similar correlations between patterns of these factors and of personality traits, suggesting that ___\n\nWhich choice most logically completes the text?\n\nA. the five-factor framework can likely be used to predict preferences for non-Western music styles based on personality traits even if the characteristics of those styles substantially differ from characteristics of Western music styles.\nB. the strength of the relationship between personality traits and musical preferences varies less across cultures than researchers had previously assumed.\nC. people with a relatively high degree of familiarity with Western music styles are likely to express stronger preferences for those styles than people with a relatively low degree of familiarity with those styles are.\nD. across cultural contexts, people who share similar profiles of personality traits tend to prefer listening to similar types of Western music.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 42,
+    "text": "In September of 1989, Indonesia liberalized its stock market, meaning that it began allowing foreign individuals and businesses to invest money in Indonesian companies. This was part of a wave of stock market liberalizations around the world Jamaica in 1991, Nigeria in 1995, and so on. The standard view among economists at the time was that liberalization would make it easier for companies to raise money from investors. Economist Peter Blair Henry examined the economies of 11 countries that were part of the liberalization wave and found that, on average, companies based in those countries received significant increases in investment in the three years following liberalization, suggesting that ___\n\nWhich choice most logically completes the text?\n\nA. companies in Jamaica experienced a greater increase in investment following liberalization than did companies in Indonesia.\nB. companies in the countries Henry studied did not benefit from liberalization until at least three years after liberalization occurred.\nC. economists who held the standard view of liberalization failed to anticipate some serious negative effects of liberalization.\nD. economists' expectations about the effect of liberalization on investment were largely correct for the countries Henry studied.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 43,
+    "text": "Featuring jagged peaks of black ink surrounded by hazy swirls of blue and green paint, Zhang Daqian's 1983 painting Panorama of Mount Lu is inspired by the tradition of qinglu shanshui, a type of Chinese landscape painting ___ by the use of blue and green hues to depict ethereal, otherworldly landscapes.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. characterized\nB. is characterized\nC. has been characterized\nD. will be characterized",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 44,
+    "text": "When Fiji joined Interpol the International Criminal Police ___ in 1971, the Fiji National Police Intelligence Bureau gained access to the combined resources of law enforcement agencies from around the globe.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. Organization-\nB. Organization:\nC. Organization\nD. Organization,",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 45,
+    "text": "On March 6, 2002, Canadian astronomers detected a striking and unusual phenomenon occurring in the constellation Lepus, 160 million light-years from ___ explosion of a massive star, also known as a supernova, an extremely bright yet transient event that typically results from the collapse of a star's core.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. Earth. The\nB. Earth, it was the\nC. Earth: the\nD. Earth; the",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 46,
+    "text": "A 2014 study led by ___ studied the impact of fertilizers containing nitrogen on grassland arthropod populations. Another study, led by Malie Lessard-Therrien in 2018, looked at fertilizers containing nitrogen and two other macronutrients: phosphorus and potassium.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. researcher, Mark A. Lee\nB. researcher Mark A. Lee,\nC. researcher Mark A. Lee\nD. researcher, Mark A. Lee,",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 47,
+    "text": "The Greek dramatist Euripides's Cyclops, a satyr play, is an extant work: it can still be read. By contrast, lost works like Euripides's play about the hero Alcmaeon, Alcmaeon in Psophis no copy of which exists ___ known to antiquarians only through references in extant works.\n\nWhich choice completes the text so that it conforms to the conventions of Standard English?\n\nA. have become\nB. becomes\nC. has become\nD. is becoming",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 48,
+    "text": "Australia ratified the Outer Space Treaty, an international agreement with over 100 signing nations that acts as the foundation for the laws of space, on January 27, 1967. Colombia signed the treaty; ___ it has yet to officially ratify it.\n\nWhich choice completes the text with the most logical transition?\n\nA. however,\nB. similarly,\nC. specifically,\nD. for example,",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 49,
+    "text": "The geologic principle of cross-cutting relationships states that an intrusion is younger than the rocks through which it cuts. ___ geochemists analyzing a given rock formation can ascertain that an igneous intrusion that bisects a layer of 393.3-million-year-old Eifelian rock but not the 254.1-million-year-old Changhsingian rock above it is younger than the former but older than the latter.\n\nWhich choice completes the text with the most logical transition?\n\nA. To this end,\nB. Accordingly,\nC. That being said,\nD. Moreover,",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 50,
+    "text": "In a 2022 analysis of 200 terms, researchers found a broad pattern of valence-dependent mutation for which negative words saw a faster rate of cognate replacement the rate at which a word will be replaced over time with a noncognate form. Adjectives (e.g., \"frightened\") saw the largest effect; nouns (e.g., \"pain\"), meanwhile, saw the smallest.\n\nWhich choice completes the text with the most logical transition?\n\nA. likewise,\nB. that is,\nC. for example,\nD. in addition,",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 51,
+    "text": "While researching a topic, a student has taken the following notes:\n- The human tongue contains taste receptors for a rich, savory flavor called umami.\n- Umami is triggered by the compounds in a variety of foods, including tuna and soy sauce.\n- Participants in a study tasted a sample of sugar kelp, a type of brown seaweed.\n- They rated its umami intensity as moderate.\n- The participants tasted a sample of ma-konbu, another type of brown seaweed.\n- They rated its umami intensity as high.\n\nThe student wants to emphasize a difference between the two seaweeds. Which choice most effectively uses relevant information from the notes to accomplish this goal?\n\nA. Some types of brown seaweed, like sugar kelp and ma-konbu, trigger umami flavor in human taste buds.\nB. While sugar kelp and ma-konbu contain umami flavor, umami can also be found in tuna and soy sauce.\nC. Although sugar kelp and ma-konbu are types of brown seaweed, the latter's umami flavor is more intense.\nD. Sugar kelp is a type of brown seaweed, but so is ma-konbu.",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 52,
+    "text": "While researching a topic, a student has taken the following notes:\n- Carbon can exist in several distinct structural forms called allotropes.\n- Graphite is a carbon allotrope.\n- Graphite is composed of stacked graphene sheets.\n- Each graphene sheet is composed of carbon atoms arranged in a flat honeycomb pattern.\n- Carbon nanotubes are carbon allotropes.\n- They are composed of one or more graphene sheets wrapped into a cylindrical shape.\n\nThe student wants to emphasize a difference between carbon nanotubes and graphite. Which choice most effectively uses relevant information from the notes to accomplish this goal?\n\nA. Composed of sheets wrapped into a cylindrical shape, carbon nanotubes contrast with graphite, a carbon allotrope composed of graphene sheets.\nB. Graphite and carbon nanotubes are allotropes composed of stacked or wrapped graphene sheets, but carbon can exist in several distinct structural forms.\nC. Unlike carbon nanotubes, which are composed of sheets of carbon atoms arranged in a flat honeycomb pattern, graphite is a cylindrical carbon allotrope.\nD. The graphene sheets in graphite are stacked, whereas in carbon nanotubes, they form a cylinder.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 53,
+    "text": "While researching a topic, a student has taken the following notes:\n- The Museu de les Ciencies Principe Felipe is in Valencia, Spain.\n- It is home to a Foucault pendulum.\n- Vasile Alecsandri National College is in Galati, Romania.\n- It is home to a Foucault pendulum.\n- A Foucault pendulum dangles from a fixed point that ensures the swing path of the pendulum doesn't change.\n- To an observer, the swing path of a Foucault pendulum appears to change over time because Earth rotates beneath it.\n\nThe student wants to emphasize a similarity between the two locations. Which choice most effectively uses relevant information from the notes to accomplish this goal?\n\nA. Because Earth rotates beneath it, the swing path of the Foucault pendulum at the Museu de les Ciencies Principe Felipe appears to change over time.\nB. The Museu de les Ciencies Principe Felipe, which is home to a Foucault pendulum, is in Spain, not Romania.\nC. The Museu de les Ciencies Principe Felipe in Valencia, Spain, and Vasile Alecsandri National College in Galati, Romania, both house Foucault pendulums.\nD. One Foucault pendulum is in Spain, and the other is in Romania.",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 54,
+    "text": "While researching a topic, a student has taken the following notes:\n- A river's stream length is the length of a line that follows along the river path.\n- A river's valley length is the length of a straight line drawn from the beginning of the river to the end.\n- The river's curviness, or sinuosity, is the ratio of the river's stream length to its valley length.\n- Low-sinuosity rivers have a stream length 1-1.5 times longer than their valley length, and high-sinuosity rivers have a stream length 1.5 or more times longer than their valley length.\n- The Embarras River in Canada has high sinuosity.\n- The Luni River in India has low sinuosity.\n\nThe student wants to compare the curviness of the two rivers. Which choice most effectively uses relevant information from the notes to accomplish this goal?\n\nA. The high-sinuosity Luni River in India is curvier than the low-sinuosity Embarras River in Canada.\nB. In both the Embarras and the Luni rivers, curviness is determined by comparing stream length to valley length.\nC. By comparing the stream lengths of the Embarras and Luni rivers to their valley lengths, one can calculate their curviness, or sinuosity.\nD. The Embarras River's ratio of stream length to valley length, also known as sinuosity, is greater than that of the Luni River.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 55,
+    "text": "A certain hybrid car uses 39 gallons of gasoline to travel 1,950 miles. At this rate, how many kilometers does the car travel using 39 gallons of gasoline? (Use $1 \\text{ mile} = 1.6 \\text{ kilometers}$.)\n\nA. $312$\nB. $3,120$\nC. $31,200$\nD. $312,000$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 56,
+    "text": "A rectangle has a length of 29 meters and a width of 37 meters. What is the area, in square meters, of the rectangle?\n\nA. $8$\nB. $66$\nC. $528$\nD. $1,073$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 57,
+    "text": "The width of a rectangle is 5 centimeters. The length of the rectangle is 30 centimeters longer than the width. What is the area, in square centimeters, of this rectangle?\n\nA. $175$\nB. $40$\nC. $10$\nD. $5$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 58,
+    "text": "The equation $58 = 2x+2y$ gives the perimeter of a rectangular garden that has length $x$, in feet, and width $y$, in feet. The width of the garden is $14$ feet. What is the length, in feet, of the garden?",
+    "type": "free_response",
+    "answer": "15"
+  },
+  {
+    "id": 59,
+    "text": "The given equation relates the variables $n, p$, and $v$. Which equation correctly expresses $p$ in terms of $n$ and $v$?\n\nA. $p=n-23v$\nB. $p=n+23v$\nC. $p=\\frac{n}{23v}$\nD. $p=23vn$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 60,
+    "text": "A group of students purchase ice cream cones and ice cream sundaes. The cones cost $\\$1.40$ each, and the cost for $19$ sundaes is $\\$64.60$. The total cost for the cones and sundaes is $\\$85.60$. Which equation represents this situation, where $x$ is the number of cones purchased and $y$ is the number of sundaes purchased?\n\nA. $1.40x+64.60y=85.60$\nB. $64.60x+1.40y=85.60$\nC. $3.40x+1.40y=85.60$\nD. $1.40x+3.40y=85.60$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 61,
+    "text": "There are 950 objects in a bag. Of these objects, $6\\%$ are cubes. How many cubes are in the bag?",
+    "type": "free_response",
+    "answer": "57"
+  },
+  {
+    "id": 62,
+    "text": "During hibernation, American black bears do not eat or replenish calories. A certain black bear weighed $322$ pounds when entering hibernation and lost weight at a rate of $0.7$ pound per day. At this rate, how many days after entering hibernation did the black bear weigh $280$ pounds?",
+    "type": "free_response",
+    "answer": "60"
+  },
+  {
+    "id": 63,
+    "text": "The length of a side of square X is $9$ centimeters. The area of rectangle Y is $24$ square centimeters. What is the total area, in square centimeters, of square X and rectangle Y?\n\nA. $66$\nB. $81$\nC. $105$\nD. $129$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 64,
+    "text": "Which expression is equivalent to $(133y)^{\\frac{1}{2}}$, where $y>1$?\n\nA. $133\\sqrt{y}$\nB. $\\sqrt{133}-y$\nC. $\\sqrt{133y}$\nD. $(133y)^2$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 65,
+    "text": "A company opens an account with an initial balance of $\\$35,600.00$. The account earns interest, and no additional deposits or withdrawals are made. The account balance is given by an exponential function $A$, where $A(t)$ is the account balance, in dollars, $t$ years after the account is opened. The account balance after $15$ years is $\\$129,672.38$. Which equation could define $A$?\n\nA. $A(t)=35,600.00(1.09)^t$\nB. $A(t)=35,600.00(0.09)^t$\nC. $A(t)=94,072.38(1.09)^t$\nD. $A(t)=94,072.38(0.09)^t$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 66,
+    "text": "What is the solution $(x, y)$ to the given system of equations?\n$y=-18x+22$\n$y=-26x+30$\n\nA. $(1,4)$\nB. $(22,30)$\nC. $(30,22)$\nD. $(4,1)$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 67,
+    "text": "The given equation relates the positive numbers $b, x$, and $y$. Which equation correctly expresses $x$ in terms of $b$ and $y$?\n\nA. $x=\\frac{by-49}{y}$\nB. $x=by-49y$\nC. $x=by-49$\nD. $x=\\frac{b-49}{y}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 68,
+    "text": "Triangle ABC and A'B'C' are shown. Triangle ABC is dilated by a scale factor of 6 to form triangle A'B'C'. If the length of $AB$ is 18, what is the length of $A'B'$?\n\nA. $3$\nB. $6$\nC. $24$\nD. $108$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 69,
+    "text": "In the $xy$-plane, which of the following does NOT contain any points that are part of the solution set to $2x-6y>12$?\n\nA. The region where $x<0$ and $y>0$\nB. The region where $x<0$ and $y<0$\nC. The region where $x>0$ and $y>0$\nD. The $y$-axis",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 70,
+    "text": "Circle A shown is defined by the equation $x^2 + (y-5)^2 = 7$. Circle B (not shown) has the same radius but is translated 91 units to the right. If the equation of circle B is $(x-h)^2 + (y-k)^2 = a$, where $h, k$, and $a$ are constants, what is the value of $4a$?",
+    "type": "free_response",
+    "answer": "28"
+  },
+  {
+    "id": 71,
+    "text": "A botanist recorded the volume, in quarts, of cherries that grew on a semidwarf cherry tree during each growing season after the tree's transplantation. The scatterplot shows this volume, in quarts, for each of 8 growing seasons after the tree's transplantation. Which of the following is closest to the total volume, in quarts, of cherries that grew on the tree over these 8 growing seasons?\n\nA. $231$\nB. $162$\nC. $40$\nD. $36$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 72,
+    "text": "What is the sum of the solutions to the given equation $x^2 - 15x + c = 0$?\n\nA. $8$\nB. $18$\nC. $15$\nD. $3$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 73,
+    "text": "For the given data set, the data values are listed in ascending order: $a, 27, 28, b, 33, 48, c$, where $a, b$, and $c$ are constants. For this data set, the mean is 35, the median is 28, and the range is 71. What is the value of $c$?\n\nA. $53$\nB. $71$\nC. $76$\nD. $98$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 74,
+    "text": "The difference between the measure of angle A and the measure of angle B is $-\\frac{11}{12}\\pi$ radians. Which expression shows the difference between the measure of angle A and the measure of angle B, in degrees?\n\nA. $-\\frac{11}{12} \\cdot \\frac{180^\\circ}{\\pi}$\nB. $-\\frac{11}{12}\\pi \\cdot \\frac{\\pi}{180^\\circ}$\nC. $-\\frac{11}{12}\\pi \\cdot \\frac{180^\\circ}{\\pi}$\nD. $-\\frac{11}{12}\\pi \\cdot \\frac{360^\\circ}{\\pi}$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 75,
+    "text": "What is the sum of the solutions to the given equation $(x-42)^2=1$?\n\nA. $42$\nB. $43$\nC. $84$\nD. $85$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 76,
+    "text": "In a set of three consecutive integers, where the integers are ordered from least to greatest, the first integer is represented by $x$. The sum of $9$ and the second integer is less than the product of $11$ and the third integer. Which inequality represents this situation?\n\nA. $9+(x+1)>11(x+2)$\nB. $9+(x+1)<11(x+2)$\nC. $9+(x+2)>11(x+3)$\nD. $9+(x+2)<11(x+3)$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 77,
+    "text": "If $9+x=-6$, what is the value of $-18-2x$?\n\nA. $12$\nB. $-2$\nC. $6$\nD. $24$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 78,
+    "text": "The shaded region shown represents the solutions to which inequality?\n\nA. $y \\ge 3x - 7$\nB. $y \\le 3x - 7$\nC. $y \\ge 3x + 7$\nD. $y \\le 3x + 7$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 79,
+    "text": "At what point $(x, y)$ do the graphs of the equations in the given system intersect?\n\nA. $(6, 180)$\nB. $(6, 185)$\nC. $(13, 5)$\nD. $(13, 850)$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 80,
+    "text": "The function $f$ gives the estimated melting temperature, in degrees Celsius, of a DNA molecule as a function of the percent of guanine-cytosine (GC) content, $x$, in the DNA molecule. The graph of $y=f(x)$ is shown. According to the graph, which of the following statements is NOT true?\n\nA. For each increase of $x$ by 1, $f(x)$ increases by approximately [value].\nB. A DNA molecule with a GC content of $0\\%$ has an estimated melting temperature between $60^\\circ$C and $65^\\circ$C.\nC. A DNA molecule with a GC content of $95\\%$ has an estimated melting temperature between $100^\\circ$C and $105^\\circ$C.\nD. For each increase of $x$ by 10, $f(x)$ increases by approximately [value].",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 81,
+    "text": "A marine biologist uses a linear model to estimate the weight of a blue whale after it is born. The model estimates that a certain blue whale weighs 5,710 pounds at birth and gains 10.0 pounds per hour, for 120 hours, after it is born. Based on this model, what is the estimated weight, in pounds, of this blue whale 7 hours after it is born?",
+    "type": "free_response",
+    "answer": "5780"
+  },
+  {
+    "id": 82,
+    "text": "Scientists collected fallen acorns that each housed a colony of the ant species P. ohioensis and analyzed each colony's structure. For any of these colonies, if the colony has $x$ worker ants, the equation $y=0.67x+2.6$ where $20 \\le x \\le 110$, gives the predicted number of larvae, $y$, in the colony. If one of these colonies has 39 worker ants, which of the following is closest to the predicted number of larvae in the colony?\n\nA. $29$\nB. $42$\nC. $54$\nD. $128$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 83,
+    "text": "The given equation relates the resistance $R$, in ohms, of a wire to its length $l$, in meters, and its cross-sectional area $A$, in square meters. Which equation correctly expresses the length, in meters, of the wire in terms of its resistance, in ohms, and its cross-sectional area, in square meters?\n\nA. $l=\\frac{AR}{0.48}$\nB. $l=\\frac{0.48R}{A}$\nC. $l=\\frac{R+A}{0.48}$\nD. $l=\\frac{R-A}{0.48}$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 84,
+    "text": "Cube B has a volume of 125 cubic inches. The length of each edge of cube A is $k$ times the length of each edge of cube B. If cube A has a volume of 3,375 cubic inches, what is the value of $k$?\n\nA. $27$\nB. $3$\nC. $25$\nD. $5$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 85,
+    "text": "The function $h$ estimates an object's height, in feet, above the ground $t$ seconds after the object is dropped, given by $h(t)=-16t^2+b$, where $b$ is a constant. The function estimates that the object is 2.56 feet above the ground when it is dropped at $t=0$. How many seconds after being dropped does the function estimate the object will hit the ground?",
+    "type": "free_response",
+    "answer": "0.4"
+  },
+  {
+    "id": 86,
+    "text": "The equation $h=\\frac{9}{5}(v-273.15)+32$ gives the corresponding temperature $h$, in degrees Fahrenheit, of any substance that has a temperature of $v$ kelvins, where $v>0$. If a substance has a temperature of 809.33 degrees Fahrenheit, what is the corresponding temperature, in kelvins, of this substance?",
+    "type": "free_response",
+    "answer": "705"
+  },
+  {
+    "id": 87,
+    "text": "The function $f(x)=(x-6)^2+4$ gives a toy car's height above the ground $f(x)$, in inches, $x$ seconds after it started moving on an elevated track, where $0 \\le x \\le 10$. Which of the following is the best interpretation of the vertex of the graph of $y=f(x)$ in the $xy$-plane?\n\nA. The toy car's minimum height was 4 inches above the ground.\nB. The toy car's minimum height was 6 inches above the ground.\nC. The toy car's height was 4 inches above the ground when it started moving.\nD. The toy car's height was 6 inches above the ground when it started moving.",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 88,
+    "text": "A number $x$ is less than 8 more than $\\frac{1}{2}$ times the value of a number $y$. If $y$ is an integer and $x = 17$, what is the least possible value of $y$?",
+    "type": "free_response",
+    "answer": "19"
+  },
+  {
+    "id": 89,
+    "text": "In the given system of equations, $k$ and $l$ are constants. The solution to this system is $(x, y)$. What is the value of $18(y+l)$?\n$(x+k)+(y+l)+19=0$\n$(x+k)-(y+l)-19=0$\n\nA. $-76$\nB. $0$\nC. $38$\nD. $9$",
+    "type": "multiple_choice",
+    "answer": "A"
+  },
+  {
+    "id": 90,
+    "text": "In the equation $x^2+(\\sqrt{k}-3)x+42=0$, $k$ is a constant. The equation has exactly one real solution. What is the value of $k$?",
+    "type": "free_response",
+    "answer": "171"
+  },
+  {
+    "id": 91,
+    "text": "To investigate the effect of magnesium supplementation on the sleep quality of adults, a researcher selected 190 adults at random from a community center to participate in a study. The researcher first measured the sleep efficiency of each participant. Each participant was then randomly assigned to take a magnesium supplement or a placebo each day for 6 weeks. At the end of the 6 weeks, the researcher measured the sleep efficiency of all participants again and found that the magnesium supplement caused statistically significant improved sleep quality for the adults at the community center. What feature of this study allowed the researcher to conclude that the magnesium supplement caused the improved sleep quality?\n\nA. There were more than 100 participants in the study.\nB. The participants were selected at random from the community center.\nC. The sleep efficiency of each participant was measured again at the end of 6 weeks.\nD. Each participant was randomly assigned to take a magnesium supplement or a placebo.",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 92,
+    "text": "The bone mineral density of a certain person's thoracic spine was estimated to be 0.812 grams per square centimeter. What is this estimated bone mineral density in grams per square millimeter? ($1 \\text{ centimeter} = 10 \\text{ millimeters}$)\n\nA. $81.2$\nB. $8.12$\nC. $0.0812$\nD. $0.00812$",
+    "type": "multiple_choice",
+    "answer": "D"
+  },
+  {
+    "id": 93,
+    "text": "The table summarizes the distribution of age and assigned group for 120 participants in a study. One of these participants will be selected at random. What is the probability of selecting a participant from group A, given that the participant is at least 10 years of age?\n\nA. $\\frac{5}{24}$\nB. $\\frac{5}{16}$\nC. $\\frac{9}{29}$\nD. $\\frac{5}{9}$",
+    "type": "multiple_choice",
+    "answer": "B"
+  },
+  {
+    "id": 94,
+    "text": "A certain town has an area of 12,669,184 square yards. What is the area, in square miles, of this town? ($1 \\text{ mile} = 1,760 \\text{ yards}$)\n\nA. $2.02$\nB. $7,198.4$\nC. $4.09$\nD. $3,559.38$",
+    "type": "multiple_choice",
+    "answer": "C"
+  },
+  {
+    "id": 95,
+    "text": "The equation $9x+8=nx$ has exactly one solution. What is NOT a possible value of $n$?",
+    "type": "free_response",
+    "answer": "36"
+  },
+  {
+    "id": 96,
+    "text": "The function $f$ is defined by $f(x) = \\frac{x+a}{x^2+bx+c}$, where $a, b$, and $c$ are constants. The graph of the function $f$ in the $xy$-plane, where $y=f(x)$, does not intersect the line $x=4$. If $f(5)=f(6)=0$, what is the value of $a+b+c$?",
+    "type": "free_response",
+    "answer": "11"
+  },
+  {
+    "id": 97,
+    "text": "The points $(0,15)$, $(10,8)$ and $(10,3)$ are shown in the $xy$-plane, where the $x$-axis and $y$-axis are measured in units. These points define one of the bases of a triangular prism. The distance between the two bases of the prism is 20 units. What is the volume, in cubic units, of the prism?",
+    "type": "free_response",
+    "answer": "500"
+  },
+  {
+    "id": 98,
+    "text": "In the given equation $-x^2+bx-169 \\le 0$, $b$ is an integer. The equation has no real solutions. What is the least possible value of $b$?",
+    "type": "free_response",
+    "answer": "-25"
+  }
+]; 
+   quizData.forEach(data => {
+        // Tự động bóc tách các lựa chọn A, B, C, D từ text đưa vào options
+        if (data.type === 'multiple_choice' && !data.options) {
+            data.options = {};
+            let lines = data.text.split('\n');
+            let qText = [];
+            lines.forEach(line => {
+                let match = line.match(/^([A-D])\.\s+(.*)/);
+                if (match) {
+                    data.options[match[1]] = match[2];
+                } else {
+                    if (line.trim() !== '') qText.push(line);
+                }
+            });
+            // Thêm các thẻ xuống dòng HTML chuẩn
+            data.text = qText.join('<br/><br/>');
+        } else if (data.text) {
+            // Fix lỗi xuống dòng cho các câu Fill in the blank
+            data.text = data.text.replace(/\n/g, '<br/>');
+        }
+    });
+
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); // Chèn các nút vào khối Nav đã tạo trong HTML
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px"; // Đảm bảo cuộn tới không bị khuất
+
+            let contentHtml = '';
+
+            // Nếu câu trắc nghiệm (đã được bóc tách ở tiền xử lý)
+            if (data.options && Object.keys(data.options).length > 0) {
+                let optionsHtml = '';
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+                contentHtml = `<ul class="options">${optionsHtml}</ul>`;
+            } else {
+                contentHtml = `
+                    <div style="margin-top: 10px;">
+                        <input type="text" class="fill-input" id="input-${data.id}" name="question${data.id}" placeholder="Nhập đáp án của bạn...">
+                        <div id="feedback-${data.id}" class="answer-feedback"></div>
+                    </div>
+                `;
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.text}</div>
+                ${contentHtml}
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    // Gắn trực tiếp các nút vào khối Div đã có sẵn bên ngoài thay vì tự tạo box nổi
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; // Làm sạch trước khi load
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.innerText = index + 1;
+            btn.style.cssText = `
+                width: 100%; height: 35px; border: 1px solid #bdc3c7; background: #f8f9fa;
+                color: #2c3e50; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em;
+                transition: background 0.2s;
+            `;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    // ==========================================
+    // LOGIC CHO 2 NÚT ẨN HIỆN GIAO DIỆN MỚI
+    // ==========================================
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const quizNavBox = document.getElementById('quizNavBox');
+    
+    toggleSidebarBtn.addEventListener('click', () => {
+        if (quizNavBox.style.display === 'none' || quizNavBox.style.display === '') {
+            quizNavBox.style.display = 'block';
+        } else {
+            quizNavBox.style.display = 'none';
+        }
+    });
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.style.display === 'none') {
+            stickyFooter.style.display = 'flex';
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+            toggleNavBtn.style.bottom = '85px'; // Đẩy nút lên trên footer
+        } else {
+            stickyFooter.style.display = 'none';
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+            toggleNavBtn.style.bottom = '20px'; // Hạ nút xuống dưới cùng khi ẩn footer
+        }
+    });
+
+
+    // (Giữ nguyên các hàm checkAndRestoreProgress, checkCurrentAnswers, updateNavigatorState, v.v.. của bạn bên dưới)
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) hasAnswered = true;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') hasAnswered = true;
+            }
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; btn.style.color = '#ffffff'; btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; btn.style.color = '#2c3e50'; btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) userAnswers[data.id] = selectedOption.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') userAnswers[data.id] = inputEl.value.trim();
+            }
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const data = quizData.find(q => q.id == qId);
+                    if (data) {
+                        if (data.options && Object.keys(data.options).length > 0) {
+                            const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                            if (radio) radio.checked = true;
+                        } else {
+                            const inputEl = document.getElementById(`input-${qId}`);
+                            if (inputEl) inputEl.value = value;
+                        }
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.answer || data.correctAnswer || '').toString().trim().toLowerCase();
+
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selectedOption) {
+                    checkedAny = true;
+                    const userAnswer = selectedOption.value.trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                        currentScore++;
+                    } else {
+                        document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                        const correctKey = (data.answer || data.correctAnswer);
+                        if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                            document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                        }
+                    }
+
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => radio.disabled = true);
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') {
+                    checkedAny = true;
+                    const userAnswer = inputEl.value.trim().toLowerCase();
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+
+                    if (userAnswer === correctAnswer) {
+                        inputEl.classList.add('correct-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #27ae60;">Chính xác!</span>`;
+                        currentScore++;
+                    } else {
+                        inputEl.classList.add('wrong-input');
+                        if (feedbackEl) feedbackEl.innerHTML = `<span style="color: #c0392b;">Sai rồi. Đáp án đúng: <strong>${data.answer || data.correctAnswer}</strong></span>`;
+                    }
+
+                    inputEl.disabled = true;
+                    block.dataset.locked = "true";
+                    answeredCount++;
+                }
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn hoặc nhập đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            let val = 'Bỏ trống';
+            if (data.options && Object.keys(data.options).length > 0) {
+                const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+                if (selected) val = selected.value;
+            } else {
+                const inputEl = document.getElementById(`input-${data.id}`);
+                if (inputEl && inputEl.value.trim() !== '') val = inputEl.value.trim();
+            }
+            studentAnswers[`Câu ${index + 1}`] = val;
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                if (data.options && Object.keys(data.options).length > 0) {
+                    const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                    radios.forEach(radio => {
+                        radio.disabled = false;
+                        radio.checked = false;
+                    });
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                } else {
+                    const inputEl = document.getElementById(`input-${data.id}`);
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.value = '';
+                        inputEl.classList.remove('correct-input', 'wrong-input');
+                    }
+                    const feedbackEl = document.getElementById(`feedback-${data.id}`);
+                    if (feedbackEl) feedbackEl.innerHTML = '';
+                }
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script>
+    (function() {
+        // Tự động lấy tên bài học từ thẻ <title> của file btap
+        const QUIZ_KEY = document.title.trim() || "August SAT Math"; 
+        const studentId = sessionStorage.getItem('studentId') || 'GUEST';
+
+        function saveProgressAndNotify() {
+            const answers = {};
+            
+            // Lấy các câu trắc nghiệm đã chọn
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                answers[radio.name] = radio.value;
+            });
+
+            // Lấy các câu điền ô trống
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                if (input.value.trim() !== '' && input.name) {
+                    answers[input.name] = input.value.trim();
+                }
+            });
+
+            // Đếm tổng số câu trong bài
+            let totalQuestions = document.querySelectorAll('.question-block, .question').length;
+            if (totalQuestions === 0) {
+                const radioNames = new Set([...document.querySelectorAll('input[type="radio"]')].map(i => i.name));
+                totalQuestions = radioNames.size || 1;
+            }
+
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            localStorage.setItem(storageKey, JSON.stringify(answers));
+            localStorage.setItem(storageKey + '_total', totalQuestions);
+
+            // Báo cho trang chính index.html cập nhật ngay lập tức
+            if (window.parent) {
+                window.parent.postMessage({ type: 'SAT_PROGRESS_UPDATE' }, '*');
+            }
+        }
+
+        function restoreDraftAnswers() {
+            const storageKey = `quiz_draft_${studentId}_${QUIZ_KEY}`;
+            const saved = localStorage.getItem(storageKey);
+            if (!saved) return;
+
+            try {
+                const answers = JSON.parse(saved);
+                Object.keys(answers).forEach(name => {
+                    const val = answers[name];
+                    const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${val}"]`);
+                    if (radio) radio.checked = true;
+
+                    const textInput = document.querySelector(`input[name="${name}"]`);
+                    if (textInput && textInput.type !== 'radio') textInput.value = val;
+                });
+            } catch(e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            restoreDraftAnswers();
+            saveProgressAndNotify();
+
+            document.addEventListener('change', saveProgressAndNotify);
+            document.addEventListener('input', saveProgressAndNotify);
+        });
+    })();
+    </script>
+</body>
+</html>
