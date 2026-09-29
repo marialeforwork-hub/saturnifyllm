@@ -28,10 +28,14 @@
         .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
         .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
         .options { list-style-type: none; padding: 0; }
-        .options li { margin-bottom: 10px; }
-        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options li { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .options label { flex: 1; display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
         .options label:hover { background: #eef2f5; }
         .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .options label.eliminated { text-decoration: line-through; opacity: 0.55; }
+        .btn-eliminate { flex-shrink: 0; width: 30px; height: 30px; border: 1px solid #bdc3c7; background: #fff; color: #95a5a6; border-radius: 50%; cursor: pointer; font-size: 0.85em; line-height: 1; transition: background 0.2s, color 0.2s; }
+        .btn-eliminate:hover { background: #f8d7da; border-color: #e74c3c; color: #e74c3c; }
+        .btn-eliminate.active { background: #e74c3c; color: #fff; border-color: #c0392b; }
         .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
         .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
         
@@ -141,6 +145,7 @@
             .global-check-btn { width: 100%; }
         }
     </style>
+    <link rel="stylesheet" href="quiz-theme.css">
 </head>
 <body>
 
@@ -444,6 +449,7 @@ const quizData = [
                                 <input type="radio" name="question${data.id}" value="${key}">
                                 <strong>${key}.</strong> ${value}
                             </label>
+                            <button type="button" class="btn-eliminate" title="Gạch bỏ đáp án này" onclick="toggleEliminate(event, ${data.id}, '${key}')">✕</button>
                         </li>
                     `;
                 }
@@ -545,15 +551,38 @@ const quizData = [
             }
 
             const btn = document.getElementById(`nav_btn_${data.id}`);
-            if (btn) {
-                if (hasAnswered) {
+            const block = document.getElementById(`question-${data.id}`);
+            if (btn && block) {
+                if (block.classList.contains('flagged-for-review')) {
+                    btn.style.background = '#e67e22'; btn.style.color = '#ffffff'; btn.style.borderColor = '#d35400';
+                } else if (hasAnswered) {
                     btn.style.background = '#2ecc71'; btn.style.color = '#ffffff'; btn.style.borderColor = '#27ae60';
-                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                } else if (block.dataset.locked !== "true") {
                     btn.style.background = '#f8f9fa'; btn.style.color = '#2c3e50'; btn.style.borderColor = '#bdc3c7';
                 }
             }
         });
     }
+
+    // Đồng bộ nút "Đánh dấu xem lại" (chèn từ trang ngoài) vào Danh Sách Câu Hỏi
+    function observeFlagged() {
+        const observer = new MutationObserver(updateNavigatorState);
+        document.querySelectorAll('.question-block').forEach(block => {
+            observer.observe(block, { attributes: true, attributeFilter: ['class'] });
+        });
+    }
+
+    function toggleEliminate(e, qId, key) {
+        e.preventDefault();
+        e.stopPropagation();
+        const label = document.getElementById(`label-${qId}-${key}`);
+        const radio = label.querySelector('input[type="radio"]');
+        const eliminated = label.classList.toggle('eliminated');
+        e.currentTarget.classList.toggle('active', eliminated);
+        if (eliminated && radio.checked) radio.checked = false;
+        radio.disabled = eliminated;
+    }
+    window.toggleEliminate = toggleEliminate; // script type="module" không lộ hàm ra global, cần gán thủ công cho inline onclick
 
     function saveProgress() {
         let userAnswers = {};
@@ -789,6 +818,7 @@ function checkAndRestoreProgress() {
 
     buildQuiz();
     checkAndRestoreProgress();
+    observeFlagged();
 </script>
 </body>
 </html>

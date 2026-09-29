@@ -1,0 +1,89 @@
+:root {
+    --sat-ink: #4d53a2;
+    --sat-ink-dark: #3e458b;
+    --sat-pink: #fb718b;
+    --sat-pink-soft: #fff0f4;
+    --sat-cyan: #58bcd8;
+    --sat-cyan-soft: #a9e5f2;
+    --sat-gold: #f8dc63;
+    --sat-surface: #fff9fb;
+    --sat-line: #f4dce5;
+    --sat-shadow: 0 -4px 15px rgba(77, 83, 162, .14);
+}
+
+/* Shared bottom toolbar across standalone quiz pages. */
+.sticky-footer {
+    border-top: 3px solid var(--sat-ink) !important;
+    background: var(--sat-surface) !important;
+    box-shadow: var(--sat-shadow) !important;
+    color: var(--sat-ink) !important;
+}
+
+.sticky-footer .stats { color: var(--sat-ink) !important; }
+.sticky-footer .stats b { color: var(--sat-ink) !important; }
+.sticky-footer .stats span { color: var(--sat-pink) !important; }
+
+.sticky-footer .reset-btn,
+.sticky-footer .global-check-btn {
+    border: 0 !important;
+    border-radius: .55rem !important;
+    font-weight: 700 !important;
+}
+
+.sticky-footer .reset-btn {
+    background: var(--sat-pink) !important;
+    box-shadow: 0 4px 6px rgba(251, 113, 139, .3) !important;
+    color: #fff !important;
+}
+
+.sticky-footer .reset-btn:hover { background: #d95773 !important; }
+
+.sticky-footer .global-check-btn {
+    background: var(--sat-cyan) !important;
+    box-shadow: 0 4px 6px rgba(88, 188, 216, .3) !important;
+    color: #263a5a !important;
+}
+
+.sticky-footer .global-check-btn:hover { background: var(--sat-cyan-soft) !important; }
+
+.toggle-nav-btn,
+.toggle-sidebar-btn,
+#quizNavBox > button[aria-label] {
+    background: var(--sat-ink) !important;
+    box-shadow: 0 4px 10px rgba(77, 83, 162, .25) !important;
+    color: #fff !important;
+}
+
+.toggle-nav-btn:hover,
+.toggle-sidebar-btn:hover,
+#quizNavBox > button[aria-label]:hover {
+    background: var(--sat-ink-dark) !important;
+}
+
+.question-list-panel > div,
+#quizNavBox {
+    border-color: var(--sat-ink) !important;
+    background: var(--sat-surface) !important;
+    box-shadow: 0 4px 15px rgba(77, 83, 162, .18) !important;
+}
+
+.question-list-panel h3,
+#quizNavBox h3,
+#quizNavBox > div > div:first-child {
+    border-color: var(--sat-line) !important;
+    color: var(--sat-ink) !important;
+}
+
+.toggle-nav-btn:focus-visible,
+.toggle-sidebar-btn:focus-visible,
+.sticky-footer button:focus-visible,
+#quizNavBox button:focus-visible {
+    outline: 3px solid var(--sat-gold) !important;
+    outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+    .sticky-footer > div:last-child { width: 100%; }
+    .sticky-footer .reset-btn,
+    .sticky-footer .global-check-btn { flex: 1; }
+}

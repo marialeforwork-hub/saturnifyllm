@@ -40,13 +40,6 @@
         .btn-save { background: #f39c12; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 8px; }
         .btn-save:hover { background: #d35400; }
         
-        /* Bảng điều hướng câu hỏi trong bài làm */
-        #questionNavPanel { display: flex; gap: 6px; flex-wrap: wrap; max-width: 45%; max-height: 70px; overflow-y: auto; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 6px; }
-        .q-nav-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid #7f8c8d; background: #ecf0f1; color: #2c3e50; font-size: 0.8em; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
-        .q-nav-btn.flagged { background: #e67e22 !important; color: white !important; border-color: #d35400 !important; }
-        .q-nav-btn.flagged::after { content: '🚩'; font-size: 0.6em; position: absolute; top: -4px; right: -4px; }
-        .q-nav-btn.answered { border-color: #2ecc71; font-weight: bold; background: #2ecc71; color: white; }
-
         /* Khung tìm kiếm */
         .search-box { margin-bottom: 20px; display: flex; justify-content: center; align-items: center; }
         .search-box input { width: 70%; padding: 12px; font-size: 1em; border: 2px solid #3498db; border-radius: 20px; outline: none; transition: box-shadow 0.3s; }
@@ -68,12 +61,358 @@
         .btn-detail { background: #3498db; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; }
         .btn-detail:hover { background: #2980b9; }
     </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Nunito:wght@400;600;700;800&display=swap');
+
+        :root {
+            /* Primitive tokens */
+            --ink-950: #4d53a2;
+            --ink-800: #3e458b;
+            --sand-50: #fff9fb;
+            --sand-100: #fff0f4;
+            --sand-200: #f4dce5;
+            --gold-400: #f8dc63;
+            --gold-500: #dfb43e;
+            --mint-300: #a9e5f2;
+            --mint-500: #58bcd8;
+            --coral-500: #fb718b;
+            --slate-500: #7674a5;
+            --radius-md: .75rem;
+            --radius-lg: 1.25rem;
+            --radius-xl: 1.75rem;
+            --shadow-card: 0 24px 70px rgba(101, 98, 198, .16);
+
+            /* Semantic and component tokens */
+            --color-background: var(--sand-50);
+            --color-surface: #fffefe;
+            --color-foreground: var(--ink-950);
+            --color-muted: var(--slate-500);
+            --color-primary: var(--ink-950);
+            --color-primary-hover: var(--ink-800);
+            --color-line: var(--sand-200);
+            --button-bg: var(--color-primary);
+            --button-fg: #fff;
+            --button-radius: 999px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            padding: clamp(1rem, 3vw, 3rem);
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at 12% 9%, rgba(251, 113, 139, .28) 0 1px, transparent 1.5px) 0 0 / 25px 25px,
+                radial-gradient(ellipse 65% 48% at 92% 3%, rgba(169, 229, 242, .72), transparent 70%),
+                radial-gradient(circle at 10% 86%, rgba(247, 197, 209, .6), transparent 25%),
+                var(--color-background);
+            color: var(--color-foreground);
+            font-family: 'Nunito', 'Trebuchet MS', sans-serif;
+        }
+
+        body::before,
+        body::after { position: fixed; z-index: -1; content: ''; pointer-events: none; }
+
+        body::before {
+            width: min(55vw, 45rem);
+            aspect-ratio: 1;
+            right: -21rem;
+            bottom: -23rem;
+            border: 1px solid rgba(101, 98, 198, .24);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4rem rgba(101, 98, 198, .04), 0 0 0 8rem rgba(101, 98, 198, .02);
+        }
+
+        body::after {
+            width: 22rem;
+            height: 7rem;
+            top: 4.5rem;
+            left: -7rem;
+            border: 1px solid rgba(88, 188, 216, .36);
+            border-radius: 50%;
+            transform: rotate(-18deg);
+        }
+
+        .container {
+            position: relative;
+            width: min(100%, 70rem);
+            max-width: 70rem;
+            padding: clamp(1.25rem, 4vw, 3.25rem);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(101, 98, 198, .12);
+            border-radius: var(--radius-xl);
+            background: rgba(255, 254, 254, .9);
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(12px);
+        }
+
+        .container::before {
+            position: absolute;
+            top: -7rem;
+            right: -3rem;
+            width: 15rem;
+            height: 15rem;
+            border: 1rem solid var(--gold-400);
+            border-left-color: transparent;
+            border-radius: 50%;
+            content: '';
+            opacity: .16;
+            pointer-events: none;
+            transform: rotate(-28deg);
+        }
+
+        .brand-lockup {
+            width: clamp(12rem, 22vw, 15rem);
+            margin: 0 auto clamp(1.25rem, 3vw, 2rem);
+            border-radius: 50%;
+            background: #f7c5d1;
+            box-shadow: 0 1rem 0 rgba(101, 98, 198, .12);
+            overflow: hidden;
+            animation: float-in .55s ease-out both;
+        }
+
+        .brand-lockup img { display: block; width: 100%; height: auto; }
+
+        h1 {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            border: 0;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+        }
+
+        .login-box {
+            max-width: 44rem;
+            margin: 0;
+            padding: clamp(1.5rem, 4vw, 3rem);
+            border: 1px solid var(--color-line);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(115deg, rgba(247, 197, 209, .5), rgba(169, 229, 242, .26) 75%, transparent), var(--color-surface);
+            text-align: left;
+        }
+
+        .login-box h3 {
+            max-width: 25rem;
+            margin: 0 0 1.5rem !important;
+            color: var(--ink-950);
+            font-size: clamp(1.35rem, 3vw, 2rem);
+            line-height: 1.15;
+        }
+
+        .login-box h3::after {
+            display: block;
+            margin-top: .75rem;
+            color: var(--color-muted);
+            content: 'Your focused SAT practice space.';
+            font-family: 'DM Mono', Consolas, monospace;
+            font-size: .72rem;
+            font-weight: 400;
+            letter-spacing: .02em;
+            line-height: 1.5;
+            text-transform: uppercase;
+        }
+
+        .login-box input[type="text"] {
+            width: min(100%, 18rem);
+            min-height: 3.35rem;
+            padding: .8rem 1rem;
+            border: 1px solid var(--ink-950);
+            border-radius: var(--button-radius);
+            outline: none;
+            background: rgba(255, 254, 250, .8);
+            color: var(--ink-950);
+            font: 500 .95rem 'DM Mono', Consolas, monospace;
+            letter-spacing: .06em;
+            text-align: center;
+        }
+
+        .login-box input[type="text"]:focus,
+        .search-box input:focus,
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible { outline: 3px solid rgba(242, 184, 75, .65); outline-offset: 3px; }
+
+        .login-box button,
+        .btn-start,
+        .btn-history,
+        .btn-admin,
+        .btn-save,
+        .btn-detail {
+            min-height: 3rem;
+            border: 0;
+            border-radius: var(--button-radius);
+            background: var(--button-bg);
+            color: var(--button-fg);
+            cursor: pointer;
+            font: 600 .85rem 'DM Mono', Consolas, monospace;
+            letter-spacing: .035em;
+            text-decoration: none;
+            transition: background .2s ease, box-shadow .2s ease, transform .2s ease;
+        }
+
+        .login-box button { margin: 0 0 0 .5rem; padding: .75rem 1.35rem; }
+
+        .login-box button:hover,
+        .btn-start:hover,
+        .btn-history:hover,
+        .btn-admin:hover,
+        .btn-save:hover,
+        .btn-detail:hover { background: var(--color-primary-hover); box-shadow: 0 .55rem 1.2rem rgba(16, 27, 50, .18); transform: translateY(-2px); }
+
+        #errorMsg { margin: 1rem 0 0 !important; color: var(--coral-500) !important; font: 500 .8rem 'DM Mono', Consolas, monospace; }
+        .user-info { margin-bottom: 1rem; color: var(--ink-950); font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 800; }
+        #welcomeSection button:not(.btn-history) { border-radius: var(--button-radius) !important; background: var(--ink-950) !important; font-family: 'DM Mono', Consolas, monospace; }
+        .btn-history { margin-left: .5rem; padding: .75rem 1.1rem; background: var(--mint-500); }
+        .btn-history:hover { background: #419db8; }
+        .btn-admin { display: inline-flex; align-items: center; margin-bottom: 1rem; padding: .8rem 1.25rem; background: var(--coral-500); }
+        .btn-admin:hover { background: #a94942; }
+
+        #quizContent { width: 100%; margin-top: clamp(2rem, 4vw, 3.5rem); }
+        .search-box { position: relative; display: flex; align-items: center; margin-bottom: 2.5rem; }
+        .search-box::before { position: absolute; left: 1.2rem; z-index: 1; color: var(--slate-500); content: '/'; font: 500 1.1rem 'DM Mono', Consolas, monospace; }
+        .search-box input {
+            width: min(100%, 39rem);
+            min-height: 3.5rem;
+            padding: .85rem 1.2rem .85rem 3rem;
+            border: 1px solid var(--ink-950);
+            border-radius: var(--button-radius);
+            background: #fffefa;
+            color: var(--ink-950);
+            font: 500 .92rem 'DM Mono', Consolas, monospace;
+            outline: none;
+            transition: box-shadow .2s ease, border-color .2s ease;
+        }
+        .search-box input:focus { box-shadow: 0 0 0 .3rem rgba(168, 222, 210, .5); }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            margin: 2.5rem 0 1rem;
+            padding: 0;
+            border: 0;
+            color: var(--ink-950);
+            font: 500 clamp(1.05rem, 2.2vw, 1.35rem) 'DM Mono', Consolas, monospace;
+            letter-spacing: -.04em;
+        }
+        .category-title::after { height: 1px; flex: 1; background: var(--color-line); content: ''; }
+        .quiz-list { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+
+        .quiz-item {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin: 0;
+            padding: 1.15rem 1.25rem;
+            border: 1px solid var(--color-line);
+            border-radius: var(--radius-md);
+            background: var(--color-surface);
+            transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+        }
+        .quiz-item:hover { border-color: rgba(101, 98, 198, .38); box-shadow: 0 .7rem 1.8rem rgba(101, 98, 198, .11); transform: translateX(.25rem); }
+        .quiz-item-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .85rem; }
+        .quiz-title { color: var(--ink-950); font-size: .98rem; font-weight: 700; line-height: 1.4; }
+        .action-btns { display: flex; flex: 0 0 auto; gap: .5rem; }
+        .btn-start { min-height: 2.45rem; padding: .55rem .95rem; font-size: .76rem; }
+        .btn-reset,
+        .btn-exit {
+            min-height: 2.45rem;
+            padding: .55rem .85rem;
+            border: 1px solid var(--ink-950);
+            border-radius: var(--button-radius);
+            background: transparent;
+            color: var(--ink-950);
+            cursor: pointer;
+            font: 500 .72rem 'DM Mono', Consolas, monospace;
+            transition: background .2s ease, color .2s ease;
+        }
+        .btn-reset:hover,
+        .btn-exit:hover { background: var(--ink-950); color: #fff; }
+
+        .progress-container { width: 100%; height: .45rem; margin-top: .15rem; overflow: hidden; border-radius: 99px; background: var(--sand-200); box-shadow: none; }
+        .progress-bar { height: 100%; color: transparent; background: linear-gradient(90deg, var(--gold-400), var(--mint-500)); transition: width .4s ease; }
+        .progress-text { margin-top: .55rem; color: var(--color-muted); font: 500 .7rem 'DM Mono', Consolas, monospace; text-align: right; }
+
+        #toastMessage { right: 1.25rem; bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid rgba(255, 255, 255, .25); border-radius: var(--radius-md); background: var(--ink-950); box-shadow: var(--shadow-card); color: #fff; font: 500 .78rem 'DM Mono', Consolas, monospace; }
+        #quizRunner { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; background: var(--sand-50); }
+        #timerHeader { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .8rem clamp(1rem, 3vw, 2rem); background: linear-gradient(105deg, var(--ink-800), var(--ink-950) 62%, #666bc0); color: #fff; box-shadow: 0 .2rem 1rem rgba(77, 83, 162, .24); font-size: .9rem; font-weight: 700; flex-wrap: wrap; }
+        #quizIframe { width: 100%; height: 100%; flex: 1; border: 0; }
+        .btn-save { min-height: 2.35rem; margin-right: .5rem; padding: .45rem .8rem; background: var(--gold-500); }
+        .btn-save:hover { background: #b87518; }
+        #timerHeader > div:last-child { display: flex; align-items: center; gap: .5rem; }
+        #timerHeader .btn-save { margin-right: 0; background: var(--gold-400); color: var(--ink-800); }
+        #timerHeader .btn-save:hover { background: #fbe486; }
+        #timerHeader .btn-exit { display: inline-flex; align-items: center; min-height: 2.35rem; padding: .45rem .8rem; border-color: rgba(255, 255, 255, .72); background: transparent; color: #fff; }
+        #timerHeader .btn-exit:hover { border-color: var(--coral-500); background: var(--coral-500); color: #fff; }
+
+        @keyframes float-in {
+            from { opacity: 0; transform: translateY(-.75rem) scale(.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        #historyModal,
+        #historyDetailModal,
+        #timerModal,
+        #preSubmitModal { padding: 1rem; background: rgba(16, 27, 50, .72) !important; backdrop-filter: blur(7px); }
+        #historyModal > div,
+        #historyDetailModal > div,
+        #timerModal > div,
+        #preSubmitModal > div { border: 1px solid var(--color-line); border-radius: var(--radius-lg) !important; background: var(--color-surface) !important; box-shadow: var(--shadow-card) !important; }
+        #historyModal h2,
+        #historyDetailModal h3,
+        #timerModal h2,
+        #preSubmitModal h2 { color: var(--ink-950) !important; font-family: 'DM Mono', Consolas, monospace; letter-spacing: -.045em; }
+        #historyModal > div > div:first-child,
+        #historyDetailModal > div > div:first-child { border-color: var(--gold-400) !important; }
+        #historyModal button,
+        #historyDetailModal button,
+        #timerModal button,
+        #preSubmitModal button { border-radius: var(--button-radius) !important; font-family: 'DM Mono', Consolas, monospace; }
+        #timerModal button[onclick="startQuizWithTimer()"],
+        #preSubmitModal button[onclick="confirmFinalSubmit()"] { background: var(--ink-950) !important; }
+        .history-table { width: 100%; margin-top: 1rem; border-collapse: collapse; }
+        .history-table th,
+        .history-table td { padding: .7rem; border: 1px solid var(--sand-200); font-size: .85rem; text-align: center; }
+        .history-table th { background: var(--ink-950); color: #fff; font-family: 'DM Mono', Consolas, monospace; }
+        .history-table tr:nth-child(even) { background: var(--sand-50); }
+        .btn-detail { min-height: 2rem; padding: .35rem .7rem; font-size: .7rem; }
+
+        @media (max-width: 680px) {
+            body { padding: .75rem; }
+            .container { border-radius: 1.2rem; }
+            h1 { margin-bottom: 2rem; font-size: clamp(1.4rem, 8vw, 2.1rem); }
+            h1::before { width: 2em; }
+            .login-box { padding: 1.35rem; }
+            .login-box input[type="text"],
+            .login-box button { width: 100%; }
+            .login-box button { margin: .75rem 0 0; }
+            .quiz-item-header { align-items: flex-start; flex-direction: column; }
+            .action-btns { width: 100%; }
+            .action-btns button { flex: 1; }
+            #timerHeader { justify-content: center; text-align: center; }
+            .history-table { display: block; overflow-x: auto; white-space: nowrap; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
 </head>
 <body>
 
 <div id="toastMessage">💾 Tiến độ làm bài đã được lưu!</div>
 
 <div id="mainContent" class="container">
+    <div class="brand-lockup">
+        <img src="SATurnify/3.png" alt="" aria-hidden="true">
+    </div>
     <h1>📚 SATURNIFY - YOUR SAT TUTOR</h1>
 
     <div id="loginSection" class="login-box">
@@ -559,7 +898,6 @@
 <div id="quizRunner" class="hidden">
     <div id="timerHeader">
         <span id="quizTitleDisplay">📝 Bài Làm</span>
-        <div id="questionNavPanel"></div>
         <div>
             <span id="timerLabel">📖 Chế độ Luyện tập</span>
             <span id="timerText" style="color: #f1c40f; font-size: 1.2em; margin-right: 15px; margin-left: 8px;"></span>
@@ -1009,22 +1347,10 @@
         try {
             const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
             const questionBlocks = iframeDoc.querySelectorAll('.question-block, .question');
-            const navPanel = document.getElementById('questionNavPanel');
-            if (!navPanel) return;
-            
-            navPanel.innerHTML = '';
             if (questionBlocks.length === 0) return;
 
             questionBlocks.forEach((block, index) => {
                 const qNum = index + 1;
-
-                const navBtn = document.createElement('button');
-                navBtn.className = 'q-nav-btn';
-                navBtn.innerText = qNum;
-                navBtn.id = `nav_btn_${index}`;
-                navBtn.title = `Chuyển tới Câu ${qNum}`;
-                navBtn.onclick = () => block.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                navPanel.appendChild(navBtn);
 
                 if (!block.querySelector('.btn-flag-question')) {
                     const headerDiv = document.createElement('div');
@@ -1042,13 +1368,11 @@
                         if (isFlagged) {
                             flagBtn.style.background = '#d35400';
                             flagBtn.innerHTML = '🚩 Đã đánh dấu';
-                            navBtn.classList.add('flagged');
                             block.style.borderLeft = '4px solid #e67e22';
                             block.style.paddingLeft = '10px';
                         } else {
                             flagBtn.style.background = '#f39c12';
                             flagBtn.innerHTML = '🚩 Đánh dấu xem lại';
-                            navBtn.classList.remove('flagged');
                             block.style.borderLeft = '';
                             block.style.paddingLeft = '';
                         }
@@ -1066,11 +1390,7 @@
 
                 const inputs = block.querySelectorAll('input[type="radio"], input[type="text"]');
                 inputs.forEach(input => {
-                    if (input.type === 'radio' && input.checked) navBtn.classList.add('answered');
-                    if (input.type === 'text' && input.value.trim() !== '') navBtn.classList.add('answered');
-
                     input.addEventListener('change', () => {
-                        navBtn.classList.add('answered');
                         captureAndSaveDraftFromIframe(false);
                     });
                 });
