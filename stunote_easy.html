@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHETORICAL SYNTHESIS - EASY - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>RHETORICAL SYNTHESIS: EASY (QUESTION BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const quizData = [
+  {
+    "id": 1,
+    "question": "While researching a topic, a student has taken the following notes: Sue is the nickname of a dinosaur fossil specimen housed at the Field Museum of Natural History. The Field Museum of Natural History is located in Chicago, Illinois. Sue is a member of the genus Tyrannosaurus. Big Mike is the nickname of a dinosaur fossil specimen housed at the Museum of the Rockies. The Museum of the Rockies is located in Bozeman, Montana. Big Mike is a member of the genus Tyrannosaurus. The student wants to emphasize a similarity between the two specimens. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The Field Museum of Natural History, where Sue is housed, is located in Chicago, Illinois.",
+      "B": "Big Mike is the nickname of a Tyrannosaurus fossil specimen housed at the Museum of the Rockies in Bozeman, Montana.",
+      "C": "The dinosaur fossil specimens Sue and Big Mike are both members of the genus Tyrannosaurus.",
+      "D": "While Sue is housed at the Field Museum of Natural History, Big Mike is housed at the Museum of the Rockies."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence emphasizes a similarity between the two specimens, noting that Sue and Big Mike are members of the same genus: Tyrannosaurus. Choice A is incorrect. The sentence only provides information about where one of the specimens (Sue) can be found; it doesn’t emphasize a similarity between the two specimens. Choice B is incorrect. The sentence only provides information about one specimen (Big Mike); it doesn’t emphasize a similarity between the two specimens. Choice D is incorrect. The sentence contrasts the locations of Sue and Big Mike; it doesn’t emphasize a similarity between the two specimens."
+  },
+  {
+    "id": 2,
+    "question": "While researching a topic, a student has taken the following notes: The Haber-Bosch process is an industrial process used to manufacture ammonia (NH3 ). It was invented by chemists Fritz Haber and Carl Bosch in 1910. The process’s primary reaction combines nitrogen (N2 ) from the air with hydrogen (H2 ). It requires an iron catalyst and high temperatures and pressures. Most of the ammonia produced by this process is used in fertilizers. The student wants to provide an overview of the Haber-Bosch process. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The Haber-Bosch process needs nitrogen, hydrogen, and an iron catalyst.",
+      "B": "The Haber-Bosch process uses an iron catalyst along with high temperatures and pressures to manufacture ammonia from nitrogen and hydrogen.",
+      "C": "Chemists Fritz Haber and Carl Bosch invented an industrial process to manufacture ammonia to be used in fertilizers.",
+      "D": "In 1910, chemists Fritz Haber and Carl Bosch invented the Haber-Bosch process, which requires high temperatures and pressures."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence provides an overview of the Haber-Bosch process, explaining that it uses an iron catalyst, high temperatures, and high pressures to manufacture ammonia from nitrogen and hydrogen. Choice A is incorrect. While the sentence identifies some of the process’s required components (nitrogen, hydrogen, and an iron catalyst), the overview is incomplete; it doesn’t explain what the process does (produces ammonia) or mention the conditions needed for it to function (high temperatures and pressures). Choice C is incorrect. While the sentence indicates who invented the process (Fritz Haber and Carl Bosch) and that it produces ammonia, the overview is incomplete; it doesn’t mention any of the necessary ingredients or conditions. Choice D is incorrect. While the sentence mentions the inventors of the process along with the required conditions (high temperatures and pressures), it doesn’t explain that the process produces ammonia or indicate what components are needed."
+  },
+  {
+    "id": 3,
+    "question": "While researching a topic, a student has taken the following notes: The Philadelphia and Lancaster Turnpike was a road built between 1792 and 1794. It was the first private turnpike in the United States. It connected the cities of Philadelphia and Lancaster in the state of Pennsylvania. It was sixty-two miles long. The student wants to emphasize the distance covered by the Philadelphia and Lancaster Turnpike. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The sixty-two-mile-long Philadelphia and Lancaster Turnpike connected the Pennsylvania cities of Philadelphia and Lancaster.",
+      "B": "The Philadelphia and Lancaster Turnpike was the first private turnpike in the United States.",
+      "C": "The Philadelphia and Lancaster Turnpike, which connected two Pennsylvania cities, was built between 1792 and 1794.",
+      "D": "A historic Pennsylvania road, the Philadelphia and Lancaster Turnpike was completed in 1794."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence emphasizes the distance covered by the Philadelphia and Lancaster Turnpike, noting that the turnpike, which connected the two Pennsylvania cities in its name, was sixty-two miles long. Choice B is incorrect. The sentence emphasizes the significance of the turnpike; it doesn’t emphasize the distance that the turnpike covered. Choice C is incorrect. While the sentence mentions that the turnpike connected two Pennsylvania cities, it doesn’t emphasize the specific distance covered by the turnpike. Choice D is incorrect. The sentence emphasizes when the turnpike was built; it doesn’t emphasize the distance that the turnpike covered."
+  },
+  {
+    "id": 4,
+    "question": "While researching a topic, a student has taken the following notes: The human body requires magnesium for over 300 essential processes. Magnesium is a mineral present in many foods. Peanuts contain 49 milligrams per ounce (mg/oz) of magnesium. Almonds contain 80 mg/oz. Chia seeds contain 150 mg/oz. The student wants to identify which of the three foods has the highest magnesium content. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "At 80 mg/oz, almonds contain more magnesium than peanuts (49 mg/oz).",
+      "B": "Chia seeds contain 150 mg/oz of magnesium, which is more than peanuts and almonds.",
+      "C": "Magnesium is present in many foods, including peanuts, almonds, and chia seeds.",
+      "D": "Peanuts contain 49 mg/oz of magnesium, a mineral the human body requires for over 300 essential processes."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence identifies chia seeds as having the highest magnesium content of the three foods, noting that they contain 150 mg/oz, which is more than both peanuts and almonds. Choice A is incorrect. The sentence compares the magnesium content of almonds and peanuts; it doesn’t identify which of the three foods has the highest magnesium content. Choice C is incorrect. The sentence merely mentions the three foods; it doesn’t identify which one has the highest magnesium content. Choice D is incorrect. The sentence identifies the magnesium content of peanuts; it doesn’t identify which of the three foods has the highest magnesium content."
+  },
+  {
+    "id": 5,
+    "question": "While researching a topic, a student has taken the following notes: In World War I, US soldiers who were members of the Choctaw Nation in Oklahoma participated in the Choctaw Code Talkers program. The Choctaw Code Talkers were trained to relay coded military information in their native language. In World War II, the US Army recruited Navajo (Diné) soldiers to transmit coded messages in their native language. These soldiers were known as the Navajo Code Talkers. The student wants to emphasize a similarity between the Choctaw Code Talkers and the Navajo Code Talkers. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "US soldiers who were members of the Choctaw Nation in Oklahoma used their native language to relay coded information.",
+      "B": "In World War II, one group of Navajo (Diné) soldiers was known as the Navajo Code Talkers.",
+      "C": "",
+      "D": ""
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence emphasizes a similarity between the Choctaw Code Talkers and the Navajo Code Talkers by explaining that both groups used their native languages to transmit coded messages for the military. Choice A is incorrect. The sentence describes the Choctaw Code Talkers; it doesn’t emphasize a similarity between the Choctaw Code Talkers and the Navajo Code Talkers. Choice B is incorrect. The sentence introduces the Navajo Code Talkers; it doesn’t emphasize a similarity between the Choctaw Code Talkers and the Navajo Code Talkers. Choice D is incorrect. The sentence emphasizes a difference between the Choctaw Code Talkers and the Navajo Code Talkers; it doesn’t emphasize a similarity."
+  },
+  {
+    "id": 6,
+    "question": "While researching a topic, a student has taken the following notes: Oracles of the Pink Universe was a 2021 exhibition at the Denver Museum of Art in Colorado. It featured eight artworks by South African artist Simphiwe Ndzube. One of these works is a painting titled Assertion of Will. Assertion of Will depicts three standing figures. The figures wear clothing made of fabric pieces stitched to the painting’s canvas. The student wants to describe how fabric is used in Assertion of Will. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "In Assertion of Will, the figures’ clothing is made of fabric pieces stitched to the painting’s canvas.",
+      "B": "The exhibition Oracles of the Pink Universe featured artworks by artist Simphiwe Ndzube.",
+      "C": "Depicting three standing, clothed figures, Assertion of Will is a painting by Simphiwe Ndzube.",
+      "D": "Simphiwe Ndzube’s Assertion of Will was one of eight artworks exhibited in Oracles of the Pink Universe at the Denver Museum of Art."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. This choice directly describes how fabric is used in Assertion of Will, by explaining that the fabric pieces are part of the painting itself. Choice B is incorrect. This choice provides contextual information about the exhibition, but it doesn’t mention anything about the painting or the fabric. Choice C is incorrect. This choice mentions that the figures are clothed, but it doesn’t explain how the fabric is integrated into the painting. Choice D is incorrect. This choice provides contextual information about the painting, but it doesn’t mention anything about the fabric or how it is used."
+  },
+  {
+    "id": 7,
+    "question": "While researching a topic, a student has taken the following notes: The mountain pygmy possum is a mammal species. Up until 1966, it was believed to be extinct. That year, a live mountain pygmy possum was identified in the wild in Australia. The mountain pygmy possum is considered a Lazarus species. “Lazarus species” is a term for living species of organisms that were once believed to be extinct. The student wants to define the term “Lazarus species” and provide an example of one. Which choice most effectively uses relevant information from the notes to accomplish these goals?",
+    "options": {
+      "A": "The term “Lazarus species” describes a living species of organism, such as the mountain pygmy possum, that was once believed to be extinct.",
+      "B": "One example of a Lazarus species is the mountain pygmy possum, a mammal species that was identified in the wild in Australia in 1966.",
+      "C": "The mountain pygmy possum, a species of mammal, was identified in the wild in 1966.",
+      "D": "Sometimes, a species once believed to be extinct is later found living in the wild."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence defines the term \"Lazarus species\" and provides an example of one, explaining that a Lazarus species is a living organism that was once believed to be extinct and providing the mountain pygmy possum as an example. Choice B is incorrect. While the sentence provides an example of a Lazarus species, it doesn’t define the term \"Lazarus species.\" Choice C is incorrect. The sentence provides information about the mountain pygmy possum; it doesn’t define the term \"Lazarus species\" or explicitly identify the mountain pygmy possum as a Lazarus species. Choice D is incorrect. While the sentence describes the concept of a Lazarus species, it doesn’t define the term or provide an example of a Lazarus species."
+  },
+  {
+    "id": 8,
+    "question": "While researching a topic, a student has taken the following notes: Muslins are woven cotton fabrics with a variety of uses. Dhaka muslin is a handmade fabric produced in Dhaka, Bangladesh. It has an extremely fine weave and is primarily used to make luxury clothing. Sheeting muslin is a machine-made fabric produced in factories. It has a coarse weave and is primarily used to upholster furniture and create backdrops for theater sets. The student wants to emphasize a difference between the two muslins. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Dhaka muslin is a handmade fabric with an extremely fine weave, while sheeting muslin is machine made with a coarse weave.",
+      "B": "Dhaka muslin and sheeting muslin are two different types of woven cotton fabrics.",
+      "C": "Muslins can be used in a variety of ways, from making luxury clothing to upholstering furniture and creating backdrops for theater sets.",
+      "D": "Sheeting muslin is machine made, has a coarse weave, and is used for furniture and theater sets."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The difference between the two different kinds of muslin is emphasized. Choice B is incorrect. This choice lists two kinds of muslins, but does not say how they are different from one another. Choice C is incorrect. This choice does not emphasize a difference between the two muslins. Choice D is incorrect. This choice does not emphasize a difference between the two muslins. It only describes sheeting muslin."
+  },
+  {
+    "id": 9,
+    "question": "While researching a topic, a student has taken the following notes: Yellowstone is a national park in the northwest United States. In 1995, gray wolves were reintroduced into the park. Since then, the number of gray wolves in the park has stabilized at roughly 100. This number is believed to be the park’s carrying capacity. Carrying capacity describes the maximum number of a species that a specific environment’s resources can sustain over time. The student wants to specify the number of gray wolves in Yellowstone. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Gray wolves were reintroduced into Yellowstone, a national park in the northwest United States, in 1995.",
+      "B": "As of 1995, there were gray wolves living in Yellowstone, a national park in the northwest United States.",
+      "C": "The carrying capacity of an environment, such as Yellowstone, describes the maximum number of species that the environment can sustain over time.",
+      "D": "Yellowstone is a national park that has roughly 100 gray wolves living in it."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. This choice uses relevant information from the third bullet point to state the approximate number of gray wolves in Yellowstone. Choice A is incorrect. This choice mentions the year gray wolves in Yellowstone were reintroduced but not how many there are currently. Choice B is incorrect. This choice mentions the year gray wolves in Yellowstone were reintroduced but not how many there are currently. Choice C is incorrect. This choice defines the term carrying capacity but doesn’t connect it to the specific number of gray wolves currently living in Yellowstone."
+  },
+  {
+    "id": 10,
+    "question": "While researching a topic, a student has taken the following notes: Chiura Obata was a Japanese American artist who lived in California. Yosemite Falls is a notable painting by Obata. It uses a Japanese method of black ink painting called sumi-e. This painting was completed in 1930. The student wants to indicate the year Yosemite Falls was completed. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "While living in California, Obata created black ink paintings.",
+      "B": "Obata, a Japanese American artist, created a notable painting.",
+      "C": "Yosemite Falls was completed in 1930.",
+      "D": "Obata used a Japanese painting method called sumi-e."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence indicates the year Yosemite Falls was completed, stating that it was completed in 1930. Choice A is incorrect. The sentence indicates where Obata created black ink paintings; it doesn’t indicate when the painting was completed. Choice B is incorrect. While the sentence identifies Obata as an artist who created a notable painting, it doesn’t indicate when that painting was completed. Choice D is incorrect. The sentence identifies the method Obata used; it doesn’t indicate when the painting was completed."
+  },
+  {
+    "id": 11,
+    "question": "While researching a topic, a student has taken the following notes: Dr. Sunil Bajpai studies dinosaurs at the Indian Institute of Technology. Bajpai’s research team recently found a 167-million-year-old dicraeosaurid fossil. It is the oldest fossil from the dicraeosaurid dinosaur group ever recovered. It was found in the Thar Desert in western India. The student wants to indicate where the dicraeosaurid fossil was found. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The dicraeosaurid fossil was found in western India’s Thar Desert.",
+      "B": "Bajpai’s team recently found the oldest dicraeosaurid fossil ever recovered.",
+      "C": "Dr. Sunil Bajpai, of the Indian Institute of Technology, is part of a research team.",
+      "D": "The fossil, which is from the dicraeosaurid dinosaur group, is 167 million years old."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence indicates where the dicraeosaurid fossil was found: western India’s Thar Desert. Choice B is incorrect. The sentence states that Bajpai’s team discovered the dicraeosaurid fossil; it doesn’t specify where they found it. Choice C is incorrect. The sentence provides information about Dr. Sunil Bajpai; it doesn’t indicate where the fossil was found. Choice D is incorrect. While the sentence provides information about the fossil, it doesn’t indicate where the fossil was found."
+  },
+  {
+    "id": 12,
+    "question": "While researching a topic, a student has taken the following notes: Pauline Hopkins (1859-1930) was an African American writer. In her career, she created many genre-defining stories. Her serialized novel Hagar’s Daughter was published from 1901 to 1902 in The Colored American Magazine. It is considered the first African American mystery novel. The student wants to introduce Pauline Hopkins to an audience unfamiliar with her career. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Pauline Hopkins is the author of Hagar’s Daughter, a serialized novel published from 1901 to 1902.",
+      "B": "African American writer Pauline Hopkins created many genre-defining stories during her career, including the first African American mystery novel, Hagar’s Daughter.",
+      "C": "Published in The Colored American Magazine from 1901 to 1902, Hagar’s Daughter is a serialized novel by Pauline Hopkins.",
+      "D": "Hagar’s Daughter by Pauline Hopkins is considered the first African American mystery novel."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence introduces Pauline Hopkins to an audience unfamiliar with her career, identifying her as a genredefining African American writer and noting a career accomplishment. Choice A is incorrect. The sentence emphasizes that Pauline Hopkins wrote a serialized novel but doesn’t introduce Hopkins to an audience unfamiliar with her career. Choice C is incorrect. The sentence introduces Hopkins’s novel; it doesn’t introduce Hopkins. Choice D is incorrect. The sentence explains that a novel written by Hopkins is considered the first African American mystery novel; it doesn’t introduce Hopkins to an audience unfamiliar with her career."
+  },
+  {
+    "id": 13,
+    "question": "While researching a topic, a student has taken the following notes: Angana Chaudhuri is a scientist. Chaudhuri studies sedimentary rocks. A scientist who studies sedimentary rocks is called a sedimentologist. Shale, chalk, and sandstone are examples of sedimentary rocks. The student wants to identify what type of scientist Chaudhuri is. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Chalk is a type of sedimentary rock.",
+      "B": "Some scientists study shale, chalk, and sandstone.",
+      "C": "There are scientists who study sedimentary rocks.",
+      "D": "Chaudhuri is a sedimentologist."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence identifies the type of scientist Chaudhuri is, noting that she is a sedimentologist. Choice A is incorrect. The sentence provides an example of a type of sedimentary rock; it doesn’t identify what type of scientist Chaudhuri is. Choice B is incorrect. The sentence indicates types of rock that some scientists study; it doesn’t identify what type of scientist Chaudhuri is. Choice C is incorrect. While the sentence states that some scientists study sedimentary rocks, it doesn’t identify Chaudhuri as this type of scientist."
+  },
+  {
+    "id": 14,
+    "question": "While researching a topic, a student has taken the following notes: The engineer Robert Fulton designed the Clermont steamboat in 1807. He designed it in New York City. Clermont was the world’s first commercially successful steamboat. The city of Fulton, Missouri, is named after Robert Fulton. New York City’s Fulton Street is named after him. The student wants to indicate how Fulton, Missouri, got its name. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Fulton, Missouri, shares its name with Fulton Street in New York City.",
+      "B": "Fulton Street is in New York City, where the steamboat Clermont was designed in 1807.",
+      "C": "Designed in 1807 in New York City, Clermont was the first commercially successful steamboat.",
+      "D": "Fulton, Missouri, is named after Robert Fulton, designer of the first commercially successful steamboat."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence indicates how Fulton, Missouri, got its name, noting that the city was named after the designer of the first commercially successful steamboat, Robert Fulton. Choice A is incorrect. The sentence indicates that Fulton, Missouri, has the same name as a street in New York City; it doesn’t indicate how the city of Fulton got its name. Choice B is incorrect. The sentence indicates that Fulton Street is in New York City; it doesn’t indicate how Fulton, Missouri, got its name. Choice C is incorrect. The sentence provides details about Fulton’s steamboat; it doesn’t indicate how Fulton, Missouri, got its name."
+  },
+  {
+    "id": 15,
+    "question": "While researching a topic, a student has taken the following notes: Some atoms contain an excess of neutrons. Often, these neutrons form a “skin” on the atom’s surface. An atom of lead-208 has a neutron skin. The thickness of its neutron skin is approximately 0.28 trillionths of a millimeter. The student wants to emphasize the thickness of lead-208’s neutron skin. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The neutron skin surrounding an atom of lead-208 measures about 0.28 trillionths of a millimeter.",
+      "B": "Atoms with excess neutrons will often acquire a neutron skin.",
+      "C": "An atom of lead-208, like some other atoms, is surrounded by a neutron skin.",
+      "D": "Neutrons surround the surface of an atom of lead-208."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence emphasizes the thickness of lead-208’s neutron skin, noting that it is about 0.28 trillionths of a millimeter thick. Choice B is incorrect. The sentence makes a generalization about atoms, stating that atoms with excess neutrons will often acquire a neutron skin; it doesn’t emphasize the thickness of lead-208’s neutron skin. Choice C is incorrect. The sentence states that lead-208 has a neutron skin; it doesn’t emphasize the thickness of that skin. Choice D is incorrect. The sentence indicates that lead-208 is surrounded by neutrons; it doesn’t emphasize the thickness of lead-208’s neutron skin."
+  },
+  {
+    "id": 16,
+    "question": "While researching a topic, a student has taken the following notes: Komodo dragons are the largest lizards in the world. They live on four islands in Komodo National Park, Indonesia. The park has a total of twenty-nine islands. The student wants to emphasize how many islands in Komodo National Park have Komodo dragons living on them. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Komodo dragons, the world’s largest lizards, live on islands in Komodo National Park, Indonesia.",
+      "B": "The largest lizards in the world are found in Komodo National Park.",
+      "C": "Only four of the twenty-nine islands in Komodo National Park have Komodo dragons living on them.",
+      "D": "There are twenty-nine islands in Indonesia’s Komodo National Park."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence emphasizes the number of islands in Komodo National Park that have Komodo dragons living on them, noting that four of the park’s twenty-nine islands have Komodo dragons. Choice A is incorrect. While the sentence does explain that Komodo dragons live on the islands of Komodo National Park, it doesn’t emphasize how many of those islands Komodo dragons live on. Choice B is incorrect. The sentence explains that Komodo National Park contains the world’s largest lizards; it doesn’t identify these lizards as Komodo dragons or emphasize how many of the park’s islands the lizards live on. Choice D is incorrect. The sentence specifies the total number of islands in Komodo National Park; it doesn’t emphasize how many of those islands have Komodo dragons."
+  },
+  {
+    "id": 17,
+    "question": "While researching a topic, a student has taken the following notes: The tundra is a type of environment characterized by especially harsh winter conditions. Winter temperatures in the tundra average a frigid −30 degrees Fahrenheit. Animals that have adapted to these conditions can survive tundra winters. During the tundra’s short growing season, average temperatures can reach a relatively mild 54 degrees Fahrenheit. Around 1,700 different kinds of plants are able to grow in the tundra. The student wants to emphasize how harsh the conditions can be in the tundra. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Winters in the tundra are especially harsh, with temperatures averaging a frigid −30 degrees Fahrenheit.",
+      "B": "Animals that have adapted to harsh winter conditions can survive tundra winters.",
+      "C": "There are around 1,700 different kinds of plants that can live in the tundra, where average temperatures can reach a mild 54 degrees Fahrenheit.",
+      "D": "Along with animals that have adapted to the tundra’s conditions, around 1,700 different kinds of plants can live in the tundra."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence emphasizes how harsh the conditions in the tundra can be, noting that the winters are especially harsh and describing the average temperatures as “frigid.” Choice B is incorrect because the sentence explains that some animals can survive harsh tundra winters; it doesn’t emphasize how harsh the conditions can be. Choice C is incorrect because the sentence specifies how many different kinds of plants can live in the tundra; it doesn’t emphasize how harsh the conditions in the tundra can be. Choice D is incorrect because the sentence explains that both plants and animals can survive in the tundra; it doesn’t emphasize how harsh the conditions in the tundra can be."
+  },
+  {
+    "id": 18,
+    "question": "While researching a topic, a student has taken the following notes: The Seikan Tunnel is a rail tunnel in Japan. It connects the island of Honshu to the island of Hokkaido. It is roughly 33 miles long. The Channel Tunnel is a rail tunnel in Europe. It connects Folkestone, England, to Coquelles, France. It is about 31 miles long. The student wants to compare the lengths of the two rail tunnels. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Some of the world’s rail tunnels, including one tunnel that extends from Folkestone, England, to Coquelles, France, are longer than 30 miles.",
+      "B": "The Seikan Tunnel is roughly 33 miles long, while the slightly shorter Channel Tunnel is about 31 miles long.",
+      "C": "The Seikan Tunnel, which is roughly 33 miles long, connects the Japanese islands of Honshu and Hokkaido.",
+      "D": "Both the Seikan Tunnel, which is located in Japan, and the Channel Tunnel, which is located in Europe, are examples of rail tunnels."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence compares the lengths of the two rail tunnels, noting that the Channel Tunnel (about 31 miles long) is slightly shorter than the Seikan Tunnel (roughly 33 miles long). Choice A is incorrect. The sentence makes a generalization about the length of some rail tunnels; it doesn’t compare the lengths of the two rail tunnels. Choice C is incorrect. The sentence describes a single rail tunnel; it doesn’t compare the lengths of the two rail tunnels. Choice D is incorrect. While the sentence mentions the two rail tunnels, it doesn’t compare their lengths."
+  },
+  {
+    "id": 19,
+    "question": "While researching a topic, a student has taken the following notes: Georeferencing is the process of assigning geographic coordinates to an image. This process enables mapping software to place the image in its real-world location. A 2017 project by Tania López Marrero and colleagues georeferenced a set of aerial photographs of Puerto Rico’s coastline taken in 1930. These photographs are the earliest known aerial photographs of Puerto Rico. López Marrero’s project provided data that can help researchers analyze changes in Puerto Rico’s coastline. The student wants to define the term “georeferencing.” Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "A 2017 project by Tania López Marrero and colleagues assigned geographic coordinates to photographs of Puerto Rico’s coastline and also used georeferencing.",
+      "B": "Tania López Marrero and colleagues used georeferencing in their analysis of the earliest known aerial photographs of Puerto Rico.",
+      "C": "Georeferenced aerial photographs from 1930 can help researchers analyze changes in Puerto Rico’s coastline.",
+      "D": "Georeferencing is the process of assigning geographic coordinates to an image so that mapping software can place it in its real-world location."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence defines the term \"georeferencing,\" stating that it is the process of assigning geographic coordinates to an image so that mapping software can place the image in its real-world location. Choice A is incorrect. The sentence describes López Marrero’s team’s 2017 project; it doesn’t provide a definition of the term \"georeferencing.\" Moreover, it misrepresents the information in the notes by characterizing the team’s assignment of geographic coordinates to photographs as a process distinct from georeferencing. Choice B is incorrect. The sentence states that López Marrero’s team used georeferencing, but it doesn’t provide a definition of the term. Choice C is incorrect. The sentence explains why a particular group of georeferenced aerial photographs is potentially useful for researchers; it doesn’t provide a definition of the term \"georeferencing.\""
+  },
+  {
+    "id": 20,
+    "question": "While researching a topic, a student has taken the following notes: On January 3, 1959, Alaska became the 49th state to join the US. On August 21, 1959, Hawaii became the 50th state to join the US. A new 50-star US flag was unveiled the same day. The student wants to emphasize the order in which Alaska and Hawaii became US states. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Alaska, the 49th US state, became a state several months before Hawaii, the 50th state, did.",
+      "B": "On August 21, 1959, a new 50-star US flag was unveiled.",
+      "C": "The 49th and 50th states to join the US did so in the same year.",
+      "D": "The same day that Hawaii became a US state—August 21, 1959—a new US flag was unveiled."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence emphasizes the order in which Alaska and Hawaii became US states, noting that Alaska became a US state several months before Hawaii did. Choice B is incorrect. The sentence specifies when the 50-star US flag was unveiled; it doesn’t emphasize the order in which Alaska and Hawaii became US states. Choice C is incorrect. While the sentence indicates that the 49th and 50th states became US states in the same year, it doesn’t identify which state was the 49th and which was the 50th; as a result, it doesn’t emphasize the order in which Alaska and Hawaii became states. Choice D is incorrect. The sentence indicates that a new US flag was unveiled when Hawaii became a US state; it doesn’t emphasize the order in which Alaska and Hawaii became states."
+  },
+  {
+    "id": 21,
+    "question": "While researching a topic, a student has taken the following notes: NASA uses rovers, large remote vehicles with wheels, to explore the surface of Mars. NASA’s rovers can’t explore regions inaccessible to wheeled vehicles. Rovers are also heavy, making them difficult to land on the planet’s surface. Microprobes, robotic probes that weigh as little as 50 milligrams, could be deployed virtually anywhere on the surface of Mars. Microprobes have been proposed as an alternative to rovers. The student wants to explain an advantage of microprobes. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Despite being heavy, NASA’s rovers can land successfully on the surface of Mars.",
+      "B": "Microprobes, which weigh as little as 50 milligrams, could explore areas of Mars that are inaccessible to NASA’s heavy, wheeled rovers.",
+      "C": "NASA currently uses its rovers on Mars, but microprobes have been proposed as an alternative.",
+      "D": "Though they are different sizes, both microprobes and rovers can be used to explore the surface of Mars."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence explains an advantage of microprobes, noting that because microprobes weigh as little as 50 milligrams, they can explore areas inaccessible to rovers. Choice A is incorrect. The sentence indicates that rovers can land successfully on Mars despite their weight; it doesn’t explain an advantage of microprobes. Choice C is incorrect. While the sentence mentions that microprobes have been proposed as an alternative to rovers, it doesn’t explain an advantage of microprobes. Choice D is incorrect. The sentence emphasizes a similarity between microprobes and rovers; it doesn’t explain an advantage of microprobes."
+  },
+  {
+    "id": 22,
+    "question": "While researching a topic, a student has taken the following notes: The Sasanian Empire lasted about 400 years (AD 224 to AD 651). The Sasanians controlled an area spanning 1.4 million square miles. This area included present-day Iran and Iraq. The empire’s capital was the ancient city of Ctesiphon. Ctesiphon was located near present-day Baghdad, Iraq. The student wants to specify the location of Ctesiphon. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The Sasanian Empire began in AD 224 and ended in AD 651.",
+      "B": "The capital of the Sasanian Empire, which spanned 1.4 million square miles, was Ctesiphon.",
+      "C": "The Sasanians controlled an area of 1.4 million square miles, including present-day Iran and Iraq.",
+      "D": "Ctesiphon, the capital of the Sasanian Empire, was located near present-day Baghdad, Iraq."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence specifies the location of Ctesiphon, noting that it was located near present-day Baghdad, Iraq. Choice A is incorrect because the sentence explains when the Sasanian Empire began and ended; it doesn’t specify the location of Ctesiphon. Choice B is incorrect because the sentence emphasizes that Ctesiphon was the capital of the Sasanian Empire; it doesn’t specify Ctesiphon’s location. Choice C is incorrect because it emphasizes the size of the Sasanian Empire; it doesn’t specify the location of Ctesiphon."
+  },
+  {
+    "id": 23,
+    "question": "While researching a topic, a student has taken the following notes: Samuel Delany is a US writer known for his science fiction. Delany’s science fiction novel Babel-17 was published in 1966. The novel won a Nebula Award in 1967. The Nebula Awards are given each year to the best works of science fiction published in the US. The student wants to indicate the title of a novel that won a Nebula Award. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Babel-17, by Samuel Delany, won a Nebula Award in 1967.",
+      "B": "Samuel Delany published a science fiction novel in 1966.",
+      "C": "Samuel Delany is an award-winning US writer known for his science fiction.",
+      "D": "One of Samuel Delany’s novels was among the best works of science fiction published in the US."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence indicates the title of a novel that won a Nebula Award, noting that Babel-17 by Samuel Delany won the award in 1967. Choice B is incorrect because the sentence identifies the year that Samuel Delany published a science fiction novel; it doesn’t indicate the novel’s title or that it won a Nebula Award. Choice C is incorrect because the sentence provides an introduction of Samuel Delany; it doesn’t indicate the title of a novel that has won a Nebula Award. Choice D is incorrect because the sentence indicates that one of Samuel Delany’s novels met the qualification for a Nebula Award; it doesn’t indicate the novel’s title or that it won an award."
+  },
+  {
+    "id": 24,
+    "question": "While researching a topic, a student has taken the following notes: Ibn Sina was a Persian philosopher and physician. His book The Canon of Medicine recorded the most advanced medical knowledge of his time. It was published in the year 1025 CE. It was used as a medical textbook in Middle Eastern and European universities for centuries. The student wants to identify the year that The Canon of Medicine was published. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Ibn Sina’s book The Canon of Medicine was published in the year 1025 CE.",
+      "B": "A Persian philosopher and physician wrote a medical textbook called The Canon of Medicine.",
+      "C": "The Canon of Medicine was a medical textbook used by Middle Eastern and European universities for centuries.",
+      "D": "Ibn Sina recorded the most advanced medical knowledge of his time in his book The Canon of Medicine."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence identifies the year in which the book was published. Choice B is incorrect. While the sentence provides information about the book’s author, it doesn’t identify the year in which the book was published. Choice C is incorrect. While the sentence provides information about the book’s historical use, it doesn’t identify the year in which the book was published. Choice D is incorrect. While the sentence provides information about the book’s contents, it doesn’t identify the year in which the book was published."
+  },
+  {
+    "id": 25,
+    "question": "While researching a topic, a student has taken the following notes: Spiders are classified as arachnids. There are other types of arachnids besides spiders. Harvestmen are a type of arachnid. Harvestmen are also known as daddy longlegs. Harvestmen are not spiders. The student wants to explain what harvestmen are. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Spiders, also known as harvestmen, are classified as arachnids.",
+      "B": "There are other types of arachnids besides spiders, such as daddy longlegs.",
+      "C": "The spiders known as daddy longlegs are classified as harvestmen.",
+      "D": "Harvestmen, also known as daddy longlegs, are arachnids but not spiders."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence explains what harvestmen are, noting that they are also known as daddy longlegs and that they are arachnids but not spiders. Choice A is incorrect. While the sentence does mention harvestmen, its main focus is on spiders. Moreover, it misrepresents information from the notes: harvestmen are not spiders. Choice B is incorrect. The sentence focuses on the broader point that arachnids include more than just spiders; it doesn’t mention harvestmen directly or explain what they are. Choice C is incorrect. The sentence focuses on how daddy longlegs are classified; it doesn’t explain what harvestmen are. Moreover, it misrepresents information from the notes. The notes indicate that harvestmen are not spiders, and “harvestmen” is presented in the notes as an alternate name for “daddy longlegs,” not a category in which daddy longlegs belong."
+  },
+  {
+    "id": 26,
+    "question": "While researching a topic, a student has taken the following notes: Chromosomes are cellular structures that contain genes. Genes carry critical instructions for determining an organism’s physical traits. Members of the same species typically have the same number of chromosomes. The pineapple (Ananas comosus) and the melon (Cucumis melo) are species of fruits. The pineapple has fifty chromosomes. The melon has twenty-four chromosomes. The student wants to specify how many chromosomes the pineapple has. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The pineapple’s chromosomes contain genes, which are critical to determining an organism’s physical traits.",
+      "B": "The pineapple (Ananas comosus) has fifty chromosomes.",
+      "C": "The pineapple (Ananas comosus) and the melon (Cucumis melo) both have chromosomes, but the pineapple has more than the melon does.",
+      "D": "The melon, a species of fruit, has twenty-four structures called chromosomes."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence directly specifies how many chromosomes the pineapple has, as indicated in the notes: fifty. Choice A is incorrect. While the sentence mentions the pineapple’s chromosomes, it doesn’t specify how many it has. Choice C is incorrect. The sentence indicates that the pineapple has more chromosomes than the melon; it doesn’t specify the exact number of chromosomes the pineapple has. Choice D is incorrect. The sentence specifies how many chromosomes the melon has, not how many the pineapple has."
+  },
+  {
+    "id": 27,
+    "question": "While researching a topic, a student has taken the following notes: The green iguana is a species of reptile. It can be found in Central America and Brazil. The green iguana primarily eats leaves and fruit. It has an average length of 4.8 feet. The student wants to specify the average length of the green iguana. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The green iguana can be found in Central America.",
+      "B": "The green iguana has an average length of 4.8 feet.",
+      "C": "One species of reptile found in Brazil primarily eats leaves and fruit.",
+      "D": "The green iguana is a reptile that primarily eats leaves and fruit."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence specifies the average length of the green iguana: 4.8 feet. Choice A is incorrect. While the sentence provides information about the green iguana, it doesn’t specify the green iguana’s average length. Choice C is incorrect. The sentence describes the diet of a species of reptile in Brazil; it doesn’t specify the green iguana’s average length. Choice D is incorrect. While the sentence provides information about the green iguana, it doesn’t specify the green iguana’s average length."
+  },
+  {
+    "id": 28,
+    "question": "While researching a topic, a student has taken the following notes: Jon Ching is a Los Angeles-based painter. He uses the term “flauna” to describe the plant-animal hybrids that he depicts in his surreal paintings. “Flauna” is a combination of the words “flora” and “fauna.” His painting Nectar depicts a parrot with leaves for feathers. His painting Primaveral depicts a snow leopard whose fur sprouts flowers. The student wants to provide an explanation and example of “flauna.” Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The term “flauna,” used by Los Angeles-based painter Jon Ching, is a combination of the words “flora” and “fauna.”",
+      "B": "Jon Ching uses the term “flauna,” a combination of the words “flora” and “fauna,” to describe the subjects of his surreal paintings: plant-animal hybrids such as a parrot with leaves for feathers.",
+      "C": "Jon Ching, who created Nectar, refers to the subjects of his paintings as “flauna.”",
+      "D": "The subjects of Nectar and Primaveral are types of “flauna,” a term that the paintings’ creator, Jon Ching, uses when describing his surreal artworks."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it provides both an explanation and an example of “flauna.” The sentence explains that flauna, a combination of the words “flora” and “fauna,” is a term used by Jon Ching to describe the plant-animal hybrids in his paintings. The sentence also mentions an example of Ching’s flauna: a parrot with leaves for feathers. Choice A is incorrect. While the sentence partially explains what “flauna” is, it doesn’t provide a full explanation or specific example of Ching’s flauna. Choice C is incorrect. While the sentence partially explains what “flauna” is and includes a title of a Ching painting, it doesn’t provide a full explanation or specific example of Ching’s flauna. Choice D is incorrect. While the sentence partially explains what “flauna” is and includes the titles of two Ching paintings, it doesn’t provide a full explanation of Ching’s flauna."
+  },
+  {
+    "id": 29,
+    "question": "While researching a topic, a student has taken the following notes: The painter Frida Kahlo is one of the most influential artists of the twentieth century. She was born in Coyoacán, Mexico, in 1907. She is best known for her vivid and richly symbolic self-portraits. The Two Fridas (1939) features two versions of Kahlo sitting together. One version wears a European-style dress and the other a traditional Tehuana dress. The student wants to introduce Kahlo to an audience unfamiliar with the artist. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Known for being vivid and richly symbolic, Frida Kahlo’s self-portraits include The Two Fridas (1939).",
+      "B": "The 1939 painting The Two Fridas is one example of a self-portrait by Frida Kahlo.",
+      "C": "One painting by Frida Kahlo features two versions of herself, with one version wearing a European-style dress and the other a traditional Tehuana dress.",
+      "D": "One of the most influential artists of the twentieth century, Mexican painter Frida Kahlo is best known for her self-portraits, which are vivid and richly symbolic."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. By identifying Kahlo as an influential artist from Mexico, and by describing the work she’s best known for, this choice provides the background information necessary to introduce Kahlo to an unfamiliar audience. Choice A is incorrect. This choice doesn’t effectively introduce Kahlo. It doesn’t include any background information about who Kahlo is or where she’s from. It simply identifies one of her paintings. Choice B is incorrect. This choice doesn’t effectively introduce Kahlo. It doesn’t include any background information about who Kahlo is or where she’s from. It simply identifies one of her paintings. Choice C is incorrect. This choice doesn’t effectively introduce Kahlo. It doesn’t include any background information about who Kahlo is or where she’s from. Instead, it describes one of her paintings in detail."
+  },
+  {
+    "id": 30,
+    "question": "While researching a topic, a student has taken the following notes: Bioluminescence is the emission of light by living organisms. This light is produced by chemical reactions in organisms’ cells. Jellyfish emit flashes of blue light. This behavior serves to startle predators. Black dragonfish emit a steady red light. This behavior helps them locate prey in deep waters. The student wants to emphasize a difference between the behavior of jellyfish and that of black dragonfish. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Both jellyfish and black dragonfish are organisms that emit light, which is produced by chemical reactions in these organisms’ cells.",
+      "B": "Black dragonfish emit a steady red light, which helps them locate prey in deep waters.",
+      "C": "Bioluminescence, the emission of light by living organisms, results from chemical reactions in organisms’ cells.",
+      "D": "Jellyfish emit light to startle predators, whereas black dragonfish do so to locate prey."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence emphasizes a difference between the behavior of jellyfish and that of black dragonfish, noting that jellyfish and black dragonfish emit light as part of different behaviors (protection and predation, respectively). Choice A is incorrect. The sentence emphasizes a similarity between jellyfish and black dragonfish; it doesn’t emphasize a difference between the behavior of the two animals. Choice B is incorrect. The sentence emphasizes the type of bioluminescence exhibited by black dragonfish, noting that it’s used in predation; it doesn’t emphasize a difference between the behavior of the two animals. Choice C is incorrect. The sentence defines bioluminescence and explains how it works; the sentence doesn’t mention either animal or emphasize a difference between them."
+  },
+  {
+    "id": 31,
+    "question": "While researching a topic, a student has taken the following notes: “Organ2 /ASLSP (As Slow as Possible)” is a musical piece by avant-garde composer John Cage. A specially designed automated organ in St. Burchardi Church in Halberstadt, Germany, began playing the piece in 2001. It is scheduled to stop playing the piece in 2640. The performance will last 639 years. It will be the longest continuous musical performance in history. The student wants to indicate how long John Cage’s musical piece will last. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "John Cage is the composer of the musical piece “Organ2 /ASLSP (As Slow as Possible).”",
+      "B": "“Organ2 /ASLSP (As Slow as Possible)” is a musical piece currently being played in St. Burchardi Church in Halberstadt, Germany.",
+      "C": "Lasting 639 years, John Cage’s musical piece will be the longest continuous musical performance in history.",
+      "D": "An organ in St. Burchardi Church in Halberstadt, Germany, began playing a musical piece by avant-garde composer John Cage."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence indicates how long John Cage’s musical piece will last, noting that it will last 639 years and be the longest continuous musical performance in history. Choice A is incorrect. The sentence identifies John Cage as the composer and provides the name of the musical piece; it doesn’t indicate how long the piece will last. Choice B is incorrect. The sentence provides the name of the musical piece and where it is currently being played; it doesn’t indicate how long the piece will last. Choice D is incorrect. The sentence mentions where the musical piece is being played and identifies John Cage as the composer; it doesn’t indicate how long the piece will last."
+  },
+  {
+    "id": 32,
+    "question": "While researching a topic, a student has taken the following notes: Miguel Luciano is a multimedia visual artist. One of his sculptures is Double Phantom/EntroP.R. (2017). The work consists of two red Schwinn Phantom bicycles that he fused together. The bicycles face opposite directions. The bicycles share the same rear wheel. The student wants to describe how the bicycles in Double Phantom/EntroP.R. are fused together. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "To create the sculpture Double Phantom/EntroP.R., Miguel Luciano fused together two Schwinn Phantom bicycles.",
+      "B": "There are two red Schwinn Phantom bicycles in the sculpture Double Phantom/EntroP.R.",
+      "C": "The two red bicycles in Double Phantom/EntroP.R. are fused together so that they share the same rear wheel while facing opposite directions.",
+      "D": "Double Phantom/EntroP.R. is a sculpture created by multimedia visual artist Miguel Luciano."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence correctly describes how the bicycles in the sculpture are fused together: they share the same rear wheel while facing opposite directions. Choice A is incorrect. The sentence states that the bicycles are fused together but doesn’t describe how they are fused. Choice B is incorrect. The sentence states that there are two bicycles in the sculpture without indicating that they are fused together or describing how they are fused. Choice D is incorrect. It identifies the artist who created the sculpture but doesn’t describe how the bicycles are fused together."
+  },
+  {
+    "id": 33,
+    "question": "While researching a topic, a student has taken the following notes: In 1897, twenty Black US Army infantrymen rode bicycles from Montana to Missouri. The 1,900-mile journey took forty-one days. The goal was to test the idea of forming a military bicycle corps. In 2022, Erick Cedeño, a Black long-distance cyclist, reenacted the journey. Cedeño wanted to honor the infantrymen on the journey’s 125th anniversary. The student wants to emphasize how far the infantrymen traveled. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The US infantrymen rode their bicycles from Montana to Missouri—traveling a total of 1,900 miles.",
+      "B": "The 125th anniversary of the infantrymen’s journey was in 2022.",
+      "C": "The goal of the 1897 journey was to test the idea of forming a military bicycle corps.",
+      "D": "Over a century later, Erick Cedeño honored the infantrymen by reenacting their 1897 journey."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence emphasizes how far the infantrymen traveled, indicating that they rode their bicycles from Montana to Missouri, a total of 1,900 miles. Choice B is incorrect because the sentence mentions when the anniversary of the journey occurred; it doesn’t emphasize how far the infantrymen traveled. Choice C is incorrect because the sentence discusses the goal of the journey; it doesn’t emphasize how far the infantrymen traveled. Choice D is incorrect because the sentence notes that Cedeño honored the infantrymen by reenacting their journey; it doesn’t emphasize how far the infantrymen traveled."
+  },
+  {
+    "id": 34,
+    "question": "While researching a topic, a student has taken the following notes: Certhidea olivacea is a perching bird that can be found on the Galápagos Island of Pinzón. Creagrus furcatus is a seabird that can be found on the Galápagos Island of Darwin. Conservation organizations evaluate the risk that species will become extinct in the near future. C. olivacea faces a high risk of extinction. C. furcatus faces little risk of becoming extinct in the near future. The student wants to compare the extinction risk faced by C. olivacea with that faced by C. furcatus. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "According to conservation organizations, C. olivacea has a higher risk of becoming extinct in the near future than C. furcatus.",
+      "B": "C. furcatus faces a high risk of extinction, while C. olivacea faces little risk of becoming extinct in the near future.",
+      "C": "olivacea faces a high risk of extinction. C. furcatus faces little risk of becoming extinct in the near future. The student wants to compare the extinction risk faced by C. olivacea with that faced by C. furcatus. Which choice most effectively uses relevant information from the notes to accomplish this goal? Answer A. According to conservation organizations, C. olivacea has a higher risk of becoming extinct in the near future than C. furcatus. B. C. furcatus faces a high risk of extinction, while C. olivacea faces little risk of becoming extinct in the near future. C. Conservation organizations have evaluated both C. furcatus’s and C. olivacea’s risk of becoming extinct in the near future.",
+      "D": "C. olivacea is a perching bird that faces a high risk of extinction."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence compares the extinction risks of the two species, noting that C. olivacea has a higher risk of becoming extinct in the near future than C. furcatus. Choice B is incorrect. While the sentence does compare the extinction risks of the two species, it misrepresents information from the notes; C. olivacea faces a higher risk of becoming extinct in the near future than C. furcatus, not the other way around. Choice C is incorrect. While the sentence mentions that conservation organizations have evaluated both species for extinction risk, it doesn’t compare the extinction risks of the two species. Choice D is incorrect. While the sentence states that C. olivacea faces a high risk of extinction, it doesn’t mention C. furcatus or compare the extinction risks of the two species."
+  },
+  {
+    "id": 35,
+    "question": "While researching a topic, a student has taken the following notes: The Royal Alcázar of Seville is a historic royal palace in Andalucía, Spain. The palace is famous for its intricate tilework. The palace features majolica and arista tiles. In the majolica style, designs are painted directly on the ceramic tiles. In the arista style, designs are stamped into the ceramic tiles. The student wants to contrast the two styles of tiles. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Tiles in the majolica and arista styles can be found in the Royal Alcázar of Seville in Andalucía, Spain.",
+      "B": "Featuring tiles in the majolica and arista styles, the Royal Alcázar of Seville in Spain is famous for its intricate tilework.",
+      "C": "In the arista style, designs are stamped into the ceramic tiles, whereas in the majolica style, the designs are painted directly on them.",
+      "D": "Among the famous tilework of the Royal Alcázar of Seville are majolica style tiles, made by painting designs directly on the ceramic tiles."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence contrasts the two styles of tiles, noting that tiles in the arista style have designs stamped into them, whereas tiles in the majolica style have designs painted directly on them. Choice A is incorrect because the sentence indicates that the two styles of tile can be found in the same location; it doesn’t contrast the two styles of tile. Choice B is incorrect because the sentence indicates that the Royal Alcázar of Seville features tiles in both the majolica and arista styles; it doesn’t contrast the two styles of tile. Choice D is incorrect because the sentence indicates that the tilework of the Royal Alcázar of Seville includes tiles in the majolica style; it doesn’t contrast tiles in the majolica style with tiles in the arista style."
+  },
+  {
+    "id": 36,
+    "question": "While researching a topic, a student has taken the following notes: “Raymond’s Run” is a short story. It was written by African American author Toni Cade Bambara. It was first published in her book Gorilla, My Love in 1972. It is told from a first person perspective. It takes place in Harlem. The student wants to indicate where the short story takes place. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "“Raymond’s Run” takes place in Harlem.",
+      "B": "“Raymond’s Run” was published in Gorilla, My Love.",
+      "C": "“Raymond’s Run” is told from a first person perspective.",
+      "D": "“Raymond’s Run” was written by Toni Cade Bambara."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence indicates where \"Raymond’s Run\" takes place, stating that it takes place in Harlem. Choice B is incorrect. The sentence identifies the book in which the story \"Raymond’s Run\" was published; it doesn’t indicate where the story takes place. Choice C is incorrect. The sentence indicates the point of view used in \"Raymond’s Run\"; it doesn’t indicate where the story takes place. Choice D is incorrect. The sentence identifies the author of \"Raymond’s Run\"; it doesn’t indicate where the story takes place."
+  },
+  {
+    "id": 37,
+    "question": "While researching a topic, a student has taken the following notes: The calendar used by most of the world (the Gregorian calendar) has 365 days. Because 365 days can’t be divided evenly by 7 (the number of days in a week), calendar dates fall on a different day of the week each year. The Hanke-Henry permanent calendar, developed as an alternative to the Gregorian calendar, has 364 days. Because 364 can be divided evenly by 7, calendar dates fall on the same day of the week each year, which supports more predictable scheduling. The student wants to explain an advantage of the Hanke-Henry calendar. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The Gregorian calendar has 365 days, which is one day longer than the Hanke-Henry permanent calendar.",
+      "B": "Adopting the Hanke-Henry permanent calendar would help solve a problem with the Gregorian calendar.",
+      "C": "Designed so calendar dates would occur on the same day of the week each year, the Hanke-Henry calendar supports more predictable scheduling than does the Gregorian calendar.",
+      "D": "The Hanke-Henry permanent calendar was developed as an alternative to the Gregorian calendar, which is currently the most-used calendar in the world."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence explains an advantage of the Hanke-Henry calendar, noting that it supports more predictable scheduling than does the Gregorian calendar and describing how it does so (by having calendar dates occur on the same day each year). Choice A is incorrect. The sentence compares the number of days in the Gregorian and Hanke-Henry calendars; it doesn’t explain an advantage of the Hanke-Henry calendar. Choice B is incorrect. While the sentence refers to a possible reason to adopt the Hanke-Henry calendar—that doing so would help solve a problem with the Gregorian calendar—it doesn’t identify the problem or the solution and thus doesn’t explain the advantage of the Hanke-Henry calendar. Choice D is incorrect. The sentence describes the origins of the Hanke-Henry calendar; it doesn’t explain an advantage of it."
+  }
+];
+ 
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (typeof saveScoreToFirebase === 'function') {
+                saveScoreToFirebase(currentScore, answeredCount);
+            }
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+</body>
+</html>
