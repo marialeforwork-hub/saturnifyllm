@@ -236,7 +236,7 @@ def normalize_question(question, index: int, source_path: Path, output_path: Pat
 def choose_question_range(source_path: Path, questions: list, subject: str, args) -> list[tuple[int, object]]:
     first = args.start or 1
     last = args.end or len(questions)
-    if not args.start and not args.end and not args.all_questions:
+    if not args.start and not args.end and not args.all_questions and subject in {"verbal", "math"}:
         if source_path.stem.upper().startswith("ELITEX") and len(questions) == 98:
             first, last = (1, 54) if subject == "verbal" else (55, 98)
     if first < 1 or last < first:
@@ -292,6 +292,46 @@ def run_cli(subject: str, argv=None) -> int:
             output_path = args.output or source_path.with_name(f"{source_path.stem}.{subject}.json")
             count = export_source(source_path, subject, output_path, args)
             print(f"{source_path} -> {output_path} ({count} questions)")
+    except (OSError, ValueError, RuntimeError) as error:
+        print(f"Export failed: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+def infer_subject(source_path: Path) -> str:
+    name = source_path.stem.lower().replace("_", " ").replace("-", " ")
+    if re.search(r"\belite\s*x?\s*\d+\b", name):
+        return "mixed"
+    if re.search(r"word in context|\bwic\b|stunote|rhetorical|transitions?|boundaries|form structure|reading and writing|verbal|english", name):
+        return "verbal"
+    if re.search(r"math|arithmetic|function|circular|geometry|\borxan\b|sat math", name):
+        return "math"
+    return "mixed"
+
+
+def run_all_cli(argv=None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Export SATurnify questions from HTML, PDF scans, or images into JSON."
+    )
+    parser.add_argument("sources", nargs="+", type=Path, help="HTML, PDF, or image input paths")
+    parser.add_argument("-o", "--output", type=Path, help="Output JSON path (only for one input file)")
+    parser.add_argument("--subject", choices=("auto", "verbal", "math", "mixed"), default="auto", help="Question set type; auto uses the filename")
+    parser.add_argument("--start", type=int, help="First source question number to include (1-based)")
+    parser.add_argument("--end", type=int, help="Last source question number to include (inclusive)")
+    parser.add_argument("--all-questions", action="store_true", help="Disable automatic Elite question-range splitting")
+    args = parser.parse_args(argv)
+
+    if args.output and len(args.sources) != 1:
+        parser.error("--output can only be used with one source file")
+
+    try:
+        for source_path in args.sources:
+            if not source_path.is_file():
+                raise FileNotFoundError(f"Input file not found: {source_path}")
+            subject = infer_subject(source_path) if args.subject == "auto" else args.subject
+            output_path = args.output or source_path.with_name(f"{source_path.stem}.{subject}.json")
+            count = export_source(source_path, subject, output_path, args)
+            print(f"{source_path} -> {output_path} ({count} questions, subject={subject})")
     except (OSError, ValueError, RuntimeError) as error:
         print(f"Export failed: {error}", file=sys.stderr)
         return 1
