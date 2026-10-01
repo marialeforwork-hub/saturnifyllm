@@ -29,13 +29,6 @@
         const blocks = getQuestionBlocks();
         const buttons = getNavigatorButtons();
 
-        buttons.forEach(button => {
-            button.classList.remove('nav-answered', 'nav-correct', 'nav-wrong', 'is-answered', 'answer-correct', 'answer-wrong');
-            button.style.background = '';
-            button.style.color = '';
-            button.style.borderColor = '';
-        });
-
         blocks.forEach((block, index) => {
             const button = getNavigatorButtonForBlock(block, index, buttons);
             if (!button) return;
