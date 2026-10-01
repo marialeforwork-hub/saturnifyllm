@@ -11,6 +11,255 @@
     --sat-shadow: 0 -4px 15px rgba(77, 83, 162, .14);
 }
 
+/* Shared brand header for standalone quiz pages. */
+.container::before {
+    display: block;
+    width: clamp(8rem, 18vw, 11rem);
+    height: clamp(8rem, 18vw, 11rem);
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    background: #f7c5d1 url('logo.png') center / contain no-repeat;
+    content: '';
+}
+
+.container > h1,
+.container > p { text-align: center !important; }
+
+.site-brand {
+    width: clamp(7rem, 12vw, 9rem);
+    margin: 0 auto .75rem;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f7c5d1;
+}
+
+.site-brand img { display: block; width: 100%; height: auto; }
+
+.quiz-note-toolbar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .45rem;
+    margin-bottom: .6rem;
+}
+
+.question-note-control,
+.question-note-hide {
+    border: 1px solid #c8ddec;
+    border-radius: .55rem;
+    background: #eef8fd;
+    color: #356f9f;
+    cursor: pointer;
+    font: 700 .72rem 'DM Mono', Consolas, monospace;
+}
+
+.question-note-control { padding: .4rem .7rem; }
+.question-note-control:hover,
+.question-note-hide:hover { background: #d9eef8; }
+.question-note-control[aria-expanded="true"] { background: #c9e8f5; }
+
+.question-note-panel {
+    display: flex;
+    align-items: flex-start;
+    gap: .55rem;
+    width: min(100%, 34rem);
+    padding: .65rem;
+    border: 1px solid #c8ddec;
+    border-radius: .65rem;
+    background: #f5fbfe;
+}
+
+.question-note-panel[hidden] { display: none; }
+
+.question-note-textarea {
+    width: 100%;
+    min-height: 4rem;
+    resize: vertical;
+    padding: .6rem .7rem;
+    border: 1px solid #c8ddec;
+    border-radius: .45rem;
+    background: #fff;
+    color: #35516a;
+    font: 500 .78rem 'Nunito', sans-serif;
+}
+
+.question-note-textarea:focus,
+.question-note-control:focus-visible,
+.question-note-hide:focus-visible {
+    outline: 3px solid rgba(169, 229, 242, .8);
+    outline-offset: 2px;
+}
+
+.question-note-hide {
+    flex: 0 0 auto;
+    padding: .45rem .6rem;
+    white-space: nowrap;
+}
+
+/* Shared quiz answer and review states. */
+.question-header {
+    display: flex;
+    align-items: center;
+    min-height: 2.25rem;
+    margin-bottom: .6rem;
+    padding: .4rem .65rem;
+    border-bottom: 1px dashed var(--sat-line);
+    border-radius: .55rem;
+    color: var(--sat-ink) !important;
+    font-weight: 800;
+}
+
+.btn-flag-question {
+    margin-left: auto;
+    padding: .4rem .75rem;
+    border: 1px solid #f0c1cc;
+    border-radius: .55rem;
+    background: #fff2f4;
+    color: #b34d66;
+    cursor: pointer;
+    font: 700 .72rem 'DM Mono', Consolas, monospace;
+}
+
+.btn-flag-question:hover,
+.btn-flag-question.is-flagged {
+    border-color: #e99aaa;
+    background: #f7c5d1;
+    color: #8f3850;
+}
+
+.question-block.is-answered .question-header,
+.question.is-answered .question-header {
+    background: #dff4e5;
+    color: #28734d !important;
+}
+
+[id^="nav_btn_"].nav-answered {
+    background: var(--sat-ink) !important;
+    border-color: var(--sat-ink-dark) !important;
+    color: #fff !important;
+}
+
+[id^="nav_btn_"].nav-correct {
+    background: #bde8c9 !important;
+    border-color: #82cf9b !important;
+    color: #216b42 !important;
+}
+
+[id^="nav_btn_"].nav-wrong {
+    background: #ffd0d9 !important;
+    border-color: #ef9eaf !important;
+    color: #9f3f58 !important;
+}
+
+.question-option-row {
+    display: flex !important;
+    align-items: center;
+    gap: .4rem;
+}
+
+.question-option-row > label {
+    flex: 1;
+}
+
+.btn-eliminate-option {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    padding: 0;
+    border: 1px solid #f2c8d0;
+    border-radius: 50%;
+    background: #fff;
+    color: #95a5a6;
+    cursor: pointer;
+    font: 700 .85rem 'Segoe UI', sans-serif;
+    line-height: 1;
+}
+
+.btn-eliminate-option:hover,
+.answer-option-label.answer-eliminated .btn-eliminate-option {
+    border-color: #e99aaa;
+    background: #ffe3e8;
+    color: #e05c75;
+}
+
+.answer-option-label.answer-eliminated {
+    opacity: .52;
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #fb718b;
+}
+
+.answer-option-label.answer-eliminated input { opacity: .55; }
+
+.question-bookmark {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 2;
+    width: 10px;
+    height: 14px;
+    padding: 0;
+    border: 0;
+    border-radius: 2px 2px 1px 1px;
+    background: transparent;
+    color: transparent;
+    cursor: pointer;
+}
+
+.question-bookmark::after {
+    position: absolute;
+    inset: 0;
+    background: #f5c3cf;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%);
+    content: '';
+    opacity: .25;
+}
+
+#quizNavBox button.question-nav-item,
+#navGrid button.question-nav-item { position: relative; }
+
+#quizNavBox button.question-nav-item.is-answered,
+#navGrid button.question-nav-item.is-answered {
+    background: #356f9f !important;
+    border-color: #285a85 !important;
+    color: #fff !important;
+}
+
+#quizNavBox button.question-nav-item.answer-correct,
+#navGrid button.question-nav-item.answer-correct {
+    background: #bde8c9 !important;
+    border-color: #82cf9b !important;
+    color: #216b42 !important;
+}
+
+#quizNavBox button.question-nav-item.answer-wrong,
+#navGrid button.question-nav-item.answer-wrong {
+    background: #ffd0d9 !important;
+    border-color: #ef9eaf !important;
+    color: #9f3f58 !important;
+}
+
+.question-bookmark.is-flagged::after {
+    background: #fb718b;
+    opacity: 1;
+}
+
+.correct-answer-label,
+.question-option-row.correct-answer-label {
+    background-color: #dff4e5 !important;
+    border-color: #b8e4c8 !important;
+    color: #28734d !important;
+}
+
+.wrong-answer-label,
+.question-option-row.wrong-answer-label {
+    background-color: #ffe3e8 !important;
+    border-color: #f2b9c5 !important;
+    color: #a8445c !important;
+}
+
 /* Shared bottom toolbar across standalone quiz pages. */
 .sticky-footer {
     border-top: 3px solid var(--sat-ink) !important;

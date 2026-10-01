@@ -146,6 +146,7 @@
         }
     </style>
     <link rel="stylesheet" href="quiz-theme.css">
+    <script src="quiz-state.js" defer></script>
 </head>
 <body>
 
@@ -449,7 +450,6 @@ const quizData = [
                                 <input type="radio" name="question${data.id}" value="${key}">
                                 <strong>${key}.</strong> ${value}
                             </label>
-                            <button type="button" class="btn-eliminate" title="Gạch bỏ đáp án này" onclick="toggleEliminate(event, ${data.id}, '${key}')">✕</button>
                         </li>
                     `;
                 }
@@ -701,10 +701,6 @@ function checkAndRestoreProgress() {
         } else {
             updateScoreBoard();
             saveAdminResultData();
-
-            if (typeof saveScoreToFirebase === 'function') {
-                saveScoreToFirebase(currentScore, answeredCount);
-            }
 
             if (answeredCount === totalQuestions) {
                 alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);

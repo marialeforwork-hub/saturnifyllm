@@ -74,10 +74,286 @@
 
         .hidden { display: none; }
     </style>
+    <style id="index-ui-theme">
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Nunito:wght@400;600;700;800&display=swap');
+
+        :root {
+            --ink-950: #4d53a2;
+            --ink-800: #3e458b;
+            --sand-50: #fff9fb;
+            --sand-100: #fff0f4;
+            --sand-200: #f4dce5;
+            --gold-400: #f8dc63;
+            --gold-500: #dfb43e;
+            --mint-300: #a9e5f2;
+            --mint-500: #58bcd8;
+            --coral-500: #fb718b;
+            --slate-500: #7674a5;
+            --radius-md: .75rem;
+            --radius-lg: 1.25rem;
+            --radius-xl: 1.75rem;
+            --shadow-card: 0 24px 70px rgba(101, 98, 198, .16);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            padding: clamp(1rem, 3vw, 3rem);
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at 12% 9%, rgba(251, 113, 139, .28) 0 1px, transparent 1.5px) 0 0 / 25px 25px,
+                radial-gradient(ellipse 65% 48% at 92% 3%, rgba(169, 229, 242, .72), transparent 70%),
+                radial-gradient(circle at 10% 86%, rgba(247, 197, 209, .6), transparent 25%),
+                var(--sand-50);
+            color: var(--ink-950);
+            font-family: 'Nunito', 'Trebuchet MS', sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: min(100%, 78rem);
+            max-width: 78rem;
+            padding: clamp(1.25rem, 4vw, 3rem);
+            overflow: hidden;
+            border: 1px solid rgba(101, 98, 198, .12);
+            border-radius: var(--radius-xl);
+            background: rgba(255, 254, 254, .9);
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(12px);
+        }
+
+        .container::before {
+            position: absolute;
+            top: -7rem;
+            right: -3rem;
+            width: 15rem;
+            height: 15rem;
+            border: 1rem solid var(--gold-400);
+            border-left-color: transparent;
+            border-radius: 50%;
+            content: '';
+            opacity: .16;
+            pointer-events: none;
+            transform: rotate(-28deg);
+        }
+
+        .site-brand {
+            position: relative;
+            z-index: 1;
+            width: clamp(7rem, 12vw, 9rem);
+            margin: 0 auto .75rem;
+            overflow: hidden;
+            border-radius: 50%;
+            background: #f7c5d1;
+        }
+
+        .site-brand img { display: block; width: 100%; height: auto; }
+
+        h1 {
+            position: relative;
+            z-index: 1;
+            margin: 0 0 .4rem;
+            color: var(--ink-950);
+            font: 800 clamp(1.45rem, 3vw, 2.2rem) 'Nunito', sans-serif;
+            letter-spacing: 0;
+            text-align: center;
+        }
+
+        .sub-title {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 2rem;
+            color: var(--slate-500);
+            font: 500 .72rem 'DM Mono', Consolas, monospace;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+        }
+
+        .header-actions,
+        .filter-section,
+        .tab-buttons,
+        .stats-grid,
+        table { position: relative; z-index: 1; }
+
+        .header-actions { margin-bottom: 1.5rem; }
+        .btn,
+        .btn-act,
+        .tab-btn {
+            border-radius: 999px;
+            font-family: 'DM Mono', Consolas, monospace;
+            letter-spacing: .01em;
+            transition: background .2s ease, box-shadow .2s ease, transform .2s ease;
+        }
+
+        .btn { padding: .75rem 1.1rem; }
+        .btn-home { background: var(--ink-950); }
+        .btn-home:hover { background: var(--ink-800); }
+        .btn-clear { background: var(--coral-500); }
+        .btn-clear:hover { background: #d95b73; }
+        .btn:hover,
+        .btn-act:hover { box-shadow: 0 .55rem 1.2rem rgba(16, 27, 50, .14); transform: translateY(-2px); }
+
+        .stats-grid { gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card {
+            border: 1px solid var(--sand-200);
+            border-left: 4px solid var(--mint-500);
+            border-radius: var(--radius-md);
+            background: rgba(255, 254, 254, .78);
+            box-shadow: none;
+        }
+        .stat-card h4 { color: var(--slate-500); font: 500 .7rem 'DM Mono', Consolas, monospace; letter-spacing: .02em; }
+        .stat-card .value { color: var(--ink-950); font: 800 1.8em 'Nunito', sans-serif; }
+
+        .filter-section {
+            gap: .75rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--sand-200);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(115deg, rgba(247, 197, 209, .35), rgba(169, 229, 242, .2) 75%, transparent), #fffefe;
+        }
+        .filter-control input,
+        .filter-control select {
+            min-height: 3rem;
+            padding: .75rem 1rem;
+            border: 1px solid var(--sand-200);
+            border-radius: 999px;
+            background: #fffefa;
+            color: var(--ink-950);
+            font: 500 .82rem 'DM Mono', Consolas, monospace;
+        }
+        .filter-control input:focus,
+        .filter-control select:focus,
+        button:focus-visible { outline: 3px solid rgba(242, 184, 75, .65); outline-offset: 3px; }
+
+        .tab-buttons { gap: .5rem; border-bottom: 1px solid var(--sand-200); }
+        .tab-btn { padding: .75rem 1rem; color: var(--slate-500); font-size: .78rem; }
+        .tab-btn.active { color: var(--ink-950); border-bottom-color: var(--coral-500); }
+
+        table { border-collapse: separate; border-spacing: 0; overflow: hidden; border: 1px solid var(--sand-200); border-radius: var(--radius-md); background: #fffefe; }
+        th, td { border: 0; border-bottom: 1px solid var(--sand-200); padding: .85rem .75rem; }
+        th { background: var(--ink-950); color: #fff; font: 500 .72rem 'DM Mono', Consolas, monospace; letter-spacing: .02em; text-transform: uppercase; }
+        td { color: #4b4b72; font-size: .9rem; }
+        tr:nth-child(even) { background: var(--sand-50); }
+        tr:hover { background: var(--sand-100); }
+        tr:last-child td { border-bottom: 0; }
+        .badge { border-radius: 999px; font: 700 .72rem 'DM Mono', Consolas, monospace; }
+        .badge-info { background: var(--mint-300); color: var(--ink-800); }
+        .badge-success { background: #d9f3e1; color: #26734d; }
+        .badge-warning { background: #fff3c4; color: #8c6812; }
+        .badge-danger { background: #ffe0e7; color: #a33e57; }
+        .badge-online { background: #d9f3e1; color: #26734d; }
+        .badge-offline { background: #eef0f4; color: #7674a5; }
+        .btn-view { background: var(--mint-500); }
+        .btn-view:hover { background: #419db8; }
+        .btn-del { background: var(--coral-500); }
+        .btn-del:hover { background: #d95b73; }
+
+        .modal { background: rgba(16, 27, 50, .72); backdrop-filter: blur(7px); }
+        .modal-content {
+            border: 1px solid var(--sand-200);
+            border-radius: var(--radius-lg);
+            background: #fffefe;
+            box-shadow: var(--shadow-card);
+        }
+        .modal-content h2 { color: var(--ink-950) !important; font-family: 'DM Mono', Consolas, monospace !important; }
+        .q-nav-grid { border-color: var(--sand-200); border-radius: var(--radius-md); background: var(--sand-50); }
+        .q-nav-btn { border-color: var(--sand-200); border-radius: var(--radius-md); }
+        .q-item { border-color: var(--sand-200); }
+        .q-title { color: var(--ink-950); }
+        .q-ans { color: var(--slate-500); }
+
+        .student-tracking-panel {
+            position: relative;
+            z-index: 1;
+            margin: 0 0 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--sand-200);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(115deg, rgba(169, 229, 242, .2), rgba(247, 197, 209, .22)), #fffefe;
+        }
+
+        .student-tracking-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: .85rem;
+        }
+
+        .student-tracking-header h2 {
+            margin: 0;
+            color: var(--ink-950);
+            font: 800 1.05rem 'Nunito', sans-serif;
+        }
+
+        .student-tracking-header p {
+            margin: .2rem 0 0;
+            color: var(--slate-500);
+            font: 500 .72rem 'DM Mono', Consolas, monospace;
+        }
+
+        #studentProgressFilter {
+            min-height: 3rem;
+            min-width: min(100%, 19rem);
+            padding: .75rem 1rem;
+            border: 1px solid var(--sand-200);
+            border-radius: 999px;
+            background: #fffefa;
+            color: var(--ink-950);
+            font: 500 .82rem 'DM Mono', Consolas, monospace;
+        }
+
+        .student-tracking-table { margin-top: .75rem; }
+
+        .tracking-status {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            white-space: nowrap;
+        }
+
+        .tracking-progress { min-width: 9rem; }
+        .tracking-progress .progress-container { margin: 0; }
+        .tracking-progress small {
+            display: block;
+            margin-top: .3rem;
+            color: var(--slate-500);
+            font: 500 .68rem 'DM Mono', Consolas, monospace;
+        }
+
+        @media (max-width: 680px) {
+            .student-tracking-header { align-items: stretch; flex-direction: column; }
+            #studentProgressFilter { width: 100%; }
+            .tracking-progress { min-width: 8rem; }
+        }
+
+        .online-tracking-panel { margin-top: 1rem; }
+        .online-tracking-panel .student-tracking-header h2 { color: #26734d; }
+
+        @media (max-width: 680px) {
+            body { padding: .75rem; }
+            .container { padding: 1.25rem; border-radius: 1.2rem; }
+            .header-actions { align-items: stretch; flex-direction: column; }
+            .header-actions .btn { text-align: center; }
+            .filter-control { min-width: 100%; }
+            .tab-buttons { overflow-x: auto; }
+            .tab-btn { white-space: nowrap; }
+            table { display: block; overflow-x: auto; white-space: nowrap; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="site-brand" aria-label="SATURNIFY">
+        <img src="logo.png" alt="SATURNIFY logo">
+    </div>
     <h1>⚙️ SATURNIFY - TRANG QUẢN LÝ ADMIN</h1>
     <div class="sub-title">Theo dõi Tiến độ & Kết quả Học sinh Realtime (Firebase Cloud)</div>
 
@@ -89,18 +365,70 @@
     <!-- Khung Thống Kê Tổng Quan -->
     <div class="stats-grid">
         <div class="stat-card">
-            <h4>Tổng Lượt Nộp Bài</h4>
-            <div class="value" id="statTotalSubmits">0</div>
+            <h4>Tổng Số Học Sinh</h4>
+            <div class="value" id="statTotalStudents">0</div>
         </div>
         <div class="stat-card" style="border-left-color: #2ecc71;">
-            <h4>Tổng Số Câu Đúng (In Total)</h4>
-            <div class="value" id="statTotalCorrect">0</div>
-        </div>
-        <div class="stat-card" style="border-left-color: #f1c40f;">
-            <h4>Học Sinh Đang Làm Bài</h4>
-            <div class="value" id="statActiveDrafts">0</div>
+            <h4>Học Sinh Đang Online</h4>
+            <div class="value" id="statActiveStudents">0</div>
         </div>
     </div>
+
+    <section class="student-tracking-panel" aria-labelledby="studentTrackingTitle">
+        <div class="student-tracking-header">
+            <div>
+                <h2 id="studentTrackingTitle">Theo dõi tiến độ từng học sinh</h2>
+                <p>Chọn học sinh để xem từng bài đang làm, số câu và vị trí gần nhất.</p>
+            </div>
+            <select id="studentProgressFilter" aria-label="Chọn học sinh để theo dõi" onchange="renderStudentProgress()">
+                <option value="ALL">-- Chọn học sinh --</option>
+            </select>
+        </div>
+        <div class="student-tracking-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bài tập</th>
+                        <th>Trạng thái</th>
+                        <th>Tiến độ</th>
+                        <th>Đang ở câu</th>
+                        <th>Cập nhật lần cuối</th>
+                        <th>Chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody id="studentProgressTableBody">
+                    <tr><td colspan="6" style="color: #7f8c8d; padding: 20px;">Chọn một học sinh để xem tiến độ.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="student-tracking-panel online-tracking-panel" aria-labelledby="onlineTrackingTitle">
+        <div class="student-tracking-header">
+            <div>
+                <h2 id="onlineTrackingTitle">🟢 Đang online ngay lúc này</h2>
+                <p>Danh sách tự cập nhật khi học sinh đang mở bài và có hoạt động gần đây.</p>
+            </div>
+            <span id="onlineTrackingCount" class="badge badge-online">0 học sinh</span>
+        </div>
+        <div class="student-tracking-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Học sinh</th>
+                        <th>Bài đang làm</th>
+                        <th>Đang ở câu</th>
+                        <th>Tiến độ</th>
+                        <th>Cập nhật lần cuối</th>
+                        <th>Chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody id="onlineTrackingTableBody">
+                    <tr><td colspan="6" style="color: #7f8c8d; padding: 20px;">Chưa có học sinh online.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
     <!-- BỘ LỌC DỮ LIỆU -->
     <div class="filter-section">
@@ -147,6 +475,7 @@
                 <tr>
                     <th>Học sinh</th>
                     <th>Bài Tập Đang Làm</th>
+                    <th>Trạng thái</th>
                     <th>Số Câu Đã Chọn</th>
                     <th>Tổng Số Câu</th>
                     <th>Tiến Độ %</th>
@@ -155,7 +484,7 @@
                 </tr>
             </thead>
             <tbody id="draftsTableBody">
-                <tr><td colspan="7" style="color: #7f8c8d;">Chưa có học sinh nào đang làm dở...</td></tr>
+                <tr><td colspan="8" style="color: #7f8c8d;">Chưa có học sinh nào đang làm dở...</td></tr>
             </tbody>
         </table>
     </div>
@@ -233,38 +562,36 @@
     const resultsQuery = query(collection(db, "results"), orderBy("timestamp", "desc"));
     onSnapshot(resultsQuery, (snapshot) => {
         rawResultsData = [];
-        let totalSubmits = 0;
-        let accumCorrect = 0;
 
         snapshot.forEach((docSnap) => {
             const data = docSnap.data();
             data._docId = docSnap.id;
             rawResultsData.push(data);
-            totalSubmits++;
-            accumCorrect += (Number(data.score) || 0);
         });
 
-        document.getElementById('statTotalSubmits').innerText = totalSubmits;
-        document.getElementById('statTotalCorrect').innerText = accumCorrect;
-
+        updateStudentStats();
         updateQuizDropdownOptions();
+        updateStudentProgressOptions();
         renderFilteredData();
+        renderStudentProgress();
+        renderOnlineTracking();
     });
 
     // 2. LẮNG NGHE DRAFTS REALTIME
     onSnapshot(collection(db, "drafts"), (snapshot) => {
         rawDraftsData = [];
-        let activeCount = 0;
 
         snapshot.forEach((docSnap) => {
             const data = docSnap.data();
             data._docId = docSnap.id;
             rawDraftsData.push(data);
-            activeCount++;
         });
 
-        document.getElementById('statActiveDrafts').innerText = activeCount;
+        updateStudentStats();
+        updateStudentProgressOptions();
         renderFilteredData();
+        renderStudentProgress();
+        renderOnlineTracking();
     });
 
     // 3. DROPDOWN FILTER
@@ -289,6 +616,181 @@
 
         select.value = currentValue;
     }
+
+    function getStudentKey(item) {
+        return String(item.studentId || item.id || '').trim();
+    }
+
+    function getStudentName(item) {
+        return item.studentName || item.name || 'Học sinh';
+    }
+
+    function updateStudentStats() {
+        const studentKeys = new Set();
+        rawResultsData.concat(rawDraftsData).forEach(item => {
+            const key = getStudentKey(item);
+            if (key && key !== 'N/A' && key !== 'guest') studentKeys.add(key);
+        });
+
+        const onlineKeys = new Set(rawDraftsData
+            .filter(isDraftOnline)
+            .map(getStudentKey)
+            .filter(key => key && key !== 'N/A' && key !== 'guest'));
+
+        document.getElementById('statTotalStudents').innerText = studentKeys.size;
+        document.getElementById('statActiveStudents').innerText = onlineKeys.size;
+    }
+
+    function updateStudentProgressOptions() {
+        const select = document.getElementById('studentProgressFilter');
+        const currentValue = select.value;
+        const students = new Map();
+
+        [...rawDraftsData, ...rawResultsData].forEach(item => {
+            const key = getStudentKey(item);
+            if (key) students.set(key, getStudentName(item));
+        });
+
+        select.innerHTML = '<option value="ALL">-- Chọn học sinh --</option>';
+        [...students.entries()]
+            .sort((left, right) => left[1].localeCompare(right[1], 'vi'))
+            .forEach(([key, name]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = `${name} (${key})`;
+                select.appendChild(option);
+            });
+
+        select.value = students.has(currentValue) ? currentValue : 'ALL';
+    }
+
+    function formatTrackingTime(value) {
+        if (!value) return 'Đang cập nhật...';
+        const date = typeof value.toDate === 'function' ? value.toDate() : new Date(value);
+        return Number.isNaN(date.getTime()) ? 'Đang cập nhật...' : date.toLocaleString('vi-VN');
+    }
+
+    function isDraftOnline(draft) {
+        if (!draft.updatedAt) return false;
+        const updatedAt = typeof draft.updatedAt.toDate === 'function' ? draft.updatedAt.toDate() : new Date(draft.updatedAt);
+        return !Number.isNaN(updatedAt.getTime()) && Date.now() - updatedAt.getTime() <= 2 * 60 * 1000;
+    }
+
+    function getLastQuestionNumber(draft) {
+        if (Number(draft.lastQuestionNumber) > 0) return Number(draft.lastQuestionNumber);
+        const answers = draft.answers || {};
+        return Object.keys(answers).reduce((last, key) => {
+            const match = String(key).match(/(?:câu|question)(?:_|\s*)?(\d+)/i);
+            return match ? Math.max(last, Number(match[1])) : last;
+        }, 0);
+    }
+
+    function escapeTrackingText(value) {
+        return String(value ?? '').replace(/[&<>'"]/g, char => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[char]));
+    }
+
+    window.renderStudentProgress = function() {
+        const body = document.getElementById('studentProgressTableBody');
+        const selectedStudent = document.getElementById('studentProgressFilter').value;
+        body.innerHTML = '';
+
+        if (selectedStudent === 'ALL') {
+            body.innerHTML = '<tr><td colspan="6" style="color: #7f8c8d; padding: 20px;">Chọn một học sinh để xem tiến độ.</td></tr>';
+            return;
+        }
+
+        const records = new Map();
+        rawResultsData
+            .filter(item => getStudentKey(item) === selectedStudent)
+            .forEach(result => {
+                const quiz = result.quizTitle || 'Bài làm';
+                if (!records.has(quiz)) records.set(quiz, { result });
+            });
+        rawDraftsData
+            .filter(item => getStudentKey(item) === selectedStudent)
+            .forEach(draft => {
+                records.set(draft.quizTitle || draft.storageKey || 'Bài đang làm', { draft, result: records.get(draft.quizTitle || draft.storageKey || 'Bài đang làm')?.result });
+            });
+
+        if (!records.size) {
+            body.innerHTML = '<tr><td colspan="6" style="color: #7f8c8d; padding: 20px;">Học sinh này chưa có dữ liệu bài làm.</td></tr>';
+            return;
+        }
+
+        [...records.entries()].forEach(([quiz, record]) => {
+            const draft = record.draft;
+            const result = record.result;
+            const answered = draft
+                ? Number(draft.answeredCount) || Object.keys(draft.answers || {}).length
+                : Object.keys(result?.answers || {}).length || Number(result?.total) || 0;
+            const total = draft
+                ? Number(draft.totalQuestions) || 0
+                : Object.keys(result?.answers || {}).length || Number(result?.total) || answered;
+            const percentage = draft
+                ? (total > 0 ? Math.round((answered / total) * 100) : 0)
+                : Number.parseInt(result?.percentage, 10) || (total > 0 ? Math.round((answered / total) * 100) : 0);
+            const isActive = Boolean(draft && answered < total);
+            const currentQuestion = draft ? getLastQuestionNumber(draft) : total;
+            const latest = draft?.updatedAt || result?.timestamp || result?.displayTime;
+            const status = isActive
+                ? '<span class="badge badge-warning tracking-status">🟡 Đang làm</span>'
+                : '<span class="badge badge-success tracking-status">🟢 Hoàn tất</span>';
+            const detailButton = draft
+                ? `<button class="btn-act btn-view" onclick="viewDraftDetail('${draft._docId}')">Chi tiết</button>`
+                : result
+                    ? `<button class="btn-act btn-view" onclick="viewDetail('${result._docId}')">Chi tiết</button>`
+                    : '';
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${escapeTrackingText(quiz)}</strong></td>
+                <td>${status}</td>
+                <td class="tracking-progress">
+                    <div class="progress-container"><div class="progress-bar" style="width:${Math.min(100, percentage)}%;"></div></div>
+                    <small>${answered}/${total} câu (${percentage}%)</small>
+                </td>
+                <td>${isActive ? (currentQuestion ? `<strong>Câu ${currentQuestion}</strong>` : 'Chưa bắt đầu') : 'Đã nộp'}</td>
+                <td>${escapeTrackingText(formatTrackingTime(latest))}</td>
+                <td>${detailButton}</td>
+            `;
+            body.appendChild(row);
+        });
+    };
+
+    window.renderOnlineTracking = function() {
+        const body = document.getElementById('onlineTrackingTableBody');
+        const count = document.getElementById('onlineTrackingCount');
+        const onlineDrafts = rawDraftsData.filter(isDraftOnline);
+        body.innerHTML = '';
+        count.textContent = `${onlineDrafts.length} học sinh`;
+
+        if (!onlineDrafts.length) {
+            body.innerHTML = '<tr><td colspan="6" style="color: #7f8c8d; padding: 20px;">Chưa có học sinh online.</td></tr>';
+            return;
+        }
+
+        onlineDrafts.forEach(draft => {
+            const answered = Number(draft.answeredCount) || Object.keys(draft.answers || {}).length;
+            const total = Number(draft.totalQuestions) || 0;
+            const percentage = total > 0 ? Math.round((answered / total) * 100) : 0;
+            const currentQuestion = Number(draft.lastQuestionNumber) || 0;
+            const updatedTime = formatTrackingTime(draft.updatedAt);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${escapeTrackingText(draft.studentName || 'Học sinh')}</strong><br><small>${escapeTrackingText(draft.studentId || 'N/A')}</small></td>
+                <td><strong>${escapeTrackingText(draft.quizTitle || draft.storageKey || 'Bài đang làm')}</strong></td>
+                <td>${currentQuestion ? `<strong>Câu ${currentQuestion}</strong>` : 'Chưa bắt đầu'}</td>
+                <td class="tracking-progress">
+                    <div class="progress-container"><div class="progress-bar" style="width:${Math.min(100, percentage)}%;"></div></div>
+                    <small>${answered}/${total} câu (${percentage}%)</small>
+                </td>
+                <td><span class="badge badge-online">🟢 ${escapeTrackingText(updatedTime)}</span></td>
+                <td><button class="btn-act btn-view" onclick="viewDraftDetail('${draft._docId}')">Chi tiết</button></td>
+            `;
+            body.appendChild(row);
+        });
+    };
 
     // 4. LỌC & RENDER DỮ LIỆU BẢNG
     window.applyFilters = function() {
@@ -349,18 +851,21 @@
         });
 
         if (filteredDrafts.length === 0) {
-            draftsBody.innerHTML = '<tr><td colspan="7" style="color: #7f8c8d; padding: 20px;">Không có bài làm dở phù hợp.</td></tr>';
+            draftsBody.innerHTML = '<tr><td colspan="8" style="color: #7f8c8d; padding: 20px;">Không có bài làm dở phù hợp.</td></tr>';
         } else {
             filteredDrafts.forEach(draft => {
                 const answered = draft.answeredCount || 0;
                 const total = draft.totalQuestions || 0;
                 const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
                 const updatedTime = draft.updatedAt ? new Date(draft.updatedAt.toDate()).toLocaleTimeString('vi-VN') : 'Đang làm...';
+                const online = isDraftOnline(draft);
+                const currentQuestion = Number(draft.lastQuestionNumber) || 0;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${draft.studentName || 'Học sinh'} (${draft.studentId || 'N/A'})</strong></td>
                     <td>${draft.quizTitle || draft.storageKey}</td>
+                    <td><span class="badge ${online ? 'badge-online' : 'badge-offline'}">${online ? '🟢 Online' : '⚪ Offline'}</span>${currentQuestion ? `<br><small>Đang ở câu ${currentQuestion}</small>` : ''}</td>
                     <td><strong>${answered}</strong> câu</td>
                     <td>${total} câu</td>
                     <td><span class="badge badge-warning">${pct}%</span></td>
@@ -409,10 +914,21 @@
         } else if (typeof details === 'object' && details !== null) {
             qList = Object.keys(details).map((key, index) => {
                 const val = details[key];
-                if (typeof val === 'object' && val !== null) return val;
-                return { questionText: `Câu ${index + 1}`, userChoice: val };
+                if (typeof val === 'object' && val !== null) return { ...val, __questionKey: key };
+                return { questionText: key, userChoice: val, __questionKey: key };
             });
         }
+
+        qList.sort((left, right) => {
+            const getQuestionNumber = question => {
+                const text = typeof question === 'object' && question !== null
+                    ? question.__questionKey || question.questionText || question.title || question.question || question.qText || ''
+                    : '';
+                const match = String(text).match(/(?:câu|question)\s*(\d+)/i);
+                return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+            };
+            return getQuestionNumber(left) - getQuestionNumber(right);
+        });
 
         qList.forEach((q, idx) => {
             // 1. Trích xuất đáp án học sinh chọn
@@ -529,6 +1045,7 @@
 
         // Tự động tìm nguồn chứa câu trả lời dở
         const answers = draft.answers || draft.userAnswers || draft.details || draft.selectedAnswers || draft.draftAnswers || {};
+        const questionTimes = draft.questionTimes || {};
         
         // Xác định tổng số câu hỏi
         let totalQ = draft.totalQuestions || draft.total || 0;
@@ -544,6 +1061,13 @@
         let answeredCount = 0;
         let htmlContent = '';
         let navHtml = '';
+
+        const formatQuestionDuration = seconds => {
+            const totalSeconds = Math.max(0, Math.round(Number(seconds) || 0));
+            return totalSeconds < 60
+                ? `${totalSeconds}s`
+                : `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
+        };
 
         for (let i = 0; i < totalQ; i++) {
             // Quét tất cả các kiểu đặt Key có thể có trong Firebase
@@ -569,6 +1093,7 @@
             }
 
             const choiceClean = choice.trim();
+            const questionDuration = formatQuestionDuration(questionTimes[i + 1] || questionTimes[String(i + 1)]);
             const isAnswered = choiceClean !== '' && 
                                choiceClean !== 'null' && 
                                choiceClean !== 'undefined' && 
@@ -584,6 +1109,7 @@
                             <strong>Câu ${i + 1}:</strong>
                             <span class="badge badge-info">🔵 ĐÃ CHỌN: ${choiceClean}</span>
                         </div>
+                        <small style="display:block; margin-top:6px; color:#7674a5;">⏱ Thời gian: ${questionDuration}</small>
                     </div>
                 `;
             } else {
@@ -594,6 +1120,7 @@
                             <strong style="color: #7f8c8d;">Câu ${i + 1}:</strong>
                             <span class="badge badge-warning">⚪ CHƯA CHỌN</span>
                         </div>
+                        <small style="display:block; margin-top:6px; color:#7674a5;">⏱ Thời gian: ${questionDuration}</small>
                     </div>
                 `;
             }

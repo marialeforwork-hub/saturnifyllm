@@ -142,6 +142,7 @@
         }
     </style>
     <link rel="stylesheet" href="quiz-theme.css">
+    <script src="quiz-state.js" defer></script>
 </head>
 <body>
 
@@ -1028,10 +1029,6 @@ function checkAndRestoreProgress() {
             updateScoreBoard();
             saveAdminResultData();
 
-            if (typeof saveScoreToFirebase === 'function') {
-                saveScoreToFirebase(currentScore, answeredCount);
-            }
-
             if (answeredCount === totalQuestions) {
                 alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
                 localStorage.removeItem(QUIZ_STORAGE_KEY);
@@ -1499,10 +1496,6 @@ function checkAndRestoreProgress() {
         } else {
             updateScoreBoard();
             saveAdminResultData();
-
-            if (typeof saveScoreToFirebase === 'function') {
-                saveScoreToFirebase(currentScore, answeredCount);
-            }
 
             if (answeredCount === totalQuestions) {
                 alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);

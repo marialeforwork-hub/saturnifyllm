@@ -169,7 +169,7 @@
             margin: 0 auto clamp(1.25rem, 3vw, 2rem);
             border-radius: 50%;
             background: #f7c5d1;
-            box-shadow: 0 1rem 0 rgba(101, 98, 198, .12);
+            box-shadow: none;
             overflow: hidden;
             animation: float-in .55s ease-out both;
         }
@@ -195,7 +195,7 @@
             border: 1px solid var(--color-line);
             border-radius: var(--radius-lg);
             background: linear-gradient(115deg, rgba(247, 197, 209, .5), rgba(169, 229, 242, .26) 75%, transparent), var(--color-surface);
-            text-align: left;
+            text-align: center;
         }
 
         .login-box h3 {
@@ -204,13 +204,15 @@
             color: var(--ink-950);
             font-size: clamp(1.35rem, 3vw, 2rem);
             line-height: 1.15;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
 
         .login-box h3::after {
             display: block;
             margin-top: .75rem;
             color: var(--color-muted);
-            content: 'Your focused SAT practice space.';
+            content: 'SATurnify - Your SAT Tutor';
             font-family: 'DM Mono', Consolas, monospace;
             font-size: .72rem;
             font-weight: 400;
@@ -267,7 +269,7 @@
         .btn-detail:hover { background: var(--color-primary-hover); box-shadow: 0 .55rem 1.2rem rgba(16, 27, 50, .18); transform: translateY(-2px); }
 
         #errorMsg { margin: 1rem 0 0 !important; color: var(--coral-500) !important; font: 500 .8rem 'DM Mono', Consolas, monospace; }
-        .user-info { margin-bottom: 1rem; color: var(--ink-950); font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 800; }
+        .user-info { margin-bottom: 1rem; color: var(--ink-950); font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 800; text-align: center; }
         #welcomeSection button:not(.btn-history) { border-radius: var(--button-radius) !important; background: var(--ink-950) !important; font-family: 'DM Mono', Consolas, monospace; }
         .btn-history { margin-left: .5rem; padding: .75rem 1.1rem; background: var(--mint-500); }
         .btn-history:hover { background: #419db8; }
@@ -276,7 +278,7 @@
 
         #quizContent { width: 100%; margin-top: clamp(2rem, 4vw, 3.5rem); }
         .search-box { position: relative; display: flex; align-items: center; margin-bottom: 2.5rem; }
-        .search-box::before { position: absolute; left: 1.2rem; z-index: 1; color: var(--slate-500); content: '/'; font: 500 1.1rem 'DM Mono', Consolas, monospace; }
+        .search-box::before { display: none; }
         .search-box input {
             width: min(100%, 39rem);
             min-height: 3.5rem;
@@ -303,6 +305,28 @@
             letter-spacing: -.04em;
         }
         .category-title::after { height: 1px; flex: 1; background: var(--color-line); content: ''; }
+        .category-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: 2rem;
+            flex: 0 0 auto;
+            padding: 0 .75rem;
+            border: 1px solid var(--color-line);
+            border-radius: 999px;
+            background: var(--color-surface);
+            color: var(--ink-950);
+            cursor: pointer;
+            font: 700 .72rem 'DM Mono', Consolas, monospace;
+            white-space: nowrap;
+            line-height: 1;
+            transition: background .2s ease, color .2s ease, transform .2s ease;
+        }
+        .category-toggle:hover { background: var(--ink-950); color: #fff; transform: translateY(-1px); }
+        .category-toggle:focus-visible { outline: 3px solid rgba(242, 184, 75, .65); outline-offset: 3px; }
+        .quiz-category.is-collapsed .quiz-list { display: none; }
+        .quiz-category.is-collapsed .category-title { margin-bottom: 0; }
         .quiz-list { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
 
         .quiz-item {
@@ -404,6 +428,229 @@
             *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
     </style>
+    <style id="admin-ui-sync" media="not all">
+        :root {
+            --admin-blue: #3498db;
+            --admin-blue-dark: #2980b9;
+            --admin-ink: #2c3e50;
+            --admin-muted: #7f8c8d;
+            --admin-line: #e1e8ed;
+            --admin-surface: #ffffff;
+            --admin-soft: #f8f9fa;
+            --admin-radius: 6px;
+            --admin-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            background: #f0f2f5;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body::before,
+        body::after { display: none; }
+
+        .container {
+            width: auto;
+            max-width: 1150px;
+            padding: 25px;
+            align-items: stretch;
+            border: 0;
+            border-radius: 10px;
+            background: var(--admin-surface);
+            box-shadow: var(--admin-shadow);
+            backdrop-filter: none;
+        }
+
+        .container::before { display: none; }
+
+        .brand-lockup {
+            width: 92px;
+            margin: 0 auto 10px;
+            background: #eef2f5;
+            box-shadow: none;
+            border-radius: 50%;
+        }
+
+        h1 {
+            position: static;
+            width: auto;
+            height: auto;
+            margin: 0 0 5px;
+            padding: 0 0 10px;
+            overflow: visible;
+            border-bottom: 2px solid var(--admin-blue);
+            clip: auto;
+            color: var(--admin-ink);
+            font: 700 1.7em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            white-space: normal;
+        }
+
+        .login-box {
+            max-width: none;
+            margin: 0 0 25px;
+            padding: 25px;
+            border: 0;
+            border-radius: 8px;
+            background: #eef2f5;
+            text-align: center;
+        }
+
+        .login-box h3 {
+            max-width: none;
+            margin: 0 0 15px !important;
+            color: var(--admin-ink);
+            font: 700 1.15em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-box h3::after { display: none; }
+
+        .login-box input[type="text"],
+        .search-box input {
+            min-height: 0;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: var(--admin-radius);
+            background: #fff;
+            color: #333;
+            font: 1em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: normal;
+            text-align: left;
+        }
+
+        .login-box input[type="text"] { width: 220px; text-align: center; }
+
+        .login-box button,
+        .btn-start,
+        .btn-history,
+        .btn-admin,
+        .btn-save,
+        .btn-detail {
+            min-height: 0;
+            border-radius: var(--admin-radius);
+            background: var(--admin-blue);
+            color: #fff;
+            font: 700 .95em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: normal;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .login-box button { margin-left: 5px; padding: 12px 25px; }
+        .login-box button:hover,
+        .btn-start:hover,
+        .btn-history:hover,
+        .btn-admin:hover,
+        .btn-detail:hover { background: var(--admin-blue-dark); box-shadow: none; transform: none; }
+
+        .user-info { color: #27ae60; font-size: 1.2em; }
+        #welcomeSection button:not(.btn-history) {
+            border-radius: var(--admin-radius) !important;
+            background: #95a5a6 !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .btn-history { margin-left: 10px; padding: 8px 16px; background: #9b59b6; }
+        .btn-history:hover { background: #8e44ad; }
+        .btn-admin { margin-bottom: 15px; padding: 10px 20px; background: #e74c3c; }
+        .btn-admin:hover { background: #c0392b; }
+
+        #quizContent { margin-top: 0; }
+        .search-box { margin-bottom: 20px; justify-content: center; }
+        .search-box::before { display: none; }
+        .search-box input { width: 70%; border: 2px solid var(--admin-blue); border-radius: 20px; }
+        .search-box input:focus { box-shadow: 0 0 8px rgba(52, 152, 219, .5); }
+
+        .category-title {
+            margin: 25px 0 10px;
+            padding-left: 10px;
+            border-left: 4px solid var(--admin-blue);
+            color: var(--admin-blue-dark);
+            font: 700 1.3em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .category-title::after { display: none; }
+        .category-toggle {
+            border-color: #d5dbe2;
+            background: #fff;
+            color: #2c3e50;
+        }
+        .category-toggle:hover { background: #3498db; color: #fff; }
+        .quiz-list { gap: 0; }
+        .quiz-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--admin-radius);
+            background: #f9f9f9;
+            box-shadow: none;
+            transform: none;
+        }
+        .quiz-item:hover { border-color: #ddd; box-shadow: 0 2px 5px rgba(0, 0, 0, .05); transform: none; }
+        .quiz-title { color: var(--admin-ink); font: 700 1.05em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .btn-start { padding: 8px 16px; font-size: .9em; }
+        .btn-reset,
+        .btn-exit {
+            min-height: 0;
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 4px;
+            background: #7f8c8d;
+            color: #fff;
+            font: 700 .85em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .btn-reset:hover,
+        .btn-exit:hover { background: #6c7a89; color: #fff; }
+        .progress-container { height: 16px; margin-top: 5px; border-radius: 10px; background: #e0e0e0; }
+        .progress-bar { background: linear-gradient(90deg, #f1c40f, #2ecc71); }
+        .progress-text { margin-top: 4px; color: var(--admin-muted); font: 700 .85em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        #timerHeader { background: var(--admin-ink); box-shadow: 0 2px 8px rgba(0, 0, 0, .2); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #timerHeader .btn-save { border-radius: 4px; background: #f39c12; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #timerHeader .btn-exit { border-radius: 4px; background: #e74c3c; }
+
+        #toastMessage { border-radius: 8px; background: #27ae60; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        #historyModal,
+        #historyDetailModal,
+        #timerModal,
+        #preSubmitModal { background: rgba(0, 0, 0, .5) !important; backdrop-filter: none; }
+        #historyModal > div,
+        #historyDetailModal > div,
+        #timerModal > div,
+        #preSubmitModal > div {
+            border: 0;
+            border-radius: 10px !important;
+            background: #fff !important;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .3) !important;
+        }
+        #historyModal h2,
+        #historyDetailModal h3,
+        #timerModal h2,
+        #preSubmitModal h2 { color: var(--admin-ink) !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; letter-spacing: normal; }
+        #historyModal > div > div:first-child,
+        #historyDetailModal > div > div:first-child { border-color: var(--admin-blue) !important; }
+        #historyModal button,
+        #historyDetailModal button,
+        #timerModal button,
+        #preSubmitModal button { border-radius: 6px !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .history-table th { background: var(--admin-blue); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .history-table th,
+        .history-table td { border-color: var(--admin-line); }
+
+        @media (max-width: 680px) {
+            body { padding: 10px; }
+            .container { padding: 18px; border-radius: 10px; }
+            h1 { margin-bottom: 20px; font-size: 1.45em; }
+            .login-box { padding: 18px; }
+            .login-box input[type="text"],
+            .login-box button { width: 100%; }
+            .login-box button { margin: 10px 0 0; }
+            .search-box input { width: 100%; }
+            .action-btns { width: 100%; }
+        }
+    </style>
 </head>
 <body>
 
@@ -411,7 +658,7 @@
 
 <div id="mainContent" class="container">
     <div class="brand-lockup">
-        <img src="SATurnify/3.png" alt="" aria-hidden="true">
+        <img src="logo.png" alt="SATURNIFY logo">
     </div>
     <h1>📚 SATURNIFY - YOUR SAT TUTOR</h1>
 
@@ -440,8 +687,11 @@
         </div>
 
         <div id="catMath" class="quiz-category hidden">
-            <div class="category-title">📐 Dạng Bài: SAT Math</div>
-            <ul class="quiz-list">
+            <div class="category-title">
+                <span>📐 Dạng Bài: SAT Math</span>
+                <button class="category-toggle" type="button" aria-expanded="true" aria-controls="mathQuizList" onclick="toggleQuizCategory('catMath', this)" title="Thu gọn SAT Math">Thu gọn</button>
+            </div>
+            <ul id="mathQuizList" class="quiz-list">
                 <li class="quiz-item" data-title="August SAT Math" data-storage-key="August SAT Math">
                     <div class="quiz-item-header">
                         <span class="quiz-title">📝 August SAT Math (Tổng hợp)</span>
@@ -731,8 +981,11 @@
         </div>
 
         <div id="catEng" class="quiz-category hidden">
-            <div class="category-title">📖 Dạng Bài: SAT Reading & Writing</div>
-            <ul class="quiz-list">
+            <div class="category-title">
+                <span>📖 Dạng Bài: SAT Reading & Writing</span>
+                <button class="category-toggle" type="button" aria-expanded="true" aria-controls="readingQuizList" onclick="toggleQuizCategory('catEng', this)" title="Thu gọn SAT Reading & Writing">Thu gọn</button>
+            </div>
+            <ul id="readingQuizList" class="quiz-list">
                 <li class="quiz-item" data-title="Transitions Quiz" data-storage-key="Transitions Quiz">
                     <div class="quiz-item-header">
                         <span class="quiz-title">📝 Transitions Quiz</span>
@@ -1039,6 +1292,14 @@
         });
     }
 
+    function toggleQuizCategory(categoryId, button) {
+        const category = document.getElementById(categoryId);
+        const isCollapsed = category.classList.toggle('is-collapsed');
+        button.setAttribute('aria-expanded', String(!isCollapsed));
+        button.setAttribute('title', isCollapsed ? 'Mở rộng danh sách' : 'Thu gọn danh sách');
+        button.textContent = isCollapsed ? 'Mở rộng' : 'Thu gọn';
+    }
+
     function updateAllProgressBars() {
         const studentId = sessionStorage.getItem('studentId');
         if (!studentId) return;
@@ -1122,15 +1383,32 @@
             }
 
             const timeStr = item.displayTime || item.timestamp || "Vừa xong";
+            const canReview = isCompletedHistoryItem(item);
+            const reviewButton = canReview
+                ? `<button class="btn-detail" onclick="openHistoryDetailModal(${actualIndex})">🔍 Xem</button>`
+                : '<button class="btn-detail" disabled title="Hoàn thành tất cả câu để xem lại">🔒 Chưa hoàn thành</button>';
 
             tr.innerHTML = `
                 <td><strong>${item.quizTitle || item.title || 'Bài làm'}</strong></td>
                 <td>Lần ${item.attempt || 1}</td>
                 <td><span style="color: #27ae60; font-weight: bold;">${scoreStr}</span></td>
                 <td>${timeStr}</td>
-                <td><button class="btn-detail" onclick="openHistoryDetailModal(${actualIndex})">🔍 Xem</button></td>
+                <td>${reviewButton}</td>
             `;
             tbody.appendChild(tr);
+        });
+    }
+
+    function isCompletedHistoryItem(item) {
+        const answers = item.answers;
+        if (!answers || typeof answers !== 'object') return false;
+        const values = Array.isArray(answers) ? answers : Object.values(answers);
+        return values.length > 0 && values.every(value => {
+            const answer = typeof value === 'object' && value !== null
+                ? value.userChoice || value.selected || value.userAnswer || value.choice || ''
+                : value;
+            const clean = String(answer ?? '').trim();
+            return clean !== '' && clean !== 'Bỏ trống' && clean !== 'Chưa chọn' && clean !== 'null' && clean !== 'undefined';
         });
     }
 
@@ -1140,6 +1418,10 @@
         const studentHistory = history.filter(h => h.studentName === currentName || h.name === currentName);
         const item = studentHistory[index];
         if (!item) return;
+        if (!isCompletedHistoryItem(item)) {
+            alert('Bạn cần hoàn thành tất cả câu hỏi trước khi xem lại bài.');
+            return;
+        }
 
         document.getElementById('historyDetailTitle').innerText = `🔍 Chi Tiết: ${item.quizTitle || 'Bài Tập'}`;
         const container = document.getElementById('historyDetailContent');
@@ -1316,17 +1598,24 @@
             const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
             const questionBlocks = iframeDoc.querySelectorAll('.question-block, .question');
             const answersMap = {};
+            const answeredQuestionNumbers = [];
 
-            questionBlocks.forEach((block) => {
+            questionBlocks.forEach((block, index) => {
                 const checkedRadio = block.querySelector('input[type="radio"]:checked');
                 const textInput = block.querySelector('input[type="text"]');
 
-                if (checkedRadio) answersMap[checkedRadio.name] = checkedRadio.value;
-                else if (textInput && textInput.value.trim() !== '') answersMap[textInput.name] = textInput.value.trim();
+                if (checkedRadio) {
+                    answersMap[checkedRadio.name] = checkedRadio.value;
+                    answeredQuestionNumbers.push(index + 1);
+                } else if (textInput && textInput.value.trim() !== '') {
+                    answersMap[textInput.name] = textInput.value.trim();
+                    answeredQuestionNumbers.push(index + 1);
+                }
             });
 
             const totalQ = questionBlocks.length;
             const draftKey = `quiz_draft_${studentId}_${selectedQuizStorageKey}`;
+            const questionTimes = iframeWindowQuestionTimes();
             
             localStorage.setItem(draftKey, JSON.stringify(answersMap));
             if (totalQ > 0) localStorage.setItem(draftKey + '_total', totalQ);
@@ -1340,7 +1629,9 @@
                     storageKey: selectedQuizStorageKey,
                     answers: answersMap,
                     answeredCount: Object.keys(answersMap).length,
-                    totalQuestions: totalQ
+                    totalQuestions: totalQ,
+                    lastQuestionNumber: answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0,
+                    questionTimes
                 });
             }
 
@@ -1348,6 +1639,16 @@
                 showToast("💾 Đã lưu tiến độ làm bài!");
             }
         } catch (e) { console.log("Lỗi khi lưu tiến độ:", e); }
+    }
+
+    function iframeWindowQuestionTimes() {
+        try {
+            const iframeWindow = document.getElementById('quizIframe').contentWindow;
+            iframeWindow.__commitSaturnifyQuestionTime?.();
+            return { ...(iframeWindow.__saturnifyQuestionTimes || {}) };
+        } catch (e) {
+            return {};
+        }
     }
 
     function manualSaveDraft() {
@@ -1363,49 +1664,135 @@
             questionBlocks.forEach((block, index) => {
                 const qNum = index + 1;
 
-                if (!block.querySelector('.btn-flag-question')) {
+                if (!block.querySelector('.question-header')) {
                     const headerDiv = document.createElement('div');
-                    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 5px;";
-                    
-                    const flagBtn = document.createElement('button');
-                    flagBtn.className = 'btn-flag-question';
-                    flagBtn.type = 'button';
-                    flagBtn.innerHTML = '🚩 Đánh dấu xem lại';
-                    flagBtn.style.cssText = "background: #f39c12; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; transition: background 0.2s;";
-
-                    flagBtn.onclick = function(e) {
-                        e.stopPropagation();
-                        const isFlagged = block.classList.toggle('flagged-for-review');
-                        if (isFlagged) {
-                            flagBtn.style.background = '#d35400';
-                            flagBtn.innerHTML = '🚩 Đã đánh dấu';
-                            block.style.borderLeft = '4px solid #e67e22';
-                            block.style.paddingLeft = '10px';
-                        } else {
-                            flagBtn.style.background = '#f39c12';
-                            flagBtn.innerHTML = '🚩 Đánh dấu xem lại';
-                            block.style.borderLeft = '';
-                            block.style.paddingLeft = '';
-                        }
-                    };
-
+                    headerDiv.className = 'question-header';
                     const qTitleSpan = document.createElement('span');
-                    qTitleSpan.style.fontWeight = 'bold';
-                    qTitleSpan.style.color = '#2c3e50';
                     qTitleSpan.innerText = `Câu ${qNum}`;
-
                     headerDiv.appendChild(qTitleSpan);
-                    headerDiv.appendChild(flagBtn);
                     block.insertBefore(headerDiv, block.firstChild);
                 }
+
+                const navButtons = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button');
+                const navButton = navButtons[qNum - 1];
+                const header = block.querySelector('.question-header');
+                if (header && !header.querySelector('.btn-flag-question')) {
+                    const flagButton = document.createElement('button');
+                    flagButton.className = 'btn-flag-question';
+                    flagButton.type = 'button';
+                    flagButton.textContent = '🚩 Đánh dấu xem lại';
+                    flagButton.setAttribute('aria-pressed', 'false');
+                    flagButton.onclick = function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const isFlagged = block.classList.toggle('flagged-for-review');
+                        flagButton.classList.toggle('is-flagged', isFlagged);
+                        flagButton.setAttribute('aria-pressed', String(isFlagged));
+                        flagButton.textContent = isFlagged ? '🚩 Bỏ đánh dấu' : '🚩 Đánh dấu xem lại';
+                        if (navButton) navButton.querySelector('.question-bookmark')?.classList.toggle('is-flagged', isFlagged);
+                    };
+                    header.appendChild(flagButton);
+                }
+
+                if (navButton && !navButton.querySelector('.question-bookmark')) {
+                    navButton.classList.add('question-nav-item');
+                    const bookmark = document.createElement('span');
+                    bookmark.className = 'question-bookmark';
+                    bookmark.title = 'Đánh dấu xem lại';
+                    bookmark.setAttribute('role', 'button');
+                    bookmark.setAttribute('aria-label', `Đánh dấu câu ${qNum} xem lại`);
+                    bookmark.onclick = function(e) {
+                        e.stopPropagation();
+                        const isFlagged = bookmark.classList.toggle('is-flagged');
+                        block.classList.toggle('flagged-for-review', isFlagged);
+                        bookmark.title = isFlagged ? 'Bỏ đánh dấu xem lại' : 'Đánh dấu xem lại';
+                    };
+                    navButton.appendChild(bookmark);
+                }
+
+                block.querySelectorAll('label').forEach(label => {
+                    if (!label.querySelector('input[type="radio"]') || label.querySelector('.btn-eliminate-option')) return;
+                    label.classList.add('answer-option-label');
+                    const row = label.closest('li') || label.parentElement;
+                    row.classList.add('question-option-row');
+                    const eliminateButton = document.createElement('button');
+                    eliminateButton.className = 'btn-eliminate-option';
+                    eliminateButton.type = 'button';
+                    eliminateButton.textContent = '✕';
+                    eliminateButton.title = 'Gạch bỏ đáp án này';
+                    eliminateButton.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        label.classList.toggle('answer-eliminated');
+                    };
+                    row.appendChild(eliminateButton);
+                });
 
                 const inputs = block.querySelectorAll('input[type="radio"], input[type="text"]');
                 inputs.forEach(input => {
                     input.addEventListener('change', () => {
+                        block.classList.add('is-answered');
+                        const navButtonForAnswer = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button')[qNum - 1];
+                        if (navButtonForAnswer) navButtonForAnswer.classList.add('is-answered');
                         captureAndSaveDraftFromIframe(false);
                     });
                 });
+
+                const hasAnswer = Boolean(block.querySelector('input[type="radio"]:checked') || [...block.querySelectorAll('input[type="text"]')].some(input => input.value.trim()));
+                if (hasAnswer) {
+                    block.classList.add('is-answered');
+                    if (navButton) navButton.classList.add('is-answered');
+                }
             });
+
+            const syncNavigationResults = () => {
+                questionBlocks.forEach((block, index) => {
+                    const navButton = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button')[index];
+                    if (!navButton) return;
+                    const checkedInput = block.querySelector('input[type="radio"]:checked');
+                    const selectedLabel = checkedInput?.closest('label');
+                    const hasCorrect = Boolean(
+                        selectedLabel?.classList.contains('correct-answer-label') ||
+                        block.querySelector('.correct-input')
+                    );
+                    const hasWrong = Boolean(
+                        selectedLabel?.classList.contains('wrong-answer-label') ||
+                        block.querySelector('.wrong-input')
+                    );
+                    const hasAnswer = Boolean(block.querySelector('input[type="radio"]:checked') || [...block.querySelectorAll('input[type="text"]')].some(input => input.value.trim()));
+                    navButton.classList.toggle('answer-correct', hasCorrect);
+                    navButton.classList.toggle('answer-wrong', !hasCorrect && hasWrong);
+                    navButton.classList.toggle('is-answered', !hasCorrect && !hasWrong && hasAnswer);
+                });
+            };
+
+            syncNavigationResults();
+            const checkButton = iframeDoc.querySelector('#checkBtn, .global-check-btn');
+            if (checkButton && !checkButton.__saturnifyResultListener) {
+                checkButton.addEventListener('click', () => setTimeout(syncNavigationResults, 0));
+                checkButton.__saturnifyResultListener = true;
+            }
+
+            if (!iframeDoc.__saturnifyAnswerStateListener) {
+                iframeDoc.addEventListener('change', event => {
+                    const changedInput = event.target;
+                    if (!changedInput.matches('input[type="radio"], input[type="text"]')) return;
+
+                    const block = changedInput.closest('.question-block, .question');
+                    if (!block) return;
+
+                    const hasAnswer = Boolean(
+                        block.querySelector('input[type="radio"]:checked') ||
+                        [...block.querySelectorAll('input[type="text"]')].some(input => input.value.trim())
+                    );
+                    block.classList.toggle('is-answered', hasAnswer);
+
+                    const questionIndex = [...questionBlocks].indexOf(block);
+                    const navButton = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button')[questionIndex];
+                    if (navButton) navButton.classList.toggle('is-answered', hasAnswer);
+                });
+                iframeDoc.__saturnifyAnswerStateListener = true;
+            }
         } catch (e) { console.log("Lỗi chèn thanh điều hướng:", e); }
     }
 
@@ -1516,6 +1903,7 @@
         if (event.data.type === 'SAT_SUBMIT_RESULT') {
             clearInterval(autoSaveInterval);
             const resultData = event.data.data || {};
+            resultData.submissionType = 'checked';
             const loggedName = sessionStorage.getItem('studentName');
             const loggedId = sessionStorage.getItem('studentId');
 
@@ -1598,6 +1986,8 @@
 
     window.sendResultToFirebase = async function(data) {
         try {
+            if (!data || data.submissionType !== 'checked') return;
+
             const scoreNum = data.score !== undefined ? Number(data.score) : 0;
             const totalNum = data.total !== undefined ? Number(data.total) : (data.totalQuestions ? Number(data.totalQuestions) : 0);
             
@@ -1613,6 +2003,7 @@
                 startTime: data.startTime || '',
                 endTime: data.endTime || '',
                 duration: data.duration || '',
+                submissionType: 'checked',
                 displayTime: data.displayTime || new Date().toLocaleString('vi-VN'),
                 timestamp: serverTimestamp()
             };
