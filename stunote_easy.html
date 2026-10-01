@@ -9,6 +9,8 @@
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
         .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .research-note-list { margin: 8px 0 12px; padding-left: 1.5rem; font-weight: normal; }
+        .research-note-list li { margin: 4px 0; }
         
         /* Căn chỉnh hiển thị cho đoạn văn Passage */
         .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
@@ -657,6 +659,29 @@
         }
     }
 
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[character]));
+    }
+
+    function formatQuestionNotes(question) {
+      const match = question.match(/^(.*?taken the following notes:\s*)([\s\S]*?)(\s*The student wants to\b[\s\S]*)$/i);
+      if (!match) return escapeHtml(question);
+
+      const [, beforeNotes, notes, afterNotes] = match;
+      let statements;
+      if (typeof Intl.Segmenter === 'function') {
+        const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
+        statements = [...segmenter.segment(notes)].map(item => item.segment.trim()).filter(Boolean);
+      } else {
+        statements = notes.match(/[^.!?]+(?:[.!?]+|$)/g)?.map(item => item.trim()).filter(Boolean) || [notes.trim()];
+      }
+
+      const bullets = statements.map(statement => `<li>${escapeHtml(statement)}</li>`).join('');
+      return `${escapeHtml(beforeNotes)}<ul class="research-note-list">${bullets}</ul>${escapeHtml(afterNotes)}`;
+    }
+
     function buildQuiz() {
         localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
         quizContainer.innerHTML = '';
@@ -684,7 +709,7 @@
             }
 
             questionBlock.innerHTML = `
-                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+              <div class="question-text">Câu ${index + 1}: ${formatQuestionNotes(data.question)}</div>
                 <ul class="options">${optionsHtml}</ul>
                 <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
             `;
