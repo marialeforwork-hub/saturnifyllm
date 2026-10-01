@@ -64,11 +64,17 @@
             block.querySelectorAll('.question-annotation-canvas').forEach(canvas => {
                 canvas.__saturnifyClearDrawing?.();
                 canvas.classList.remove('is-drawing');
+                canvas.classList.remove('is-erasing');
             });
             const drawButton = block.querySelector('.question-annotate-control');
             if (drawButton) {
                 drawButton.classList.remove('is-active');
                 drawButton.textContent = '✎ Vẽ';
+            }
+            const eraserButton = block.querySelector('.question-eraser-control');
+            if (eraserButton) {
+                eraserButton.classList.remove('is-active');
+                eraserButton.textContent = '⌫ Tẩy';
             }
         });
 
@@ -262,12 +268,26 @@
             const state = canvas?.__saturnifyDrawingState;
             const width = Math.max(1, block.clientWidth);
             const height = Math.max(1, block.scrollHeight);
-            const strokes = (state?.strokes || []).map(stroke => stroke.map(point => ({
-                x: point.x / width,
-                y: point.y / height
-            })));
+            const strokes = (state?.strokes || []).map(stroke => {
+                const isLegacyStroke = Array.isArray(stroke);
+                const points = isLegacyStroke ? stroke : stroke.points;
+                return {
+                    mode: isLegacyStroke ? 'draw' : stroke.mode,
+                    color: isLegacyStroke ? '#d94f5c' : stroke.color || '#d94f5c',
+                    width: isLegacyStroke ? 3 : Number(stroke.width) || (stroke.mode === 'erase' ? 18 : 3),
+                    points: points.map(point => ({ x: point.x / width, y: point.y / height }))
+                };
+            });
 
-            result[questionId] = { marks, strokes };
+            result[questionId] = {
+                marks,
+                strokes,
+                drawingStyle: state ? {
+                    color: state.drawColor,
+                    size: state.drawSize,
+                    eraserSize: state.eraserSize
+                } : null
+            };
             return result;
         }, {});
     }
@@ -282,7 +302,7 @@
             (saved.marks || []).forEach(mark => restoreTextMark(block, mark));
             const canvas = block.querySelector('.question-annotation-canvas');
             if (canvas && typeof canvas.__saturnifySetDrawingStrokes === 'function') {
-                canvas.__saturnifySetDrawingStrokes(saved.strokes || []);
+                canvas.__saturnifySetDrawingStrokes(saved.strokes || [], saved.drawingStyle);
             }
         });
     }
@@ -299,7 +319,13 @@
         }
 
         if (!canvas.__saturnifyDrawingState) {
-            canvas.__saturnifyDrawingState = { strokes: [], currentStroke: null };
+            canvas.__saturnifyDrawingState = {
+                strokes: [],
+                currentStroke: null,
+                drawColor: '#d94f5c',
+                drawSize: 3,
+                eraserSize: 18
+            };
         }
         const state = canvas.__saturnifyDrawingState;
 
@@ -317,12 +343,20 @@
             const context = canvas.getContext('2d');
             context.setTransform(ratio, 0, 0, ratio, 0, 0);
             context.clearRect(0, 0, canvas.width / ratio, canvas.height / ratio);
-            context.lineWidth = 3;
             context.lineCap = 'round';
             context.lineJoin = 'round';
-            context.strokeStyle = '#d94f5c';
-            state.strokes.forEach(stroke => drawStroke(context, stroke));
-            if (state.currentStroke) drawStroke(context, state.currentStroke);
+            const renderStroke = stroke => {
+                const legacyStroke = Array.isArray(stroke);
+                const mode = legacyStroke ? 'draw' : stroke.mode;
+                const points = legacyStroke ? stroke : stroke.points;
+                context.globalCompositeOperation = mode === 'erase' ? 'destination-out' : 'source-over';
+                context.lineWidth = Number(stroke.width) || (mode === 'erase' ? state.eraserSize : state.drawSize);
+                context.strokeStyle = mode === 'erase' ? '#000' : stroke.color || state.drawColor;
+                drawStroke(context, points);
+            };
+            state.strokes.forEach(renderStroke);
+            if (state.currentStroke) renderStroke(state.currentStroke);
+            context.globalCompositeOperation = 'source-over';
         };
 
         canvas.__saturnifyUndoDrawing = () => {
@@ -347,23 +381,59 @@
             redrawCanvas();
         };
 
-        canvas.__saturnifySetDrawingStrokes = savedStrokes => {
+        canvas.__saturnifySetDrawingStrokes = (savedStrokes, savedStyle) => {
+            if (savedStyle) {
+                state.drawColor = savedStyle.color || state.drawColor;
+                state.drawSize = Number(savedStyle.size) || state.drawSize;
+                state.eraserSize = Number(savedStyle.eraserSize) || state.eraserSize;
+
+                const sizeToggle = block.querySelector('.question-markup-option-toggle:not(.question-markup-color-toggle)');
+                if (sizeToggle) sizeToggle.dataset.selectedSize = String(state.drawSize);
+                block.querySelectorAll('.question-markup-size-option').forEach(option => {
+                    option.classList.toggle('is-selected', Number(option.title.match(/\d+/)?.[0]) === state.drawSize);
+                });
+
+                const colorToggle = block.querySelector('.question-markup-color-toggle');
+                if (colorToggle) {
+                    colorToggle.style.setProperty('--ink-color', state.drawColor);
+                    colorToggle.dataset.selectedColor = state.drawColor;
+                }
+                block.querySelectorAll('.question-markup-ink-option').forEach(option => {
+                    option.classList.toggle('is-selected', option.style.backgroundColor === state.drawColor);
+                });
+            }
             resizeCanvas();
             const width = Math.max(1, block.clientWidth);
             const height = Math.max(1, block.scrollHeight);
-            state.strokes = savedStrokes.map(stroke => stroke.map(point => ({
-                x: point.x * width,
-                y: point.y * height
-            })));
+            state.strokes = savedStrokes.map(stroke => {
+                const isLegacyStroke = Array.isArray(stroke);
+                const points = isLegacyStroke ? stroke : stroke.points;
+                return {
+                    mode: isLegacyStroke ? 'draw' : stroke.mode || 'draw',
+                    color: isLegacyStroke ? '#d94f5c' : stroke.color || '#d94f5c',
+                    width: isLegacyStroke ? 3 : Number(stroke.width) || (stroke.mode === 'erase' ? 18 : 3),
+                    points: points.map(point => ({ x: point.x * width, y: point.y * height }))
+                };
+            });
             redrawCanvas();
         };
 
-        const setDrawingMode = enabled => {
+        const setDrawingMode = mode => {
             if (getComputedStyle(block).position === 'static') block.style.position = 'relative';
             resizeCanvas();
-            canvas.classList.toggle('is-drawing', enabled);
-            drawButton.classList.toggle('is-active', enabled);
-            drawButton.textContent = enabled ? '✎ Đang vẽ' : '✎ Vẽ';
+            const isDrawing = mode === 'draw';
+            const isErasing = mode === 'erase';
+            canvas.classList.toggle('is-drawing', isDrawing || isErasing);
+            canvas.classList.toggle('is-erasing', isErasing);
+            drawButton.classList.toggle('is-active', isDrawing);
+            drawButton.textContent = isDrawing ? '✎ Đang vẽ' : '✎ Vẽ';
+            const eraserButton = block.querySelector('.question-eraser-control');
+            if (eraserButton) {
+                eraserButton.classList.toggle('is-active', isErasing);
+                eraserButton.textContent = isErasing ? 'Tắt tẩy' : '⌫ Tẩy';
+                eraserButton.title = isErasing ? 'Tắt chế độ tẩy' : 'Bật tẩy và kéo trên nét cần xóa';
+                eraserButton.setAttribute('aria-label', eraserButton.title);
+            }
         };
 
         if (!canvas.__saturnifyDrawingReady) {
@@ -377,27 +447,41 @@
                 if (!canvas.classList.contains('is-drawing')) return;
                 drawing = true;
                 canvas.setPointerCapture(event.pointerId);
-                state.currentStroke = [getPoint(event)];
+                const mode = canvas.classList.contains('is-erasing') ? 'erase' : 'draw';
+                state.currentStroke = {
+                    mode,
+                    color: state.drawColor,
+                    width: mode === 'erase' ? state.eraserSize : state.drawSize,
+                    points: [getPoint(event)]
+                };
             });
             canvas.addEventListener('pointermove', event => {
                 if (!drawing) return;
-                state.currentStroke.push(getPoint(event));
+                state.currentStroke.points.push(getPoint(event));
                 redrawCanvas();
             });
             ['pointerup', 'pointercancel'].forEach(type => canvas.addEventListener(type, () => {
                 drawing = false;
-                if (state.currentStroke?.length) state.strokes.push(state.currentStroke);
+                if (state.currentStroke?.points.length) state.strokes.push(state.currentStroke);
                 state.currentStroke = null;
                 redrawCanvas();
             }));
             canvas.__saturnifyDrawingReady = true;
         }
 
-        return { canvas, resizeCanvas, setDrawingMode };
+        return { canvas, resizeCanvas, setDrawingMode, state };
     }
 
     function createHighlightControls(block, toolbar) {
         if (toolbar.querySelector('.quiz-highlight-toolbar')) return;
+
+        const closeOnPointerLeave = (group, closePopover) => {
+            let closeTimer;
+            group.addEventListener('pointerenter', () => window.clearTimeout(closeTimer));
+            group.addEventListener('pointerleave', () => {
+                closeTimer = window.setTimeout(closePopover, 250);
+            });
+        };
 
         const highlightToolbar = document.createElement('span');
         highlightToolbar.className = 'quiz-highlight-toolbar';
@@ -448,28 +532,58 @@
         underlineButton.addEventListener('click', () => applyTextMark(block, 'underline'));
         markupMenu.appendChild(underlineButton);
 
+        const eraserToolsGroup = document.createElement('span');
+        eraserToolsGroup.className = 'question-markup-option-group question-eraser-tools-group';
+        const eraserToolsToggle = document.createElement('button');
+        eraserToolsToggle.className = 'question-markup-option-toggle';
+        eraserToolsToggle.type = 'button';
+        eraserToolsToggle.textContent = '🧽';
+        eraserToolsToggle.title = 'Mở công cụ tẩy';
+        eraserToolsToggle.setAttribute('aria-label', 'Mở công cụ tẩy');
+        const eraserToolsMenu = document.createElement('span');
+        eraserToolsMenu.className = 'question-markup-option-popover question-eraser-tools-menu';
+        eraserToolsMenu.hidden = true;
+        const positionEraserMenu = () => {
+            if (eraserToolsMenu.hidden) return;
+            const groupRect = eraserToolsGroup.getBoundingClientRect();
+            const toggleRect = eraserToolsToggle.getBoundingClientRect();
+            const menuRect = eraserToolsMenu.getBoundingClientRect();
+            const margin = 8;
+            const wantedLeft = toggleRect.left + toggleRect.width / 2 - menuRect.width / 2;
+            const viewportLeft = Math.max(margin, Math.min(wantedLeft, window.innerWidth - menuRect.width - margin));
+            eraserToolsMenu.style.left = `${viewportLeft - groupRect.left}px`;
+            eraserToolsMenu.style.transform = 'none';
+        };
+        eraserToolsToggle.addEventListener('click', () => {
+            eraserToolsMenu.hidden = !eraserToolsMenu.hidden;
+            if (!eraserToolsMenu.hidden) requestAnimationFrame(positionEraserMenu);
+        });
+        closeOnPointerLeave(eraserToolsGroup, () => {
+            eraserToolsMenu.hidden = true;
+            eraserSizeOptions.hidden = true;
+        });
+        window.addEventListener('resize', positionEraserMenu);
+
         const clearButton = document.createElement('button');
         clearButton.className = 'question-markup-clear';
         clearButton.type = 'button';
-        clearButton.textContent = '⌫ Highlight';
+        clearButton.textContent = '▧ Xóa highlight';
         clearButton.title = 'Xóa highlight';
         clearButton.setAttribute('aria-label', 'Xóa highlight');
-        clearButton.addEventListener('click', () => {
-            clearTextMarks(block);
-        });
-        markupMenu.appendChild(clearButton);
+        clearButton.addEventListener('click', () => clearTextMarks(block));
+        eraserToolsMenu.appendChild(clearButton);
 
         const clearDrawingButton = document.createElement('button');
         clearDrawingButton.className = 'question-markup-clear';
         clearDrawingButton.type = 'button';
-        clearDrawingButton.textContent = '🗑 Nét vẽ';
+        clearDrawingButton.textContent = '🗑 Xóa nét';
         clearDrawingButton.title = 'Xóa nét vẽ annotate';
         clearDrawingButton.setAttribute('aria-label', 'Xóa nét vẽ annotate');
         clearDrawingButton.addEventListener('click', () => {
             const canvas = block.querySelector('.question-annotation-canvas');
             canvas?.__saturnifyClearDrawing?.();
         });
-        markupMenu.appendChild(clearDrawingButton);
+        eraserToolsMenu.appendChild(clearDrawingButton);
 
         const undoDrawingButton = document.createElement('button');
         undoDrawingButton.className = 'question-markup-clear question-annotate-undo';
@@ -481,12 +595,12 @@
             const canvas = block.querySelector('.question-annotation-canvas');
             canvas?.__saturnifyUndoDrawing?.();
         });
-        markupMenu.appendChild(undoDrawingButton);
+        eraserToolsMenu.appendChild(undoDrawingButton);
 
         const clearAllButton = document.createElement('button');
         clearAllButton.className = 'question-markup-clear question-markup-clear-all';
         clearAllButton.type = 'button';
-        clearAllButton.textContent = '🗑 Tất cả';
+        clearAllButton.textContent = '⊗ Xóa tất cả';
         clearAllButton.title = 'Xóa toàn bộ highlight và nét vẽ';
         clearAllButton.setAttribute('aria-label', 'Xóa toàn bộ highlight và nét vẽ');
         clearAllButton.addEventListener('click', () => {
@@ -494,7 +608,7 @@
             const canvas = block.querySelector('.question-annotation-canvas');
             canvas?.__saturnifyClearDrawing?.();
         });
-        markupMenu.appendChild(clearAllButton);
+        eraserToolsMenu.appendChild(clearAllButton);
 
         const drawButton = document.createElement('button');
         drawButton.className = 'question-annotate-control';
@@ -503,8 +617,141 @@
         drawButton.title = 'Vẽ annotate lên câu hỏi';
         drawButton.setAttribute('aria-label', 'Vẽ annotate lên câu hỏi');
         const annotation = setupAnnotationCanvas(block, drawButton);
-        drawButton.addEventListener('click', () => annotation.setDrawingMode(!annotation.canvas.classList.contains('is-drawing')));
+        drawButton.addEventListener('click', () => {
+            const nextMode = annotation.canvas.classList.contains('is-drawing') && !annotation.canvas.classList.contains('is-erasing')
+                ? 'off'
+                : 'draw';
+            annotation.setDrawingMode(nextMode);
+        });
         markupMenu.appendChild(drawButton);
+
+        const sizeGroup = document.createElement('span');
+        sizeGroup.className = 'question-markup-option-group';
+        const sizeToggle = document.createElement('button');
+        sizeToggle.className = 'question-markup-option-toggle';
+        sizeToggle.type = 'button';
+        sizeToggle.textContent = '◉';
+        sizeToggle.title = 'Chọn cỡ bút và tẩy';
+        sizeToggle.setAttribute('aria-label', 'Chọn cỡ bút và tẩy');
+        const sizeOptions = document.createElement('span');
+        sizeOptions.className = 'question-markup-option-popover';
+        sizeOptions.hidden = true;
+        sizeToggle.addEventListener('click', () => { sizeOptions.hidden = !sizeOptions.hidden; });
+        closeOnPointerLeave(sizeGroup, () => { sizeOptions.hidden = true; });
+        sizeToggle.dataset.selectedSize = String(annotation.state.drawSize);
+        [[2, 'Nhỏ', '·'], [3, 'Vừa', '●'], [6, 'Lớn', '⬤']].forEach(([size, label, glyph]) => {
+            const option = document.createElement('button');
+            option.className = 'question-markup-size-option';
+            option.type = 'button';
+            option.textContent = glyph;
+            option.title = `${label}: cỡ ${size}`;
+            option.setAttribute('aria-label', option.title);
+            option.style.fontSize = `${Math.max(10, Number(size) * 2)}px`;
+            option.classList.toggle('is-selected', Number(size) === annotation.state.drawSize);
+            option.addEventListener('click', () => {
+                annotation.state.drawSize = Number(size);
+                sizeToggle.dataset.selectedSize = String(size);
+                sizeOptions.querySelectorAll('.question-markup-size-option').forEach(button => button.classList.toggle('is-selected', button === option));
+                sizeOptions.hidden = true;
+            });
+            sizeOptions.appendChild(option);
+        });
+        sizeGroup.append(sizeToggle, sizeOptions);
+        markupMenu.appendChild(sizeGroup);
+
+        const colorGroup = document.createElement('span');
+        colorGroup.className = 'question-markup-option-group';
+        const colorToggle = document.createElement('button');
+        colorToggle.className = 'question-markup-option-toggle question-markup-color-toggle';
+        colorToggle.type = 'button';
+        colorToggle.textContent = '🎨';
+        colorToggle.title = 'Chọn màu mực';
+        colorToggle.setAttribute('aria-label', 'Chọn màu mực');
+        colorToggle.style.setProperty('--ink-color', annotation.state.drawColor);
+        colorToggle.dataset.selectedColor = annotation.state.drawColor;
+        const colorOptions = document.createElement('span');
+        colorOptions.className = 'question-markup-option-popover question-markup-color-options';
+        colorOptions.hidden = true;
+        colorToggle.addEventListener('click', () => { colorOptions.hidden = !colorOptions.hidden; });
+        closeOnPointerLeave(colorGroup, () => { colorOptions.hidden = true; });
+        [['#d94f5c', 'Đỏ'], ['#356f9f', 'Xanh dương'], ['#27855b', 'Xanh lá'], ['#7758a6', 'Tím'], ['#252a34', 'Đen']].forEach(([color, label]) => {
+            const option = document.createElement('button');
+            option.className = 'question-markup-ink-option';
+            option.type = 'button';
+            option.title = label;
+            option.setAttribute('aria-label', `Mực ${label}`);
+            option.style.backgroundColor = color;
+            option.classList.toggle('is-selected', color === annotation.state.drawColor);
+            option.addEventListener('click', () => {
+                annotation.state.drawColor = color;
+                colorToggle.style.setProperty('--ink-color', color);
+                colorToggle.dataset.selectedColor = color;
+                colorOptions.querySelectorAll('.question-markup-ink-option').forEach(button => button.classList.toggle('is-selected', button === option));
+                colorOptions.hidden = true;
+            });
+            colorOptions.appendChild(option);
+        });
+        colorGroup.append(colorToggle, colorOptions);
+        markupMenu.appendChild(colorGroup);
+
+        const eraserButton = document.createElement('button');
+        eraserButton.className = 'question-markup-clear question-eraser-control';
+        eraserButton.type = 'button';
+        eraserButton.textContent = '⌫ Tẩy';
+        eraserButton.title = 'Bật tẩy và kéo trên nét cần xóa';
+        eraserButton.setAttribute('aria-label', 'Bật tẩy annotate');
+        eraserButton.addEventListener('click', () => {
+            const nextMode = annotation.canvas.classList.contains('is-erasing') ? 'off' : 'erase';
+            annotation.setDrawingMode(nextMode);
+        });
+
+        const eraserSizeGroup = document.createElement('span');
+        eraserSizeGroup.className = 'question-markup-option-group';
+        const eraserSizeToggle = document.createElement('button');
+        eraserSizeToggle.className = 'question-markup-option-toggle';
+        eraserSizeToggle.type = 'button';
+        eraserSizeToggle.textContent = '◉ Cỡ tẩy';
+        eraserSizeToggle.title = 'Chọn cỡ tẩy';
+        eraserSizeToggle.setAttribute('aria-label', 'Chọn cỡ tẩy');
+        eraserSizeToggle.dataset.selectedSize = String(annotation.state.eraserSize);
+        const eraserSizeOptions = document.createElement('span');
+        eraserSizeOptions.className = 'question-markup-option-popover question-markup-size-options';
+        eraserSizeOptions.hidden = true;
+        eraserSizeToggle.addEventListener('click', () => {
+            eraserSizeOptions.hidden = !eraserSizeOptions.hidden;
+            if (eraserSizeOptions.hidden) return;
+
+            eraserSizeOptions.style.position = 'fixed';
+            eraserSizeOptions.style.bottom = 'auto';
+            eraserSizeOptions.style.transform = 'none';
+            const toggleRect = eraserSizeToggle.getBoundingClientRect();
+            const optionsRect = eraserSizeOptions.getBoundingClientRect();
+            const margin = 8;
+            const wantedLeft = toggleRect.left + toggleRect.width / 2 - optionsRect.width / 2;
+            eraserSizeOptions.style.left = `${Math.max(margin, Math.min(wantedLeft, window.innerWidth - optionsRect.width - margin))}px`;
+            eraserSizeOptions.style.top = `${Math.max(margin, toggleRect.top - optionsRect.height - margin)}px`;
+        });
+        closeOnPointerLeave(eraserSizeGroup, () => { eraserSizeOptions.hidden = true; });
+        [[10, 'Nhỏ'], [20, 'Vừa'], [32, 'Lớn']].forEach(([size, label]) => {
+            const option = document.createElement('button');
+            option.className = 'question-markup-size-option';
+            option.type = 'button';
+            option.textContent = label;
+            option.title = `${label}: tẩy cỡ ${size}`;
+            option.setAttribute('aria-label', option.title);
+            option.classList.toggle('is-selected', Number(size) === annotation.state.eraserSize);
+            option.addEventListener('click', () => {
+                annotation.state.eraserSize = Number(size);
+                eraserSizeToggle.dataset.selectedSize = String(size);
+                eraserSizeOptions.querySelectorAll('.question-markup-size-option').forEach(button => button.classList.toggle('is-selected', button === option));
+                eraserSizeOptions.hidden = true;
+            });
+            eraserSizeOptions.appendChild(option);
+        });
+        eraserSizeGroup.append(eraserSizeToggle, eraserSizeOptions);
+        eraserToolsMenu.append(eraserButton, eraserSizeGroup);
+        eraserToolsGroup.append(eraserToolsToggle, eraserToolsMenu);
+        markupMenu.appendChild(eraserToolsGroup);
 
         highlightToolbar.append(toggleButton, markupMenu);
         toolbar.appendChild(highlightToolbar);
