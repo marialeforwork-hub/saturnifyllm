@@ -384,23 +384,28 @@
         #historyModal,
         #historyDetailModal,
         #timerModal,
-        #preSubmitModal { padding: 1rem; background: rgba(16, 27, 50, .72) !important; backdrop-filter: blur(7px); }
+        #preSubmitModal,
+        #exitQuizModal { padding: 1rem; background: rgba(16, 27, 50, .72) !important; backdrop-filter: blur(7px); }
         #historyModal > div,
         #historyDetailModal > div,
         #timerModal > div,
-        #preSubmitModal > div { border: 1px solid var(--color-line); border-radius: var(--radius-lg) !important; background: var(--color-surface) !important; box-shadow: var(--shadow-card) !important; }
+        #preSubmitModal > div,
+        #exitQuizModal > div { border: 1px solid var(--color-line); border-radius: var(--radius-lg) !important; background: var(--color-surface) !important; box-shadow: var(--shadow-card) !important; }
         #historyModal h2,
         #historyDetailModal h3,
         #timerModal h2,
-        #preSubmitModal h2 { color: var(--ink-950) !important; font-family: 'DM Mono', Consolas, monospace; letter-spacing: -.045em; }
+        #preSubmitModal h2,
+        #exitQuizModal h2 { color: var(--ink-950) !important; font-family: 'DM Mono', Consolas, monospace; letter-spacing: -.045em; }
         #historyModal > div > div:first-child,
         #historyDetailModal > div > div:first-child { border-color: var(--gold-400) !important; }
         #historyModal button,
         #historyDetailModal button,
         #timerModal button,
-        #preSubmitModal button { border-radius: var(--button-radius) !important; font-family: 'DM Mono', Consolas, monospace; }
+        #preSubmitModal button,
+        #exitQuizModal button { border-radius: var(--button-radius) !important; font-family: 'DM Mono', Consolas, monospace; }
         #timerModal button[onclick="startQuizWithTimer()"],
-        #preSubmitModal button[onclick="confirmFinalSubmit()"] { background: var(--ink-950) !important; }
+        #preSubmitModal button[onclick="confirmFinalSubmit()"],
+        #exitQuizModal button[onclick="finishExitQuiz(true)"] { background: var(--ink-950) !important; }
         .history-table { width: 100%; margin-top: 1rem; border-collapse: collapse; }
         .history-table th,
         .history-table td { padding: .7rem; border: 1px solid var(--sand-200); font-size: .85rem; text-align: center; }
@@ -1161,6 +1166,18 @@
     </div>
 </div>
 
+<div id="exitQuizModal" style="position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10006;">
+    <div style="padding: 25px 30px; max-width: 480px; width: 90%; text-align: center;">
+        <h2 style="margin-top: 0;">Lưu highlight và annotate?</h2>
+        <p style="color: #7674a5; line-height: 1.6;">Bạn có muốn giữ lại phần đã đánh dấu để xem tiếp khi mở lại bài không?</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
+            <button onclick="closeExitQuizModal()" style="flex: 1 1 100%; padding: 10px 16px; border: 1px solid #d9deea; background: #fff; color: #4d53a2; cursor: pointer;">Ở lại làm bài</button>
+            <button onclick="finishExitQuiz(false)" style="flex: 1; padding: 10px 14px; border: 1px solid #efb8c5; background: #fff2f4; color: #9f3f58; cursor: pointer;">Thoát không lưu</button>
+            <button onclick="finishExitQuiz(true)" style="flex: 1; padding: 10px 14px; border: 0; background: #4d53a2; color: #fff; cursor: pointer;">Lưu đánh dấu & thoát</button>
+        </div>
+    </div>
+</div>
+
 <!-- Khung chạy Quiz -->
 <div id="quizRunner" class="hidden">
     <div id="timerHeader">
@@ -1563,6 +1580,7 @@
             setupIframeSubmitInterceptor();
             setupBookmarkAndNavigation();
             restoreDraftToIframe();
+            restoreSavedAnnotationsToIframe();
         };
 
         iframe.src = selectedQuizUrl + joinChar + 'studentName=' + encodeURIComponent(curName) + '&studentId=' + encodeURIComponent(curId);
@@ -1889,17 +1907,50 @@
         }
     }
 
-    function exitQuiz() {
-        if (confirm("Thoát khỏi bài làm? Tiến độ làm bài của bạn đã được lưu tự động.")) {
-            clearInterval(timerInterval);
-            clearInterval(autoSaveInterval);
-            captureAndSaveDraftFromIframe(false);
-            
-            document.getElementById('quizIframe').src = "";
-            document.getElementById('quizRunner').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-            updateAllProgressBars();
+    function getQuizAnnotationStorageKey() {
+        const studentId = sessionStorage.getItem('studentId') || 'guest';
+        return `quiz_annotations_${studentId}_${selectedQuizStorageKey || selectedQuizTitle}`;
+    }
+
+    function restoreSavedAnnotationsToIframe() {
+        try {
+            const raw = localStorage.getItem(getQuizAnnotationStorageKey());
+            if (!raw) return;
+            const iframeWindow = document.getElementById('quizIframe').contentWindow;
+            const annotations = JSON.parse(raw);
+            iframeWindow.__saturnifyRestoreAnnotations?.(annotations);
+        } catch (error) {
+            console.warn('Không thể khôi phục highlight/annotate:', error);
         }
+    }
+
+    function closeExitQuizModal() {
+        document.getElementById('exitQuizModal').style.display = 'none';
+    }
+
+    function exitQuiz() {
+        document.getElementById('exitQuizModal').style.display = 'flex';
+    }
+
+    function finishExitQuiz(saveAnnotations) {
+        try {
+            const iframeWindow = document.getElementById('quizIframe').contentWindow;
+            if (saveAnnotations && typeof iframeWindow.__saturnifySerializeAnnotations === 'function') {
+                localStorage.setItem(getQuizAnnotationStorageKey(), JSON.stringify(iframeWindow.__saturnifySerializeAnnotations()));
+            }
+        } catch (error) {
+            console.warn('Không thể lưu highlight/annotate:', error);
+        }
+
+        closeExitQuizModal();
+        clearInterval(timerInterval);
+        clearInterval(autoSaveInterval);
+        captureAndSaveDraftFromIframe(false);
+
+        document.getElementById('quizIframe').src = '';
+        document.getElementById('quizRunner').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        updateAllProgressBars();
     }
 
     window.onload = function() {

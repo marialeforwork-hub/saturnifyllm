@@ -186,6 +186,110 @@
         });
     }
 
+    function getSelectableTextNodes(block) {
+        const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        let node;
+        while ((node = walker.nextNode())) {
+            if (node.parentElement?.closest('.quiz-note-toolbar, .question-header, .question-annotation-canvas, .question-note-print')) continue;
+            nodes.push(node);
+        }
+        return nodes;
+    }
+
+    function getTextOffset(block, targetNode, targetOffset) {
+        let total = 0;
+        for (const node of getSelectableTextNodes(block)) {
+            if (node === targetNode) return total + targetOffset;
+            total += node.textContent.length;
+        }
+        return null;
+    }
+
+    function getTextPoint(block, targetOffset) {
+        let remaining = targetOffset;
+        const nodes = getSelectableTextNodes(block);
+        for (const node of nodes) {
+            if (remaining <= node.textContent.length) return { node, offset: remaining };
+            remaining -= node.textContent.length;
+        }
+        const last = nodes[nodes.length - 1];
+        return last ? { node: last, offset: last.textContent.length } : null;
+    }
+
+    function restoreTextMark(block, savedMark) {
+        const start = getTextPoint(block, savedMark.start);
+        const end = getTextPoint(block, savedMark.end);
+        if (!start || !end || savedMark.end <= savedMark.start) return;
+
+        const range = document.createRange();
+        range.setStart(start.node, start.offset);
+        range.setEnd(end.node, end.offset);
+        const mark = document.createElement('span');
+        mark.className = `saturnify-text-mark ${savedMark.underline ? 'saturnify-underline' : ''}`;
+        if (savedMark.color) mark.style.backgroundColor = savedMark.color;
+        try {
+            range.surroundContents(mark);
+        } catch (error) {
+            const fragment = range.extractContents();
+            mark.appendChild(fragment);
+            range.insertNode(mark);
+        }
+    }
+
+    function serializeAnnotations() {
+        return getQuestionBlocks().reduce((result, block) => {
+            const questionId = block.id || `question-${result.length + 1}`;
+            const marks = [...block.querySelectorAll('.saturnify-text-mark')].map(mark => {
+                const walker = document.createTreeWalker(mark, NodeFilter.SHOW_TEXT);
+                const markTextNodes = [];
+                let textNode;
+                while ((textNode = walker.nextNode())) markTextNodes.push(textNode);
+                if (!markTextNodes.length) return null;
+                const firstTextNode = markTextNodes[0];
+                const lastTextNode = markTextNodes[markTextNodes.length - 1];
+                const start = getTextOffset(block, firstTextNode, 0);
+                const end = getTextOffset(block, lastTextNode, lastTextNode.textContent.length);
+                return start === null || end === null ? null : {
+                    start,
+                    end,
+                    color: mark.style.backgroundColor || '',
+                    underline: mark.classList.contains('saturnify-underline')
+                };
+            }).filter(Boolean);
+
+            const canvas = block.querySelector('.question-annotation-canvas');
+            const state = canvas?.__saturnifyDrawingState;
+            const width = Math.max(1, block.clientWidth);
+            const height = Math.max(1, block.scrollHeight);
+            const strokes = (state?.strokes || []).map(stroke => stroke.map(point => ({
+                x: point.x / width,
+                y: point.y / height
+            })));
+
+            result[questionId] = { marks, strokes };
+            return result;
+        }, {});
+    }
+
+    function restoreAnnotations(savedAnnotations) {
+        if (!savedAnnotations || typeof savedAnnotations !== 'object') return;
+        getQuestionBlocks().forEach((block, index) => {
+            const questionId = block.id || `question-${index + 1}`;
+            const saved = savedAnnotations[questionId];
+            if (!saved) return;
+
+            (saved.marks || []).forEach(mark => restoreTextMark(block, mark));
+            const canvas = block.querySelector('.question-annotation-canvas');
+            if (canvas && typeof canvas.__saturnifySetDrawingStrokes === 'function') {
+                canvas.__saturnifySetDrawingStrokes(saved.strokes || []);
+            }
+        });
+    }
+
+    window.__saturnifySerializeAnnotations = serializeAnnotations;
+    window.__saturnifyRestoreAnnotations = restoreAnnotations;
+
     function setupAnnotationCanvas(block, drawButton) {
         let canvas = block.querySelector('.question-annotation-canvas');
         if (!canvas) {
@@ -240,6 +344,17 @@
             canvas.height = height * ratio;
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
+            redrawCanvas();
+        };
+
+        canvas.__saturnifySetDrawingStrokes = savedStrokes => {
+            resizeCanvas();
+            const width = Math.max(1, block.clientWidth);
+            const height = Math.max(1, block.scrollHeight);
+            state.strokes = savedStrokes.map(stroke => stroke.map(point => ({
+                x: point.x * width,
+                y: point.y * height
+            })));
             redrawCanvas();
         };
 
