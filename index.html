@@ -1392,12 +1392,11 @@
             const tr = document.createElement('tr');
             
             let scoreStr = "N/A";
-            const scoreNum = Number(item.score) || 0;
-            const totalNum = Number(item.total || item.totalQuestions) || 0;
+            const { score: scoreNum, total: totalNum, estimated } = normalizeQuizScore(item);
             
             if (totalNum > 0) {
-                const pct = Math.round((scoreNum / totalNum) * 100);
-                scoreStr = `${scoreNum}/${totalNum} (${pct}%)`;
+                const pct = item.percentage || (scoreNum !== null ? `${Math.round((scoreNum / totalNum) * 100)}%` : 'N/A');
+                scoreStr = scoreNum === null ? `${pct} (${totalNum} câu)` : `${estimated ? '~' : ''}${scoreNum}/${totalNum} (${pct})`;
             } else {
                 scoreStr = `${scoreNum} câu`;
             }
@@ -1417,6 +1416,31 @@
             `;
             tbody.appendChild(tr);
         });
+    }
+
+    function normalizeQuizScore(item) {
+        const scoreText = String(item?.score ?? '').trim();
+        const fraction = scoreText.match(/^(-?\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
+        const parsedScore = fraction ? Number(fraction[1]) : Number(scoreText);
+        const itemTotal = Number(item?.total ?? item?.totalQuestions);
+        const answers = item?.answers;
+        const answerValues = Array.isArray(answers) ? answers : answers && typeof answers === 'object' ? Object.values(answers) : [];
+        const hasCorrectMetadata = answerValues.some(answer => answer && typeof answer === 'object' && (typeof answer.isCorrect === 'boolean' || typeof answer.correct === 'boolean'));
+        const derivedScore = hasCorrectMetadata
+            ? answerValues.filter(answer => answer && typeof answer === 'object' && (answer.isCorrect === true || answer.correct === true)).length
+            : null;
+        const fallbackTotal = fraction ? Number(fraction[2]) : answerValues.length;
+        const total = Number.isFinite(itemTotal) && itemTotal > 0 ? itemTotal : fallbackTotal;
+        const percentage = Number.parseFloat(String(item?.percentage ?? '').replace('%', '').trim());
+        const estimatedScore = Number.isFinite(percentage) && total > 0
+            ? Math.round((percentage / 100) * total)
+            : null;
+        const exactScore = Number.isFinite(parsedScore) ? parsedScore : derivedScore;
+        return {
+            score: exactScore !== null ? exactScore : estimatedScore,
+            total: Number.isFinite(total) ? total : 0,
+            estimated: exactScore === null && estimatedScore !== null
+        };
     }
 
     function isCompletedHistoryItem(item) {
@@ -1445,10 +1469,14 @@
 
         document.getElementById('historyDetailTitle').innerText = `🔍 Chi Tiết: ${item.quizTitle || 'Bài Tập'}`;
         const container = document.getElementById('historyDetailContent');
+        const normalizedScore = normalizeQuizScore(item);
+        const historyScoreText = normalizedScore.score === null
+            ? `${item.percentage || 'Chưa rõ'} (${normalizedScore.total} câu)`
+            : `${normalizedScore.estimated ? '~' : ''}${normalizedScore.score}/${normalizedScore.total}`;
         
         let html = `<div style="margin-bottom: 15px; background: #eef2f5; padding: 12px; border-radius: 6px;">
             <p style="margin:4px 0;"><strong>Thời gian nộp:</strong> ${item.displayTime || 'N/A'}</p>
-            <p style="margin:4px 0;"><strong>Điểm số:</strong> <span style="color:#27ae60; font-weight:bold;">${item.score}/${item.total || item.totalQuestions || 0}</span></p>
+            <p style="margin:4px 0;"><strong>Điểm số:</strong> <span style="color:#27ae60; font-weight:bold;">${historyScoreText}</span></p>
         </div>`;
 
         const answers = item.answers || {};
@@ -1959,12 +1987,72 @@
         }
     };
 
+    function collectCheckedAnswerDetails(iframeDocument) {
+        const blocks = [...iframeDocument.querySelectorAll('.question-block, .question')];
+        if (!blocks.length) return null;
+
+        let correctCount = 0;
+        let checkedStateCount = 0;
+        const answers = {};
+
+        blocks.forEach((block, index) => {
+            const selectedRadio = block.querySelector('input[type="radio"]:checked');
+            const selectedLabel = selectedRadio?.closest('label');
+            const textInput = [...block.querySelectorAll('input[type="text"], input[type="number"]')]
+                .find(input => input.value.trim() !== '');
+            const selectedChoice = selectedRadio?.value || textInput?.value.trim() || 'Bỏ trống';
+            const correctLabel = block.querySelector('label.correct-answer-label input[type="radio"]')?.closest('label');
+            const correctInput = Boolean(block.querySelector('.correct-input'));
+            const wrongInput = Boolean(block.querySelector('.wrong-input'));
+            const classified = Boolean(
+                selectedLabel?.classList.contains('correct-answer-label') ||
+                selectedLabel?.classList.contains('wrong-answer-label') ||
+                correctInput || wrongInput
+            );
+            const isCorrect = Boolean(
+                selectedLabel?.classList.contains('correct-answer-label') || correctInput
+            );
+            if (classified) checkedStateCount++;
+            if (isCorrect) correctCount++;
+
+            const questionText = block.querySelector('.question-text')?.innerText ||
+                block.querySelector('.question-text')?.textContent || '';
+            const feedback = block.querySelector('.answer-feedback')?.innerText || '';
+
+            answers[`Câu ${index + 1}`] = {
+                questionText: questionText.trim(),
+                userChoice: selectedChoice,
+                correctAnswer: correctLabel?.querySelector('input[type="radio"]')?.value || '',
+                isCorrect,
+                isAnswered: selectedChoice !== 'Bỏ trống',
+                feedback
+            };
+        });
+
+        if (!checkedStateCount) return null;
+        return {
+            answers,
+            score: correctCount,
+            total: blocks.length,
+            percentage: blocks.length ? `${Math.round((correctCount / blocks.length) * 100)}%` : '0%'
+        };
+    }
+
     window.addEventListener('message', function(event) {
         if (!event.data) return;
 
         if (event.data.type === 'SAT_SUBMIT_RESULT') {
             clearInterval(autoSaveInterval);
             const resultData = event.data.data || {};
+            try {
+                const checkedResult = collectCheckedAnswerDetails(document.getElementById('quizIframe').contentWindow.document);
+                if (checkedResult) Object.assign(resultData, checkedResult);
+            } catch (error) {
+                console.warn('Không thể lấy trạng thái chấm từ bài quiz:', error);
+            }
+            const normalizedScore = normalizeQuizScore(resultData);
+            resultData.score = normalizedScore.score;
+            resultData.total = normalizedScore.total;
             resultData.submissionType = 'checked';
             const loggedName = sessionStorage.getItem('studentName');
             const loggedId = sessionStorage.getItem('studentId');
@@ -2051,8 +2139,7 @@
         try {
             if (!data || data.submissionType !== 'checked') return;
 
-            const scoreNum = data.score !== undefined ? Number(data.score) : 0;
-            const totalNum = data.total !== undefined ? Number(data.total) : (data.totalQuestions ? Number(data.totalQuestions) : 0);
+            const { score: scoreNum, total: totalNum } = normalizeQuizScore(data);
             
             const payload = {
                 name: data.name || data.studentName || 'Học sinh ẩn danh',

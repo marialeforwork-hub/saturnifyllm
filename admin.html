@@ -557,6 +557,203 @@
 
     let rawResultsData = [];
     let rawDraftsData = [];
+    const legacyAnswerKeyCache = new Map();
+    const legacyQuizFiles = new Map([
+        ['boundaries', 'Boundaries_Quiz_107.html'],
+        ['math practice - orxan selection', 'ORXAN_SELECTION.html'],
+        ['math practice - orxan 3', 'ORXAN_3.html'],
+        ['de thi sat math 8/2026', 'augustmath.html'],
+        ['practice test: elite x3', 'ELITEX3.1.html'],
+        ['math practice - orxan 1', 'ORXAN_1.html'],
+        ['67_geometry', '67_GEOMETRY.html']
+    ]);
+
+    function normalizeQuizTitle(title) {
+        return String(title || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().trim();
+    }
+
+    function readJsString(source, start) {
+        const quote = source[start];
+        let value = '';
+        for (let index = start + 1; index < source.length; index++) {
+            const character = source[index];
+            if (character === '\\') {
+                const next = source[++index];
+                const escaped = { n: '\n', r: '\r', t: '\t' }[next];
+                value += escaped ?? next ?? '';
+            } else if (character === quote) {
+                return { value, end: index + 1 };
+            } else {
+                value += character;
+            }
+        }
+        return { value, end: source.length };
+    }
+
+    function extractQuizAnswerKey(source) {
+        const declaration = /\b(?:const|let|var)\s+quizData\s*=\s*\[/.exec(source);
+        if (!declaration) return null;
+        const arrayStart = source.indexOf('[', declaration.index);
+        let depth = 0;
+        let quote = '';
+        let escaped = false;
+        let arrayEnd = -1;
+
+        for (let index = arrayStart; index < source.length; index++) {
+            const character = source[index];
+            if (quote) {
+                if (escaped) escaped = false;
+                else if (character === '\\') escaped = true;
+                else if (character === quote) quote = '';
+                continue;
+            }
+            if (character === '"' || character === "'" || character === '`') {
+                quote = character;
+            } else if (character === '[') {
+                depth++;
+            } else if (character === ']' && --depth === 0) {
+                arrayEnd = index;
+                break;
+            }
+        }
+        if (arrayEnd < 0) return null;
+
+        const arraySource = source.slice(arrayStart + 1, arrayEnd);
+        const answers = {};
+        let objectDepth = 0;
+        let questionIndex = 0;
+        let currentQuestion = {};
+
+        for (let index = 0; index < arraySource.length;) {
+            const character = arraySource[index];
+            if (character === '"' || character === "'" || character === '`') {
+                const parsed = readJsString(arraySource, index);
+                let cursor = parsed.end;
+                while (/\s/.test(arraySource[cursor] || '')) cursor++;
+                const propertyName = parsed.value;
+                if (objectDepth === 1 && ['id', 'answer', 'correctAnswer'].includes(propertyName) && arraySource[cursor] === ':') {
+                    cursor++;
+                    while (/\s/.test(arraySource[cursor] || '')) cursor++;
+                    const value = arraySource[cursor] === '"' || arraySource[cursor] === "'"
+                        ? readJsString(arraySource, cursor)
+                        : { value: '', end: cursor };
+                    if (propertyName === 'id' && value.value) currentQuestion.id = value.value;
+                    if (propertyName !== 'id' && value.value) currentQuestion.answer = value.value;
+                    index = value.end > cursor ? value.end : parsed.end;
+                } else {
+                    index = parsed.end;
+                }
+                continue;
+            }
+
+            if (/[A-Za-z_$]/.test(character)) {
+                let end = index + 1;
+                while (/[\w$]/.test(arraySource[end] || '')) end++;
+                const propertyName = arraySource.slice(index, end);
+                let cursor = end;
+                while (/\s/.test(arraySource[cursor] || '')) cursor++;
+                if (objectDepth === 1 && ['id', 'answer', 'correctAnswer'].includes(propertyName) && arraySource[cursor] === ':') {
+                    cursor++;
+                    while (/\s/.test(arraySource[cursor] || '')) cursor++;
+                    const value = arraySource[cursor] === '"' || arraySource[cursor] === "'"
+                        ? readJsString(arraySource, cursor)
+                        : { value: (arraySource.slice(cursor).match(/^[\w.+-]+/) || [''])[0], end: cursor };
+                    if (propertyName === 'id' && value.value) currentQuestion.id = value.value;
+                    if (propertyName !== 'id' && value.value) currentQuestion.answer = value.value;
+                    index = value.end > cursor ? value.end : end;
+                } else {
+                    index = end;
+                }
+                continue;
+            }
+
+            if (character === '{') {
+                objectDepth++;
+                if (objectDepth === 1) currentQuestion = {};
+            } else if (character === '}') {
+                objectDepth--;
+                if (objectDepth === 0 && currentQuestion.answer) {
+                    questionIndex++;
+                    answers[questionIndex] = currentQuestion.answer;
+                }
+            }
+            index++;
+        }
+
+        return Object.keys(answers).length ? answers : null;
+    }
+
+    async function getLegacyQuizAnswerKey(quizTitle) {
+        const normalizedTitle = normalizeQuizTitle(quizTitle);
+        if (legacyAnswerKeyCache.has(normalizedTitle)) return legacyAnswerKeyCache.get(normalizedTitle);
+
+        const fileName = legacyQuizFiles.get(normalizedTitle);
+        if (!fileName) return null;
+
+        const answerKeyPromise = fetch(fileName)
+            .then(response => response.ok ? response.text() : '')
+            .then(source => extractQuizAnswerKey(source))
+            .catch(() => null);
+        legacyAnswerKeyCache.set(normalizedTitle, answerKeyPromise);
+        return answerKeyPromise;
+    }
+
+    function reconstructLegacyResult(item, answerKey) {
+        if (!answerKey || !item.answers || typeof item.answers !== 'object') return false;
+        const answerEntries = Array.isArray(item.answers)
+            ? item.answers.map((answer, index) => [`Câu ${index + 1}`, answer])
+            : Object.entries(item.answers);
+        const reconstructedAnswers = {};
+        let matchedCount = 0;
+        let correctCount = 0;
+
+        answerEntries.forEach(([questionLabel, rawAnswer]) => {
+            const questionNumber = Number(String(questionLabel).match(/\d+/)?.[0]);
+            const correctAnswer = answerKey[questionNumber];
+            if (!questionNumber || correctAnswer === undefined) return;
+
+            const userChoice = rawAnswer && typeof rawAnswer === 'object'
+                ? rawAnswer.userChoice || rawAnswer.selected || rawAnswer.userAnswer || rawAnswer.choice || ''
+                : rawAnswer;
+            const normalizedChoice = String(userChoice ?? '').trim();
+            const isAnswered = normalizedChoice !== '' && !['bỏ trống', 'chưa chọn', 'null', 'undefined'].includes(normalizedChoice.toLowerCase());
+            const isCorrect = isAnswered && normalizedChoice.replace(/\s+/g, '').toLowerCase() === String(correctAnswer).trim().replace(/\s+/g, '').toLowerCase();
+            if (isCorrect) correctCount++;
+            matchedCount++;
+            reconstructedAnswers[`Câu ${questionNumber}`] = {
+                questionText: rawAnswer && typeof rawAnswer === 'object' ? rawAnswer.questionText || '' : '',
+                userChoice: isAnswered ? normalizedChoice : 'Bỏ trống',
+                correctAnswer: String(correctAnswer),
+                isAnswered,
+                isCorrect
+            };
+        });
+
+        if (!matchedCount || matchedCount < answerEntries.length) return false;
+        item._reconstructedScore = correctCount;
+        item._reconstructedTotal = Object.keys(answerKey).length;
+        item._reconstructedPercentage = `${Math.round((correctCount / item._reconstructedTotal) * 100)}%`;
+        item._reconstructedAnswerDetails = reconstructedAnswers;
+        return true;
+    }
+
+    let legacyReconstructionRun = 0;
+    async function reconstructLegacyResultScores() {
+        const run = ++legacyReconstructionRun;
+        const candidates = rawResultsData.filter(item => !Number.isFinite(Number(item.score)) || !(Number(item.total) > 0));
+        const titles = [...new Set(candidates.map(item => item.quizTitle).filter(Boolean))];
+        const answerKeys = new Map(await Promise.all(titles.map(async title => [title, await getLegacyQuizAnswerKey(title)])));
+        if (run !== legacyReconstructionRun) return;
+
+        let changed = false;
+        candidates.forEach(item => {
+            if (reconstructLegacyResult(item, answerKeys.get(item.quizTitle))) changed = true;
+        });
+        if (changed) {
+            renderFilteredData();
+            renderStudentProgress();
+        }
+    }
 
     // 1. LẮNG NGHE KẾT QUẢ REALTIME
     const resultsQuery = query(collection(db, "results"), orderBy("timestamp", "desc"));
@@ -575,6 +772,7 @@
         renderFilteredData();
         renderStudentProgress();
         renderOnlineTracking();
+        reconstructLegacyResultScores();
     });
 
     // 2. LẮNG NGHE DRAFTS REALTIME
@@ -623,6 +821,31 @@
 
     function getStudentName(item) {
         return item.studentName || item.name || 'Học sinh';
+    }
+
+    function normalizeResultScore(item) {
+        const scoreText = String(item?.score ?? '').trim();
+        const fraction = scoreText.match(/^(-?\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
+        const parsedScore = fraction ? Number(fraction[1]) : Number(scoreText);
+        const storedTotal = Number(item?.total ?? item?.totalQuestions);
+        const answers = item?.answers;
+        const answerValues = Array.isArray(answers) ? answers : answers && typeof answers === 'object' ? Object.values(answers) : [];
+        const hasCorrectMetadata = answerValues.some(answer => answer && typeof answer === 'object' && (typeof answer.isCorrect === 'boolean' || typeof answer.correct === 'boolean'));
+        const derivedScore = hasCorrectMetadata
+            ? answerValues.filter(answer => answer && typeof answer === 'object' && (answer.isCorrect === true || answer.correct === true)).length
+            : null;
+        const fallbackTotal = fraction ? Number(fraction[2]) : answerValues.length;
+        const total = Number(item?._reconstructedTotal) > 0
+            ? Number(item._reconstructedTotal)
+            : Number.isFinite(storedTotal) && storedTotal > 0 ? storedTotal : fallbackTotal;
+        const exactScore = Number.isFinite(Number(item?._reconstructedScore))
+            ? Number(item._reconstructedScore)
+            : Number.isFinite(parsedScore) ? parsedScore : derivedScore;
+        return {
+            score: exactScore,
+            total: Number.isFinite(total) ? total : 0,
+            estimated: false
+        };
     }
 
     function updateStudentStats() {
@@ -816,9 +1039,9 @@
             resultsBody.innerHTML = '<tr><td colspan="7" style="color: #7f8c8d; padding: 20px;">Không tìm thấy kết quả phù hợp.</td></tr>';
         } else {
             filteredResults.forEach(data => {
-                const scoreNum = Number(data.score) || 0;
-                const totalNum = Number(data.total) || 0;
-                const pctStr = data.percentage || (totalNum > 0 ? Math.round((scoreNum / totalNum) * 100) + '%' : 'N/A');
+                const { score: scoreNum, total: totalNum, estimated } = normalizeResultScore(data);
+                const pctStr = data._reconstructedPercentage || data.percentage || (scoreNum !== null && totalNum > 0 ? Math.round((scoreNum / totalNum) * 100) + '%' : 'N/A');
+                const scoreDisplay = scoreNum === null ? `—/${totalNum}` : `${estimated ? '~' : ''}${scoreNum}/${totalNum}`;
                 const timeStr = data.displayTime || (data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString('vi-VN') : 'Vừa xong');
 
                 const tr = document.createElement('tr');
@@ -826,7 +1049,7 @@
                     <td><strong>${data.name || data.studentName || 'Học sinh'}</strong></td>
                     <td><span class="badge badge-info">${data.id || data.studentId || 'N/A'}</span></td>
                     <td>${data.quizTitle || 'Bài làm'}</td>
-                    <td><strong style="color: #27ae60;">${scoreNum} / ${totalNum}</strong></td>
+                    <td><strong style="color: #27ae60;">${scoreDisplay}</strong></td>
                     <td><span class="badge badge-success">${pctStr}</span></td>
                     <td>${timeStr}</td>
                     <td>
@@ -953,6 +1176,12 @@
                 } else if (typeof rootCorrect === 'object' && rootCorrect !== null) {
                     correctChoice = rootCorrect[idx] || rootCorrect[`q${idx + 1}`] || rootCorrect[idx + 1] || rootCorrect[`question_${idx + 1}`];
                 }
+            }
+
+            if ((!correctChoice || correctChoice === 'N/A') && item?._reconstructedAnswerDetails) {
+                const questionKey = (typeof q === 'object' && q !== null && q.__questionKey) || '';
+                const questionNumber = Number(String(questionKey).match(/\d+/)?.[0]) || idx + 1;
+                correctChoice = item._reconstructedAnswerDetails[`Câu ${questionNumber}`]?.correctAnswer || '';
             }
 
             if (!correctChoice) correctChoice = 'N/A';
