@@ -1137,7 +1137,10 @@
             </div>
         </div>
 
-        <button onclick="startQuizWithTimer()" style="background: #2ecc71; color: white; border: none; padding: 12px 25px; font-size: 1.05em; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%;">🚀 Bắt Đầu Làm Bài</button>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closeTimerModal()" style="background: #f8dfe5; color: #9f3f58; border: 1px solid #efb8c5; padding: 12px 20px; font-size: 1em; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">✕ Thoát</button>
+            <button onclick="startQuizWithTimer()" style="background: #2ecc71; color: white; border: none; padding: 12px 20px; font-size: 1.05em; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">🚀 Bắt Đầu Làm Bài</button>
+        </div>
     </div>
 </div>
 
@@ -1493,6 +1496,13 @@
         document.getElementById('timerModal').style.display = 'flex';
     }
 
+    function closeTimerModal() {
+        document.getElementById('timerModal').style.display = 'none';
+        selectedQuizUrl = '';
+        selectedQuizTitle = '';
+        selectedQuizStorageKey = '';
+    }
+
     function toggleTimeInput(show) {
         document.getElementById('countdownInput').style.display = show ? 'block' : 'none';
     }
@@ -1731,7 +1741,6 @@
                 const inputs = block.querySelectorAll('input[type="radio"], input[type="text"]');
                 inputs.forEach(input => {
                     input.addEventListener('change', () => {
-                        block.classList.add('is-answered');
                         const navButtonForAnswer = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button')[qNum - 1];
                         if (navButtonForAnswer) navButtonForAnswer.classList.add('is-answered');
                         captureAndSaveDraftFromIframe(false);
@@ -1740,7 +1749,6 @@
 
                 const hasAnswer = Boolean(block.querySelector('input[type="radio"]:checked') || [...block.querySelectorAll('input[type="text"]')].some(input => input.value.trim()));
                 if (hasAnswer) {
-                    block.classList.add('is-answered');
                     if (navButton) navButton.classList.add('is-answered');
                 }
             });
@@ -1785,8 +1793,6 @@
                         block.querySelector('input[type="radio"]:checked') ||
                         [...block.querySelectorAll('input[type="text"]')].some(input => input.value.trim())
                     );
-                    block.classList.toggle('is-answered', hasAnswer);
-
                     const questionIndex = [...questionBlocks].indexOf(block);
                     const navButton = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button')[questionIndex];
                     if (navButton) navButton.classList.toggle('is-answered', hasAnswer);
@@ -1950,6 +1956,7 @@
             captureAndSaveDraftFromIframe(false);
             updateAllProgressBars();
         }
+
     });
 </script>
 

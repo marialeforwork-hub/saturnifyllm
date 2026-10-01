@@ -11,6 +11,25 @@
     --sat-shadow: 0 -4px 15px rgba(77, 83, 162, .14);
 }
 
+/* SAT-style readable sans-serif typography across all quiz pages. */
+body {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+button,
+input,
+textarea,
+select,
+.container,
+.question-block,
+.question-text,
+.options,
+.options label,
+.sticky-footer,
+#quizNavBox {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
 /* Shared brand header for standalone quiz pages. */
 .container::before {
     display: block;
@@ -37,9 +56,9 @@
 
 .quiz-note-toolbar {
     position: relative;
-    z-index: 1;
+    z-index: 4;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: .45rem;
     margin-bottom: .6rem;
@@ -69,6 +88,7 @@
     border: 1px solid #c8ddec;
     border-radius: .65rem;
     background: #f5fbfe;
+    flex-basis: 100%;
 }
 
 .question-note-panel[hidden] { display: none; }
@@ -97,6 +117,104 @@
     padding: .45rem .6rem;
     white-space: nowrap;
 }
+
+.quiz-highlight-toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    margin-left: .2rem;
+}
+
+.question-markup-toggle {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid #c8ddec;
+    border-radius: 50%;
+    background: #eef8fd;
+    color: #356f9f;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.question-markup-toggle:hover,
+.question-markup-toggle[aria-expanded="true"],
+.question-markup-toggle.is-active { background: #c9e8f5; }
+
+.question-markup-menu {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .3rem;
+    margin-left: .35rem;
+    padding: .25rem .35rem;
+    border: 1px solid #c8ddec;
+    border-radius: .65rem;
+    background: #f5fbfe;
+}
+
+.question-markup-menu[hidden] { display: none; }
+
+.question-markup-clear,
+.question-annotate-control {
+    min-height: 1.45rem;
+    padding: 0 .45rem;
+    border: 1px solid #c8ddec;
+    border-radius: 999px;
+    background: #fff;
+    color: #356f9f;
+    cursor: pointer;
+    font: 700 .68rem 'DM Mono', Consolas, monospace;
+}
+
+.question-markup-clear:hover,
+.question-annotate-control:hover,
+.question-annotate-control.is-active { background: #d9eef8; }
+
+.question-annotation-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.question-annotation-canvas.is-drawing {
+    cursor: crosshair;
+    pointer-events: auto;
+}
+
+.question-highlight-color,
+.question-underline-control {
+    width: 1.45rem;
+    height: 1.45rem;
+    padding: 0;
+    border: 1px solid #c8ddec;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.question-highlight-color:hover,
+.question-underline-control:hover { transform: translateY(-1px); box-shadow: 0 2px 5px rgba(77, 83, 162, .16); }
+
+.question-underline-control {
+    background: #fff;
+    color: var(--sat-ink);
+    font: 800 .78rem Georgia, serif;
+    text-decoration: underline;
+}
+
+.question-highlight-color:focus-visible,
+.question-underline-control:focus-visible,
+.question-markup-toggle:focus-visible,
+.question-markup-clear:focus-visible,
+.question-annotate-control:focus-visible {
+    outline: 3px solid rgba(169, 229, 242, .8);
+    outline-offset: 2px;
+}
+
+.saturnify-text-mark { border-radius: .15rem; }
+.saturnify-underline { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; }
 
 /* Shared quiz answer and review states. */
 .question-header {
@@ -127,12 +245,6 @@
     border-color: #e99aaa;
     background: #f7c5d1;
     color: #8f3850;
-}
-
-.question-block.is-answered .question-header,
-.question.is-answered .question-header {
-    background: #dff4e5;
-    color: #28734d !important;
 }
 
 [id^="nav_btn_"].nav-answered {
