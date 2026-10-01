@@ -3,6 +3,7 @@
     const questionTimes = {};
     let activeQuestionIndex = -1;
     let activeQuestionStartedAt = 0;
+    let printScrollY = null;
 
     function getQuestionBlocks() {
         return [...document.querySelectorAll('.question-block, .question')];
@@ -61,7 +62,7 @@
                 mark.replaceWith(...mark.childNodes);
             });
             block.querySelectorAll('.question-annotation-canvas').forEach(canvas => {
-                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                canvas.__saturnifyClearDrawing?.();
                 canvas.classList.remove('is-drawing');
             });
             const drawButton = block.querySelector('.question-annotate-control');
@@ -76,6 +77,85 @@
             button.querySelector('.question-bookmark')?.classList.remove('is-flagged');
         });
         syncNavigator();
+    }
+
+    function hasCheckedAnswers() {
+        return getQuestionBlocks().some(block => block.querySelector(
+            '.correct-answer-label, .wrong-answer-label, .correct-input, .wrong-input'
+        ));
+    }
+
+    function preparePrintView() {
+        if (printScrollY === null) printScrollY = window.scrollY;
+        document.body.classList.add('quiz-print-mode');
+        const container = document.querySelector('.container');
+        const quiz = document.getElementById('quiz');
+        const stats = document.querySelector('.sticky-footer .stats');
+        if (container && quiz && stats && !container.querySelector('.quiz-print-summary')) {
+            const summary = document.createElement('div');
+            summary.className = 'quiz-print-summary';
+            summary.textContent = stats.innerText.replace(/\s*\|\s*/g, '  |  ').trim();
+            container.insertBefore(summary, quiz);
+        } else if (container && stats) {
+            const summary = container.querySelector('.quiz-print-summary');
+            if (summary) summary.textContent = stats.innerText.replace(/\s*\|\s*/g, '  |  ').trim();
+        }
+
+        getQuestionBlocks().forEach(block => {
+            block.querySelector('.question-note-print')?.remove();
+            const note = block.querySelector('.question-note-textarea')?.value.trim();
+            if (!note) return;
+
+            const notePrint = document.createElement('div');
+            notePrint.className = 'question-note-print';
+            notePrint.textContent = `Ghi chú: ${note}`;
+            block.appendChild(notePrint);
+        });
+
+        document.querySelectorAll('.question-annotation-canvas').forEach(canvas => {
+            canvas.classList.remove('is-drawing');
+            canvas.__saturnifyResizeDrawing?.();
+        });
+        window.scrollTo(0, 0);
+    }
+
+    function cleanupPrintView() {
+        document.body.classList.remove('quiz-print-mode');
+        document.querySelectorAll('.question-note-print').forEach(note => note.remove());
+        document.querySelectorAll('.quiz-print-summary').forEach(summary => summary.remove());
+        if (printScrollY !== null) {
+            window.scrollTo(0, printScrollY);
+            printScrollY = null;
+        }
+    }
+
+    function createPdfExportControl() {
+        if (document.querySelector('.quiz-export-pdf')) return;
+
+        const button = document.createElement('button');
+        button.className = 'quiz-export-pdf';
+        button.type = 'button';
+        button.textContent = '🖨 In / Lưu PDF';
+        button.title = 'Trong hộp thoại in, chọn Save as PDF để lưu bài';
+        button.hidden = !hasCheckedAnswers();
+        button.addEventListener('click', () => {
+            if (!hasCheckedAnswers()) return;
+            preparePrintView();
+            window.print();
+            window.setTimeout(cleanupPrintView, 1000);
+        });
+        document.body.appendChild(button);
+
+        if (!window.__saturnifyPrintListenersReady) {
+            window.addEventListener('beforeprint', preparePrintView);
+            window.addEventListener('afterprint', cleanupPrintView);
+            window.__saturnifyPrintListenersReady = true;
+        }
+    }
+
+    function updatePdfExportControl() {
+        const button = document.querySelector('.quiz-export-pdf');
+        if (button) button.hidden = !hasCheckedAnswers();
     }
 
     function applyTextMark(block, markType, color) {
@@ -114,6 +194,44 @@
             block.appendChild(canvas);
         }
 
+        if (!canvas.__saturnifyDrawingState) {
+            canvas.__saturnifyDrawingState = { strokes: [], currentStroke: null };
+        }
+        const state = canvas.__saturnifyDrawingState;
+
+        const drawStroke = (context, points) => {
+            if (!points.length) return;
+            context.beginPath();
+            context.moveTo(points[0].x, points[0].y);
+            points.slice(1).forEach(point => context.lineTo(point.x, point.y));
+            if (points.length === 1) context.lineTo(points[0].x + .1, points[0].y + .1);
+            context.stroke();
+        };
+
+        const redrawCanvas = () => {
+            const ratio = window.devicePixelRatio || 1;
+            const context = canvas.getContext('2d');
+            context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            context.clearRect(0, 0, canvas.width / ratio, canvas.height / ratio);
+            context.lineWidth = 3;
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+            context.strokeStyle = '#d94f5c';
+            state.strokes.forEach(stroke => drawStroke(context, stroke));
+            if (state.currentStroke) drawStroke(context, state.currentStroke);
+        };
+
+        canvas.__saturnifyUndoDrawing = () => {
+            state.strokes.pop();
+            redrawCanvas();
+        };
+        canvas.__saturnifyClearDrawing = () => {
+            state.strokes = [];
+            state.currentStroke = null;
+            redrawCanvas();
+        };
+        canvas.__saturnifyResizeDrawing = () => resizeCanvas();
+
         const resizeCanvas = () => {
             const ratio = window.devicePixelRatio || 1;
             const width = Math.max(1, block.clientWidth);
@@ -122,11 +240,7 @@
             canvas.height = height * ratio;
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
-            const context = canvas.getContext('2d');
-            context.setTransform(ratio, 0, 0, ratio, 0, 0);
-            context.lineWidth = 3;
-            context.lineCap = 'round';
-            context.strokeStyle = '#4d53a2';
+            redrawCanvas();
         };
 
         const setDrawingMode = enabled => {
@@ -139,7 +253,6 @@
 
         if (!canvas.__saturnifyDrawingReady) {
             let drawing = false;
-            const context = canvas.getContext('2d');
             const getPoint = event => {
                 const rect = canvas.getBoundingClientRect();
                 return { x: event.clientX - rect.left, y: event.clientY - rect.top };
@@ -149,17 +262,19 @@
                 if (!canvas.classList.contains('is-drawing')) return;
                 drawing = true;
                 canvas.setPointerCapture(event.pointerId);
-                const point = getPoint(event);
-                context.beginPath();
-                context.moveTo(point.x, point.y);
+                state.currentStroke = [getPoint(event)];
             });
             canvas.addEventListener('pointermove', event => {
                 if (!drawing) return;
-                const point = getPoint(event);
-                context.lineTo(point.x, point.y);
-                context.stroke();
+                state.currentStroke.push(getPoint(event));
+                redrawCanvas();
             });
-            ['pointerup', 'pointercancel'].forEach(type => canvas.addEventListener(type, () => { drawing = false; }));
+            ['pointerup', 'pointercancel'].forEach(type => canvas.addEventListener(type, () => {
+                drawing = false;
+                if (state.currentStroke?.length) state.strokes.push(state.currentStroke);
+                state.currentStroke = null;
+                redrawCanvas();
+            }));
             canvas.__saturnifyDrawingReady = true;
         }
 
@@ -237,9 +352,21 @@
         clearDrawingButton.setAttribute('aria-label', 'Xóa nét vẽ annotate');
         clearDrawingButton.addEventListener('click', () => {
             const canvas = block.querySelector('.question-annotation-canvas');
-            if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            canvas?.__saturnifyClearDrawing?.();
         });
         markupMenu.appendChild(clearDrawingButton);
+
+        const undoDrawingButton = document.createElement('button');
+        undoDrawingButton.className = 'question-markup-clear question-annotate-undo';
+        undoDrawingButton.type = 'button';
+        undoDrawingButton.textContent = '↶ Undo';
+        undoDrawingButton.title = 'Hoàn tác nét vẽ cuối cùng';
+        undoDrawingButton.setAttribute('aria-label', 'Hoàn tác nét vẽ cuối cùng');
+        undoDrawingButton.addEventListener('click', () => {
+            const canvas = block.querySelector('.question-annotation-canvas');
+            canvas?.__saturnifyUndoDrawing?.();
+        });
+        markupMenu.appendChild(undoDrawingButton);
 
         const clearAllButton = document.createElement('button');
         clearAllButton.className = 'question-markup-clear question-markup-clear-all';
@@ -250,7 +377,7 @@
         clearAllButton.addEventListener('click', () => {
             clearTextMarks(block);
             const canvas = block.querySelector('.question-annotation-canvas');
-            if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            canvas?.__saturnifyClearDrawing?.();
         });
         markupMenu.appendChild(clearAllButton);
 
@@ -361,6 +488,7 @@
 
     function initialize() {
         enhanceQuestionBlocks();
+        createPdfExportControl();
         initializeQuestionTiming();
         syncNavigator();
 
@@ -373,6 +501,8 @@
 
         const observer = new MutationObserver(() => {
             enhanceQuestionBlocks();
+            createPdfExportControl();
+            updatePdfExportControl();
             initializeQuestionTiming();
             syncNavigator();
         });

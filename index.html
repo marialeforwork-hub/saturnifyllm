@@ -1671,6 +1671,31 @@
             const questionBlocks = iframeDoc.querySelectorAll('.question-block, .question');
             if (questionBlocks.length === 0) return;
 
+            const getQuestionNavButton = (block, index) => {
+                const questionId = String(block.id || '').match(/(?:question|q)[-_](\d+)$/i)?.[1];
+                if (questionId) {
+                    const matchingButton = iframeDoc.getElementById(`nav_btn_${questionId}`);
+                    if (matchingButton) return matchingButton;
+                }
+                const navButtons = iframeDoc.querySelectorAll('#navGrid button[id^="nav_btn_"], #quizNavBox button[id^="nav_btn_"]');
+                return navButtons[index] || null;
+            };
+
+            const questionHasAnswer = block => Boolean(
+                block.querySelector('input[type="radio"]:checked') ||
+                [...block.querySelectorAll('input[type="text"], input[type="number"]')]
+                    .some(input => input.value.trim() !== '')
+            );
+
+            const syncAnsweredNavigator = () => {
+                questionBlocks.forEach((block, index) => {
+                    const navButton = getQuestionNavButton(block, index);
+                    if (!navButton) return;
+                    navButton.classList.remove('is-answered');
+                    navButton.classList.toggle('nav-answered', questionHasAnswer(block));
+                });
+            };
+
             questionBlocks.forEach((block, index) => {
                 const qNum = index + 1;
 
@@ -1683,8 +1708,7 @@
                     block.insertBefore(headerDiv, block.firstChild);
                 }
 
-                const navButtons = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button');
-                const navButton = navButtons[qNum - 1];
+                const navButton = getQuestionNavButton(block, index);
                 const header = block.querySelector('.question-header');
                 if (header && !header.querySelector('.btn-flag-question')) {
                     const flagButton = document.createElement('button');
@@ -1741,21 +1765,19 @@
                 const inputs = block.querySelectorAll('input[type="radio"], input[type="text"]');
                 inputs.forEach(input => {
                     input.addEventListener('change', () => {
-                        const navButtonForAnswer = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button')[qNum - 1];
-                        if (navButtonForAnswer) navButtonForAnswer.classList.add('is-answered');
+                        syncAnsweredNavigator();
                         captureAndSaveDraftFromIframe(false);
                     });
                 });
 
-                const hasAnswer = Boolean(block.querySelector('input[type="radio"]:checked') || [...block.querySelectorAll('input[type="text"]')].some(input => input.value.trim()));
-                if (hasAnswer) {
-                    if (navButton) navButton.classList.add('is-answered');
-                }
+                if (navButton) navButton.classList.remove('is-answered');
             });
+
+            syncAnsweredNavigator();
 
             const syncNavigationResults = () => {
                 questionBlocks.forEach((block, index) => {
-                    const navButton = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button')[index];
+                    const navButton = getQuestionNavButton(block, index);
                     if (!navButton) return;
                     const checkedInput = block.querySelector('input[type="radio"]:checked');
                     const selectedLabel = checkedInput?.closest('label');
@@ -1767,10 +1789,11 @@
                         selectedLabel?.classList.contains('wrong-answer-label') ||
                         block.querySelector('.wrong-input')
                     );
-                    const hasAnswer = Boolean(block.querySelector('input[type="radio"]:checked') || [...block.querySelectorAll('input[type="text"]')].some(input => input.value.trim()));
+                    const hasAnswer = questionHasAnswer(block);
                     navButton.classList.toggle('answer-correct', hasCorrect);
                     navButton.classList.toggle('answer-wrong', !hasCorrect && hasWrong);
-                    navButton.classList.toggle('is-answered', !hasCorrect && !hasWrong && hasAnswer);
+                    navButton.classList.toggle('nav-answered', !hasCorrect && !hasWrong && hasAnswer);
+                    navButton.classList.remove('is-answered');
                 });
             };
 
@@ -1781,24 +1804,6 @@
                 checkButton.__saturnifyResultListener = true;
             }
 
-            if (!iframeDoc.__saturnifyAnswerStateListener) {
-                iframeDoc.addEventListener('change', event => {
-                    const changedInput = event.target;
-                    if (!changedInput.matches('input[type="radio"], input[type="text"]')) return;
-
-                    const block = changedInput.closest('.question-block, .question');
-                    if (!block) return;
-
-                    const hasAnswer = Boolean(
-                        block.querySelector('input[type="radio"]:checked') ||
-                        [...block.querySelectorAll('input[type="text"]')].some(input => input.value.trim())
-                    );
-                    const questionIndex = [...questionBlocks].indexOf(block);
-                    const navButton = iframeDoc.querySelectorAll('#navGrid button, #quizNavBox button')[questionIndex];
-                    if (navButton) navButton.classList.toggle('is-answered', hasAnswer);
-                });
-                iframeDoc.__saturnifyAnswerStateListener = true;
-            }
         } catch (e) { console.log("Lỗi chèn thanh điều hướng:", e); }
     }
 
