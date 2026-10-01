@@ -14,6 +14,8 @@
         .btn { padding: 10px 18px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s; }
         .btn-home { background: #3498db; color: white; }
         .btn-home:hover { background: #2980b9; }
+        .btn-refresh { background: #58bcd8; color: #3e458b; }
+        .btn-refresh:hover { background: #419db8; }
         .btn-clear { background: #e74c3c; color: white; }
         .btn-clear:hover { background: #c0392b; }
 
@@ -359,6 +361,7 @@
 
     <div class="header-actions">
         <a href="index.html" class="btn btn-home">🏠 Về Trang Bài Tập Index</a>
+        <button class="btn btn-refresh" type="button" onclick="window.location.reload()" title="Tải lại dữ liệu từ Firebase">↻ Làm mới</button>
         <button class="btn btn-clear" onclick="confirmClearCloudData()">🗑️ Xóa Tất Cả Dữ Liệu Kết Quả</button>
     </div>
 
@@ -563,6 +566,7 @@
         ['math practice - orxan selection', 'ORXAN_SELECTION.html'],
         ['math practice - orxan 3', 'ORXAN_3.html'],
         ['de thi sat math 8/2026', 'augustmath.html'],
+        ['rhetorical synthesis - hard - questionbank', 'stunote_hard.html'],
         ['practice test: elite x3', 'ELITEX3.1.html'],
         ['math practice - orxan 1', 'ORXAN_1.html'],
         ['67_geometry', '67_GEOMETRY.html']
@@ -826,7 +830,7 @@
     function normalizeResultScore(item) {
         const scoreText = String(item?.score ?? '').trim();
         const fraction = scoreText.match(/^(-?\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
-        const parsedScore = fraction ? Number(fraction[1]) : Number(scoreText);
+        const parsedScore = scoreText ? (fraction ? Number(fraction[1]) : Number(scoreText)) : NaN;
         const storedTotal = Number(item?.total ?? item?.totalQuestions);
         const answers = item?.answers;
         const answerValues = Array.isArray(answers) ? answers : answers && typeof answers === 'object' ? Object.values(answers) : [];
@@ -841,10 +845,14 @@
         const exactScore = Number.isFinite(Number(item?._reconstructedScore))
             ? Number(item._reconstructedScore)
             : Number.isFinite(parsedScore) ? parsedScore : derivedScore;
+        const percentage = Number.parseFloat(String(item?.percentage ?? '').replace('%', '').trim());
+        const estimatedScore = exactScore === null && Number.isFinite(percentage) && total > 0
+            ? Math.round((percentage / 100) * total)
+            : null;
         return {
-            score: exactScore,
+            score: exactScore !== null ? exactScore : estimatedScore,
             total: Number.isFinite(total) ? total : 0,
-            estimated: false
+            estimated: exactScore === null && estimatedScore !== null
         };
     }
 
@@ -1116,13 +1124,21 @@
         body.innerHTML = '';
         navGrid.innerHTML = '';
 
-        const details = item.details || item.answers || item.userAnswers;
+        const details = item.details || item.answers || item.userAnswers || item._reconstructedAnswerDetails;
 
         if (!details) {
             body.innerHTML = '<p style="color: #7f8c8d; font-style: italic;">Lượt nộp này không lưu chi tiết câu hỏi.</p>';
             document.getElementById('detailModal').style.display = 'block';
             return;
         }
+
+        const questionTimes = item.questionTimes || {};
+        const formatQuestionDuration = seconds => {
+            const totalSeconds = Math.max(0, Math.round(Number(seconds) || 0));
+            return totalSeconds < 60
+                ? `${totalSeconds}s`
+                : `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
+        };
 
         let correctCount = 0;
         let incorrectCount = 0;
@@ -1154,6 +1170,11 @@
         });
 
         qList.forEach((q, idx) => {
+            const questionKey = typeof q === 'object' && q !== null ? q.__questionKey || '' : '';
+            const questionNumber = Number(String(questionKey).match(/\d+/)?.[0]) || idx + 1;
+            const timeValue = questionTimes[questionNumber] ?? questionTimes[String(questionNumber)];
+            const questionDuration = timeValue === undefined ? 'Không lưu thời gian' : formatQuestionDuration(timeValue);
+
             // 1. Trích xuất đáp án học sinh chọn
             let userChoice = '';
             if (typeof q === 'string' || typeof q === 'number') {
@@ -1242,6 +1263,7 @@
                         <span>Đã chọn: ${userChoiceText}</span> &nbsp;|&nbsp; 
                         <span>Đáp án đúng: <strong style="color: #27ae60;">${correctChoice}</strong></span>
                     </div>
+                    <small style="display:block; margin-top:6px; color:#7674a5;">⏱ Thời gian làm câu: ${questionDuration}</small>
                 </div>
             `;
         });

@@ -1444,7 +1444,7 @@
     function normalizeQuizScore(item) {
         const scoreText = String(item?.score ?? '').trim();
         const fraction = scoreText.match(/^(-?\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
-        const parsedScore = fraction ? Number(fraction[1]) : Number(scoreText);
+        const parsedScore = scoreText ? (fraction ? Number(fraction[1]) : Number(scoreText)) : NaN;
         const itemTotal = Number(item?.total ?? item?.totalQuestions);
         const answers = item?.answers;
         const answerValues = Array.isArray(answers) ? answers : answers && typeof answers === 'object' ? Object.values(answers) : [];
@@ -2067,6 +2067,10 @@
         if (event.data.type === 'SAT_SUBMIT_RESULT') {
             clearInterval(autoSaveInterval);
             const resultData = event.data.data || {};
+            resultData.questionTimes = {
+                ...(resultData.questionTimes || {}),
+                ...iframeWindowQuestionTimes()
+            };
             try {
                 const checkedResult = collectCheckedAnswerDetails(document.getElementById('quizIframe').contentWindow.document);
                 if (checkedResult) Object.assign(resultData, checkedResult);
@@ -2173,6 +2177,7 @@
                 total: totalNum,
                 percentage: data.percentage || (totalNum > 0 ? Math.round((scoreNum / totalNum) * 100) + '%' : '0%'),
                 answers: data.answers || {},
+                questionTimes: data.questionTimes || {},
                 startTime: data.startTime || '',
                 endTime: data.endTime || '',
                 duration: data.duration || '',
