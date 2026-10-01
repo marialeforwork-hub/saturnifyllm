@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHETORICAL SYNTHESIS - HARD - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .research-note-list { margin: 8px 0 12px; padding-left: 1.5rem; font-weight: normal; }
+        .research-note-list li { margin: 4px 0; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <script src="quiz-state.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>RHETORICAL SYNTHESIS: HARD (QUESTION BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const quizData = [
+  {
+    "id": 1,
+    "question": "While researching a topic, a student has taken the following notes: The Atlantic Monthly magazine was first published in 1857. The magazine focused on politics, art, and literature. In 2019, historian Cathryn Halverson published the book Faraway Women and the “Atlantic Monthly.” Its subject is female authors whose autobiographies appeared in the magazine in the early 1900s. One of the authors discussed is Juanita Harrison. The student wants to introduce Cathryn Halverson’s book to an audience already familiar with the Atlantic Monthly. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Cathryn Halverson’s Faraway Women and the “Atlantic Monthly” discusses female authors whose autobiographies appeared in the magazine in the early 1900s.",
+      "B": "A magazine called the Atlantic Monthly, referred to in Cathryn Halverson’s book title, was first published in 1857.",
+      "C": "Faraway Women and the “Atlantic Monthly” features contributors to the Atlantic Monthly, first published in 1857 as a magazine focusing on politics, art, and literature.",
+      "D": "An author discussed by Cathryn Halverson is Juanita Harrison, whose autobiography appeared in the Atlantic Monthly in the early 1900s."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence effectively introduces Cathryn Halverson’s book to an audience already familiar with the Atlantic Monthly, noting the title of Halverson’s book and describing its content without providing background information about the Atlantic Monthly. Choice B is incorrect. The sentence introduces the Atlantic Monthly and mentions that it’s referred to in Cathryn Halverson’s book title; it doesn’t effectively introduce Halverson’s book. Choice C is incorrect. The sentence assumes that the audience is unfamiliar with the Atlantic Monthly, providing background information about the magazine; it doesn’t effectively introduce Halverson’s book to an audience already familiar with the Atlantic Monthly. Choice D is incorrect. While the sentence assumes that the audience is familiar with the Atlantic Monthly, it doesn’t effectively introduce Cathryn Halverson’s book."
+  },
+  {
+    "id": 2,
+    "question": "While researching a topic, a student has taken the following notes: Leaders of the Province of Guatemala proclaimed independence for Central America from the Spanish Empire on September 15, 1821. The accompanying Declaration of Independence was written by Honduran scholar and politician José Cecilio del Valle. The 1812 Spanish Constitution had provided some degree of independence for Central America, but it was repealed by the Spanish king in 1814. Valle, a loyal advisor to the Spanish Empire’s administrators in Central America, had long opposed independence. He changed his mind after Colonel Rafael del Riego’s 1820 revolt, which demanded the return of rights lost in 1814. The student wants to place the 1821 Declaration of Independence in the context of Valle’s changing political beliefs. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Colonel Riego’s revolt was the inspiration that Valle, a long-standing opponent of Central American independence, needed to change his political beliefs.",
+      "B": "Long an opponent of Central American independence, Valle changed his mind after an 1820 revolt and wrote the 1821 declaration.",
+      "C": "A change in Valle’s political beliefs that occurred when the Spanish king repealed the 1812 constitution led to Valle writing Central America’s Declaration of Independence.",
+      "D": "The writing of Central America’s Declaration of Independence may not have happened were it not for Colonel Riego’s 1820 revolt."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence places the Declaration of Independence in the context of Valle’s changing political beliefs, noting that Valle was long an opponent of Central American independence but changed his mind after an 1820 revolt and then wrote the Declaration of Independence in 1821. Choice A is incorrect. The sentence states that Valle’s political beliefs changed after Riego’s revolt but doesn’t indicate how these changed beliefs provide context for the 1821 Declaration of Independence. Choice C is incorrect because it misrepresents information from the notes. Valle’s political beliefs changed after Riego’s 1820 revolt, not when the Spanish king repealed the 1812 constitution. Choice D is incorrect. While the sentence indicates a relationship between Colonel Riego’s 1820 revolt and Central America’s Declaration of Independence, it doesn’t mention Valle’s changing political beliefs."
+  },
+  {
+    "id": 3,
+    "question": "While researching a topic, a student has taken the following notes: The fifth Solvay Conference on Physics was held in 1927. It brought together twenty-nine of the era’s preeminent scientists to discuss the emerging field of quantum theory. The conference famously featured a debate between physicists Albert Einstein and Niels Bohr. Bohr proposed that subatomic entities like electrons had only probable realities until they were observed. Einstein argued that subatomic entities like electrons had a reality independent of observation. Bohr’s position, later called the Copenhagen interpretation, remains the most widely accepted theory of quantum mechanics. The student wants to place Einstein’s argument within its historical context. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "During the dawn of quantum theory, Einstein maintained the independent reality of some subatomic entities, although Bohr’s opposing interpretation would become the widely accepted view.",
+      "B": "At the 1927 Solvay Conference on Physics, Einstein disagreed with Bohr’s argument that subatomic entities like electrons had a reality independent of observation.",
+      "C": "The attendees of the 1927 Solvay Conference were among the preeminent scientists of their era, including Einstein, who opposed Bohr’s proposal.",
+      "D": "In 1927, Einstein and Bohr engaged in a famous debate; Bohr’s argument, later called the Copenhagen interpretation, would remain popular decades after."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence places Einstein’s argument within the historical context of the development of quantum theory, noting that his argument—made during the dawn of the field—conflicted with Bohr’s argument, which became the widely accepted view. Choice B is incorrect. The sentence misrepresents information from the notes, attributing the argument that electrons had a reality independent of observation to Bohr, not Einstein. In addition, while the sentence provides the date of the conference, it doesn’t place Einstein’s argument in the context of the development of quantum theory. Choice C is incorrect. The sentence indicates that Einstein attended the 1927 Solvay Conference; it doesn’t identify Einstein’s argument or place it in the historical context of the development of quantum theory. Choice D is incorrect. The sentence explains that Einstein and Bohr had a famous debate in 1927 and that Bohr’s argument remained popular decades afterward; it doesn’t identify Einstein’s argument or place it in the context of the development of quantum theory."
+  },
+  {
+    "id": 4,
+    "question": "While researching a topic, a student has taken the following notes: Digital Light Synthesis (DLS) is a form of additive manufacturing that utilizes light to rapidly cure liquid resin into high-quality, 3D objects. Step 1: Ultraviolet (UV) light images are projected up into a pool of liquid resin, where the object’s first layer takes shape. Step 2: The partially cured resin object is raised, leaving a thin space (a “dead zone”) beneath it for oxygen and liquid resin to flow through. Step 3: The UV light passes through the dead zone—maintaining the flow of resin—and partially cures additional layers of the object. Step 4: When the resin object is complete, it is baked in an oven to complete the curing. The student wants to describe how DLS cures 3D objects. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "DLS is a form of additive manufacturing that creates a “dead zone” in which UV light solidifies layer by layer before being baked in an oven, creating a high-quality, 3D object.",
+      "B": "DLS cures 3D objects by passing through a “dead zone,” adding layers to the object, then curing the object in an oven.",
+      "C": "In DLS, UV light images are projected into a liquid resin pool to cure a 3D object layer by layer; once solidified, the object is baked in an oven.",
+      "D": "In DLS, UV light is projected into layers of liquid resin until the resin solidifies and passes through a “dead zone,” wherein the curing is completed."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence describes how DLS cures 3D objects, noting that UV light is projected into resin to cure the object in layers, after which the object is baked to complete the curing process. Choice A is incorrect. While the sentence does describe some elements of the curing process, the description misrepresents information in the notes; this sentence suggests that the UV light, rather than the 3D object, is baked in an oven. Choice B is incorrect. While the sentence does describe some elements of the curing process, the description misrepresents information in the notes: the UV light, not DLS, passes through the dead zone. Choice D is incorrect. While the sentence does describe some elements of the curing process, the description misrepresents information in the notes. This sentence suggests that curing is complete when the already-solidified resin passes through the dead zone; rather, liquid resin passes through the dead zone and is solidified in layers, after which curing is completed in the oven."
+  },
+  {
+    "id": 5,
+    "question": "While researching a topic, a student has taken the following notes: British scholar Robert Plot described fossilized dinosaur bones in his 1676 book The Natural History of Oxfordshire. Plot earned a reputation for being the first person to have discovered dinosaur remains. In 1990, archaeologists in Lesotho, in southern Africa, discovered a fossilized phalanx of a Massospondylus carinatus dinosaur in a cave once inhabited by humans. Indigenous Khoesan and Basotho peoples had inhabited the cave beginning around 1100 CE. According to paleontologist Julien Benoit, these peoples may have found the phalanx and brought it to the cave centuries before Plot’s descriptions. The student wants to emphasize the significance of the 1990 discovery to Plot’s reputation. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Benoit challenged Plot’s reputation for being the first person to have discovered M. carinatus remains.",
+      "B": "Evidence that Khoesan and Basotho peoples may have found an M. carinatus phalanx as long ago as 1100 CE suggests that Plot may not have been the first person to have discovered dinosaur remains.",
+      "C": "According to Benoit’s analysis of the 1990 discovery, Indigenous peoples in southern Africa may have brought the fossilized phalanx to the cave as long ago as 1100 CE.",
+      "D": "In 1990, more than three centuries after Plot claimed in his book that he had found fossilized dinosaur bones, archaeologists uncovered evidence in southern Africa that disproved his claims."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. Noting that the evidence suggests Indigenous peoples may have found dinosaur remains in 1100 CE, the sentence emphasizes how the 1990 discovery challenged Plot’s reputation as the first person to discover dinosaur remains. Choice A is incorrect. While the sentence does emphasize that Benoit challenged Plot’s reputation, it misrepresents information in the notes; Plot was reputed to be the first person to discover dinosaur remains in general, not the first person to discover M. carinatus remains specifically. Choice C is incorrect. The sentence only partially explains the significance of the 1990 discovery, noting that it suggests Indigenous people brought dinosaur remains to the cave in 1100 CE; it doesn’t explain the discovery’s significance to Plot’s reputation. Choice D is incorrect. While the sentence does emphasize that the discovery challenged Plot’s reputation, it misrepresents information in the notes. The notes don’t indicate that the 1990 discovery cast any doubt on Plot’s claims to have found fossilized dinosaur bones; rather, the discovery challenged Plot’s reputation for being the first to discover dinosaur bones."
+  },
+  {
+    "id": 6,
+    "question": "While researching a topic, a student has taken the following notes: One of history’s greatest libraries was the House of Wisdom in Baghdad, Iraq. It was founded in the eighth century with the goal of preserving all the world’s knowledge. Scholars at the House of Wisdom collected ancient and contemporary texts from Greece, India, and elsewhere and translated them into Arabic. Writings included those of the Greek philosopher Aristotle and the Indian mathematician Aryabhata. The House of Wisdom used Chinese papermaking technology to create paper versions to be studied and shared. The student wants to explain how the House of Wisdom preserved the world’s knowledge. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The House of Wisdom was known for bringing together knowledge from around the world, including from Greece, India, and China.",
+      "B": "Founded in Iraq in the eighth century, the House of Wisdom employed many scholars as translators.",
+      "C": "Writings from the Greek philosopher Aristotle and the Indian mathematician Aryabhata were preserved at the House of Wisdom.",
+      "D": "The House of Wisdom collected writings from different countries and created paper versions in Arabic to be studied and shared."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence explains how the House of Wisdom preserved the world’s knowledge, noting that the library collected, translated, and printed writings from different countries. Choice A is incorrect. While the sentence indicates that the House of Wisdom was known for bringing together knowledge from around the world, it doesn’t explain how the library preserved this knowledge. Choice B is incorrect. The sentence makes a generalization about the scholars who were employed by the House of Wisdom; it doesn’t explain how the library preserved the world’s knowledge. Choice C is incorrect. The sentence identifies two authors whose writings were preserved at the House of Wisdom; it doesn’t explain how the library preserved the world’s knowledge."
+  },
+  {
+    "id": 7,
+    "question": "While researching a topic, a student has taken the following notes: The ancient Arab dhow was a sailing vessel distinguishable by its triangular sails and stitched hull construction. Dhows were used primarily for trade along the coasts of Arab, South Asian, and East African countries. Contemporary shipbuilders in Oman use a mix of modern and traditional materials to build replicas of ancient dhows. Most of the materials used are traditional. Replica hulls are stitched together using the same traditional coconut palm fiber rope used on the hulls of ancient dhows. The student wants to make a generalization about the materials used in dhow replicas. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "A traditional material that was used to stitch together the hulls of ancient dhows, coconut palm fiber rope is still used by shipbuilders.",
+      "B": "The ancient Arab dhow was a sailing vessel used primarily for trade and distinguishable by its triangular sails.",
+      "C": "Although most materials used in dhow replicas are traditional, some modern materials are used.",
+      "D": "Contemporary shipbuilders in Oman build replicas of the dhow, which was an ancient sailing vessel with a stitched hull construction."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence makes a generalization about the materials used in dhow replicas, noting that while some modern materials are used, most of the materials are traditional. Choice A is incorrect. The sentence provides an example of a traditional material used in ancient dhows; it doesn’t indicate that the material is used in dhow replicas or make any other generalization about materials used in those replicas. Choice B is incorrect. The sentence explains what an ancient dhow was; it doesn’t make a generalization about materials used to make dhow replicas. Choice D is incorrect. The sentence introduces the construction of dhow replicas to an audience unfamiliar with the vessel; it doesn’t make a generalization about the materials used in those replicas."
+  },
+  {
+    "id": 8,
+    "question": "While researching a topic, a student has taken the following notes: Two opposing theories of vision divided scholars for many centuries. The ancient Greek mathematician Euclid (circa 300 BCE) supported the extramission theory. This theory held that the eyes emit a form of radiation that illuminates objects in its range. The ancient Greek philosopher Aristotle (384–322 BCE) supported the intromission theory. This theory held that objects emit a form of radiation that reaches the eyes. In the eleventh century, Arab mathematician Ibn al-Haytham (965–1040 CE) largely settled the debate with the first conclusive experiments supporting intromission. The student wants to provide a historical overview of the two theories. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Scholars were divided between the extramission and intromission theories of vision until Ibn al-Haytham’s eleventh-century experiments largely settled the debate in support of intromission.",
+      "B": "Through two opposing theories of vision—extramission and intromission—Euclid, Aristotle, and Ibn al-Haytham held that a form of radiation is emitted either from objects or from the eyes.",
+      "C": "While Ibn al-Haytham largely settled the debate in the eleventh century, Aristotle supported the theory of intromission centuries before.",
+      "D": "Before the eleventh century, the ancient Greek philosopher Aristotle supported the intromission theory, which held that objects emit a form of radiation that reaches the eyes."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence provides a historical overview of the two theories, noting that scholars were divided between them before Ibn al-Haytham’s experiments supporting intromission largely settled the debate in the eleventh century. Choice B is incorrect. While the sentence identifies the two theories and the scholars that supported them, it doesn’t provide a historical overview of the theories. Choice C is incorrect. While the sentence indicates Aristotle supported intromission theory centuries before Ibn al-Haytham settled the debate, it doesn’t mention extramission theory or provide a historical overview of both theories. Choice D is incorrect. The sentence provides information about intromission theory but doesn’t mention extramission theory or provide a historical overview of both theories."
+  },
+  {
+    "id": 9,
+    "question": "While researching a topic, a student has taken the following notes: British musicians John Lennon and Paul McCartney shared writing credit for numerous Beatles songs. Many Lennon-McCartney songs were actually written by either Lennon or McCartney, not by both. The exact authorship of specific parts of many Beatles songs, such as the verse for “In My Life,” is disputed. Mark Glickman, Jason Brown, and Ryan Song used statistical methods to analyze the musical content of Beatles songs. They concluded that there is 18.9% probability that McCartney wrote the verse for “In My Life,” stating that the verse is “consistent with Lennon’s songwriting style.” The student wants to make a generalization about the kind of study conducted by Glickman, Brown, and Song. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Based on statistical analysis, Glickman, Brown, and Song claim that John Lennon wrote the verse of “In My Life.”",
+      "B": "There is only an 18.9% probability that Paul McCartney wrote the verse for “In My Life”; John Lennon is the more likely author.",
+      "C": "It is likely that John Lennon, not Paul McCartney, wrote the verse for “In My Life.”",
+      "D": "Researchers have used statistical methods to address questions of authorship within the field of music."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence uses information from the notes to make a generalization about the kind of study Glickman, Brown, and Song conducted. Specifically, the sentence indicates that the study was of a kind that used statistical methods to address questions of authorship within the field of music. Choice A is incorrect because the sentence summarizes the methodology and findings of a particular analysis of a single song; it doesn’t make a generalization about the kind of study conducted. Choice B is incorrect because the sentence mentions the data and conclusion of a particular analysis of a single song; it doesn’t make a generalization about the kind of study conducted. Choice C is incorrect because the sentence focuses on a specific conclusion from a particular analysis of a single song; it doesn’t make a generalization about the kind of study conducted."
+  },
+  {
+    "id": 10,
+    "question": "While researching a topic, a student has taken the following notes: Freddie Wong (born 1985) is a director and special effects artist from the United States. He is best known for the action-comedy web series Video Game High School (VGHS). VGHS premiered in 2012 on RocketJump, a YouTube channel that Wong cocreated. The series was celebrated for its inventive video game–centric world and high-quality special effects. VGHS was nominated for a Producers Guild Award for Outstanding Digital Series. The student wants to begin a narrative about Wong’s award-nominated web series. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "In 2012, director and visual effects artist Freddie Wong launched a new action-comedy web series: Video Game High School.",
+      "B": "Video Game High School was celebrated for its inventive video game–centric world and high-quality special effects, and it was nominated for a Producer’s Guild Award for Outstanding Digital Series.",
+      "C": "Wong, cocreator of the YouTube channel RocketJump, would go on to see his web series be nominated for a Producers Guild Award.",
+      "D": "In 2012, Video Game High School premiered on RocketJump; it would later be nominated for an award."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. This choice introduces Wong and VGHS in an active and specific way, as if to an audience unfamiliar with the series. It also sets up the time and genre of the web series, which are useful ways to introduce the series of events in a narrative. Choice B is incorrect. This choice isn’t suited for beginning a narrative. A narrative is a story that follows a sequence of events and creates interest and suspense for the reader. This choice jumps to the end, explaining the success of VGHS without explaining what it is. Choice C is incorrect. This choice isn’t suited for beginning a narrative. It doesn’t actually introduce the web series by name. It just jumps to later in the story without sufficient explanation. Choice D is incorrect. This choice is not very effective for beginning a narrative. It doesn’t explain what VGHS is, and it doesn’t mention Wong."
+  },
+  {
+    "id": 11,
+    "question": "While researching a topic, a student has taken the following notes: The magnificent frigatebird (fregata magnificens) is a species of seabird that feeds mainly on fish, tuna, squid, and other small sea animals. It is unusual among seabirds in that it doesn’t dive into the water for prey. One way it acquires food is by using its hook-tipped bill to snatch prey from the surface of the water. Another way it acquires food is by taking it from weaker birds by force. This behavior is known as kleptoparasitism. The student wants to emphasize a similarity between the two ways a magnificent frigatebird acquires food. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "A magnificent frigatebird never dives into the water, instead using its hook-tipped bill to snatch prey from the surface.",
+      "B": "Neither of a magnificent frigatebird’s two ways of acquiring food requires the bird to dive into the water.",
+      "C": "Of the magnificent frigatebird’s two ways of acquiring food, only one is known as kleptoparasitism.",
+      "D": "In addition to snatching prey from the water with its hook-tipped bill, a magnificent frigatebird takes food from other birds by force."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence emphasizes a similarity between the two ways a magnificent frigatebird acquires food, noting that neither way requires the seabird to dive into the water. Choice A is incorrect. The sentence describes how a magnificent frigatebird captures prey without diving into water; it doesn’t emphasize a similarity between the two ways the seabird acquires food. Choice C is incorrect. The sentence notes the term used to describe one of the two ways that magnificent frigatebirds acquire food; it doesn’t emphasize a similarity between the two ways. Choice D is incorrect. The sentence describes the two ways that a magnificent frigatebird acquires food; it doesn’t emphasize a similarity between the two ways."
+  },
+  {
+    "id": 12,
+    "question": "While researching a topic, a student has taken the following notes: Suzanne K. Birner led a study analyzing rocks on the seafloor to better understand the history of Earth’s mantle. Rock samples were collected from two seafloor ridges. The researchers determined the samples’ period of formation (the Archean eon) and oxidation level (extremely low). High temperatures in the Archean likely caused the rocks’ low oxidation. Birner’s team suggests the oxidation of Earth’s mantle has remained stable over time, contrary to previous theories. The findings help explain the unique conditions that allowed life to develop on Earth. The student wants to present the study’s research methods. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Birner led a study to better understand the history of Earth’s mantle and explain the conditions that allowed life to develop.",
+      "B": "To further analyze the origins of Earth’s unique conditions, researchers focused on rocks from the Archean eon, when Earth’s temperatures were extremely high.",
+      "C": "By studying these ancient rocks, the team aimed to challenge previous theories about changes in Earth’s mantle over time.",
+      "D": "Birner’s team analyzed the age and oxidation levels of rock samples collected from two seafloor ridges."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence presents the study’s research methods, explaining that Birner’s team analyzed the age and oxidation levels of rock samples collected from two seafloor ridges. Choice A is incorrect. The sentence describes the purpose of the study (to understand the history of Earth’s mantle and explain conditions for life); it doesn’t present the study’s research methods. Choice B is incorrect. The sentence notes the study’s focus on rocks from the Archean eon and a characteristic of the eon; it doesn’t present the study’s research methods. Choice C is incorrect. The sentence indicates the goal of the study (to challenge previous theories); it doesn’t present the study’s research methods."
+  },
+  {
+    "id": 13,
+    "question": "While researching a topic, a student has taken the following notes: Modularity of mind is the notion that the mind is at least partly composed of innate neural structures (modules) that perform fast, necessary tasks. 1983: cognitive scientist Jerry A. Fodor hypothesized that low-level cognitive systems (e.g., perception, language) are modular. In Fodorian modularity, high-level systems (e.g., reasoning) are not modular. 2003: cognitive scientist Peter Carruthers proposed the massive modularity hypothesis (MMH). MMH expands modularity to include all cognitive systems. The student wants to compare Fodor’s hypothesis with Carruthers’s. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "In considering some but not all cognitive systems modular, Fodorian modularity is not as expansive in its definition of modularity as MMH is.",
+      "B": "Following Fodor’s 1983 hypothesis, Carruthers proposed that modularity of mind includes all cognitive systems.",
+      "C": "The hypotheses of Fodor and Carruthers differ in whether they consider low-level cognitive systems, such as perception and language, modular.",
+      "D": "In 2003, Carruthers proposed the massive modularity hypothesis, disagreeing with Fodor’s earlier hypothesis that the mind is composed of innate neural structures."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence compares Fodor’s hypothesis with Carruthers’s, noting that because Fodorian modularity considers some but not all cognitive systems modular, it is not as expansive in its definition of modularity as Carruthers’s MMH, which includes all cognitive systems. Choice B is incorrect. The sentence describes Carruthers’s hypothesis—that modularity of mind includes all cognitive systems—but indicates only that this hypothesis followed Fodor’s 1983 hypothesis rather than making a comparison between the hypotheses. Choice C is incorrect. The sentence misrepresents a difference between Fodor’s and Carruthers’s hypotheses. According to the information in the notes, both Fodor and Carruthers consider low-level cognitive systems modular, and their difference lies in whether they also consider high-level systems modular. Choice D is incorrect. The sentence misrepresents a difference between Fodor’s and Carruthers’s hypotheses. According to the information in the notes, both Fodor and Carruthers consider the mind to be at least partly composed of innate neural structures (modules). Their difference lies in whether they consider high-level systems modular."
+  },
+  {
+    "id": 14,
+    "question": "While researching a topic, a student has taken the following notes: A 2024 study analyzed the facial expressions of wolves and domestic dogs. In the study, facial expressions were coded under 46 different facial actions. The “ears rotator” facial action is seen in wolves. Dog breeds with erect (wolf-like) ears can produce the “ears rotator” facial action. Dog breeds with flopped or semi-flopped (non-wolf-like) ears cannot produce the “ears rotator” facial action. The student wants to compare dog breeds with wolf-like ears to dog breeds with non-wolf-like ears. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "In a 2024 study, dog breeds with non-wolf-like ears were able to produce the same facial movements that wolves could.",
+      "B": "One difference between dog breeds with wolf-like ears and dog breeds without them is that wolf-like breeds cannot produce the “ears rotator” facial action.",
+      "C": "Non-wolf-like ears are flopped or semi-flopped, but wolf-like ears are different: they are erect and can produce the “ears rotator” facial action.",
+      "D": "Like wolves, dog breeds with erect ears can produce the “ears rotator” facial action, while those with flopped or semi-flopped ears cannot."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence compares dog breeds with wolf-like (erect) and non-wolf-like (flopped or semi-flopped) ears, noting that breeds with erect ears are able to produce the same “ears rotator” facial action as wolves, while breeds with flopped or semi-flopped ears cannot. Choice A is incorrect. The sentence compares dog breeds with non-wolf-like ears to wolves, not to other dog breeds. It also misrepresents information from the notes: breeds with non-wolf-like ears cannot produce the “ears rotator” facial action. Choice B is incorrect. While the sentence appears to compare dog breeds with wolf-like and non-wolf-like ears, it misrepresents information from the notes: breeds with wolf-like ears can produce the “ears rotator” facial action. Choice C is incorrect. While the sentence compares the physical characteristics of the two ear types, it doesn’t compare the dog breeds that have these ear types."
+  },
+  {
+    "id": 15,
+    "question": "While researching a topic, a student has taken the following notes: Malapportionment is the over- or underrepresentation (relative to population size) of electoral districts in a governing body. It is a common feature of representative governments. There are 169 seats in Norway’s supreme legislature (the Storting). Seats are distributed by a formula that awards 1 point per resident and 1.8 points per unit of land. Less populated rural districts with large tracts of land receive a disproportionate number of seats compared to smaller but more populated urban districts. The student wants to refute a claim that malapportionment in the Storting favors small urban districts. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Less populated rural districts are disproportionally underrepresented in the Storting, creating an unfair advantage for smaller but more populated urban districts.",
+      "B": "It’s untrue that malapportionment in the 169-seat Storting favors small urban districts; rather, the formula for distributing seats overrepresents more populated districts.",
+      "C": "A common feature of representative governments, malapportionment occurs when electoral districts are over- or underrepresented.",
+      "D": "Awarding more points per unit of land than points per resident, the formula for distributing Storting seats overrepresents less populated rural districts with large tracts of land."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. By noting that the formula for distributing Storting seats overrepresents less populated rural districts, the sentence effectively refutes a claim that malapportionment in the Storting favors small urban districts. Choice A is incorrect because the sentence claims that malapportionment in the Storting favors small urban districts; it doesn’t refute such a claim. Moreover, it misrepresents information in the notes. According to the notes, the formula for distributing seats overrepresents less populated, not more populated, districts. Choice B is incorrect. While the sentence appears to refute a claim that malapportionment in the Storting favors small urban districts, it misrepresents information in the notes. According to the notes, the formula for distributing seats overrepresents less populated, not more populated, districts. Choice C is incorrect. The sentence explains what malapportionment is but doesn’t address malapportionment in the Storting specifically."
+  },
+  {
+    "id": 16,
+    "question": "While researching a topic, a student has taken the following notes: Ulaanbaatar is the capital of Mongolia. The city’s population is 907,802. Ulaanbaatar contains 31.98 percent of Mongolia’s population. Hanoi is the capital of Vietnam. The city’s population is 7,781,631. Hanoi contains 8.14 percent of Vietnam’s population. The student wants to emphasize the relative sizes of the two capitals’ populations. Which choice most effectively uses information from the given sentences to emphasize the relative sizes of the two capitals’ populations?",
+    "options": {
+      "A": "Mongolia’s capital is Ulaanbaatar, which has 907,802 people, and Vietnam’s capital is Hanoi, which has 7,781,631 people.",
+      "B": "Comparing Vietnam and Mongolia, 7,781,631 is 8.14 percent of Vietnam’s population, and 907,802 is 31.98 percent of Mongolia’s.",
+      "C": "Even though Hanoi (population 7,781,631) is larger than Ulaanbaatar (population 907,802), Ulaanbaatar accounts for more of its country’s population.",
+      "D": "The populations of the capitals of Mongolia and Vietnam are 907,802 (Ulaanbaatar) and 7,781,631 (Hanoi), respectively."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence emphasizes the relative sizes of the capital cities’ populations, noting that even though Hanoi has more people overall, Ulaanbaatar accounts for a larger percentage of the people in its country. Choice A is incorrect. While the sentence indicates the population size of each capital, it fails to emphasize their sizes relative to each other or to their countries’ overall population sizes. Choice B is incorrect. The sentence emphasizes the population sizes of the two countries; it fails to mention the capitals. Choice D is incorrect. While the sentence indicates the population size of each capital, it fails to emphasize their sizes relative to each other or to their countries’ overall population sizes."
+  },
+  {
+    "id": 17,
+    "question": "While researching a topic, a student has taken the following notes: The Gullah are a group of African Americans who have lived in parts of the southeastern United States since the 18th century. Gullah culture is influenced by West African and Central African traditions. Louise Miller Cohen is a Gullah historian, storyteller, and preservationist. She founded the Gullah Museum of Hilton Head Island, South Carolina, in 2003. Vermelle Rodrigues is a Gullah historian, artist, and preservationist. She founded the Gullah Museum of Georgetown, South Carolina, in 2003. The student wants to emphasize the duration and purpose of Cohen’s and Rodrigues’s work. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "At the Gullah Museums in Hilton Head Island and Georgetown, South Carolina, visitors can learn more about the Gullah people who have lived in the region for centuries.",
+      "B": "Louise Miller Cohen and Vermelle Rodrigues have worked to preserve the culture of the Gullah people, who have lived in the United States since the 18th century.",
+      "C": "Since 2003, Louise Miller Cohen and Vermelle Rodrigues have worked to preserve Gullah culture through their museums.",
+      "D": "Influenced by the traditions of West and Central Africa, Gullah culture developed in parts of the southeastern United States in the 18th century."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence emphasizes both the duration (the length of time) and the purpose of Cohen’s and Rodrigues’s work by noting that the women have been working since 2003 to preserve Gullah culture. Choice A is incorrect. While the sentence emphasizes what visitors to Cohen’s and Rodrigues’s museums can learn, it doesn’t mention the duration or purpose of the women’s work. Choice B is incorrect. While the sentence emphasizes the purpose of Cohen’s and Rodrigues’s work, it doesn’t mention the duration of that work (the length of time the women have been working to preserve Gullah culture). Choice D is incorrect. While the sentence emphasizes where and when Gullah culture developed, it doesn’t mention the duration or purpose of Cohen’s and Rodrigues’s work."
+  },
+  {
+    "id": 18,
+    "question": "While researching a topic, a student has taken the following notes: The nautical mile (6,076 feet) is the measure of distance used in seafaring navigation. A nautical mile directly correlates to one minute (1/60th of a degree) of latitude. The curvature of Earth affects the accurate measurement of long distances when using flat maps. Measuring distances with latitude and longitude coordinates takes into account Earth’s curvature. Mariners use nautical charts marked with latitude and longitude to quickly calculate distances and positions. The student wants to explain why nautical miles are used to measure distances in seafaring navigation. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Nautical miles are a measure of distance equal to one minute of latitude, which is a feature nautical charts use to calculate distances and positions.",
+      "B": "Since they directly correlate to the coordinates on nautical charts, which take into account Earth’s curvature, nautical miles are an efficient way to calculate distances at sea.",
+      "C": "Using nautical miles for navigation at sea takes Earth’s curvature into account, whereas measuring distances with latitude and longitude coordinates does not.",
+      "D": "Nautical charts use latitude and longitude to measure long distances; these charts are more accurate than flat maps for measuring distances in seafaring navigation because they account for Earth’s curvature."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence explains why nautical miles are used to measure distances in seafaring navigation, noting that they directly correlate to the coordinates on nautical charts that take into account Earth’s curvature, making them an efficient way to calculate distances at sea. Choice A is incorrect. While the sentence describes what nautical miles are and their relationship to nautical charts, it doesn’t explain why nautical miles are used to measure distances in seafaring navigation. Choice C is incorrect. While the sentence indicates a reason why nautical miles are used, it misrepresents information from the notes: measuring distances with latitude and longitude does in fact account for Earth’s curvature. Choice D is incorrect. The sentence explains why nautical charts are more accurate than flat maps; it doesn’t explain why nautical miles specifically are used to measure distances in seafaring navigation."
+  },
+  {
+    "id": 19,
+    "question": "While researching a topic, a student has taken the following notes: A commodity chain is the series of links connecting the production and purchase of a commodity on the world market. Chinese American anthropologist Anna Tsing studies the contemporary commodity chain of matsutake mushrooms. At one end of the matsutake chain are mushroom pickers in Oregon. At the other end are wealthy consumers who buy the costly matsutake in Japan. According to Tsing, “Japanese traders began importing matsutake in the 1980s, when the scarcity of matsutake in Japan first became clear.” The student wants to provide an overview of the matsutake commodity chain. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The contemporary matsutake commodity chain has its origins in the 1980s when, according to Tsing, “the scarcity of matsutake in Japan first became clear.”",
+      "B": "Commodity chains include the linked production and purchase of commodities, such as the matsutake mushroom, on the world market.",
+      "C": "Decades after the Japanese import of matsutake began, a commodity chain now links matsutake pickers in Oregon with wealthy consumers of the costly mushrooms in Japan.",
+      "D": "Wealthy consumers who buy the costly mushrooms in Japan are at one end of the matsutake commodity chain."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence provides an overview of the matsutake commodity chain, connecting the Oregon mushroom pickers at one end to the Japanese consumers at the other. Choice A is incorrect. While the sentence mentions the matsutake commodity chain, it focuses only on its origins; it does not provide an overview. Choice B is incorrect. The sentence provides a general definition of commodity chains, not an overview of the matsutake chain. Choice D is incorrect. While the sentence mentions the matsutake commodity chain, it focuses only on one end of the chain (the consumers); it does not provide an overview."
+  },
+  {
+    "id": 20,
+    "question": "While researching a topic, a student has taken the following notes: Archaeologist Jon Erlandson and colleagues argue that humans first arrived in the Americas by sea. They propose that humans traveled between Pacific Ocean islands and coastlines from northeast Asia to the Americas. Many of these islands and coastal zones were later submerged as glaciers melted and sea levels rose. The researchers think that “a coastal route, including kelp forests and estuaries, would have provided a rich mix of marine, estuarine, riverine, and terrestrial resources” such as seaweeds, fish, and birds. This proposed scenario is known as the kelp highway hypothesis. The student wants to summarize the kelp highway hypothesis. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Pacific Ocean islands and coastlines likely contained “a rich mix of marine, estuarine, riverine, and terrestrial resources” such as seaweeds, fish, and birds, according to researchers.",
+      "B": "One argument about how humans first arrived in the Americas is the kelp highway hypothesis proposed by Jon Erlandson and colleagues.",
+      "C": "Humans may have first arrived in the Americas by sea, traveling between Pacific Ocean islands and coastlines and subsisting on a variety of resources.",
+      "D": "As glaciers melted and sea levels rose, many Pacific Ocean islands and coastal zones were submerged."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. This choice summarizes the main idea of the kelp highway hypothesis, providing a high-level overview of how the hypothesis explains human migration to the Americas. Choice A is incorrect. This choice describes one aspect of the proposed scenario but doesn’t discuss human migration, which is the main focus of the kelp highway hypothesis. Choice B is incorrect. This choice introduces the kelp highway hypothesis but doesn’t explain what it entails. Choice D is incorrect. This choice describes one element of the proposed scenario but doesn’t discuss human migration, which is the main focus of the kelp highway hypothesis."
+  },
+  {
+    "id": 21,
+    "question": "While researching a topic, a student has taken the following notes: Astronomers estimate that the number of comets orbiting the Sun is in the billions. 81P/Wild is one of many comets whose orbit has changed over time. 81P/Wild’s orbit once lay between the orbits of Uranus and Jupiter. The comet’s orbit is now positioned between the orbits of Jupiter and Mars. The student wants to make and support a generalization about the orbits of comets. Which choice most effectively uses relevant information from the notes to accomplish these goals?",
+    "options": {
+      "A": "Astronomers estimate that the number of comets orbiting the Sun is in the billions; the comets’ orbits may change over time.",
+      "B": "Like Uranus, Jupiter, and Mars, billions of comets orbit the Sun.",
+      "C": "One example of a comet is 81P/Wild, whose orbit around the Sun once lay between Uranus’s and Jupiter’s orbits but is now positioned between those of Jupiter and Mars.",
+      "D": "A comet’s orbit around the Sun may change over time: the orbit of comet 81P/Wild once lay between the orbits of Uranus and Jupiter but is now positioned between those of Jupiter and Mars."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence makes a generalization—that a comet’s orbit around the Sun may change over time—and supports the generalization with the example of the orbit of comet 81P/Wild, which once lay between the orbits of Uranus and Jupiter but is now positioned between the orbits of Jupiter and Mars. Choice A is incorrect. The sentence emphasizes the number of comets orbiting the Sun and makes a generalization about their orbits, but it doesn’t support the generalization with an example. Choice B is incorrect. The sentence makes a generalization about comets and compares them to the planets Uranus, Jupiter, and Mars; it doesn’t make and support a generalization about comets’ orbits. Choice C is incorrect. While the sentence provides an example of a comet whose orbit has changed, it doesn’t make a generalization about the orbits of comets."
+  },
+  {
+    "id": 22,
+    "question": "While researching a topic, a student has taken the following notes: A small number of US Navy sailors of Filipino descent served during the US Civil War (1861–1865). Stephen Amos was born in the Philippines around 1830. He enlisted in the US Navy in November 1863. Raphael Ignases was born in the Philippines around 1834. He enlisted in the US Navy in July 1861. The student wants to emphasize the historical significance of Stephen Amos’s enlistment date. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Both Stephen Amos and Raphael Ignases were US Navy sailors of Filipino descent, but Amos enlisted in the Navy in 1863, two years later than Ignases.",
+      "B": "Stephen Amos was a US Navy sailor of Filipino descent, along with Raphael Ignases, who was born in the Philippines around 1834.",
+      "C": "Stephen Amos enlisted in the US Navy in 1863, making him one of the few sailors of Filipino descent to serve in the US Civil War (1861–1865).",
+      "D": "When Stephen Amos enlisted in the US Navy in November 1863, he joined sailors such as Raphael Ignases, who had been born in the Philippines around 1834."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. Noting the time frame of the US Civil War and the fact that Amos enlisted during this time frame, the sentence emphasizes that Amos’s enlistment date places him among the historically significant group of US Navy sailors of Filipino descent who served during the Civil War. Choice A is incorrect. The sentence identifies Amos and Ignases and notes that Amos’s enlistment date was later than Ignases’s; the sentence doesn’t explain the historical significance of the date. Choice B is incorrect. The sentence identifies Amos and Ignases as US Navy sailors of Filipino descent, noting Ignases’s birth year; the sentence doesn’t provide Amos’s enlistment date or its historical significance. Choice D is incorrect. The sentence provides Amos’s enlistment date and mentions that he served alongside a sailor of Filipino descent; it doesn’t explain the historical significance of the date."
+  },
+  {
+    "id": 23,
+    "question": "While researching a topic, a student has taken the following notes: The background colors of US and UK road signs are used to denote each sign’s purpose. Directional signs are a type of sign containing information such as route names, distance to a destination, etc. Highways, major roadways, and minor roadways in the US generally use green for directional signs. Highways in the UK generally use blue for directional signs. Major roadways in the UK generally use green for directional signs. The student wants to contrast how green backgrounds are used in US and UK road signs. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Blue backgrounds are generally used on directional highway signs in the UK, in contrast to the green highway signs used in the US.",
+      "B": "In the US, green signs indicate directional information on both highways and major roadways, but in the UK, directional signs of this color generally appear only on major roadways.",
+      "C": "Green road signs are used in both the US and UK to denote directional information on major roadways, like distance to a destination or route names.",
+      "D": "Both the UK and the US use directional signs, which include information on route names and distance to a destination."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence contrasts how green backgrounds are used in US and UK road signs, noting that the US uses them for both highways and major roadways while the UK uses them only for major roadways. Choice A is incorrect. While the sentence does contrast US and UK road signs, the contrast focuses on the use of blue versus green backgrounds rather than on the use of green backgrounds specifically. Choice C is incorrect. The sentence indicates a similarity between the uses of green road signs in the US and the UK rather than contrasting them. Choice D is incorrect. The sentence indicates a similarity between road signs in the US and those in the UK; it doesn’t contrast how green backgrounds are used in each country’s signs."
+  },
+  {
+    "id": 24,
+    "question": "While researching a topic, a student has taken the following notes: Marcela Guerrero is a curator at the Whitney Museum of American Art in New York. She curated the Whitney’s 2018 exhibition Pacha, Llaqta, Wasichay: Indigenous Space, Modern Architecture, New Art. This exhibition featured works by seven emerging Latino artists. She curated the Whitney’s 2020 exhibition Vida Americana: Mexican Muralists Remake American Art, 1925–1945. This exhibition included nearly 200 works by twentieth-century Latino and Mexican artists. The student wants to describe the exhibition that Guerrero curated in 2018. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Held at the Whitney Museum of American Art, the exhibition Vida Americana: Mexican Muralists Remake American Art, 1925–1945 included nearly 200 works by twentieth-century Mexican and Latino artists.",
+      "B": "Pacha, Llaqta, Wasichay: Indigenous Space, Modern Architecture, New Art, an exhibition at the Whitney Museum of American Art, featured works by seven emerging Latino artists.",
+      "C": "In both 2018 and 2020, Marcela Guerrero curated exhibitions at the Whitney Museum of American Art in New York.",
+      "D": "While one exhibition that Marcela Guerrero curated featured works by emerging artists, another included works by twentieth-century artists."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence describes the 2018 exhibition Guerrero curated, noting that the exhibition, which was titled Pacha, Llaqta, Wasichay: Indigenous Space, Modern Architecture, New Art, featured the works of seven emerging Latino artists. Choice A is incorrect. The sentence describes the exhibition Guerrero curated in 2020; it doesn’t describe her 2018 exhibition. Choice C is incorrect. The sentence emphasizes a similarity between the two exhibitions Guerrero curated; it doesn’t describe her 2018 exhibition. Choice D is incorrect. The sentence emphasizes a difference between the two exhibitions Guerrero curated; it doesn’t describe her 2018 exhibition."
+  },
+  {
+    "id": 25,
+    "question": "While researching a topic, a student has taken the following notes: Neuroscientists Krishnan Padmanabhan and Zhen Chen sought to better understand the workings of the brain’s olfactory system. They devised a study using mathematical models. They found that certain fibers allow the brain to toggle from one method of processing smells to another. In one method, cells in the piriform cortex (where the perception of odor forms) capture olfactory information at a given moment. In the other, the cells track changes in olfactory information over time. The student wants to summarize the study’s findings. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "To arrive at these findings, which describe dual methods of processing smells in the piriform cortex, Padmanabhan and Chen devised a study using mathematical models.",
+      "B": "Padmanabhan and Chen showed that olfactory information is captured by cells in the piriform cortex, where the perception of odor forms.",
+      "C": "Using mathematical models, Padmanabhan and Chen devised a study to better understand the workings of the brain’s olfactory system.",
+      "D": "According to Padmanabhan and Chen, the brain can toggle between capturing olfactory information at a given moment and tracking changes in that information over time."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence effectively summarizes the study’s findings, explaining what Padmanabhan and Chen found: that the brain can toggle between one method of processing smells (capturing information at a given moment) and another (tracking changes in information over time). Choice A is incorrect. While the sentence mentions findings, it mainly focuses on Padmanabhan and Chen’s methodology. It doesn’t effectively summarize the study’s findings. Choice B is incorrect. The sentence notes a fact about the olfactory system—that the perception of odor forms in the piriform cortex—but doesn’t summarize the findings of Padmanabhan and Chen’s study. Choice C is incorrect. The sentence presents the goal of Padmanabhan and Chen’s study; it doesn’t summarize the study’s findings."
+  },
+  {
+    "id": 26,
+    "question": "While researching a topic, a student has taken the following notes: Nissologists are scientists who study islands. Some nissologists define an island as any piece of land surrounded by water. Using that definition, they determined that Sweden has 221,000 islands. Other nissologists define an island as being 1 kilometer square, a certain distance from the mainland, and having at least 50 permanent residents. Using that definition, they determined that Sweden has 24 islands. The student wants to make and support a generalization about nissologists’ definition of an island. Which choice most effectively uses relevant information from the notes to accomplish these goals?",
+    "options": {
+      "A": "The definition of an island as any piece of land surrounded by water is supported by some nissologists, scientists who study islands.",
+      "B": "Multiple counts of Sweden’s islands have been based on different definitions of an island.",
+      "C": "Based on a recent count, Sweden has a relatively small number of islands with at least 50 permanent residents.",
+      "D": "Nissologists’ different definitions can result in huge disparities in counts of islands, as the example of Sweden shows."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence makes a generalization about nissologists’ definition of an island—specifically, that the use of one definition rather than another can result in huge disparities in the number of islands counted—and supports that generalization by citing Sweden as an example. Choice A is incorrect. The sentence introduces one definition of an island to an audience unfamiliar with nissologists; it doesn’t make a generalization about nissologists’ definition of an island. Choice B is incorrect. While the sentence synthesizes information from the notes about counts of Sweden’s islands, it doesn’t make and support a generalization about nissologists’ definition of an island. Choice C is incorrect. The sentence makes an inference about islands in Sweden; it doesn’t mention nissologists’ definition of an island or make a generalization about it."
+  },
+  {
+    "id": 27,
+    "question": "While researching a topic, a student has taken the following notes: In 1978, Sámi activists staged protests to block the construction of a dam on the Alta River in Norway. The dam would disrupt Sámi fishing and reindeer herding. The dam was ultimately built, but the Alta conflict had a lasting impact. It brought international attention to the issue of Sámi rights. It led to a set of 2005 legal protections establishing Sámi rights to lands, waters, and resources. The student wants to make and support a generalization about the Alta conflict. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "During the Alta conflict, Sámi activists staged protests to block the construction of a dam on the Alta River in Norway that would disrupt local fishing and reindeer herding.",
+      "B": "Although the dam that the Sámi activists had protested was ultimately built, the Alta conflict had a lasting impact.",
+      "C": "Sámi rights to lands, waters, and resources received international attention and legal protections as a result of the Alta conflict.",
+      "D": "The Alta conflict had a lasting impact, resulting in international attention and legal protections for Sámi rights to lands, waters, and resources."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. It makes a generalization—the conflict had a lasting impact—and then supports it with evidence—the attention and protections were results of the conflict. Choice A is incorrect. This choice doesn’t make a generalization about the conflict. It describes a specific event from the conflict. Choice B is incorrect. This choice makes a generalization about the Alta conflict, but doesn’t support it. Choice C is incorrect. This choice makes a statement about the aftermath of the conflict, but doesn’t support it. The statement is also a little too specific to be a generalization."
+  },
+  {
+    "id": 28,
+    "question": "While researching a topic, a student has taken the following notes: In a 2023 study, environmental scientist Jazmin Locke-Rodriguez and colleagues tested the use of floating treatment wetlands (FTWs) in Florida. FTWs are artificial floating platforms of plants used to remediate polluted or nutrient-imbalanced water. Finding: FTWs using marigold flowers removed 52% more total phosphorus than the control. Finding: The test yielded 65 market-quality blooms per square meter. The authors concluded marigolds showed “promising potential as a commercially viable remediating crop cultivated on FTWs in South Florida.” The student wants to present the findings of the study. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The authors concluded that marigolds grown on FTWs were “commercially viable,” having produced 65 blooms per square meter of marketquality blooms in a 2023 study.",
+      "B": "In a 2023 study, Locke-Rodriguez and colleagues found that marigolds cultivated on FTWs produced 52% more market-quality flower blooms than the control.",
+      "C": "Locke-Rodriguez and colleagues found that FTWs using marigolds not only helped remove phosphorus from the water but also yielded market-quality blooms.",
+      "D": "FTWs using marigolds, Locke-Rodriguez and colleagues found, yielded 65 flower blooms and removed 52% of phosphorus from the water."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence presents both findings from the study, noting that FTWs using marigolds both removed phosphorus from the water and yielded market-quality blooms. Choice A is incorrect. While the sentence presents a finding from the study, the presentation is incomplete; the study found that marigolds cultivated on FTWs both removed phosphorus from the water and yielded market-quality blooms. Choice B is incorrect. The sentence misrepresents information in the notes. The figure of 52% refers to the amount of phosphorus removed by FTWs using marigolds when compared to the control; the marigolds’ bloom yield was 65 market-quality blooms per square meter, and it was not compared to the control. Choice D is incorrect. The sentence misrepresents information in the notes. The FTWs using marigolds removed 52% more phosphorus from the water than did the control, not 52% of the total phosphorus. Additionally, the bloom figure is incomplete; the figure is 65 market-quality flower blooms per square meter."
+  },
+  {
+    "id": 29,
+    "question": "While researching a topic, a student has taken the following notes: Cambodia’s Angkor Wat was built in the 1100s to honor the Hindu god Vishnu. It has been a Buddhist temple since the sixteenth century. Decorrelation stretch analysis is a novel digital imaging technique that enhances the contrast between colors in a photograph. Archaeologist Noel Hidalgo Tan applied decorrelation stretch analysis to photographs he had taken of Angkor Wat’s plaster walls. Tan’s analysis revealed hundreds of images unknown to researchers. The student wants to present Tan’s research to an audience unfamiliar with Angkor Wat. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Tan photographed Angkor Wat’s plaster walls and then applied decorrelation stretch analysis to the photographs.",
+      "B": "Decorrelation stretch analysis is a novel digital imaging technique that Tan used to enhance the contrast between colors in a photograph.",
+      "C": "Using a novel digital imaging technique, Tan revealed hundreds of images hidden on the walls of Angkor Wat, a Cambodian temple.",
+      "D": "Built to honor a Hindu god before becoming a Buddhist temple, Cambodia’s Angkor Wat concealed hundreds of images on its plaster walls."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence effectively presents Tan’s research to an audience unfamiliar with Angkor Wat, explaining the results of the research and identifying Angkor Wat as a temple in Cambodia. Choice A is incorrect. While the sentence presents Tan’s research, it fails to explain what Angkor Wat is for an audience unfamiliar with the temple. Choice B is incorrect. The sentence emphasizes the role that decorrelation stretch analysis played in Tan’s research; it doesn’t present the research, which would require specifying where it was conducted. Choice D is incorrect. While the sentence explains what Angkor Wat is, it fails to present Tan’s research."
+  },
+  {
+    "id": 30,
+    "question": "While researching a topic, a student has taken the following notes: In North America, woodlands have expanded into areas that were once grasslands. Thomas Rogers and F. Leland Russell of Wichita State University investigated whether woodland expansion is related to changes in climate. Rogers and Russell analyzed core samples from oak trees on a site that was not wooded in the past and indexed the age of the trees with historical climate data to see if tree populations and climate were correlated. Tree population growth was associated with dry intervals. Droughts may have played a role in woodland expansion. The student wants to emphasize the aim of the research study. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Thomas Rogers and F. Leland Russell, researchers at Wichita State University, wanted to know if woodland expansion is related to changes in climate.",
+      "B": "Thanks to the work done by Thomas Rogers and F. Leland Russell, we now know that droughts may have played a role in woodland expansion.",
+      "C": "Wichita State University researchers have determined that tree population growth was associated with dry intervals.",
+      "D": "Thomas Rogers and F. Leland Russell analyzed core samples from oak trees on a site that was not wooded in the past, indexing the age of the trees with historical climate data."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence effectively emphasizes the aim, or goal, of the research study (in other words, what the researchers hoped to learn from the study): Rogers and Russell wanted to know if woodland expansion is related to changes in climate. Choice B is incorrect. The sentence emphasizes the researchers’ findings; it doesn’t emphasize the aim of the study. Choice C is incorrect. The sentence emphasizes the results of the study; it doesn’t emphasize the aim. Choice D is incorrect. The sentence emphasizes the methodology of the study; it doesn’t emphasize the aim."
+  },
+  {
+    "id": 31,
+    "question": "While researching a topic, a student has taken the following notes: Bike-share programs provide bicycles for shared use. In docked bike sharing, riders rent a bike and return it to designated docking stations. Docked programs are orderly and offer consistency to riders but require significant space and money to implement. In dockless bike sharing, riders locate a bike and leave it wherever they choose. Dockless programs are relatively simple and inexpensive to implement and offer flexibility to riders. Dockless programs can be disorganized. The student wants to compare some disadvantages of docked and dockless bike-share programs. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Dockless programs can be disorganized; docked programs, on the other hand, offer order and consistency.",
+      "B": "Worth noting is that while dockless programs are relatively easy and inexpensive to implement, they are less flexible than docked programs.",
+      "C": "Docked programs are more resource-intensive than dockless programs, but they avoid some of the latter’s organizational challenges.",
+      "D": "Though dockless programs offer flexibility, docked bike-share programs provide bicycles for shared use."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence compares some disadvantages of docked and dockless bike-share programs, explaining that while docked programs are more resource-intensive (requiring significant space and money), dockless programs have greater organizational challenges. Choice A is incorrect. The sentence compares dockless programs to docked programs, noting an advantage of docked programs: they offer order and consistency. It doesn’t compare disadvantages of the two types of programs. Choice B is incorrect. The sentence compares dockless programs to docked programs, noting an advantage of dockless programs: they are easy and inexpensive to implement. However, it misrepresents information from the notes, stating that dockless programs are less flexible than docked programs. In addition, it doesn’t compare disadvantages of the two types of programs. Choice D is incorrect. The sentence emphasizes an advantage of dockless programs, then makes a general statement that applies to both types of programs; it doesn’t compare disadvantages of the two types of programs."
+  },
+  {
+    "id": 32,
+    "question": "While researching a topic, a student has taken the following notes: Producing the nutrient-rich cyanobacterium L. maxima at industrial scale requires high-quality samples of L. maxima DNA. Yirlis Yadeth Pineda-Rodriguez and a team of researchers at the University of Córdoba, Colombia, evaluated the quantity and purity of L. maxima DNA extracted using three different DNA extraction kits. CTAB 2X (kit 1) had a DNA yield of 2,134 nanograms per microliter (ng/µL) and a purity ratio of 2.2. Pbact (kit 2) had a DNA yield of 157 ng/µL and a purity ratio of 1.6. Pplant (kit 3) had a DNA yield of 12.5 ng/µL and a purity ratio of 1.5. According to the researchers, Pbact was the most effective because it was the only one with both a sufficiently high yield and a purity rate close to the ideal of 1.8. The student wants to emphasize the significance of a similarity between two of the kits. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Due to their insufficient yield or purity, CTAB 2X and Pplant were deemed by the researchers to be less effective than Pbact.",
+      "B": "Compared to CTAB 2X, which had a DNA yield of 2,134 ng/µL, both Pbact and Pplant had insufficient yields; Pplant, in particular, was ineffective due to its low yield.",
+      "C": "CTAB 2X and Pplant both had a DNA yield above 10 and a purity ratio above 1.4.",
+      "D": "With the ideal purity ratio being 1.8, CTAB 2X and Pbact were equal in purity, according to the researchers."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence emphasizes the significance of a similarity between CTAB 2X and Pplant, noting that both were deemed less effective than Pbact due to their insufficient yield or purity. According to the notes, the researchers concluded that Pbact was the most effective kit because it was the only one with both a sufficiently high yield and a purity ratio close to 1.8. Since Pbact was the only kit to meet both criteria, it follows that CTAB 2X and Pplant each fell short on at least one critical measure. Choice B is incorrect. The sentence presents a similarity between two of the kits (Pbact and Pplant), but in doing so, it misrepresents information from the notes. The researchers deemed Pbact the most effective kit overall, not one with an insufficient yield. Choice C is incorrect. While the sentence identifies a similarity between CTAB 2X and Pplant (that both had a DNA yield above 10 and a purity ratio above 1.4), it doesn’t emphasize the significance of that similarity. Choice D is incorrect. The sentence presents a similarity between the CTAB 2X and Pbact kits, but in doing so, it misrepresents information from the notes. CTAB 2X had a purity ratio of 2.2, while Pbact had a purity ratio of 1.6, so they were not equal in purity."
+  },
+  {
+    "id": 33,
+    "question": "While researching a topic, a student has taken the following notes: Ducklings expend up to 62.8% less energy when swimming in a line behind their mother than when swimming alone. The physics behind this energy savings hasn’t always been well understood. Naval architect Zhiming Yuan used computer simulations to study the effect of the mother duck’s wake. The study revealed that ducklings are pushed in a forward direction by the wake’s waves. Yuan determined this push reduces the effect of wave drag on the ducklings by 158%. The student wants to present the study and its methodology. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "A study revealed that ducklings, which expend up to 62.8% less energy when swimming in a line behind their mother, also experience 158% less drag.",
+      "B": "Seeking to understand how ducklings swimming in a line behind their mother save energy, Zhiming Yuan used computer simulations to study the effect of the mother duck’s wake.",
+      "C": "Zhiming Yuan studied the physics behind the fact that by being pushed in a forward direction by waves, ducklings save energy.",
+      "D": "Naval architect Zhiming Yuan discovered that ducklings are pushed in a forward direction by the waves of their mother’s wake, reducing the effect of drag by 158%."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence presents both the study and its methodology (that is, the researcher’s approach to the problem), explaining that Yuan used computer simulations to study the effect of the mother duck’s wake on the ducklings’ energy expenditure. Choice A is incorrect. The sentence describes the findings of Yuan’s study; it doesn’t present the study and its methodology. Choice C is incorrect. While the sentence provides general information about Yuan’s study, it doesn’t present the study’s methodology. Choice D is incorrect. The sentence describes the findings of Yuan’s study; it doesn’t present the study and its methodology."
+  },
+  {
+    "id": 34,
+    "question": "While researching a topic, a student has taken the following notes: Researchers in a 2021 study wanted to determine the rate at which 17 languages conveyed both information and syllables. They calculated the bits of information conveyed per second (the IR, or information rate). The IR was found to be approximately consistent across the 17 languages (an average of 39 bits per second). They calculated the number of syllables spoken per second (the SR, or syllable rate). Spanish had the second-fastest SR (7.7 syllables per second). Vietnamese had the sixteenth-fastest SR (5.3 syllables per second). The student wants to present an overview of the study’s findings. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The 2021 study determined the information rate (IR) of 17 languages in bits of information conveyed per second.",
+      "B": "Researchers found that information was conveyed more quickly in Spanish, at 7.7 syllables per second, than in Vietnamese, at 5.3 syllables per second.",
+      "C": "Vietnamese had the sixteenth-fastest syllable rate, lower than that of Spanish, which had the second-fastest; however, Spanish had the lower information rate of the two.",
+      "D": "Though some of the languages differed in number of syllables spoken per second, all 17 conveyed information at roughly the same rate."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence presents an overview of the study’s findings, noting that, for some of the languages (the examples of Spanish and Vietnamese are given in the notes), the number of syllables spoken per second varied, while the amount of information conveyed per second remained roughly constant across all 17 languages. Choice A is incorrect. While the sentence describes one of the metrics the study assessed, it doesn’t present any of the study’s findings. Choice B is incorrect. While the sentence compares specific findings about two of the languages studied, it doesn’t provide an overview of the study’s findings across all 17 languages. Choice C is incorrect. The sentence compares specific findings about two of the languages studied; it doesn’t provide an overview of the study’s findings across all 17 languages. It also misrepresents the information from the notes about Spanish’s information rate."
+  },
+  {
+    "id": 35,
+    "question": "While researching a topic, a student has taken the following notes: African American women played prominent roles in the Civil Rights Movement, including at the famous 1963 March on Washington. Civil rights activist Anna Hedgeman, one of the march’s organizers, was a political adviser who had worked for President Truman. Civil rights activist Daisy Bates was a well-known journalist and advocate for school desegregation. Hedgeman worked behind the scenes to make sure a woman was included in the lineup of speakers at the march. Bates was the sole woman to speak, delivering a brief but memorable address to the cheering crowd. The student wants to compare the two women’s contributions to the March on Washington. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Hedgeman and Bates contributed to the march in different ways; Bates, for example, delivered a brief but memorable address.",
+      "B": "Hedgeman worked in politics and helped organize the march, while Bates was a journalist and school desegregation advocate.",
+      "C": "Although Hedgeman worked behind the scenes to make sure a woman speaker was included, Bates was the sole woman to speak at the march.",
+      "D": "Many African American women, including Bates and Hedgeman, fought for civil rights, but only one spoke at the march."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence compares the two women’s contributions to the march: Hedgeman worked behind the scenes to make sure a woman speaker was included, whereas Bates actually spoke at the event. Choice A is incorrect. While it acknowledges that the two women both contributed to the march, it doesn’t indicate what Hedgeman did, so no comparison is made. Choice B is incorrect. While the sentence provides information about the two women, it doesn’t mention anything about Bates’s contribution to the march. Choice D is incorrect. While the sentence indicates that the two women both fought for civil rights, it doesn’t compare their individual contributions to the march."
+  },
+  {
+    "id": 36,
+    "question": "While researching a topic, a student has taken the following notes: A sestina is a thirty-nine-line poetic form. Each line of the poem ends with one of six end words, which alternate according to a set pattern. “Forage Sestina” is a sestina by Marilyn Hacker. Its end words are words, structure, wire, beam, wall, and room. “Towards Autumn” is a sestina by Marilyn Hacker. Its end words are daughter, friend, bread, mother, lover, and myself. The student wants to use one of the poems to illustrate the sestina form. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Hacker employs the sestina, a poetic form with thirty-nine lines and six end words, in both “Forage Sestina” and “Towards Autumn.”",
+      "B": "As a sestina, “Towards Autumn” contains thirty-nine lines and six end words—in this case, daughter, friend, bread, mother, lover, and myself— that alternate in a set pattern.",
+      "C": "The thirty-nine-line sestina form uses the words daughter, friend, bread, mother, lover, and myself, which are found in the poem “Forage Sestina.”",
+      "D": "Hacker has used the sestina form multiple times, as in “Towards Autumn,” which contains these six words: words, structure, wire, beam, wall, and room."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence uses the poem \"Towards Autumn\" to illustrate the form of a sestina, explaining that a sestina’s thirtynine lines all end in one of six alternating words and showcasing that poem’s specific end words. Choice A is incorrect. The sentence identifies both of Hacker’s poems as sestinas; it doesn’t use one of the poems to illustrate the form of a sestina. Choice C is incorrect. While the sentence appears to use the poem \"Forage Sestina\" to illustrate a feature of the sestina form, it misrepresents the information in the notes. According to the notes, \"Forage Sestina\" doesn’t use these six end words; it uses six other words instead. Choice D is incorrect. While the sentence uses the poem \"Towards Autumn\" as an example of one of Hacker’s sestinas, it misrepresents the information in the notes. According to the notes, \"Towards Autumn\" doesn’t use these six end words; it uses six other words instead."
+  },
+  {
+    "id": 37,
+    "question": "While researching a topic, a student has taken the following notes: Leigh Torres is a marine ecologist. She conducted a study of blue whales in New Zealand’s South Taranaki Bight region. She wanted to know how ocean temperature affects where the whales forage for krill in that region. She found that during a marine heat wave, the whales foraged farther offshore than they had during cooler periods. The offshore waters, which were colder than areas closer to shore, had a higher relative abundance of krill. The student wants to emphasize the aim of the research study. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Analyzing ocean temperature data, Torres found that during a marine heat wave, blue whales foraged farther offshore than they had during cooler periods.",
+      "B": "In her study, Torres sought to determine how ocean temperature affects where blue whales forage for krill in the South Taranaki Bight region.",
+      "C": "Torres’s study revealed that blue whales were attracted to offshore waters with a relatively high abundance of krill.",
+      "D": "Torres, a marine ecologist, studied blue whales in the South Taranaki Bight region, where the whales forage."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The sentence emphasizes the aim, or goal, of the research study, noting that Torres sought to determine how ocean temperature affects where blue whales forage for krill. Choice A is incorrect. The sentence emphasizes the results of the study, noting what Torres found at the end; it doesn’t emphasize the aim, or goal, of the study, which is what Torres sought at the beginning. Choice C is incorrect. The sentence makes a claim about the study’s results; it doesn’t emphasize the aim, or goal, of the study. Choice D is incorrect. The sentence indicates the location of Torres’s study; it doesn’t emphasize the aim, or goal, of the study."
+  },
+  {
+    "id": 38,
+    "question": "While researching a topic, a student has taken the following notes: Phobetor, a name drawn from Greek mythology, is an exoplanet that orbits the star PSR B1257+12, also known as Lich. Phobetor’s mass is 0.01 times that of Jupiter, or 0.01 Jupiter masses. Mastika, which means “gem” or “jewel” in Malay, is an exoplanet that orbits the star HD 179949, also known as Gumala. Mastika’s mass is 0.92 Jupiter masses. The student wants to make and support a generalization about exoplanets. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Exoplanets that are named Phobetor orbit Lich, and those that are named Mastika orbit Gumala.",
+      "B": "Even though Phobetor and Mastika are both exoplanets, their masses are different: Phobetor’s mass is 0.01 Jupiter masses, and Mastika’s is 0.92 Jupiter masses.",
+      "C": "Many stars have both a designation and a proper name; for instance, PSR B1257+12 is also known as Lich, and HD 179949 is also known as Gumala.",
+      "D": "Exoplanet names have diverse origins, a fact that can be seen in the cases of Phobetor, a name drawn from Greek mythology, and Mastika, which means “gem” or “jewel” in Malay."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence makes and supports a generalization about exoplanets, noting that the names of exoplanets have diverse origins and supporting this with the examples of the origins of \"Phobetor\" and \"Mastika.\" Choice A is incorrect. The sentence misrepresents information from the notes, implying that there are multiple exoplanets with the same names. Additionally, the sentence provides no support for its generalization. Choice B is incorrect. The sentence contrasts the masses of two specific exoplanets; it doesn’t make and support a generalization about exoplanets. Choice C is incorrect. The sentence makes and supports a generalization about stars, not exoplanets."
+  },
+  {
+    "id": 39,
+    "question": "While researching a topic, a student has taken the following notes: The farm-size transition hypothesis predicts that economic pressures associated with modernization result in smaller farms amalgamating into larger-scale commercial farms. Masters et al. (2013): The average farm size in Asia “already has or will soon begin to rise.” Promkhambut et al. (2023) argue that small rice farms in Thailand have adopted modern farming methods without a significant scalingup of farm size. Promkhambut et al.: “The persistence of [small] rice farms [in Thailand] does not represent a ‘failure’ to modernize...or a ‘truncated’ transition—it is a response to modernization.” The student wants to make and support a claim regarding the applicability of the farm-size transition hypothesis to Thailand. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Taken together, the studies by Masters et al. and Promkhambut et al. suggest that rice farms in Thailand have responded to the economic pressures associated with modernization by expanding in size.",
+      "B": "Masters et al. report that the average farm size “already has or will soon begin to rise” in Asia, a finding that is consistent with the farm-size transition hypothesis.",
+      "C": "The predicted shift to large-scale commercial farming may not hold true for rice farms in Thailand, where, according to Promkhambut et al., rice farms have remained small as they’ve modernized.",
+      "D": "Although the farm-size transition hypothesis may be applicable to some countries in Asia, it is inconsistent with the development of rice farming in Thailand."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence makes a claim about the applicability of the farm-size transition hypothesis—the prediction that smaller farms will amalgamate into larger-scale commercial farms as a response to the economic pressures of modernization—to Thailand, noting that the hypothesis may not hold true for Thailand. It supports the claim with the argument from Promkhambut et al. that Thailand’s rice farms have remained small despite modernizing. Choice A is incorrect. While the sentence makes a claim about the applicability of the farm-size transition hypothesis to Thailand, it mischaracterizes information from the notes: Promkhambut et al. argue that, despite modernizing in response to economic pressures, rice farms in Thailand have not expanded in size. Choice B is incorrect. The sentence connects a claim from Masters et al. to the farm-size transition hypothesis; it doesn’t make and support a claim about the applicability of the hypothesis to Thailand, specifically. Choice D is incorrect. While the sentence makes a claim about the applicability of the farm-size transition hypothesis to Thailand, it doesn’t support the claim."
+  },
+  {
+    "id": 40,
+    "question": "While researching a topic, a student has taken the following notes: Shanawdithit (1801–1829) was a Beothuk cartographer (mapmaker). Her maps of Newfoundland’s Beothuk Lake outline both the lake and various points around the lake where encounters between the Indigenous Beothuk people and British colonists occurred. Her maps are notable for depicting the experiences the Beothuk had within the landscape. Contemporary Potawatomi cartographer Margaret Pearce: Indigenous cartography emphasizes “experienced space, or place, as opposed to the Western convention of depicting space as universal, homogenized, and devoid of human experience.” Pearce: “Indigenous cartographies are as diverse as Indigenous cultures, from Hawaiian performative cartographies to Navajo verbal maps and sand paintings.” The student wants to describe Shanawdithit’s approach and explain its significance. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Shanawdithit’s maps are part of a broader tradition of Indigenous cartography that, according to Pearce, ranges from “Hawaiian performative cartographies to Navajo verbal maps and sand paintings.”",
+      "B": "Shanawdithit mapped Beothuk Lake through significant encounters that occurred there, an approach described as “depicting space as universal [and] homogenized.”",
+      "C": "According to Pearce, Indigenous cartography, such as Shanawdithit’s maps of Beothuk Lake, emphasizes “experienced space, or place,” with a variety of approaches that reflect the diversity of Indigenous cultures.",
+      "D": "By depicting experiences of the Beothuk that occurred around Beothuk Lake, Shanawdithit’s maps reflect Indigenous cartography’s emphasis on “experienced space, or place” rather than the landscape alone."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The sentence accomplishes both parts of the goal. It describes Shanawdithit’s approach by noting that she depicted experiences of the Beothuk that occurred around Beothuk Lake, and it explains the significance of that approach by connecting it to Indigenous cartography’s emphasis on “experienced space, or place.” Choice A is incorrect. While the sentence places Shanawdithit’s maps within the broader tradition of Indigenous cartography, it doesn’t describe her specific approach to mapmaking or explain its significance. Choice B is incorrect. While the sentence does describe Shanawdithit’s approach to mapmaking, it misrepresents information in the notes when explaining the significance of that approach. “Depicting space as universal [and] homogenized” is described as a Western convention, not a convention of Indigenous cartography. Choice C is incorrect. While the sentence mentions Shanawdithit’s maps as an example of Indigenous cartography, it focuses primarily on the broader tradition rather than describing Shanawdithit’s specific approach and explaining its significance."
+  },
+  {
+    "id": 41,
+    "question": "While researching a topic, a student has taken the following notes: Political scientist Graham Allison is known for his Thucydides trap theory. Allison’s theory states that whenever “a rising power is threatening to displace a ruling power,” conflict is likely. The theory is based on Thucydides’s explanation of the conflict between Athens and Sparta. Thucydides wrote that “the rise of Athens and the fear this instilled in Sparta” made conflict “inevitable.” History professor Edmund Stewart recently challenged the historical basis of the theory. Stewart claimed that Athens was not a rising power and that the rivals experienced a “clash of cultures” instead. The student wants to use a quotation to challenge Thucydides’s explanation of the conflict between Athens and Sparta. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "According to Allison’s Thucydides trap theory, whenever “a rising power is threatening to displace a ruling power,” conflict is likely.",
+      "B": "Thucydides wrote that conflict between the two powers was “inevitable,” although Stewart later challenged the historical basis of this claim.",
+      "C": "According to Stewart, a “clash of cultures” between Athens and Sparta caused the conflict, not Athens’s rise.",
+      "D": "Thucydides explained that conflict was caused by “the rise of Athens and the fear this instilled in Sparta,” but Allison disagreed, seeing the conflict as an example of the Thucydides trap."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. Using a quotation from Stewart, the sentence challenges Thucydides’s explanation that the rise of Athens caused the conflict, suggesting that it was instead caused by a \"clash of cultures.\" Choice A is incorrect. While the sentence uses a quotation, the quotation doesn’t challenge Thucydides’s explanation of the conflict. Choice B is incorrect. While the sentence mentions that Stewart challenged Thucydides’s explanation of the conflict, it doesn’t use a quotation to challenge Thucydides’s explanation: the quoted word \"inevitable\" is from Thucydides. Choice D is incorrect. While the sentence appears to refute Thucydides’s explanation, it does so in a way that misrepresents the information in the notes; Allison’s Thucydides trap theory is based on Thucydides’s explanation of the conflict. Thus, Allison’s theory affirms, rather than challenges, Thucydides’s explanation."
+  },
+  {
+    "id": 42,
+    "question": "While researching a topic, a student has taken the following notes: The factors that affect clutch size (the number of eggs laid at one time) have been well studied in birds but not in lizards. A team led by Shai Meiri of Tel Aviv University investigated which factors influence lizard clutch size. Meiri’s team obtained clutch-size and habitat data for over 3,900 lizard species and analyzed the data with statistical models. Larger clutch size was associated with environments in higher latitudes that have more seasonal change. Lizards in higher-latitude environments may lay larger clutches to take advantage of shorter windows of favorable conditions. The student wants to emphasize the aim of the research study. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "Researchers wanted to know which factors influence lizard egg clutch size because such factors have been well studied in birds but not in lizards.",
+      "B": "After they obtained data for over 3,900 lizard species, researchers determined that larger clutch size was associated with environments in higher latitudes that have more seasonal change.",
+      "C": "We now know that lizards in higher-latitude environments may lay larger clutches to take advantage of shorter windows of favorable conditions.",
+      "D": "Researchers obtained clutch-size and habitat data for over 3,900 lizard species and analyzed the data with statistical models."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The sentence emphasizes the aim of the research study by highlighting what the researchers conducting the study wanted to know—specifically, which factors influence clutch size among lizards. Choice B is incorrect because the sentence emphasizes what researchers determined at the end of the study, not what the study’s aim was. Choice C is incorrect because the sentence emphasizes a finding from the research study, not the aim of the study. Choice D is incorrect because the sentence emphasizes the research study’s methodology, not its aim."
+  },
+  {
+    "id": 43,
+    "question": "While researching a topic, a student has taken the following notes: The National Congress of American Indians (NCAI) was founded in 1944 by representatives of fifty tribal governments. The NCAI was created to protect the sovereignty of Indigenous tribes. Napoleon B. Johnson (Cherokee) was the NCAI’s first president. In 1975, the US Congress passed the Indian Self-Determination and Education Assistance Act (Public Law 96-638). This legislation formally acknowledged tribes’ right to self-governance. The advocacy of the NCAI was a key factor in the law’s passing. The student wants to identify an accomplishment of the NCAI. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+    "options": {
+      "A": "The NCAI, founded by representatives of fifty tribal governments, had Napoleon B. Johnson (Cherokee) as its first president.",
+      "B": "Founded in 1944, the NCAI was created by representatives of tribal governments from fifty sovereign Indigenous tribes.",
+      "C": "The NCAI’s advocacy was key to the passing of Public Law 96-638, legislation formally acknowledging Indigenous tribes’ right to selfgovernance.",
+      "D": "In 1975, the NCAI passed the Indian Self-Determination and Education Assistance Act, which was created to protect the sovereignty of Indigenous tribes."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The sentence directly identifies an accomplishment of the NCAI: that its advocacy was key to the passing of Public Law 96-638, which formally acknowledged Indigenous tribes’ right to self-governance. Choice A is incorrect. The sentence provides information about the NCAI’s founding and its first president, but it doesn’t identify an accomplishment of the organization. Choice B is incorrect. The sentence describes the NCAI’s founding, but it doesn’t identify an accomplishment of the organization. Choice D is incorrect. The sentence misrepresents the information in the notes: the US Congress, not the NCAI, passed the Indian Self-Determination and Education Assistance Act."
+  }
+];
+ 
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[character]));
+    }
+
+    function formatQuestionNotes(question) {
+      const match = question.match(/^(.*?taken the following notes:\s*)([\s\S]*?)(\s*The student wants to\b[\s\S]*)$/i);
+      if (!match) return escapeHtml(question);
+
+      const [, beforeNotes, notes, afterNotes] = match;
+      let statements;
+      if (typeof Intl.Segmenter === 'function') {
+        const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
+        statements = [...segmenter.segment(notes)].map(item => item.segment.trim()).filter(Boolean);
+      } else {
+        statements = notes.match(/[^.!?]+(?:[.!?]+|$)/g)?.map(item => item.trim()).filter(Boolean) || [notes.trim()];
+      }
+
+      const bullets = statements.map(statement => `<li>${escapeHtml(statement)}</li>`).join('');
+      return `${escapeHtml(beforeNotes)}<ul class="research-note-list">${bullets}</ul>${escapeHtml(afterNotes)}`;
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+              <div class="question-text">Câu ${index + 1}: ${formatQuestionNotes(data.question)}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+</body>
+</html>
