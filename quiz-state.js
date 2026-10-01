@@ -186,6 +186,112 @@
         selection.removeAllRanges();
     }
 
+    function createFloatingHighlightControl() {
+        if (document.querySelector('.saturnify-floating-highlight')) return;
+
+        const control = document.createElement('div');
+        control.className = 'saturnify-floating-highlight-control';
+        const button = document.createElement('button');
+        const storageKey = 'saturnify_floating_highlight_position';
+        button.className = 'saturnify-floating-highlight';
+        button.type = 'button';
+        button.textContent = '🖍️';
+        button.title = 'Mở công cụ highlight và annotate; kéo để di chuyển';
+        button.setAttribute('aria-label', 'Mở công cụ highlight và annotate');
+        button.addEventListener('mousedown', event => event.preventDefault());
+
+        let activeMenu = null;
+        let activeMenuToggle = null;
+        let activeMenuPlaceholder = null;
+        const closeTools = () => {
+            if (!activeMenu) return;
+            activeMenu.hidden = true;
+            activeMenu.classList.remove('saturnify-floating-markup-menu');
+            activeMenuToggle?.setAttribute('aria-expanded', 'false');
+            if (activeMenuPlaceholder?.parentNode) activeMenuPlaceholder.parentNode.insertBefore(activeMenu, activeMenuPlaceholder);
+            activeMenuPlaceholder?.remove();
+            activeMenu = null;
+            activeMenuToggle = null;
+            activeMenuPlaceholder = null;
+            button.setAttribute('aria-expanded', 'false');
+        };
+        const openTools = () => {
+            const blocks = getQuestionBlocks();
+            const selection = window.getSelection();
+            const commonNode = selection?.rangeCount ? selection.getRangeAt(0).commonAncestorContainer : null;
+            const commonElement = commonNode?.nodeType === Node.ELEMENT_NODE ? commonNode : commonNode?.parentElement;
+            const block = commonElement?.closest('.question-block, .question') || blocks[activeQuestionIndex] || blocks[0];
+            const toolbar = block?.querySelector('.quiz-highlight-toolbar');
+            const menu = toolbar?.querySelector('.question-markup-menu');
+            if (!menu) return;
+
+            activeMenuToggle = toolbar.querySelector('.question-markup-toggle');
+            activeMenuPlaceholder = document.createComment('highlight-menu-position');
+            menu.parentNode.insertBefore(activeMenuPlaceholder, menu);
+            menu.classList.add('saturnify-floating-markup-menu');
+            menu.hidden = false;
+            control.appendChild(menu);
+            activeMenu = menu;
+            activeMenuToggle?.setAttribute('aria-expanded', 'true');
+            button.setAttribute('aria-expanded', 'true');
+        };
+
+        let pointerDrag = null;
+        let suppressClick = false;
+        const moveTo = (left, top) => {
+            const maxLeft = Math.max(8, window.innerWidth - control.offsetWidth - 8);
+            const maxTop = Math.max(8, window.innerHeight - control.offsetHeight - 8);
+            control.style.left = `${Math.max(8, Math.min(left, maxLeft))}px`;
+            control.style.top = `${Math.max(8, Math.min(top, maxTop))}px`;
+            control.style.right = 'auto';
+            control.style.bottom = 'auto';
+        };
+
+        button.addEventListener('pointerdown', event => {
+            if (event.button !== 0) return;
+            const rect = control.getBoundingClientRect();
+            pointerDrag = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, left: rect.left, top: rect.top, moved: false };
+            button.setPointerCapture(event.pointerId);
+        });
+        button.addEventListener('pointermove', event => {
+            if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+            if (Math.hypot(event.clientX - pointerDrag.startX, event.clientY - pointerDrag.startY) > 5) pointerDrag.moved = true;
+            if (pointerDrag.moved) moveTo(pointerDrag.left + event.clientX - pointerDrag.startX, pointerDrag.top + event.clientY - pointerDrag.startY);
+        });
+        button.addEventListener('pointerup', event => {
+            if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+            if (pointerDrag.moved) {
+                const rect = control.getBoundingClientRect();
+                try { localStorage.setItem(storageKey, JSON.stringify({ left: rect.left, top: rect.top })); } catch (error) {}
+                suppressClick = true;
+                window.setTimeout(() => { suppressClick = false; }, 0);
+            }
+            pointerDrag = null;
+        });
+        button.addEventListener('click', event => {
+            if (suppressClick) {
+                event.preventDefault();
+                suppressClick = false;
+                return;
+            }
+            if (activeMenu) closeTools();
+            else openTools();
+        });
+        button.setAttribute('aria-expanded', 'false');
+        control.appendChild(button);
+        document.body.appendChild(control);
+        try {
+            const savedPosition = JSON.parse(localStorage.getItem(storageKey) || 'null');
+            if (Number.isFinite(savedPosition?.left) && Number.isFinite(savedPosition?.top)) moveTo(savedPosition.left, savedPosition.top);
+        } catch (error) {}
+        window.addEventListener('resize', () => {
+            if (!control.style.left) return;
+            const rect = control.getBoundingClientRect();
+            moveTo(rect.left, rect.top);
+        });
+        window.__saturnifyCloseFloatingHighlightTools = closeTools;
+    }
+
     function clearTextMarks(block) {
         block.querySelectorAll('.saturnify-text-mark').forEach(mark => {
             mark.replaceWith(...mark.childNodes);
@@ -757,6 +863,215 @@
         toolbar.appendChild(highlightToolbar);
     }
 
+    function formatQuestionTables() {
+        const formattedTables = [];
+        const getLines = element => {
+            const lines = [];
+            let line = { nodes: [], breakAfter: false };
+            const finishLine = () => {
+                lines.push(line);
+                line = { nodes: [], breakAfter: false };
+            };
+
+            [...element.childNodes].forEach(node => {
+                if (node.nodeName === 'BR') {
+                    line.breakAfter = true;
+                    finishLine();
+                } else if (node.nodeType === Node.TEXT_NODE && /\r?\n/.test(node.textContent)) {
+                    const parts = node.textContent.split(/\r?\n/);
+                    parts.forEach((part, index) => {
+                        if (part) line.nodes.push(document.createTextNode(part));
+                        if (index < parts.length - 1) {
+                            line.breakAfter = true;
+                            finishLine();
+                        }
+                    });
+                } else {
+                    line.nodes.push(node);
+                }
+            });
+            lines.push(line);
+            return lines;
+        };
+
+        const parsePipeRow = line => {
+            if (!line.nodes.some(node => node.nodeType === Node.TEXT_NODE && node.textContent.includes('|'))) return null;
+            const rawText = line.nodes.map(node => node.textContent).join('');
+            const cells = [[]];
+            line.nodes.forEach(node => {
+                if (node.nodeType !== Node.TEXT_NODE) {
+                    cells[cells.length - 1].push(node);
+                    return;
+                }
+                const parts = node.textContent.split('|');
+                cells[cells.length - 1].push(document.createTextNode(parts[0]));
+                parts.slice(1).forEach(part => {
+                    cells.push([document.createTextNode(part)]);
+                });
+            });
+            if (rawText.trimStart().startsWith('|')) cells.shift();
+            if (rawText.trimEnd().endsWith('|')) cells.pop();
+            if (cells.length < 2) return null;
+
+            const cellText = cell => cell.map(node => node.textContent).join('').trim();
+            return {
+                cells,
+                isSeparator: cells.every(cell => /^:?-{3,}:?$/.test(cellText(cell)))
+            };
+        };
+
+        const isBlankLine = line => line.nodes.every(node => !node.textContent.trim());
+        const makeTable = (rows, hasHeader = true) => {
+            const table = document.createElement('table');
+            table.className = 'question-data-table';
+            const wrapper = document.createElement('div');
+            wrapper.className = 'question-data-table-scroll';
+            wrapper.appendChild(table);
+
+            const headerRow = hasHeader ? rows[0] : null;
+            if (headerRow) {
+                const header = table.createTHead().insertRow();
+                headerRow.cells.forEach(nodes => {
+                    const cell = document.createElement('th');
+                    cell.scope = 'col';
+                    nodes.forEach(node => cell.appendChild(node));
+                    header.appendChild(cell);
+                });
+            }
+
+            const body = table.createTBody();
+            (hasHeader ? rows.slice(1) : rows).forEach(row => {
+                const tableRow = body.insertRow();
+                row.cells.forEach((nodes, index) => {
+                    const isRowHeader = index === 0 && (!headerRow || !headerRow.cells[0].some(node => node.textContent.trim()));
+                    const cell = document.createElement(isRowHeader ? 'th' : 'td');
+                    if (isRowHeader) cell.scope = 'row';
+                    nodes.forEach(node => cell.appendChild(node));
+                    tableRow.appendChild(cell);
+                });
+            });
+            formattedTables.push(wrapper);
+            return wrapper;
+        };
+
+        document.querySelectorAll('.question-text').forEach(element => {
+            if (!element.textContent.includes('|')) return;
+            const lines = getLines(element);
+            const content = document.createDocumentFragment();
+            let index = 0;
+            let changed = false;
+
+            while (index < lines.length) {
+                const firstRow = parsePipeRow(lines[index]);
+                if (!firstRow) {
+                    lines[index].nodes.forEach(node => content.appendChild(node.cloneNode(true)));
+                    if (lines[index].breakAfter) content.appendChild(document.createElement('br'));
+                    index++;
+                    continue;
+                }
+
+                const parsedRows = [firstRow];
+                let nextIndex = index + 1;
+                while (nextIndex < lines.length) {
+                    const nextRow = parsePipeRow(lines[nextIndex]);
+                    if (nextRow) {
+                        parsedRows.push(nextRow);
+                        nextIndex++;
+                    } else if (isBlankLine(lines[nextIndex])) {
+                        nextIndex++;
+                    } else {
+                        break;
+                    }
+                }
+
+                const dataRows = parsedRows.filter(row => !row.isSeparator);
+                if (dataRows.length < 2) {
+                    lines[index].nodes.forEach(node => content.appendChild(node.cloneNode(true)));
+                    if (lines[index].breakAfter) content.appendChild(document.createElement('br'));
+                    index++;
+                    continue;
+                }
+
+                const separatorIndex = parsedRows.findIndex(row => row.isSeparator);
+                const tableRows = separatorIndex === 1
+                    ? parsedRows.filter((row, rowIndex) => rowIndex !== separatorIndex)
+                    : dataRows;
+                const isBulletTable = separatorIndex < 0 && /^\s*[-*]\s+/.test(tableRows[0]?.cells[0]?.map(node => node.textContent).join('') || '');
+                if (isBulletTable) {
+                    const firstCellText = tableRows[0].cells[0].find(node => node.nodeType === Node.TEXT_NODE);
+                    if (firstCellText) firstCellText.textContent = firstCellText.textContent.replace(/^\s*[-*]\s+/, '');
+                }
+                const firstHeaderCell = tableRows[0]?.cells[0];
+                const questionLabelMatch = firstHeaderCell?.map(node => node.textContent).join('').match(/^\s*(Câu\s+\d+:)\s*/i);
+                const questionLabel = questionLabelMatch?.[1];
+                if (questionLabel) {
+                    content.appendChild(document.createTextNode(`${questionLabel} `));
+                    const firstTextNode = firstHeaderCell.find(node => node.nodeType === Node.TEXT_NODE);
+                    if (firstTextNode) firstTextNode.textContent = firstTextNode.textContent.replace(/^\s*Câu\s+\d+:\s*/i, '');
+                    if (firstHeaderCell.every(node => !node.textContent.trim())) tableRows[0].cells.shift();
+                }
+                content.appendChild(makeTable(tableRows, !isBulletTable));
+                changed = true;
+                index = nextIndex;
+            }
+
+            if (changed) element.replaceChildren(content);
+        });
+
+        if (formattedTables.length && window.MathJax?.typesetPromise) {
+            window.MathJax.typesetPromise(formattedTables).catch(() => {});
+        }
+    }
+
+    function emphasizeQuotedVocabularyQuestions() {
+        const questionPattern = /(?:as used in (?:the )?(?:text|passage),?\s*(?:what does (?:the )?(?:word|phrase)\s+)?|in (?:the )?(?:text|passage),?\s*)(["“])\s*([^"”]+?)\s*["”]\s*(?:most nearly means?|means?)\b/i;
+        document.querySelectorAll('.question-block, .question').forEach(block => {
+            const question = block.querySelector('.question-text');
+            if (!question || block.querySelector('.question-vocab-target')) return;
+            const match = question.textContent.match(questionPattern);
+            if (!match) return;
+
+            const target = match[2].trim();
+            if (!target) return;
+            const passageText = question.textContent.slice(0, match.index);
+            let targetHost = question;
+            let targetStart = passageText.toLowerCase().lastIndexOf(target.toLowerCase());
+            if (targetStart < 0) {
+                targetHost = block.querySelector('.question-passage');
+                if (!targetHost) return;
+                targetStart = targetHost.textContent.toLowerCase().lastIndexOf(target.toLowerCase());
+            }
+            if (targetStart < 0) return;
+
+            const textPointAt = targetOffset => {
+                const walker = document.createTreeWalker(targetHost, NodeFilter.SHOW_TEXT);
+                let consumed = 0;
+                let node;
+                while ((node = walker.nextNode())) {
+                    const nodeEnd = consumed + node.textContent.length;
+                    if (targetOffset <= nodeEnd) return { node, offset: targetOffset - consumed };
+                    consumed = nodeEnd;
+                }
+                return null;
+            };
+            const start = textPointAt(targetStart);
+            const end = textPointAt(targetStart + target.length);
+            if (!start || !end) return;
+
+            const range = document.createRange();
+            range.setStart(start.node, start.offset);
+            range.setEnd(end.node, end.offset);
+            const emphasis = document.createElement('strong');
+            emphasis.className = 'question-vocab-target';
+            try {
+                range.surroundContents(emphasis);
+            } catch (error) {
+                emphasis.appendChild(range.extractContents());
+                range.insertNode(emphasis);
+            }
+        });
+    }
+
     function getNoteKey(index) {
         return `${notePrefix}_${index + 1}`;
     }
@@ -829,6 +1144,17 @@
         window.__saturnifyQuestionTimes = questionTimes;
         window.__commitSaturnifyQuestionTime = commitQuestionTime;
 
+        const setCurrentNavigatorQuestion = index => {
+            const buttons = getNavigatorButtons();
+            const currentButton = getNavigatorButtonForBlock(blocks[index], index, buttons);
+            buttons.forEach(button => {
+                const isCurrent = button === currentButton;
+                button.classList.toggle('nav-current', isCurrent);
+                if (isCurrent) button.setAttribute('aria-current', 'step');
+                else button.removeAttribute('aria-current');
+            });
+        };
+
         const observer = new IntersectionObserver(entries => {
             const visible = entries
                 .filter(entry => entry.isIntersecting)
@@ -840,16 +1166,22 @@
             commitQuestionTime();
             activeQuestionIndex = nextIndex;
             activeQuestionStartedAt = Date.now();
+            window.__saturnifyCloseFloatingHighlightTools?.();
+            setCurrentNavigatorQuestion(nextIndex);
         }, { threshold: [0.5, 0.75] });
 
         blocks.forEach(block => observer.observe(block));
         activeQuestionIndex = 0;
         activeQuestionStartedAt = Date.now();
+        setCurrentNavigatorQuestion(activeQuestionIndex);
         window.addEventListener('beforeunload', commitQuestionTime, { once: true });
     }
 
     function initialize() {
+        formatQuestionTables();
+        emphasizeQuotedVocabularyQuestions();
         enhanceQuestionBlocks();
+        createFloatingHighlightControl();
         createPdfExportControl();
         initializeQuestionTiming();
         syncNavigator();
@@ -862,6 +1194,8 @@
         }, true);
 
         const observer = new MutationObserver(() => {
+            formatQuestionTables();
+            emphasizeQuotedVocabularyQuestions();
             enhanceQuestionBlocks();
             createPdfExportControl();
             updatePdfExportControl();

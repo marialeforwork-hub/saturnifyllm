@@ -1,0 +1,800 @@
+{
+  "schemaVersion": 1,
+  "subject": "math",
+  "source": {
+    "file": "ORXAN_1.html",
+    "title": "MATH PRACTICE - ORXAN 1"
+  },
+  "questionCount": 40,
+  "questions": [
+    {
+      "number": 1,
+      "id": 1,
+      "type": "free_response",
+      "question": "In triangle RST, the measure of angle R is 10 degrees and the measure of angle T is 50 degrees. Point L lies on $\\overline{RS},$ point K lies on $\\overline{ST},$ and $\\overline{LK}$ is parallel to $\\overline{RT}.$ What is the measure, in degree, of angle SKL? (Disregard the degree symbol when entering your answer.)",
+      "passage": null,
+      "options": null,
+      "answer": "50",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 1,
+        "text": "In triangle RST, the measure of angle R is 10 degrees and the measure of angle T is 50 degrees. Point L lies on $\\overline{RS},$ point K lies on $\\overline{ST},$ and $\\overline{LK}$ is parallel to $\\overline{RT}.$ What is the measure, in degree, of angle SKL? (Disregard the degree symbol when entering your answer.)",
+        "type": "free_response",
+        "answer": "50"
+      }
+    },
+    {
+      "number": 2,
+      "id": 2,
+      "type": "multiple_choice",
+      "question": "The expression $\\frac{x^{20}(x-4)}{5x^{2}}+\\frac{4x^{20}}{5x^{2}}$ is equivalent to $\\frac{1}{5}x^{c}$, where c is a constant and $x>0.$ What is the value of c?\n\nA. 4\nB. 5\nC. 19\nD. 21",
+      "passage": null,
+      "options": null,
+      "answer": "C",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 2,
+        "text": "The expression $\\frac{x^{20}(x-4)}{5x^{2}}+\\frac{4x^{20}}{5x^{2}}$ is equivalent to $\\frac{1}{5}x^{c}$, where c is a constant and $x>0.$ What is the value of c?\n\nA. 4\nB. 5\nC. 19\nD. 21",
+        "type": "multiple_choice",
+        "answer": "C"
+      }
+    },
+    {
+      "number": 3,
+      "id": 3,
+      "type": "multiple_choice",
+      "question": "In the xy-plane, which of the following does NOT contain any points (x, y) that are solutions to $7x+4y>12$?\n\nA. The region where $x>0$ and $y>0$\nB. The region where $x<0$ and $y>0$\nC. The region where $x<0$ and $y<0$\nD. The region where $x>0$ and $y<0$",
+      "passage": null,
+      "options": null,
+      "answer": "C",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 3,
+        "text": "In the xy-plane, which of the following does NOT contain any points (x, y) that are solutions to $7x+4y>12$?\n\nA. The region where $x>0$ and $y>0$\nB. The region where $x<0$ and $y>0$\nC. The region where $x<0$ and $y<0$\nD. The region where $x>0$ and $y<0$",
+        "type": "multiple_choice",
+        "answer": "C"
+      }
+    },
+    {
+      "number": 4,
+      "id": 4,
+      "type": "multiple_choice",
+      "question": "$(x+3)^{2}+(y-4)^{2}=25$\n\nIn the xy-plane, the graph of the given equation is a circle. Which point lies on this circle?\n\nA. $(-3, 4)$\nB. $(3, -4)$\nC. $(\\sqrt{11}+3, \\sqrt{14}-4)$\nD. $(\\sqrt{11}-3, \\sqrt{14}+4)$",
+      "passage": null,
+      "options": null,
+      "answer": "D",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 4,
+        "text": "$(x+3)^{2}+(y-4)^{2}=25$\n\nIn the xy-plane, the graph of the given equation is a circle. Which point lies on this circle?\n\nA. $(-3, 4)$\nB. $(3, -4)$\nC. $(\\sqrt{11}+3, \\sqrt{14}-4)$\nD. $(\\sqrt{11}-3, \\sqrt{14}+4)$",
+        "type": "multiple_choice",
+        "answer": "D"
+      }
+    },
+    {
+      "number": 5,
+      "id": 5,
+      "type": "multiple_choice",
+      "question": "An auditorium has seats for 3,200 people. Tickets to attend a show at the auditorium currently cost $8.00. For each $1.00 increase to the ticket price, 100 fewer tickets will be sold. This situation can be modeled by the equation $y=-100x^{2}+2,400x+25,600$, where x represents the increase in ticket price, in dollars, and y represents the revenue, in dollars, from ticket sales. If this equation is graphed in the xy-plane, at what value of x is the maximum of the graph?\n\nA. 8\nB. 12\nC. 24\nD. 32",
+      "passage": null,
+      "options": null,
+      "answer": "B",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 5,
+        "text": "An auditorium has seats for 3,200 people. Tickets to attend a show at the auditorium currently cost $8.00. For each $1.00 increase to the ticket price, 100 fewer tickets will be sold. This situation can be modeled by the equation $y=-100x^{2}+2,400x+25,600$, where x represents the increase in ticket price, in dollars, and y represents the revenue, in dollars, from ticket sales. If this equation is graphed in the xy-plane, at what value of x is the maximum of the graph?\n\nA. 8\nB. 12\nC. 24\nD. 32",
+        "type": "multiple_choice",
+        "answer": "B"
+      }
+    },
+    {
+      "number": 6,
+      "id": 6,
+      "type": "multiple_choice",
+      "question": "A quadratic function models the height, in feet, of an object above the ground in terms of the time, in seconds, after the object is launched off an elevated surface. The model indicates the object is launched from the ground (0 feet) and reaches its maximum height of 1782 feet above the ground 9 seconds after being launched. Based on the model, what is the height, in feet, of the object above the ground 12 seconds after being launched?\n\nA. 594\nB. 778\nC. 970\nD. 1,584",
+      "passage": null,
+      "options": null,
+      "answer": "D",
+      "explanation": null,
+      "formatting": [],
+      "media": [],
+      "sourceData": {
+        "id": 6,
+        "text": "A quadratic function models the height, in feet, of an object above the ground in terms of the time, in seconds, after the object is launched off an elevated surface. The model indicates the object is launched from the ground (0 feet) and reaches its maximum height of 1782 feet above the ground 9 seconds after being launched. Based on the model, what is the height, in feet, of the object above the ground 12 seconds after being launched?\n\nA. 594\nB. 778\nC. 970\nD. 1,584",
+        "type": "multiple_choice",
+        "answer": "D"
+      }
+    },
+    {
+      "number": 7,
+      "id": 7,
+      "type": "free_response",
+      "question": "Cylinder | Volume | Surface Area\nA | $300\\pi$ | $k\\pi$\nB | $37,500\\pi$ | $n\\pi$\n\nTwo similar cylinders are given above with volumes of $300\\pi$ and $37,500\\pi$. If the radius of the base of Cylinder A is 10 cm, what is the value of $n-k$? $(\\text{Volume}=\\pi r^{2}h, \\text{Surface Area}=2\\pi r^{2}+2\\pi rh)$",
+      "passage": null,
+      "options": null,
+      "answer": "6240",
+      "explanation": null,
+      "formatting": [
+        "latex",
+        "table-markdown-or-html"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 7,
+        "text": "Cylinder | Volume | Surface Area\nA | $300\\pi$ | $k\\pi$\nB | $37,500\\pi$ | $n\\pi$\n\nTwo similar cylinders are given above with volumes of $300\\pi$ and $37,500\\pi$. If the radius of the base of Cylinder A is 10 cm, what is the value of $n-k$? $(\\text{Volume}=\\pi r^{2}h, \\text{Surface Area}=2\\pi r^{2}+2\\pi rh)$",
+        "type": "free_response",
+        "answer": "6240"
+      }
+    },
+    {
+      "number": 8,
+      "id": 8,
+      "type": "multiple_choice",
+      "question": "A 12-pound cat eats two types of canned cat food: chicken-flavored and duck-flavored. The recommended amount of chicken-flavored food is 2.25 cans per 8 pounds of a cat's weight per day. The recommended amount of duck-flavored food is 1.75 cans per 9 pounds of a cat's weight per day. If c is the number of chicken-flavored cans and d is the number of duck-flavored cans a 12-pound cat eats in one day, which equation describes all possible values of c and d?\n\nA. $\\frac{1.75}{9}c+\\frac{2.25}{8}d=12$\nB. $\\frac{2.25}{8}c+\\frac{1.75}{9}d=12$\nC. $\\frac{9}{1.75}c+\\frac{8}{2.25}d=12$\nD. $\\frac{8}{2.25}c+\\frac{9}{1.75}d=12$",
+      "passage": null,
+      "options": null,
+      "answer": "B",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 8,
+        "text": "A 12-pound cat eats two types of canned cat food: chicken-flavored and duck-flavored. The recommended amount of chicken-flavored food is 2.25 cans per 8 pounds of a cat's weight per day. The recommended amount of duck-flavored food is 1.75 cans per 9 pounds of a cat's weight per day. If c is the number of chicken-flavored cans and d is the number of duck-flavored cans a 12-pound cat eats in one day, which equation describes all possible values of c and d?\n\nA. $\\frac{1.75}{9}c+\\frac{2.25}{8}d=12$\nB. $\\frac{2.25}{8}c+\\frac{1.75}{9}d=12$\nC. $\\frac{9}{1.75}c+\\frac{8}{2.25}d=12$\nD. $\\frac{8}{2.25}c+\\frac{9}{1.75}d=12$",
+        "type": "multiple_choice",
+        "answer": "B"
+      }
+    },
+    {
+      "number": 9,
+      "id": 9,
+      "type": "free_response",
+      "question": "$y=a^{x}-b$\n\nThe exponential function given above passes through the points $(c, 7)$ and $(2c, 247)$. What is the possible value of b?",
+      "passage": null,
+      "options": null,
+      "answer": "9 or -22",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 9,
+        "text": "$y=a^{x}-b$\n\nThe exponential function given above passes through the points $(c, 7)$ and $(2c, 247)$. What is the possible value of b?",
+        "type": "free_response",
+        "answer": "9 or -22"
+      }
+    },
+    {
+      "number": 10,
+      "id": 10,
+      "type": "free_response",
+      "question": "$(x+9)$ is a factor of the quadratic function $y=f(x)$, $x=c$ is zero of the function. If the vertex point of the function is $(-2.75, d)$, what is the value of c?",
+      "passage": null,
+      "options": null,
+      "answer": "3.5",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 10,
+        "text": "$(x+9)$ is a factor of the quadratic function $y=f(x)$, $x=c$ is zero of the function. If the vertex point of the function is $(-2.75, d)$, what is the value of c?",
+        "type": "free_response",
+        "answer": "3.5"
+      }
+    },
+    {
+      "number": 11,
+      "id": 11,
+      "type": "multiple_choice",
+      "question": "At a convention center, there are a total of 325 visitors. Each visitor is located in either room A, room B, or room C. If one of these visitors is selected at random, the probability of selecting a visitor who is located in room A is 0.48, and the probability of selecting a visitor who is located in room B is 0.16. How many visitors are located in room C?\n\nA. 25\nB. 36\nC. 104\nD. 117",
+      "passage": null,
+      "options": null,
+      "answer": "D",
+      "explanation": null,
+      "formatting": [],
+      "media": [],
+      "sourceData": {
+        "id": 11,
+        "text": "At a convention center, there are a total of 325 visitors. Each visitor is located in either room A, room B, or room C. If one of these visitors is selected at random, the probability of selecting a visitor who is located in room A is 0.48, and the probability of selecting a visitor who is located in room B is 0.16. How many visitors are located in room C?\n\nA. 25\nB. 36\nC. 104\nD. 117",
+        "type": "multiple_choice",
+        "answer": "D"
+      }
+    },
+    {
+      "number": 12,
+      "id": 12,
+      "type": "free_response",
+      "question": "$19.5x+29.75y=394$\n\nOdalys ordered mulch and river rock, which cost a total of $394, for her home. The given equation represents the relationship between the number of cubic yards of mulch, x, and the number of tons of river rock, y, Odalys ordered. How much more, in dollars, did a ton of river rock cost Odalys than a cubic yard of mulch? Enter in decimal form only.",
+      "passage": null,
+      "options": null,
+      "answer": "10.25",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 12,
+        "text": "$19.5x+29.75y=394$\n\nOdalys ordered mulch and river rock, which cost a total of $394, for her home. The given equation represents the relationship between the number of cubic yards of mulch, x, and the number of tons of river rock, y, Odalys ordered. How much more, in dollars, did a ton of river rock cost Odalys than a cubic yard of mulch? Enter in decimal form only.",
+        "type": "free_response",
+        "answer": "10.25"
+      }
+    },
+    {
+      "number": 13,
+      "id": 13,
+      "type": "multiple_choice",
+      "question": "The cost to rent a bus from Company X is $750 for the first 2 hours and an additional $50 per hour for each hour after the first 2 hours. If the total cost to rent the bus from Company X for t hours, where $t>2$, is $1,050, which equation represents this situation?\n\nA. $750(t-2)+50t=1,050$\nB. $750(2t)+50t=1,050$\nC. $750+50(t-2)=1,050$\nD. $750+50(2t)=1,050$",
+      "passage": null,
+      "options": null,
+      "answer": "C",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 13,
+        "text": "The cost to rent a bus from Company X is $750 for the first 2 hours and an additional $50 per hour for each hour after the first 2 hours. If the total cost to rent the bus from Company X for t hours, where $t>2$, is $1,050, which equation represents this situation?\n\nA. $750(t-2)+50t=1,050$\nB. $750(2t)+50t=1,050$\nC. $750+50(t-2)=1,050$\nD. $750+50(2t)=1,050$",
+        "type": "multiple_choice",
+        "answer": "C"
+      }
+    },
+    {
+      "number": 14,
+      "id": 14,
+      "type": "multiple_choice",
+      "question": "In right triangle RST, the sum of the measures of angle R and angle S is 90 degrees. The value of $\\sin(R)$ is $\\frac{4\\sqrt{2}}{9}$. What is the value of $\\cos(S)$?\n\nA. $\\frac{4\\sqrt{2}}{9}$\nB. $\\frac{4\\sqrt{2}}{7}$\nC. $\\frac{7\\sqrt{2}}{8}$\nD. $\\frac{9\\sqrt{2}}{8}$",
+      "passage": null,
+      "options": null,
+      "answer": "A",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 14,
+        "text": "In right triangle RST, the sum of the measures of angle R and angle S is 90 degrees. The value of $\\sin(R)$ is $\\frac{4\\sqrt{2}}{9}$. What is the value of $\\cos(S)$?\n\nA. $\\frac{4\\sqrt{2}}{9}$\nB. $\\frac{4\\sqrt{2}}{7}$\nC. $\\frac{7\\sqrt{2}}{8}$\nD. $\\frac{9\\sqrt{2}}{8}$",
+        "type": "multiple_choice",
+        "answer": "A"
+      }
+    },
+    {
+      "number": 15,
+      "id": 15,
+      "type": "multiple_choice",
+      "question": "$g(m)=-0.05m+14.1$\n\nThe given function g models the number of gallons of gasoline that remains from a full gas tank in a car after driving m miles. According to the model, about how many gallons of gasoline are used to drive each mile?\n\nA. 0.05\nB. 14.1\nC. 20\nD. 282",
+      "passage": null,
+      "options": null,
+      "answer": "A",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 15,
+        "text": "$g(m)=-0.05m+14.1$\n\nThe given function g models the number of gallons of gasoline that remains from a full gas tank in a car after driving m miles. According to the model, about how many gallons of gasoline are used to drive each mile?\n\nA. 0.05\nB. 14.1\nC. 20\nD. 282",
+        "type": "multiple_choice",
+        "answer": "A"
+      }
+    },
+    {
+      "number": 16,
+      "id": 16,
+      "type": "free_response",
+      "question": "A bank account was opened with an initial deposit. Over the next several months, regular deposits were made into this account, and there were no withdrawals made during this time. The graph of the function f shown, where $y=f(x)$, estimates the account balance, in dollars, in this bank account x months since the initial deposit. To the nearest whole dollar, what is the amount of the initial deposit estimated by the graph?",
+      "passage": null,
+      "options": null,
+      "answer": "20",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 16,
+        "text": "A bank account was opened with an initial deposit. Over the next several months, regular deposits were made into this account, and there were no withdrawals made during this time. The graph of the function f shown, where $y=f(x)$, estimates the account balance, in dollars, in this bank account x months since the initial deposit. To the nearest whole dollar, what is the amount of the initial deposit estimated by the graph?",
+        "type": "free_response",
+        "answer": "20"
+      }
+    },
+    {
+      "number": 17,
+      "id": 17,
+      "type": "free_response",
+      "question": "For a certain type of rope, the equation $y=900ax^{2}$, where a is a constant, gives the estimated breaking strength y, in pounds, of a rope with a circumference of x inches. Based on this equation, if a rope of this type has a circumference of 2.25 inches, it has an estimated breaking strength of 6,378.75 pounds. What is the estimated breaking strength, in pounds, of a rope of this type that has a circumference of 3.50 inches?",
+      "passage": null,
+      "options": null,
+      "answer": "15435",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 17,
+        "text": "For a certain type of rope, the equation $y=900ax^{2}$, where a is a constant, gives the estimated breaking strength y, in pounds, of a rope with a circumference of x inches. Based on this equation, if a rope of this type has a circumference of 2.25 inches, it has an estimated breaking strength of 6,378.75 pounds. What is the estimated breaking strength, in pounds, of a rope of this type that has a circumference of 3.50 inches?",
+        "type": "free_response",
+        "answer": "15435"
+      }
+    },
+    {
+      "number": 18,
+      "id": 18,
+      "type": "free_response",
+      "question": "$48x+96=r(3x+6)$\n\nIn the given equation, r is a positive integer. If this equation has more than one solution, what is the value of r?",
+      "passage": null,
+      "options": null,
+      "answer": "16",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 18,
+        "text": "$48x+96=r(3x+6)$\n\nIn the given equation, r is a positive integer. If this equation has more than one solution, what is the value of r?",
+        "type": "free_response",
+        "answer": "16"
+      }
+    },
+    {
+      "number": 19,
+      "id": 19,
+      "type": "multiple_choice",
+      "question": "Antwon's hair will grow at a constant rate from a length of 4 inches to a length of 8 inches. The equation $0.5t+4=8$ describes this situation, where t is the number of months it will take for Antwon's hair to reach a length of 8 inches. Which of the following is the best interpretation of 0.5 in this context?\n\nA. The time, in months, it will take Antwon's hair to grow 1 inch\nB. The length, in inches, Antwon's hair will grow each month\nC. The time, in months, it will take Antwon's hair to reach a length of 8 inches\nD. The length, in inches, Antwon's hair will grow in 8 months",
+      "passage": null,
+      "options": null,
+      "answer": "B",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 19,
+        "text": "Antwon's hair will grow at a constant rate from a length of 4 inches to a length of 8 inches. The equation $0.5t+4=8$ describes this situation, where t is the number of months it will take for Antwon's hair to reach a length of 8 inches. Which of the following is the best interpretation of 0.5 in this context?\n\nA. The time, in months, it will take Antwon's hair to grow 1 inch\nB. The length, in inches, Antwon's hair will grow each month\nC. The time, in months, it will take Antwon's hair to reach a length of 8 inches\nD. The length, in inches, Antwon's hair will grow in 8 months",
+        "type": "multiple_choice",
+        "answer": "B"
+      }
+    },
+    {
+      "number": 20,
+      "id": 20,
+      "type": "free_response",
+      "question": "For the right circular cone shown, B is a point on the circumference of the base, and the length of segment AB (not shown) is 56 centimeters. If the height of the cone is 28 centimeters and the volume of the cone is $k\\pi$ cubic centimeters, what is the value of k?",
+      "passage": null,
+      "options": null,
+      "answer": "21952",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 20,
+        "text": "For the right circular cone shown, B is a point on the circumference of the base, and the length of segment AB (not shown) is 56 centimeters. If the height of the cone is 28 centimeters and the volume of the cone is $k\\pi$ cubic centimeters, what is the value of k?",
+        "type": "free_response",
+        "answer": "21952"
+      }
+    },
+    {
+      "number": 21,
+      "id": 21,
+      "type": "free_response",
+      "question": "The graph shows the momentum y, in newton-seconds, of an object x seconds after the object started moving, for $0\\le x\\le 8$. What is the average rate of change, in newton-second per second, in the momentum of the object from $x=2$ to $x=6$?",
+      "passage": null,
+      "options": null,
+      "answer": "0.5",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 21,
+        "text": "The graph shows the momentum y, in newton-seconds, of an object x seconds after the object started moving, for $0\\le x\\le 8$. What is the average rate of change, in newton-second per second, in the momentum of the object from $x=2$ to $x=6$?",
+        "type": "free_response",
+        "answer": "0.5"
+      }
+    },
+    {
+      "number": 22,
+      "id": 22,
+      "type": "free_response",
+      "question": "In triangle PQR, the measure of angle P is $(7x+9)^{\\circ}$, the measure of angle Q is $(3x+8)^{\\circ}$, and the measure of angle R is $(4y+3)^{\\circ}$. If side QR is extended through point R to point S, and the measure of angle PRS is $(x+y)^{\\circ}$, what is the value of $x+y$?",
+      "passage": null,
+      "options": null,
+      "answer": "37",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 22,
+        "text": "In triangle PQR, the measure of angle P is $(7x+9)^{\\circ}$, the measure of angle Q is $(3x+8)^{\\circ}$, and the measure of angle R is $(4y+3)^{\\circ}$. If side QR is extended through point R to point S, and the measure of angle PRS is $(x+y)^{\\circ}$, what is the value of $x+y$?",
+        "type": "free_response",
+        "answer": "37"
+      }
+    },
+    {
+      "number": 23,
+      "id": 23,
+      "type": "free_response",
+      "question": "A quadratic function models the height, in feet, of an object above the ground in terms of the time, in seconds, after the object was launched. According to the model, the object was launched from a height of 0 feet and reached its maximum height of 1,600 feet 10 seconds after it was launched. Based on the model, what was the height, in feet, of the object 7 seconds after it was launched?",
+      "passage": null,
+      "options": null,
+      "answer": "1456",
+      "explanation": null,
+      "formatting": [],
+      "media": [],
+      "sourceData": {
+        "id": 23,
+        "text": "A quadratic function models the height, in feet, of an object above the ground in terms of the time, in seconds, after the object was launched. According to the model, the object was launched from a height of 0 feet and reached its maximum height of 1,600 feet 10 seconds after it was launched. Based on the model, what was the height, in feet, of the object 7 seconds after it was launched?",
+        "type": "free_response",
+        "answer": "1456"
+      }
+    },
+    {
+      "number": 24,
+      "id": 24,
+      "type": "multiple_choice",
+      "question": "The function f is defined by $f(x)=ax^{2}+bx+c$, where a, b, and c are constants. The graph of $y=f(x)$ in the xy-plane passes through the points $(10,0)$ and $(-3,0)$. If a is an integer greater than 1, which of the following could be the value of $a+b$?\n\nA. -12\nB. -6\nC. 7\nD. 8",
+      "passage": null,
+      "options": null,
+      "answer": "A",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 24,
+        "text": "The function f is defined by $f(x)=ax^{2}+bx+c$, where a, b, and c are constants. The graph of $y=f(x)$ in the xy-plane passes through the points $(10,0)$ and $(-3,0)$. If a is an integer greater than 1, which of the following could be the value of $a+b$?\n\nA. -12\nB. -6\nC. 7\nD. 8",
+        "type": "multiple_choice",
+        "answer": "A"
+      }
+    },
+    {
+      "number": 25,
+      "id": 25,
+      "type": "multiple_choice",
+      "question": "For $x>0$, the function f is defined as follows:\n$f(x)$ equals 300% of x\nWhich of the following could describe this function?\n\nA. Decreasing exponential\nB. Decreasing linear\nC. Increasing exponential\nD. Increasing linear",
+      "passage": null,
+      "options": null,
+      "answer": "D",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 25,
+        "text": "For $x>0$, the function f is defined as follows:\n$f(x)$ equals 300% of x\nWhich of the following could describe this function?\n\nA. Decreasing exponential\nB. Decreasing linear\nC. Increasing exponential\nD. Increasing linear",
+        "type": "multiple_choice",
+        "answer": "D"
+      }
+    },
+    {
+      "number": 26,
+      "id": 26,
+      "type": "free_response",
+      "question": "A real estate company offers a series of three webinars. 2,000 people attended the first webinar. 65% of the people who attended the first webinar attended the second webinar, and 44% of the people who attended both the first and second webinar attended the third webinar. Of those who attended the first but did not attend the second webinar, 31% attended the third webinar. How many people attended both the first and third webinars but did not attend the second webinar?",
+      "passage": null,
+      "options": null,
+      "answer": "217",
+      "explanation": null,
+      "formatting": [],
+      "media": [],
+      "sourceData": {
+        "id": 26,
+        "text": "A real estate company offers a series of three webinars. 2,000 people attended the first webinar. 65% of the people who attended the first webinar attended the second webinar, and 44% of the people who attended both the first and second webinar attended the third webinar. Of those who attended the first but did not attend the second webinar, 31% attended the third webinar. How many people attended both the first and third webinars but did not attend the second webinar?",
+        "type": "free_response",
+        "answer": "217"
+      }
+    },
+    {
+      "number": 27,
+      "id": 27,
+      "type": "multiple_choice",
+      "question": "A scientist studying the life cycle of butterflies counted the number of butterflies in a certain habitat each day for 46 days. On June 15, there were 168 butterflies in the habitat. The percent increase in the number of butterflies in the habitat from May 1 to June 15 was 31.25%. How many butterflies were in the habitat on May 1?\n\nA. 128\nB. 116\nC. 53\nD. 5",
+      "passage": null,
+      "options": null,
+      "answer": "A",
+      "explanation": null,
+      "formatting": [],
+      "media": [],
+      "sourceData": {
+        "id": 27,
+        "text": "A scientist studying the life cycle of butterflies counted the number of butterflies in a certain habitat each day for 46 days. On June 15, there were 168 butterflies in the habitat. The percent increase in the number of butterflies in the habitat from May 1 to June 15 was 31.25%. How many butterflies were in the habitat on May 1?\n\nA. 128\nB. 116\nC. 53\nD. 5",
+        "type": "multiple_choice",
+        "answer": "A"
+      }
+    },
+    {
+      "number": 28,
+      "id": 28,
+      "type": "multiple_choice",
+      "question": "In the xy-plane, circle M is the graph of the equation $(x+6a)^{2}+(y-38a)^{2}=36a^{2}$, where a is a positive constant. Circle V is obtained by shifting circle M 12a units to the right. Which equation represents circle V?\n\nA. $(x+18a)^{2}+(y-38a)^{2}=36a^{2}$\nB. $(x+6a)^{2}+(y-50a)^{2}=36a^{2}$\nC. $(x+6a)^{2}+(y-26a)^{2}=36a^{2}$\nD. $(x-6a)^{2}+(y-38a)^{2}=36a^{2}$",
+      "passage": null,
+      "options": null,
+      "answer": "D",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 28,
+        "text": "In the xy-plane, circle M is the graph of the equation $(x+6a)^{2}+(y-38a)^{2}=36a^{2}$, where a is a positive constant. Circle V is obtained by shifting circle M 12a units to the right. Which equation represents circle V?\n\nA. $(x+18a)^{2}+(y-38a)^{2}=36a^{2}$\nB. $(x+6a)^{2}+(y-50a)^{2}=36a^{2}$\nC. $(x+6a)^{2}+(y-26a)^{2}=36a^{2}$\nD. $(x-6a)^{2}+(y-38a)^{2}=36a^{2}$",
+        "type": "multiple_choice",
+        "answer": "D"
+      }
+    },
+    {
+      "number": 29,
+      "id": 29,
+      "type": "multiple_choice",
+      "question": "The three points shown define a circle. The circumference of this circle is $k\\pi$, where k is a constant. What is the value of k?\n\nA. 3\nB. 6\nC. 9\nD. 12",
+      "passage": null,
+      "options": null,
+      "answer": "B",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 29,
+        "text": "The three points shown define a circle. The circumference of this circle is $k\\pi$, where k is a constant. What is the value of k?\n\nA. 3\nB. 6\nC. 9\nD. 12",
+        "type": "multiple_choice",
+        "answer": "B"
+      }
+    },
+    {
+      "number": 30,
+      "id": 30,
+      "type": "multiple_choice",
+      "question": "The dot plot shows the distribution of capacity for a set of capacitors, set A, which a researcher used for a certain experiment. For another experiment, the researcher used a different set of capacitors, set B. Set B has the same number of capacitors as set A but the capacity of each capacitor of set B is 14 microfarads ($\\mu F$) greater than the capacity of each respective capacitor in set A. Which of the following is true about the capacities of the capacitors in set B?\n\nA. The mean capacity is $10\\mu F$ and the range of capacities is $12\\mu F$.\nB. The mean capacity is $10\\mu F$ and the range of capacities is $26\\mu F$.\nC. The mean capacity is $24\\mu F$ and the range of capacities is $12\\mu F$.\nD. The mean capacity is $24\\mu F$ and the range of capacities is $26\\mu F$.",
+      "passage": null,
+      "options": null,
+      "answer": "C",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 30,
+        "text": "The dot plot shows the distribution of capacity for a set of capacitors, set A, which a researcher used for a certain experiment. For another experiment, the researcher used a different set of capacitors, set B. Set B has the same number of capacitors as set A but the capacity of each capacitor of set B is 14 microfarads ($\\mu F$) greater than the capacity of each respective capacitor in set A. Which of the following is true about the capacities of the capacitors in set B?\n\nA. The mean capacity is $10\\mu F$ and the range of capacities is $12\\mu F$.\nB. The mean capacity is $10\\mu F$ and the range of capacities is $26\\mu F$.\nC. The mean capacity is $24\\mu F$ and the range of capacities is $12\\mu F$.\nD. The mean capacity is $24\\mu F$ and the range of capacities is $26\\mu F$.",
+        "type": "multiple_choice",
+        "answer": "C"
+      }
+    },
+    {
+      "number": 31,
+      "id": 31,
+      "type": "free_response",
+      "question": "A small business owner budgets $2,800 to purchase books each year. The owner must purchase a minimum of 275 books for the year to maintain the discounted pricing. If the owner pays $4.10 per book to purchase paperback books and $11.10 per book to purchase hardcover books, what is the maximum number of hardcover books the owner can purchase to stay within the budget and maintain the discounted pricing?",
+      "passage": null,
+      "options": null,
+      "answer": "238",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 31,
+        "text": "A small business owner budgets $2,800 to purchase books each year. The owner must purchase a minimum of 275 books for the year to maintain the discounted pricing. If the owner pays $4.10 per book to purchase paperback books and $11.10 per book to purchase hardcover books, what is the maximum number of hardcover books the owner can purchase to stay within the budget and maintain the discounted pricing?",
+        "type": "free_response",
+        "answer": "238"
+      }
+    },
+    {
+      "number": 32,
+      "id": 32,
+      "type": "multiple_choice",
+      "question": "The total mass, in kilograms, of r identical objects is t. Which expression represents the total mass, in kilograms, of 139r of these objects?\n\nA. $139-t$\nB. $139+t$\nC. $\\frac{t}{139}$\nD. $139t$",
+      "passage": null,
+      "options": null,
+      "answer": "D",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 32,
+        "text": "The total mass, in kilograms, of r identical objects is t. Which expression represents the total mass, in kilograms, of 139r of these objects?\n\nA. $139-t$\nB. $139+t$\nC. $\\frac{t}{139}$\nD. $139t$",
+        "type": "multiple_choice",
+        "answer": "D"
+      }
+    },
+    {
+      "number": 33,
+      "id": 33,
+      "type": "free_response",
+      "question": "The equation $h=\\frac{9(v-273.15)}{5}+32$ gives the corresponding temperature h, in degrees Fahrenheit, of any substance that has a temperature of v kelvins, where $v>0.$ If a substance has a temperature of 413.33 degrees Fahrenheit, what is the corresponding temperature, in kelvins, of this substance?",
+      "passage": null,
+      "options": null,
+      "answer": "485",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 33,
+        "text": "The equation $h=\\frac{9(v-273.15)}{5}+32$ gives the corresponding temperature h, in degrees Fahrenheit, of any substance that has a temperature of v kelvins, where $v>0.$ If a substance has a temperature of 413.33 degrees Fahrenheit, what is the corresponding temperature, in kelvins, of this substance?",
+        "type": "free_response",
+        "answer": "485"
+      }
+    },
+    {
+      "number": 34,
+      "id": 34,
+      "type": "multiple_choice",
+      "question": "$r(t)=69t-2t^{2}$\n\nThe function is defined by the given equation. The function s is defined by $s(t)=r(t)+1.$ Which expression represents the maximum value of $s(t)$?\n\nA. $1-(\\frac{69}{2})^{2}$\nB. $1-2(\\frac{69}{4})^{2}$\nC. $1+2(\\frac{69}{4})^{2}$\nD. $1+(\\frac{69}{2})^{2}$",
+      "passage": null,
+      "options": null,
+      "answer": "C",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 34,
+        "text": "$r(t)=69t-2t^{2}$\n\nThe function is defined by the given equation. The function s is defined by $s(t)=r(t)+1.$ Which expression represents the maximum value of $s(t)$?\n\nA. $1-(\\frac{69}{2})^{2}$\nB. $1-2(\\frac{69}{4})^{2}$\nC. $1+2(\\frac{69}{4})^{2}$\nD. $1+(\\frac{69}{2})^{2}$",
+        "type": "multiple_choice",
+        "answer": "C"
+      }
+    },
+    {
+      "number": 35,
+      "id": 35,
+      "type": "multiple_choice",
+      "question": "To purchase a used car at a total price of 14,000 dollars, a onetime down payment is required, and then fixed monthly payments are made for the remaining amount owed for the car. The equation $14,000=2,500+250t$ represents this situation, where t is the number of fixed monthly payments that are made. Which of the following is the best interpretation of 250 in this context?\n\nA. The amount, in dollars, of the down payment\nB. The amount, in dollars, of each fixed monthly payment\nC. The total amount, in dollars, paid for the car after t fixed monthly payments\nD. The total number of fixed monthly payments",
+      "passage": null,
+      "options": null,
+      "answer": "B",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 35,
+        "text": "To purchase a used car at a total price of 14,000 dollars, a onetime down payment is required, and then fixed monthly payments are made for the remaining amount owed for the car. The equation $14,000=2,500+250t$ represents this situation, where t is the number of fixed monthly payments that are made. Which of the following is the best interpretation of 250 in this context?\n\nA. The amount, in dollars, of the down payment\nB. The amount, in dollars, of each fixed monthly payment\nC. The total amount, in dollars, paid for the car after t fixed monthly payments\nD. The total number of fixed monthly payments",
+        "type": "multiple_choice",
+        "answer": "B"
+      }
+    },
+    {
+      "number": 36,
+      "id": 36,
+      "type": "free_response",
+      "question": "$C(t)=240(\\frac{53}{52})^{t-15}+7$\n\nThe function C gives the estimated number of cephalopods, a class of marine animal, in a certain area, where t is the number of months since a study began. How many months after the study began was the number of cephalopods in the area estimated to be 247?",
+      "passage": null,
+      "options": null,
+      "answer": "15",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 36,
+        "text": "$C(t)=240(\\frac{53}{52})^{t-15}+7$\n\nThe function C gives the estimated number of cephalopods, a class of marine animal, in a certain area, where t is the number of months since a study began. How many months after the study began was the number of cephalopods in the area estimated to be 247?",
+        "type": "free_response",
+        "answer": "15"
+      }
+    },
+    {
+      "number": 37,
+      "id": 37,
+      "type": "multiple_choice",
+      "question": "In triangle QRS shown, $QR<RS$. Which expression represents the length of $\\overline{QS}$?\n\nA. $17 \\cos Q$\nB. $17 \\sin Q$\nC. $\\frac{17}{\\cos Q}$\nD. $\\frac{17}{\\sin Q}$",
+      "passage": null,
+      "options": null,
+      "answer": "D",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 37,
+        "text": "In triangle QRS shown, $QR<RS$. Which expression represents the length of $\\overline{QS}$?\n\nA. $17 \\cos Q$\nB. $17 \\sin Q$\nC. $\\frac{17}{\\cos Q}$\nD. $\\frac{17}{\\sin Q}$",
+        "type": "multiple_choice",
+        "answer": "D"
+      }
+    },
+    {
+      "number": 38,
+      "id": 38,
+      "type": "multiple_choice",
+      "question": "A machine makes 8-inch, 9-inch, and 3-inch parts. During a certain day, the number of 8-inch parts that the machine makes is 4 times the number n of 9-inch parts, and the number of 3-inch parts is 30. During this day, the machine makes 100 parts total. Which equation represents this situation?\n\nA. $8(4n)+9n+3(30)=100$\nB. $8n+9n+3n=100$\nC. $4n+30=100$\nD. $5n+30=100$",
+      "passage": null,
+      "options": null,
+      "answer": "D",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 38,
+        "text": "A machine makes 8-inch, 9-inch, and 3-inch parts. During a certain day, the number of 8-inch parts that the machine makes is 4 times the number n of 9-inch parts, and the number of 3-inch parts is 30. During this day, the machine makes 100 parts total. Which equation represents this situation?\n\nA. $8(4n)+9n+3(30)=100$\nB. $8n+9n+3n=100$\nC. $4n+30=100$\nD. $5n+30=100$",
+        "type": "multiple_choice",
+        "answer": "D"
+      }
+    },
+    {
+      "number": 39,
+      "id": 39,
+      "type": "free_response",
+      "question": "A polygon has exactly 87 sides. If the measure of each of the 87 interior angles of this polygon is $(180p)^{\\circ}$, what is the value of p?",
+      "passage": null,
+      "options": null,
+      "answer": "85/87",
+      "explanation": null,
+      "formatting": [
+        "latex"
+      ],
+      "media": [],
+      "sourceData": {
+        "id": 39,
+        "text": "A polygon has exactly 87 sides. If the measure of each of the 87 interior angles of this polygon is $(180p)^{\\circ}$, what is the value of p?",
+        "type": "free_response",
+        "answer": "85/87"
+      }
+    },
+    {
+      "number": 40,
+      "id": 40,
+      "type": "multiple_choice",
+      "question": "The histogram summarizes a data set of the weights, in pounds, of 14 salmon. If an additional weight of 68 pounds is added to the original data set to create a new data set of 15 weights of salmon, which of the following measures must be greater for the new data set than for the original data set?\n\nI. The median\nII. The mean\n\nA. I only\nB. II only\nC. I and II\nD. Neither I nor II",
+      "passage": null,
+      "options": null,
+      "answer": "B",
+      "explanation": null,
+      "formatting": [],
+      "media": [],
+      "sourceData": {
+        "id": 40,
+        "text": "The histogram summarizes a data set of the weights, in pounds, of 14 salmon. If an additional weight of 68 pounds is added to the original data set to create a new data set of 15 weights of salmon, which of the following measures must be greater for the new data set than for the original data set?\n\nI. The median\nII. The mean\n\nA. I only\nB. II only\nC. I and II\nD. Neither I nor II",
+        "type": "multiple_choice",
+        "answer": "B"
+      }
+    }
+  ]
+}
