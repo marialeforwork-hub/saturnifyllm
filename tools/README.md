@@ -41,3 +41,14 @@ Inputs may be SATurnify HTML or scanned `.pdf`, `.png`, `.jpg`, `.jpeg`, `.webp`
 The JSON includes normalized question, passage, option, answer, and explanation fields plus the untouched `sourceData` object. Rich text, HTML emphasis, underline tags, LaTeX/MathJax source, Markdown tables, and inline image markup stay as strings. Referenced local images are copied beside the JSON into a `<output>.assets` directory and listed in each question's `media` field; data and remote URLs remain unchanged.
 
 For OCR imports, question boundaries and A–H options are detected from the recognized Markdown. `answer` and `explanation` remain `null` instead of being guessed. The original scan, OCR Markdown, and recognized image assets are retained under `<output>.assets`; review the JSON before importing it as a quiz.
+
+## Browser UI
+
+Open `tools/quiz_to_json.html` for the single-page file picker, preview, and JSON download UI. HTML quiz files are parsed in the browser. To OCR a PDF/image, install Pix2Text and start its local service from the project terminal:
+
+```sh
+python3 -m pip install -r tools/requirements-ocr.txt
+p2t serve -l en -H 127.0.0.1 -p 8503
+```
+
+Serve the project folder in another terminal and open `http://127.0.0.1:8000/tools/quiz_to_json.html`; do not use `file://` for OCR requests. The OCR settings panel lets you change the endpoint and choose whether to embed the original scan in the downloaded JSON. First OCR use downloads Pix2Text models and may take a while.

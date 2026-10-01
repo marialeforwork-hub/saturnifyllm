@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>SATurnify | Question JSON Studio</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Nunito:wght@400;600;700;800&display=swap');
+
+        :root {
+            --ink: #343b79;
+            --ink-deep: #272e63;
+            --muted: #707493;
+            --line: #e4dce7;
+            --pink: #f5d7e2;
+            --mint: #bde8e6;
+            --gold: #f4d66f;
+            --paper: #fffdf9;
+            --surface: rgba(255, 255, 255, .92);
+            --shadow: 0 22px 60px rgba(52, 59, 121, .11);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 28px;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 8% 12%, rgba(245, 215, 226, .9), transparent 24rem),
+                radial-gradient(circle at 91% 7%, rgba(189, 232, 230, .7), transparent 25rem),
+                linear-gradient(135deg, #fffaf6, #f7f5ff 55%, #fffdf8);
+            font-family: 'Nunito', 'Trebuchet MS', sans-serif;
+        }
+
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+        .shell { width: min(1080px, 100%); margin: 0 auto; }
+        .masthead { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 24px; }
+        .eyebrow { margin: 0 0 8px; color: #a45a75; font: 500 .72rem 'DM Mono', monospace; text-transform: uppercase; }
+        h1 { margin: 0; color: var(--ink-deep); font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; }
+        .subtitle { max-width: 32rem; margin: 10px 0 0; color: var(--muted); font-size: .98rem; }
+        .version { flex: 0 0 auto; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.65); color: var(--muted); font: .72rem 'DM Mono', monospace; }
+
+        .workspace { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(300px, .88fr); gap: 18px; align-items: start; }
+        .panel { border: 1px solid rgba(228,220,231,.9); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); backdrop-filter: blur(12px); }
+        .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+        .panel-head h2 { margin: 0; font-size: 1.03rem; }
+        .step { color: #a45a75; font: 500 .7rem 'DM Mono', monospace; }
+        .panel-body { padding: 20px; }
+
+        .dropzone { display: grid; place-items: center; min-height: 192px; padding: 20px; border: 1.5px dashed #b9bdd9; border-radius: 10px; background: linear-gradient(135deg, rgba(245,215,226,.28), rgba(189,232,230,.22)); text-align: center; transition: border-color .18s, background .18s; }
+        .dropzone.is-over { border-color: #7278bb; background: #f4f2ff; }
+        .drop-icon { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 12px; background: var(--gold); color: var(--ink-deep); font-size: 1.25rem; }
+        .dropzone strong { display: block; color: var(--ink-deep); }
+        .dropzone p { margin: 5px 0 12px; color: var(--muted); font-size: .84rem; }
+        .file-button, .primary, .secondary { min-height: 42px; padding: 9px 15px; border: 0; border-radius: 8px; font-weight: 800; }
+        .file-button { background: var(--ink); color: #fff; }
+        .file-button:hover, .primary:hover { background: var(--ink-deep); }
+        #fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+        .file-meta { display: none; margin-top: 12px; padding: 11px 13px; border-radius: 8px; background: #f1f8f6; color: #326f6c; font: .78rem 'DM Mono', monospace; overflow-wrap: anywhere; }
+        .file-meta.visible { display: block; }
+
+        .field { display: grid; gap: 7px; margin-top: 18px; }
+        .field label { color: var(--ink-deep); font-weight: 800; font-size: .83rem; }
+        .field select, .field input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #d7d5e7; border-radius: 8px; background: #fff; color: var(--ink-deep); }
+        .field small, .hint { color: var(--muted); font-size: .76rem; line-height: 1.5; }
+        .ocr-settings { margin-top: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fffdfb; }
+        .ocr-settings summary { color: var(--ink-deep); cursor: pointer; font-weight: 800; font-size: .83rem; }
+        .ocr-settings .field { margin-top: 12px; }
+        .check-row { display: flex; align-items: start; gap: 9px; margin-top: 13px; color: var(--ink-deep); font-size: .8rem; line-height: 1.4; }
+        .check-row input { margin-top: 3px; accent-color: var(--ink); }
+        .ocr-note { margin: 10px 0 0; padding-left: 16px; color: var(--muted); font-size: .74rem; line-height: 1.55; }
+        .actions { display: flex; gap: 9px; margin-top: 20px; }
+        .primary { flex: 1; background: #e77291; color: #fff; }
+        .primary:hover { background: #cb5f7b; }
+        .primary:disabled { cursor: not-allowed; opacity: .45; }
+        .secondary { border: 1px solid var(--line); background: #fff; color: var(--ink); }
+        .secondary:hover { background: #f7f4fa; }
+
+        .status { display: none; margin-top: 14px; padding: 11px 13px; border-radius: 8px; font-size: .82rem; line-height: 1.45; }
+        .status.visible { display: block; }
+        .status.info { background: #edf4fc; color: #3c5f8d; }
+        .status.success { background: #e9f7ef; color: #26734d; }
+        .status.error { background: #fff0f1; color: #a33e57; }
+
+        .preview-empty { display: grid; place-items: center; min-height: 235px; padding: 22px; color: var(--muted); text-align: center; }
+        .preview-empty .empty-icon { margin-bottom: 9px; color: #b9bdd9; font-size: 2rem; }
+        .preview { display: none; }
+        .preview.visible { display: block; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+        .stat { padding: 11px; border-radius: 8px; background: #f5f3fb; }
+        .stat span { display: block; color: var(--muted); font: .64rem 'DM Mono', monospace; text-transform: uppercase; }
+        .stat strong { display: block; margin-top: 4px; color: var(--ink-deep); font-size: 1.15rem; }
+        .question-list { display: grid; gap: 8px; max-height: 410px; overflow: auto; }
+        .question { padding: 12px; border: 1px solid #e8e3ed; border-radius: 8px; background: #fff; }
+        .question-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 7px; }
+        .question-top strong { color: var(--ink-deep); font: 700 .78rem 'DM Mono', monospace; }
+        .question-type { color: #a45a75; font: .65rem 'DM Mono', monospace; text-transform: uppercase; }
+        .question-text { margin: 0; color: #484b68; font-size: .81rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .preview-footer { margin-top: 12px; color: var(--muted); font-size: .75rem; }
+        .spinner { display: inline-block; width: 14px; height: 14px; margin-right: 7px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; vertical-align: -2px; animation: spin .7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 760px) { body { padding: 16px; } .masthead { align-items: start; flex-direction: column; gap: 12px; } .workspace { grid-template-columns: 1fr; } .panel-body { padding: 16px; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/json5@2.2.3/dist/index.min.js"></script>
+</head>
+<body>
+<main class="shell">
+    <header class="masthead">
+        <div>
+            <p class="eyebrow">SATurnify / Local workspace tool</p>
+            <h1>Question JSON Studio</h1>
+            <p class="subtitle">Chọn đề, nhận diện loại câu hỏi, giữ nguyên nội dung định dạng và xuất JSON để rà soát.</p>
+        </div>
+        <span class="version">HTML · PDF · IMAGE</span>
+    </header>
+
+    <div class="workspace">
+        <section class="panel" aria-labelledby="sourceTitle">
+            <div class="panel-head"><h2 id="sourceTitle">Nguồn đề</h2><span class="step">01 / IMPORT</span></div>
+            <div class="panel-body">
+                <div id="dropzone" class="dropzone">
+                    <div>
+                        <div class="drop-icon" aria-hidden="true">⇧</div>
+                        <strong>Thả file đề vào đây</strong>
+                        <p>HTML quiz, PDF scan hoặc ảnh JPG / PNG / TIFF</p>
+                        <label class="file-button" for="fileInput">Chọn file</label>
+                    </div>
+                </div>
+                <input id="fileInput" type="file" accept=".html,.htm,.pdf,.png,.jpg,.jpeg,.webp,.tif,.tiff,.bmp">
+                <div id="fileMeta" class="file-meta"></div>
+
+                <div class="field">
+                    <label for="subject">Loại đề</label>
+                    <select id="subject">
+                        <option value="auto">Tự nhận diện từ tên file</option>
+                        <option value="verbal">Verbal / Reading & Writing</option>
+                        <option value="math">Math</option>
+                        <option value="mixed">Mixed / giữ toàn bộ câu</option>
+                    </select>
+                    <small>Elite 98 câu: chọn Verbal để lấy 1–54, Math để lấy 55–98, Mixed để lấy cả đề.</small>
+                </div>
+                <div class="field">
+                    <label for="outputName">Tên file JSON</label>
+                    <input id="outputName" type="text" value="questions.json" autocomplete="off">
+                </div>
+
+                <details class="ocr-settings">
+                    <summary>Cấu hình OCR local cho PDF / ảnh</summary>
+                    <div class="field">
+                        <label for="ocrUrl">Pix2Text endpoint</label>
+                        <input id="ocrUrl" type="url" value="http://127.0.0.1:8503/pix2text">
+                    </div>
+                    <label class="check-row"><input id="embedSource" type="checkbox" checked><span>Nhúng file gốc vào JSON để giữ hình/scan (PDF lớn có thể làm JSON rất nặng).</span></label>
+                    <ul class="ocr-note">
+                        <li>Cài OCR: <code>python3 -m pip install -r tools/requirements-ocr.txt</code></li>
+                        <li>Chạy service: <code>p2t serve -l en --port 8503</code></li>
+                        <li>Mở trang này qua localhost để trình duyệt gọi được service; HTML quiz thì xử lý trực tiếp.</li>
+                    </ul>
+                </details>
+
+                <div class="actions">
+                    <button id="convertButton" class="primary" type="button" disabled>Tạo JSON</button>
+                    <button id="resetButton" class="secondary" type="button">Xóa</button>
+                </div>
+                <div id="status" class="status" role="status" aria-live="polite"></div>
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="previewTitle">
+            <div class="panel-head"><h2 id="previewTitle">Xem trước</h2><span class="step">02 / REVIEW</span></div>
+            <div class="panel-body">
+                <div id="previewEmpty" class="preview-empty">
+                    <div><div class="empty-icon" aria-hidden="true">▤</div><strong>Chưa có dữ liệu</strong><br><small>Các câu nhận diện được sẽ hiện ở đây.</small></div>
+                </div>
+                <div id="preview" class="preview">
+                    <div class="stats">
+                        <div class="stat"><span>Câu hỏi</span><strong id="statQuestions">0</strong></div>
+                        <div class="stat"><span>Loại đề</span><strong id="statSubject">—</strong></div>
+                        <div class="stat"><span>Nguồn</span><strong id="statSource">—</strong></div>
+                    </div>
+                    <div id="questionList" class="question-list"></div>
+                    <p id="previewFooter" class="preview-footer"></p>
+                    <button id="downloadButton" class="primary" type="button" style="width:100%;margin-top:12px">Tải JSON</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    const input = document.getElementById('fileInput');
+    const dropzone = document.getElementById('dropzone');
+    const convertButton = document.getElementById('convertButton');
+    const statusBox = document.getElementById('status');
+    const questionList = document.getElementById('questionList');
+    let selectedFile = null;
+    let outputDocument = null;
+
+    const declarationPattern = /\b(?:const|let|var)\s+(?:quizData|quizQuestions|questions|questionData)\s*=/ig;
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+
+    function showStatus(message, kind = 'info', busy = false) {
+        statusBox.className = `status visible ${kind}`;
+        statusBox.innerHTML = `${busy ? '<span class="spinner" aria-hidden="true"></span>' : ''}${escapeHtml(message)}`;
+    }
+
+    function setFile(file) {
+        selectedFile = file || null;
+        convertButton.disabled = !selectedFile;
+        const meta = document.getElementById('fileMeta');
+        if (!selectedFile) {
+            meta.classList.remove('visible');
+            meta.textContent = '';
+            return;
+        }
+        meta.textContent = `${selectedFile.name} · ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`;
+        meta.classList.add('visible');
+        const name = selectedFile.name.replace(/\.[^.]+$/, '');
+        document.getElementById('outputName').value = `${name}.json`;
+        outputDocument = null;
+        document.getElementById('preview').classList.remove('visible');
+        document.getElementById('previewEmpty').style.display = 'grid';
+        statusBox.className = 'status';
+    }
+
+    input.addEventListener('change', () => setFile(input.files[0]));
+    for (const eventName of ['dragenter', 'dragover']) dropzone.addEventListener(eventName, event => { event.preventDefault(); dropzone.classList.add('is-over'); });
+    for (const eventName of ['dragleave', 'drop']) dropzone.addEventListener(eventName, event => { event.preventDefault(); dropzone.classList.remove('is-over'); });
+    dropzone.addEventListener('drop', event => setFile(event.dataTransfer.files[0]));
+    document.getElementById('resetButton').addEventListener('click', () => { input.value = ''; setFile(null); outputDocument = null; });
+
+    function findArrayEnd(source, start) {
+        let depth = 0, quote = '', escaped = false;
+        for (let index = start; index < source.length; index++) {
+            const character = source[index];
+            if (quote) {
+                if (escaped) escaped = false;
+                else if (character === '\\') escaped = true;
+                else if (character === quote) quote = '';
+                continue;
+            }
+            if (source.startsWith('//', index)) { const end = source.indexOf('\n', index + 2); index = end < 0 ? source.length : end; continue; }
+            if (source.startsWith('/*', index)) { const end = source.indexOf('*/', index + 2); index = end < 0 ? source.length : end + 1; continue; }
+            if (character === '"' || character === "'" || character === '`') quote = character;
+            else if (character === '[') depth++;
+            else if (character === ']' && --depth === 0) return index + 1;
+        }
+        return -1;
+    }
+
+    function extractQuizData(source) {
+        const candidates = [];
+        for (const match of source.matchAll(declarationPattern)) {
+            let start = match.index + match[0].length;
+            while (/\s/.test(source[start] || '')) start++;
+            if (source[start] !== '[') continue;
+            const end = findArrayEnd(source, start);
+            if (end < 0) continue;
+            try {
+                const value = JSON5.parse(source.slice(start, end));
+                if (Array.isArray(value) && value.length) candidates.push(value);
+            } catch {}
+        }
+        if (!candidates.length) throw new Error('Không tìm thấy mảng quizData/questions tĩnh trong HTML.');
+        return candidates.sort((left, right) => right.length - left.length)[0];
+    }
+
+    function inferSubject(fileName) {
+        const name = fileName.toLowerCase().replace(/[_-]/g, ' ');
+        if (/elite\s*x?\s*\d+/.test(name)) return 'mixed';
+        if (/word in context|\bwic\b|stunote|rhetorical|transition|boundaries|verbal|reading/.test(name)) return 'verbal';
+        if (/math|arithmetic|function|circular|geometry|orxan/.test(name)) return 'math';
+        return 'mixed';
+    }
+
+    function normalizeHtmlQuestions(rows, fileName, subject) {
+        const isElite98 = /^ELITEX/i.test(fileName) && rows.length === 98;
+        let rangeStart = 1, rangeEnd = rows.length;
+        if (isElite98 && subject === 'verbal') rangeEnd = 54;
+        if (isElite98 && subject === 'math') rangeStart = 55;
+        return rows.map((row, index) => {
+            const number = index + 1;
+            const raw = typeof row === 'object' && row !== null ? row : {text:String(row)};
+            const question = raw.question ?? raw.text ?? raw.prompt ?? raw.content ?? '';
+            const options = raw.options ?? raw.choices ?? null;
+            const type = raw.type ?? (options ? 'multiple_choice' : 'free_response');
+            const content = [question, raw.passage, options].map(value => typeof value === 'string' ? value : JSON.stringify(value || '')).join('\n');
+            const features = [];
+            if (/<\/?[a-z][^>]*>/i.test(content)) features.push('html');
+            if (/\$[^\n$]+\$|\\\(|\\\[|\\begin\{/.test(content)) features.push('latex');
+            if (/<table\b|(?:^|\n)\s*\|[^\n]*\|/.test(content)) features.push('tables');
+            return {number,id:raw.id ?? raw.question_number ?? number,type,question,passage:raw.passage ?? raw.context ?? null,options,answer:raw.answer ?? raw.correctAnswer ?? null,explanation:raw.explanation ?? null,formatting:features,media:[],sourceData:raw};
+        }).filter(question => question.number >= rangeStart && question.number <= rangeEnd);
+    }
+
+    function splitOcrQuestions(markdown) {
+        const pattern = /^\s*(?:#{1,6}\s*)?(?:(?:question|q|câu)\s*)?(\d{1,3})[.)]\s+(?=\S)/gim;
+        const starts = [...markdown.matchAll(pattern)];
+        if (!starts.length) return [{number:1,text:markdown.trim()}];
+        return starts.map((match,index) => ({number:Number(match[1]),text:markdown.slice(match.index + match[0].length,starts[index+1]?.index ?? markdown.length).trim()}));
+    }
+
+    function normalizeOcrQuestions(markdown, subject) {
+        return splitOcrQuestions(markdown).map(item => {
+            const lines = item.text.split('\n');
+            const optionStart = lines.findIndex(line => /^\s*(?:[-*]\s*)?(?:\*\*)?[A-H](?:\*\*)?[.):]\s+/.test(line));
+            const prompt = (optionStart < 0 ? lines : lines.slice(0,optionStart)).join('\n').trim();
+            const options = {};
+            if (optionStart >= 0) for (const line of lines.slice(optionStart)) {
+                const match = line.match(/^\s*(?:[-*]\s*)?(?:\*\*)?([A-H])(?:\*\*)?[.):]\s+(.*)$/);
+                if (match) options[match[1]] = match[2].trim();
+                else if (Object.keys(options).length && line.trim()) { const key = Object.keys(options).at(-1); options[key] += `\n${line.trim()}`; }
+            }
+            return {number:item.number,id:item.number,type:Object.keys(options).length>1?'multiple_choice':'free_response',question:prompt,passage:null,options:Object.keys(options).length?options:null,supplement:null,answer:null,explanation:null,ocrMarkdown:item.text,formatting:['markdown',...(item.text.match(/\$[^\n$]+\$|\\\(/)?['latex']:[]),...(item.text.includes('|')?['tables']:[])],media:[],sourceData:{ocrMarkdown:item.text}};
+        });
+    }
+
+    async function processHtml(file, subject) {
+        if (!window.JSON5) throw new Error('Không tải được JSON5 parser. Kiểm tra kết nối mạng rồi thử lại.');
+        const source = await file.text();
+        const parsed = new DOMParser().parseFromString(source,'text/html');
+        const rows = extractQuizData(source);
+        const questions = normalizeHtmlQuestions(rows,file.name,subject);
+        return {schemaVersion:1,subject:subject==='auto'?inferSubject(file.name):subject,source:{file:file.name,title:parsed.title||file.name},questionCount:questions.length,questions};
+    }
+
+    async function processOcr(file, subject) {
+        const endpoint = document.getElementById('ocrUrl').value.trim();
+        const form = new FormData();
+        form.append('image',file,file.name);
+        form.append('file_type',file.type==='application/pdf'?'pdf':'page');
+        form.append('resized_shape','1024');
+        showStatus('Đang gửi file đến Pix2Text local để OCR…', 'info', true);
+        const response = await fetch(endpoint,{method:'POST',body:form});
+        if (!response.ok) throw new Error(`Pix2Text trả về HTTP ${response.status}.`);
+        const result = await response.json();
+        const raw = result.results ?? result.result ?? result.markdown ?? result.text;
+        const markdown = typeof raw==='string' ? raw : Array.isArray(raw) ? raw.map(item=>typeof item==='string'?item:item.text||'').join('\n') : '';
+        if (!markdown.trim()) throw new Error('OCR không trả về Markdown. Kiểm tra Pix2Text endpoint hoặc output service.');
+        const questions = normalizeOcrQuestions(markdown,subject);
+        const source = {file:file.name,format:file.type||'image',size:file.size};
+        if (document.getElementById('embedSource').checked) source.dataUrl = await readAsDataUrl(file);
+        return {schemaVersion:1,subject:subject==='auto'?inferSubject(file.name):subject,source,questionCount:questions.length,ocrEngine:'Pix2Text',ocrMarkdown:markdown,questions};
+    }
+
+    function readAsDataUrl(file) {
+        return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error('Không đọc được file nguồn.'));reader.readAsDataURL(file);});
+    }
+
+    function showPreview(data, fileName) {
+        outputDocument = data;
+        document.getElementById('previewEmpty').style.display='none';
+        document.getElementById('preview').classList.add('visible');
+        document.getElementById('statQuestions').textContent=data.questionCount;
+        document.getElementById('statSubject').textContent=data.subject;
+        document.getElementById('statSource').textContent=/\.html?$/i.test(fileName)?'HTML':'OCR';
+        questionList.replaceChildren();
+        data.questions.slice(0,12).forEach(question=>{
+            const card=document.createElement('article');card.className='question';
+            const top=document.createElement('div');top.className='question-top';
+            const heading=document.createElement('strong');heading.textContent=`Câu ${question.number}`;
+            const type=document.createElement('span');type.className='question-type';type.textContent=question.type;
+            top.append(heading,type);
+            const content=document.createElement('p');content.className='question-text';content.textContent=String(question.question||question.ocrMarkdown||'').slice(0,320);
+            card.append(top,content);questionList.append(card);
+        });
+        document.getElementById('previewFooter').textContent=data.questionCount>12?`Đang xem 12/${data.questionCount} câu đầu. JSON tải xuống chứa toàn bộ câu.`:`${data.questionCount} câu đã sẵn sàng.`;
+        document.getElementById('downloadButton').onclick=()=>{
+            const blob=new Blob([JSON.stringify(outputDocument,null,2)+'\n'],{type:'application/json'});
+            const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=document.getElementById('outputName').value.trim()||'questions.json';link.click();URL.revokeObjectURL(link.href);
+        };
+    }
+
+    convertButton.addEventListener('click',async()=>{
+        if(!selectedFile)return;
+        convertButton.disabled=true;showStatus('Đang đọc file và tạo câu hỏi…','info',true);
+        try{
+            const subject=document.getElementById('subject').value;
+            const isHtml=/\.html?$/i.test(selectedFile.name);
+            const data=isHtml?await processHtml(selectedFile,subject):await processOcr(selectedFile,subject);
+            showPreview(data,selectedFile.name);
+            showStatus(`Đã nhận diện ${data.questionCount} câu. Hãy xem lại JSON trước khi sử dụng.`,'success');
+        }catch(error){showStatus(error.message||String(error),'error');}
+        finally{convertButton.disabled=false;}
+    });
+</script>
+</body>
+</html>
