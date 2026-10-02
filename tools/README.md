@@ -48,7 +48,7 @@ Open `tools/quiz_to_json.html` for the single-page file picker, preview, and JSO
 
 ```sh
 python3 -m pip install -r tools/requirements-ocr.txt
-p2t serve -l en -H 127.0.0.1 -p 8503
+python3 tools/quiz_studio_server.py
 ```
 
-Serve the project folder in another terminal and open `http://127.0.0.1:8000/tools/quiz_to_json.html`; do not use `file://` for OCR requests. The OCR settings panel lets you change the endpoint and choose whether to embed the original scan in the downloaded JSON. First OCR use downloads Pix2Text models and may take a while.
+Open `http://127.0.0.1:8765/tools/quiz_to_json.html`; this server serves the page and OCR endpoint from the same origin, avoiding browser CORS errors. Do not open it with `file://` or use `python -m http.server` for OCR. The OCR settings panel lets you change the endpoint and choose whether to embed the original scan in the downloaded JSON. First OCR use downloads Pix2Text models and may take a while.

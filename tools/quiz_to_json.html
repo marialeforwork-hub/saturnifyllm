@@ -151,14 +151,14 @@
                 <details class="ocr-settings">
                     <summary>Cấu hình OCR local cho PDF / ảnh</summary>
                     <div class="field">
-                        <label for="ocrUrl">Pix2Text endpoint</label>
-                        <input id="ocrUrl" type="url" value="http://127.0.0.1:8503/pix2text">
+                        <label for="ocrUrl">OCR endpoint (cùng origin)</label>
+                        <input id="ocrUrl" type="text" value="/api/ocr">
                     </div>
                     <label class="check-row"><input id="embedSource" type="checkbox" checked><span>Nhúng file gốc vào JSON để giữ hình/scan (PDF lớn có thể làm JSON rất nặng).</span></label>
                     <ul class="ocr-note">
                         <li>Cài OCR: <code>python3 -m pip install -r tools/requirements-ocr.txt</code></li>
-                        <li>Chạy service: <code>p2t serve -l en --port 8503</code></li>
-                        <li>Mở trang này qua localhost để trình duyệt gọi được service; HTML quiz thì xử lý trực tiếp.</li>
+                        <li>Chạy bridge: <code>python3 tools/quiz_studio_server.py</code></li>
+                        <li>Mở <code>http://127.0.0.1:8765/tools/quiz_to_json.html</code>. Không mở bằng <code>file://</code> hoặc static server thường.</li>
                     </ul>
                 </details>
 
@@ -329,14 +329,24 @@
     }
 
     async function processOcr(file, subject) {
-        const endpoint = document.getElementById('ocrUrl').value.trim();
+        if (location.protocol === 'file:') throw new Error('PDF/ảnh cần mở studio qua local server: chạy python3 tools/quiz_studio_server.py rồi mở http://127.0.0.1:8765/tools/quiz_to_json.html.');
+        const endpoint = document.getElementById('ocrUrl').value.trim() || '/api/ocr';
         const form = new FormData();
         form.append('image',file,file.name);
         form.append('file_type',file.type==='application/pdf'?'pdf':'page');
         form.append('resized_shape','1024');
         showStatus('Đang gửi file đến Pix2Text local để OCR…', 'info', true);
-        const response = await fetch(endpoint,{method:'POST',body:form});
-        if (!response.ok) throw new Error(`Pix2Text trả về HTTP ${response.status}.`);
+        let response;
+        try {
+            response = await fetch(endpoint,{method:'POST',body:form});
+        } catch (error) {
+            throw new Error(`Không kết nối được OCR bridge tại ${endpoint}. Hãy cài OCR và chạy python3 tools/quiz_studio_server.py, rồi mở http://127.0.0.1:8765/tools/quiz_to_json.html.`);
+        }
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            if ([404, 405, 501].includes(response.status)) throw new Error('Bạn đang mở studio bằng static server không hỗ trợ OCR upload. Chạy python3 tools/quiz_studio_server.py rồi mở http://127.0.0.1:8765/tools/quiz_to_json.html.');
+            throw new Error(error.detail || `OCR bridge trả về HTTP ${response.status}.`);
+        }
         const result = await response.json();
         const raw = result.results ?? result.result ?? result.markdown ?? result.text;
         const markdown = typeof raw==='string' ? raw : Array.isArray(raw) ? raw.map(item=>typeof item==='string'?item:item.text||'').join('\n') : '';
@@ -384,7 +394,13 @@
             const data=isHtml?await processHtml(selectedFile,subject):await processOcr(selectedFile,subject);
             showPreview(data,selectedFile.name);
             showStatus(`Đã nhận diện ${data.questionCount} câu. Hãy xem lại JSON trước khi sử dụng.`,'success');
-        }catch(error){showStatus(error.message||String(error),'error');}
+        }catch(error){
+            const isHtml=/\.html?$/i.test(selectedFile.name);
+            const message=error instanceof TypeError&&!isHtml
+                ? 'Không kết nối được OCR local. Chạy python3 tools/quiz_studio_server.py rồi mở studio ở http://127.0.0.1:8765/tools/quiz_to_json.html.'
+                : error.message||String(error);
+            showStatus(message,'error');
+        }
         finally{convertButton.disabled=false;}
     });
 </script>
