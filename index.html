@@ -366,14 +366,19 @@
 
         #toastMessage { right: 1.25rem; bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid rgba(255, 255, 255, .25); border-radius: var(--radius-md); background: var(--ink-950); box-shadow: var(--shadow-card); color: #fff; font: 500 .78rem 'DM Mono', Consolas, monospace; }
         #quizRunner { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; background: var(--sand-50); }
-        #timerHeader { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .8rem clamp(1rem, 3vw, 2rem); background: linear-gradient(105deg, var(--ink-800), var(--ink-950) 62%, #666bc0); color: #fff; box-shadow: 0 .2rem 1rem rgba(77, 83, 162, .24); font-size: .9rem; font-weight: 700; flex-wrap: wrap; }
+        #timerHeader { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .75rem; min-height: 4.1rem; padding: .65rem clamp(1rem, 3vw, 2rem); border-bottom: 3px solid transparent; border-image: linear-gradient(90deg, var(--mint-500), var(--ink-950), var(--coral-500), var(--gold-400), var(--mint-500)) 1; background: rgba(255, 254, 254, .98); color: var(--ink-950); box-shadow: 0 .2rem 1rem rgba(77, 83, 162, .1); font-size: .9rem; font-weight: 700; }
         #quizIframe { width: 100%; height: 100%; flex: 1; border: 0; }
         .btn-save { min-height: 2.35rem; margin-right: .5rem; padding: .45rem .8rem; background: var(--gold-500); }
         .btn-save:hover { background: #b87518; }
-        #timerHeader > div:last-child { display: flex; align-items: center; gap: .5rem; }
-        #timerHeader .btn-save { margin-right: 0; background: var(--gold-400); color: var(--ink-800); }
+        #timerHeader > div:last-child { display: flex; align-items: center; justify-content: flex-end; gap: .5rem; }
+        #timerHeader #quizTitleDisplay { grid-column: 1; grid-row: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #timerHeader .timer-readout { grid-column: 2; grid-row: 1; justify-content: center; white-space: nowrap; }
+        #timerHeader .timer-actions { grid-column: 3; grid-row: 1; }
+        #timerHeader #timerLabel { color: var(--slate-500); font-size: .76rem; }
+        #timerHeader #timerText { margin: 0 !important; color: var(--ink-950) !important; font: 800 1rem 'DM Mono', Consolas, monospace !important; }
+        #timerHeader .btn-save { margin-right: 0; border: 1px solid var(--gold-500); background: var(--gold-400); color: var(--ink-800); }
         #timerHeader .btn-save:hover { background: #fbe486; }
-        #timerHeader .btn-exit { display: inline-flex; align-items: center; min-height: 2.35rem; padding: .45rem .8rem; border-color: rgba(255, 255, 255, .72); background: transparent; color: #fff; }
+        #timerHeader .btn-exit { display: inline-flex; align-items: center; min-height: 2.35rem; padding: .45rem .8rem; border-color: var(--coral-500); background: transparent; color: var(--ink-950); }
         #timerHeader .btn-exit:hover { border-color: var(--coral-500); background: var(--coral-500); color: #fff; }
 
         @keyframes float-in {
@@ -425,7 +430,12 @@
             .quiz-item-header { align-items: flex-start; flex-direction: column; }
             .action-btns { width: 100%; }
             .action-btns button { flex: 1; }
-            #timerHeader { justify-content: center; text-align: center; }
+            #timerHeader { grid-template-columns: minmax(0, 1fr) auto; gap: .3rem .6rem; padding: .5rem .75rem; }
+            #timerHeader #quizTitleDisplay { grid-column: 1; grid-row: 1; }
+            #timerHeader .timer-readout { grid-column: 2; grid-row: 1; justify-self: end; }
+            #timerHeader .timer-actions { grid-column: 1 / -1; grid-row: 2; justify-content: flex-end !important; }
+            #timerHeader .btn-save,
+            #timerHeader .btn-exit { min-height: 2rem; padding: .35rem .65rem; font-size: .72rem; }
             .history-table { display: block; overflow-x: auto; white-space: nowrap; }
         }
 
@@ -1206,9 +1216,11 @@
 <div id="quizRunner" class="hidden">
     <div id="timerHeader">
         <span id="quizTitleDisplay">📝 Bài Làm</span>
-        <div>
+        <div class="timer-readout">
             <span id="timerLabel">📖 Chế độ Luyện tập</span>
             <span id="timerText" style="color: #f1c40f; font-size: 1.2em; margin-right: 15px; margin-left: 8px;"></span>
+        </div>
+        <div class="timer-actions">
             <!-- NÚT LƯU TIẾN ĐỘ HỦY/THỦ CÔNG -->
             <button class="btn-save" onclick="manualSaveDraft()">💾 Lưu tiến độ</button>
             <button class="btn-exit" onclick="exitQuiz()">✕ Thoát</button>

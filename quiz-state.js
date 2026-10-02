@@ -9,6 +9,19 @@
         return [...document.querySelectorAll('.question-block, .question')];
     }
 
+    function unwrapQuestionLayoutWrappers() {
+        getQuestionBlocks().forEach(block => {
+            let wrapper;
+            do {
+                wrapper = [...block.children].find(child =>
+                    ['B', 'STRONG'].includes(child.tagName) &&
+                    child.querySelector('.question-passage, .options')
+                );
+                if (wrapper) wrapper.replaceWith(...wrapper.childNodes);
+            } while (wrapper);
+        });
+    }
+
     function getNavigatorButtons() {
         return [...document.querySelectorAll('[id^="nav_btn_"]')];
     }
@@ -1126,7 +1139,10 @@
     }
 
     function enhanceQuestionBlocks() {
-        getQuestionBlocks().forEach((block, index) => createNoteControl(block, index));
+        getQuestionBlocks().forEach((block, index) => {
+            block.dataset.quizTitle = document.title || 'SATurnify';
+            createNoteControl(block, index);
+        });
     }
 
     function commitQuestionTime() {
@@ -1155,19 +1171,24 @@
             });
         };
 
-        const observer = new IntersectionObserver(entries => {
-            const visible = entries
-                .filter(entry => entry.isIntersecting)
-                .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
-            if (!visible) return;
-
-            const nextIndex = blocks.indexOf(visible.target);
-            if (nextIndex === activeQuestionIndex) return;
+        const activateQuestion = nextIndex => {
+            if (nextIndex < 0 || nextIndex === activeQuestionIndex) return;
             commitQuestionTime();
             activeQuestionIndex = nextIndex;
             activeQuestionStartedAt = Date.now();
             window.__saturnifyCloseFloatingHighlightTools?.();
             setCurrentNavigatorQuestion(nextIndex);
+        };
+        window.__saturnifyActivateQuestion = activateQuestion;
+
+        const observer = new IntersectionObserver(entries => {
+            if (document.body.classList.contains('quiz-paged')) return;
+            const visible = entries
+                .filter(entry => entry.isIntersecting)
+                .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+            if (!visible) return;
+
+            activateQuestion(blocks.indexOf(visible.target));
         }, { threshold: [0.5, 0.75] });
 
         blocks.forEach(block => observer.observe(block));
@@ -1178,6 +1199,7 @@
     }
 
     function initialize() {
+        unwrapQuestionLayoutWrappers();
         formatQuestionTables();
         emphasizeQuotedVocabularyQuestions();
         enhanceQuestionBlocks();
@@ -1194,6 +1216,7 @@
         }, true);
 
         const observer = new MutationObserver(() => {
+            unwrapQuestionLayoutWrappers();
             formatQuestionTables();
             emphasizeQuotedVocabularyQuestions();
             enhanceQuestionBlocks();

@@ -1111,6 +1111,42 @@
         }
     }
 
+    function getQuestionDuration(questionTimes, questionNumber, questionData) {
+        const keys = [
+            questionNumber,
+            String(questionNumber),
+            `q${questionNumber}`,
+            `question_${questionNumber}`,
+            `question${questionNumber}`,
+            `Câu ${questionNumber}`
+        ];
+        let value;
+
+        if (Array.isArray(questionTimes)) {
+            value = questionTimes[questionNumber - 1];
+        } else if (questionTimes && typeof questionTimes === 'object') {
+            const key = keys.find(candidate => questionTimes[candidate] !== undefined);
+            if (key !== undefined) value = questionTimes[key];
+        }
+
+        if (value === undefined && questionData && typeof questionData === 'object') {
+            value = questionData.timeSpentSeconds ?? questionData.elapsedSeconds ?? questionData.durationSeconds ?? questionData.timeSpent;
+        }
+
+        if (value === undefined || value === null || value === '') return 'Chưa có dữ liệu';
+
+        if (typeof value === 'object') {
+            value = value.seconds ?? value.timeSpentSeconds ?? value.elapsedSeconds ?? value.durationSeconds;
+        }
+        if (value === undefined || value === null || value === '') return 'Chưa có dữ liệu';
+        if (typeof value === 'string' && /phút|giây|\b\d+m\s*\d+s\b/i.test(value)) return value;
+
+        const totalSeconds = Math.max(0, Math.round(Number(value) || 0));
+        return totalSeconds < 60
+            ? `${totalSeconds}s`
+            : `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
+    }
+
     // 5A. CHI TIẾT BÀI NỘP CHÍNH THỨC
     // 5A. CHI TIẾT BÀI NỘP CHÍNH THỨC (ĐÃ SỬA LỖI TRACK ĐÁP ÁN ĐÚNG & BỎ TRỐNG)
     window.viewDetail = function(docId) {
@@ -1133,13 +1169,6 @@
         }
 
         const questionTimes = item.questionTimes || {};
-        const formatQuestionDuration = seconds => {
-            const totalSeconds = Math.max(0, Math.round(Number(seconds) || 0));
-            return totalSeconds < 60
-                ? `${totalSeconds}s`
-                : `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
-        };
-
         let correctCount = 0;
         let incorrectCount = 0;
         let unansweredCount = 0;
@@ -1172,8 +1201,7 @@
         qList.forEach((q, idx) => {
             const questionKey = typeof q === 'object' && q !== null ? q.__questionKey || '' : '';
             const questionNumber = Number(String(questionKey).match(/\d+/)?.[0]) || idx + 1;
-            const timeValue = questionTimes[questionNumber] ?? questionTimes[String(questionNumber)];
-            const questionDuration = timeValue === undefined ? 'Không lưu thời gian' : formatQuestionDuration(timeValue);
+            const questionDuration = getQuestionDuration(questionTimes, questionNumber, q);
 
             // 1. Trích xuất đáp án học sinh chọn
             let userChoice = '';
@@ -1313,13 +1341,6 @@
         let htmlContent = '';
         let navHtml = '';
 
-        const formatQuestionDuration = seconds => {
-            const totalSeconds = Math.max(0, Math.round(Number(seconds) || 0));
-            return totalSeconds < 60
-                ? `${totalSeconds}s`
-                : `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
-        };
-
         for (let i = 0; i < totalQ; i++) {
             // Quét tất cả các kiểu đặt Key có thể có trong Firebase
             let rawVal = undefined;
@@ -1344,7 +1365,7 @@
             }
 
             const choiceClean = choice.trim();
-            const questionDuration = formatQuestionDuration(questionTimes[i + 1] || questionTimes[String(i + 1)]);
+            const questionDuration = getQuestionDuration(questionTimes, i + 1, rawVal);
             const isAnswered = choiceClean !== '' && 
                                choiceClean !== 'null' && 
                                choiceClean !== 'undefined' && 
