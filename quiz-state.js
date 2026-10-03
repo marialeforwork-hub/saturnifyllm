@@ -4,6 +4,7 @@
     let activeQuestionIndex = -1;
     let activeQuestionStartedAt = 0;
     let printScrollY = null;
+    let printScope = 'all';
 
     function getQuestionBlocks() {
         return [...document.querySelectorAll('.question-block, .question')];
@@ -82,12 +83,12 @@
             const drawButton = block.querySelector('.question-annotate-control');
             if (drawButton) {
                 drawButton.classList.remove('is-active');
-                drawButton.textContent = '✎ Vẽ';
+                drawButton.textContent = '✏️ Vẽ';
             }
             const eraserButton = block.querySelector('.question-eraser-control');
             if (eraserButton) {
                 eraserButton.classList.remove('is-active');
-                eraserButton.textContent = '⌫ Tẩy';
+                eraserButton.textContent = '🧼 Tẩy';
             }
         });
 
@@ -107,6 +108,10 @@
     function preparePrintView() {
         if (printScrollY === null) printScrollY = window.scrollY;
         document.body.classList.add('quiz-print-mode');
+        document.body.classList.toggle('quiz-print-current-only', printScope === 'current');
+        const blocks = getQuestionBlocks();
+        const currentBlock = document.querySelector('.question-block.qp-active') || blocks[activeQuestionIndex] || blocks[0];
+        blocks.forEach(block => block.classList.toggle('print-current-question', block === currentBlock));
         const container = document.querySelector('.container');
         const quiz = document.getElementById('quiz');
         const stats = document.querySelector('.sticky-footer .stats');
@@ -139,7 +144,9 @@
     }
 
     function cleanupPrintView() {
-        document.body.classList.remove('quiz-print-mode');
+        document.body.classList.remove('quiz-print-mode', 'quiz-print-current-only');
+        getQuestionBlocks().forEach(block => block.classList.remove('print-current-question'));
+        printScope = 'all';
         document.querySelectorAll('.question-note-print').forEach(note => note.remove());
         document.querySelectorAll('.quiz-print-summary').forEach(summary => summary.remove());
         if (printScrollY !== null) {
@@ -155,14 +162,47 @@
         button.className = 'quiz-export-pdf';
         button.type = 'button';
         button.textContent = '🖨 In / Lưu PDF';
-        button.title = 'Trong hộp thoại in, chọn Save as PDF để lưu bài';
+        button.title = 'Chọn in câu hiện tại hoặc toàn bộ đề';
         button.hidden = !hasCheckedAnswers();
-        button.addEventListener('click', () => {
-            if (!hasCheckedAnswers()) return;
+
+        const chooser = document.createElement('div');
+        chooser.className = 'quiz-print-chooser';
+        chooser.hidden = true;
+        chooser.innerHTML = `
+            <div class="quiz-print-chooser-card" role="dialog" aria-modal="true" aria-labelledby="quizPrintTitle">
+                <h2 id="quizPrintTitle">Chọn nội dung cần in</h2>
+                <p>Chọn in câu đang xem hoặc toàn bộ câu hỏi trong đề.</p>
+                <div class="quiz-print-chooser-actions">
+                    <button type="button" data-print-scope="current">In câu hiện tại</button>
+                    <button type="button" data-print-scope="all">In toàn bộ đề</button>
+                    <button type="button" data-print-cancel>Hủy</button>
+                </div>
+            </div>`;
+
+        const closeChooser = () => {
+            chooser.hidden = true;
+            button.focus();
+        };
+        const printQuiz = scope => {
+            printScope = scope;
+            chooser.hidden = true;
             preparePrintView();
             window.print();
             window.setTimeout(cleanupPrintView, 1000);
+        };
+        button.addEventListener('click', () => {
+            if (!hasCheckedAnswers()) return;
+            chooser.hidden = false;
+            chooser.querySelector('[data-print-scope="current"]').focus();
         });
+        chooser.querySelector('[data-print-scope="current"]').addEventListener('click', () => printQuiz('current'));
+        chooser.querySelector('[data-print-scope="all"]').addEventListener('click', () => printQuiz('all'));
+        chooser.querySelector('[data-print-cancel]').addEventListener('click', closeChooser);
+        chooser.addEventListener('click', event => { if (event.target === chooser) closeChooser(); });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !chooser.hidden) closeChooser();
+        });
+        document.body.appendChild(chooser);
         document.body.appendChild(button);
 
         if (!window.__saturnifyPrintListenersReady) {
@@ -177,132 +217,254 @@
         if (button) button.hidden = !hasCheckedAnswers();
     }
 
-    function applyTextMark(block, markType, color) {
-        const selection = window.getSelection();
-        if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+    const MARK_EXCLUDED = '.quiz-note-toolbar, .question-header, .qp-qbar, .question-annotation-canvas, .question-note-print, .quiz-highlight-toolbar, .question-markup-menu, .btn-eliminate-option, .question-note-panel, mjx-container, script, style';
 
-        const range = selection.getRangeAt(0);
-        if (!block.contains(range.commonAncestorContainer)) return;
+    // Highlight spans must not become extra flex/grid items of an option label.
+    function ensureInlineTextWrapper(textNode) {
+        const parent = textNode.parentElement;
+        if (!parent || parent.classList.contains('saturnify-option-text') || parent.classList.contains('saturnify-text-mark')) return;
+        if (!/flex|grid/.test(getComputedStyle(parent).display)) return;
 
-        const mark = document.createElement('span');
-        mark.className = `saturnify-text-mark ${markType === 'underline' ? 'saturnify-underline' : ''}`;
-        if (color) mark.style.backgroundColor = color;
-
-        try {
-            range.surroundContents(mark);
-        } catch (error) {
-            const fragment = range.extractContents();
-            mark.appendChild(fragment);
-            range.insertNode(mark);
-        }
-
-        selection.removeAllRanges();
+        const wrapper = document.createElement('span');
+        wrapper.className = 'saturnify-option-text';
+        const children = [...parent.childNodes];
+        const isLead = child => child.nodeType === Node.ELEMENT_NODE &&
+            (child.matches('input') || (child.tagName === 'STRONG' && /^[A-D]\.?\s*$/.test(child.textContent)));
+        const lastLead = children.reduce((last, child, index) => isLead(child) ? index : last, -1);
+        const wrapped = children.slice(lastLead + 1).filter(child => !(child.nodeType === Node.ELEMENT_NODE && child.matches('button')));
+        if (!wrapped.some(child => child.textContent.trim())) return;
+        wrapped[0].before(wrapper);
+        wrapped.forEach(child => wrapper.appendChild(child));
     }
 
-    function createFloatingHighlightControl() {
-        if (document.querySelector('.saturnify-floating-highlight')) return;
+    function isolateMark(textNode) {
+        const mark = textNode.parentElement;
+        if (!mark?.classList.contains('saturnify-text-mark')) return null;
+        const nodes = [...mark.childNodes];
+        const index = nodes.indexOf(textNode);
+        if (index > 0) {
+            const before = mark.cloneNode(false);
+            nodes.slice(0, index).forEach(node => before.appendChild(node));
+            mark.before(before);
+        }
+        if (index < nodes.length - 1) {
+            const after = mark.cloneNode(false);
+            nodes.slice(index + 1).forEach(node => after.appendChild(node));
+            mark.after(after);
+        }
+        return mark;
+    }
 
-        const control = document.createElement('div');
-        control.className = 'saturnify-floating-highlight-control';
-        const button = document.createElement('button');
-        const storageKey = 'saturnify_floating_highlight_position';
-        button.className = 'saturnify-floating-highlight';
-        button.type = 'button';
-        button.textContent = '🖍️';
-        button.title = 'Mở công cụ highlight và annotate; kéo để di chuyển';
-        button.setAttribute('aria-label', 'Mở công cụ highlight và annotate');
-        button.addEventListener('mousedown', event => event.preventDefault());
+    function getRangeTextNodes(block, range) {
+        const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+        const items = [];
+        let node;
+        while ((node = walker.nextNode())) {
+            if (!node.textContent.length || node.parentElement?.closest(MARK_EXCLUDED) || !range.intersectsNode(node)) continue;
+            const start = range.startContainer === node ? range.startOffset : 0;
+            const end = range.endContainer === node ? range.endOffset : node.textContent.length;
+            if (end > start) items.push({ node, start, end });
+        }
+        return items;
+    }
 
-        let activeMenu = null;
-        let activeMenuToggle = null;
-        let activeMenuPlaceholder = null;
-        const closeTools = () => {
-            if (!activeMenu) return;
-            activeMenu.hidden = true;
-            activeMenu.classList.remove('saturnify-floating-markup-menu');
-            activeMenuToggle?.setAttribute('aria-expanded', 'false');
-            if (activeMenuPlaceholder?.parentNode) activeMenuPlaceholder.parentNode.insertBefore(activeMenu, activeMenuPlaceholder);
-            activeMenuPlaceholder?.remove();
-            activeMenu = null;
-            activeMenuToggle = null;
-            activeMenuPlaceholder = null;
-            button.setAttribute('aria-expanded', 'false');
-        };
-        const openTools = () => {
-            const blocks = getQuestionBlocks();
-            const selection = window.getSelection();
-            const commonNode = selection?.rangeCount ? selection.getRangeAt(0).commonAncestorContainer : null;
-            const commonElement = commonNode?.nodeType === Node.ELEMENT_NODE ? commonNode : commonNode?.parentElement;
-            const block = commonElement?.closest('.question-block, .question') || blocks[activeQuestionIndex] || blocks[0];
-            const toolbar = block?.querySelector('.quiz-highlight-toolbar');
-            const menu = toolbar?.querySelector('.question-markup-menu');
-            if (!menu) return;
+    // action: { color?, underline?, strike?, remove? } applied only to the selected characters.
+    function formatRange(block, range, action) {
+        const items = getRangeTextNodes(block, range);
+        if (!items.length) return;
+        if (!action.remove) items.forEach(item => ensureInlineTextWrapper(item.node));
 
-            activeMenuToggle = toolbar.querySelector('.question-markup-toggle');
-            activeMenuPlaceholder = document.createComment('highlight-menu-position');
-            menu.parentNode.insertBefore(activeMenuPlaceholder, menu);
-            menu.classList.add('saturnify-floating-markup-menu');
-            menu.hidden = false;
-            control.appendChild(menu);
-            activeMenu = menu;
-            activeMenuToggle?.setAttribute('aria-expanded', 'true');
-            button.setAttribute('aria-expanded', 'true');
-        };
+        items.reverse().forEach(({ node, start, end }) => {
+            let selected = node;
+            if (end < node.textContent.length) node.splitText(end);
+            if (start > 0) selected = node.splitText(start);
 
-        let pointerDrag = null;
-        let suppressClick = false;
-        const moveTo = (left, top) => {
-            const maxLeft = Math.max(8, window.innerWidth - control.offsetWidth - 8);
-            const maxTop = Math.max(8, window.innerHeight - control.offsetHeight - 8);
-            control.style.left = `${Math.max(8, Math.min(left, maxLeft))}px`;
-            control.style.top = `${Math.max(8, Math.min(top, maxTop))}px`;
-            control.style.right = 'auto';
-            control.style.bottom = 'auto';
-        };
-
-        button.addEventListener('pointerdown', event => {
-            if (event.button !== 0) return;
-            const rect = control.getBoundingClientRect();
-            pointerDrag = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, left: rect.left, top: rect.top, moved: false };
-            button.setPointerCapture(event.pointerId);
-        });
-        button.addEventListener('pointermove', event => {
-            if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
-            if (Math.hypot(event.clientX - pointerDrag.startX, event.clientY - pointerDrag.startY) > 5) pointerDrag.moved = true;
-            if (pointerDrag.moved) moveTo(pointerDrag.left + event.clientX - pointerDrag.startX, pointerDrag.top + event.clientY - pointerDrag.startY);
-        });
-        button.addEventListener('pointerup', event => {
-            if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
-            if (pointerDrag.moved) {
-                const rect = control.getBoundingClientRect();
-                try { localStorage.setItem(storageKey, JSON.stringify({ left: rect.left, top: rect.top })); } catch (error) {}
-                suppressClick = true;
-                window.setTimeout(() => { suppressClick = false; }, 0);
-            }
-            pointerDrag = null;
-        });
-        button.addEventListener('click', event => {
-            if (suppressClick) {
-                event.preventDefault();
-                suppressClick = false;
+            let mark = isolateMark(selected);
+            if (action.remove) {
+                if (mark) mark.replaceWith(selected);
                 return;
             }
-            if (activeMenu) closeTools();
-            else openTools();
+            if (!mark) {
+                mark = document.createElement('span');
+                mark.className = 'saturnify-text-mark';
+                selected.parentNode.replaceChild(mark, selected);
+                mark.appendChild(selected);
+            }
+            if (action.color) mark.style.backgroundColor = action.color;
+            if (action.underline) mark.classList.add('saturnify-underline');
+            if (action.strike) mark.classList.add('saturnify-strike');
         });
-        button.setAttribute('aria-expanded', 'false');
-        control.appendChild(button);
-        document.body.appendChild(control);
-        try {
-            const savedPosition = JSON.parse(localStorage.getItem(storageKey) || 'null');
-            if (Number.isFinite(savedPosition?.left) && Number.isFinite(savedPosition?.top)) moveTo(savedPosition.left, savedPosition.top);
-        } catch (error) {}
-        window.addEventListener('resize', () => {
-            if (!control.style.left) return;
-            const rect = control.getBoundingClientRect();
-            moveTo(rect.left, rect.top);
+    }
+
+    function wrapRangeTextNodes(block, range, className, color = '') {
+        formatRange(block, range, {
+            color,
+            underline: className.includes('saturnify-underline'),
+            strike: className.includes('saturnify-strike')
         });
-        window.__saturnifyCloseFloatingHighlightTools = closeTools;
+    }
+
+    function getSelectionRange(block) {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return null;
+        const range = selection.getRangeAt(0).cloneRange();
+        const root = range.commonAncestorContainer;
+        const element = root.nodeType === Node.ELEMENT_NODE ? root : root.parentElement;
+        const owner = block || element?.closest('.question-block, .question');
+        if (!owner || !owner.contains(range.commonAncestorContainer) || element?.closest('textarea, input, .quiz-note-toolbar, .qp-qbar, .question-header')) return null;
+        return { range, block: owner };
+    }
+
+    const markHistory = new WeakMap();
+
+    function snapshotMarks(block) {
+        return [...block.querySelectorAll('.saturnify-text-mark')].map(mark => {
+            const first = document.createTreeWalker(mark, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            let n;
+            while ((n = first.nextNode())) nodes.push(n);
+            if (!nodes.length) return null;
+            const start = getTextOffset(block, nodes[0], 0);
+            const end = getTextOffset(block, nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length);
+            return start === null || end === null ? null : {
+                start, end,
+                color: mark.style.backgroundColor || '',
+                underline: mark.classList.contains('saturnify-underline'),
+                strike: mark.classList.contains('saturnify-strike')
+            };
+        }).filter(Boolean);
+    }
+
+    function pushMarkHistory(block) {
+        const stack = markHistory.get(block) || [];
+        stack.push(snapshotMarks(block));
+        if (stack.length > 50) stack.shift();
+        markHistory.set(block, stack);
+        block.__saturnifyLastEdit = 'mark';
+    }
+
+    function undoTextMarks(block) {
+        const stack = markHistory.get(block);
+        if (!stack?.length) return false;
+        const saved = stack.pop();
+        clearTextMarks(block);
+        saved.forEach(mark => restoreTextMark(block, mark));
+        window.getSelection()?.removeAllRanges();
+        return true;
+    }
+
+    function applySelectionFormat(block, action) {
+        const selected = getSelectionRange(block);
+        if (!selected) return false;
+        pushMarkHistory(selected.block);
+        formatRange(selected.block, selected.range, action);
+        window.getSelection().removeAllRanges();
+        return true;
+    }
+
+    function applyTextMark(block, markType, color) {
+        const action = markType === 'underline' ? { underline: true }
+            : markType === 'strike' ? { strike: true }
+            : { color };
+        applySelectionFormat(block, action);
+    }
+
+    function removeSelectedMarks(block) {
+        applySelectionFormat(block, { remove: true });
+    }
+
+    function createSelectionToolbar() {
+        if (document.querySelector('.saturnify-selection-toolbar')) return;
+
+        const toolbar = document.createElement('div');
+        toolbar.className = 'saturnify-selection-toolbar';
+        toolbar.hidden = true;
+        toolbar.setAttribute('role', 'toolbar');
+        toolbar.setAttribute('aria-label', 'Công cụ highlight văn bản đã chọn');
+
+        const addButton = (className, text, label, action, color) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = className;
+            button.textContent = text;
+            button.title = label;
+            button.setAttribute('aria-label', label);
+            if (color) button.style.backgroundColor = color;
+            button.addEventListener('mousedown', event => event.preventDefault());
+            button.addEventListener('click', () => {
+                applySelectionFormat(null, action);
+                hide();
+            });
+            toolbar.appendChild(button);
+        };
+
+        [['#fff3a6', 'Highlight vàng'], ['#d9f3df', 'Highlight xanh lá'], ['#dbeafe', 'Highlight xanh dương'], ['#ffdce5', 'Highlight hồng']]
+            .forEach(([color, label]) => addButton('question-highlight-color', '', label, { color }, color));
+        addButton('saturnify-sel-underline', 'U', 'Gạch chân đoạn đã chọn', { underline: true });
+        addButton('saturnify-sel-strike', 'S', 'Gạch ngang chữ đã chọn', { strike: true });
+        addButton('saturnify-sel-remove', '🧽', 'Tẩy highlight chỉ ở đoạn đã chọn', { remove: true });
+        const undoSel = document.createElement('button');
+        undoSel.type = 'button';
+        undoSel.className = 'saturnify-sel-undo';
+        undoSel.textContent = '↩️';
+        undoSel.title = 'Hoàn tác highlight vừa làm';
+        undoSel.setAttribute('aria-label', 'Hoàn tác highlight vừa làm');
+        undoSel.addEventListener('mousedown', event => event.preventDefault());
+        undoSel.addEventListener('click', () => {
+            const selected = getSelectionRange(null);
+            if (selected) undoTextMarks(selected.block);
+            hide();
+        });
+        toolbar.appendChild(undoSel);
+        document.body.appendChild(toolbar);
+
+        function hide() { toolbar.hidden = true; }
+        function show() {
+            const selected = getSelectionRange(null);
+            if (!selected) { hide(); return; }
+            const rects = selected.range.getClientRects();
+            const rect = rects.length ? selected.range.getBoundingClientRect() : null;
+            if (!rect || (!rect.width && !rect.height)) { hide(); return; }
+
+            toolbar.hidden = false;
+            const margin = 8;
+            const topLimit = (document.querySelector('.qp-header')?.getBoundingClientRect().bottom || 0) + margin;
+            const bottomLimit = (document.querySelector('.qp-footer')?.getBoundingClientRect().top || window.innerHeight) - margin;
+            const width = toolbar.offsetWidth;
+            const height = toolbar.offsetHeight;
+            let top = rect.top - height - margin;
+            if (top < topLimit) top = rect.bottom + margin;
+            top = Math.max(topLimit, Math.min(top, bottomLimit - height));
+            const left = Math.max(margin, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - margin));
+            toolbar.style.left = `${left}px`;
+            toolbar.style.top = `${top}px`;
+        }
+
+        let pointerDown = false;
+        let timer;
+        const schedule = delay => {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(show, delay);
+        };
+        document.addEventListener('pointerdown', event => {
+            if (toolbar.contains(event.target)) return;
+            pointerDown = true;
+            hide();
+        }, true);
+        document.addEventListener('pointerup', event => {
+            if (toolbar.contains(event.target)) return;
+            pointerDown = false;
+            schedule(10);
+        }, true);
+        document.addEventListener('keyup', event => { if (event.shiftKey || event.key.startsWith('Arrow')) schedule(10); });
+        document.addEventListener('selectionchange', () => {
+            const selection = window.getSelection();
+            if (!selection || selection.isCollapsed) { hide(); return; }
+            if (!pointerDown) schedule(350);
+        });
+        document.addEventListener('scroll', hide, true);
+        window.addEventListener('resize', hide);
+        window.__saturnifyHideSelectionToolbar = hide;
     }
 
     function clearTextMarks(block) {
@@ -350,16 +512,12 @@
         const range = document.createRange();
         range.setStart(start.node, start.offset);
         range.setEnd(end.node, end.offset);
-        const mark = document.createElement('span');
-        mark.className = `saturnify-text-mark ${savedMark.underline ? 'saturnify-underline' : ''}`;
-        if (savedMark.color) mark.style.backgroundColor = savedMark.color;
-        try {
-            range.surroundContents(mark);
-        } catch (error) {
-            const fragment = range.extractContents();
-            mark.appendChild(fragment);
-            range.insertNode(mark);
-        }
+        wrapRangeTextNodes(
+            block,
+            range,
+            `saturnify-text-mark ${savedMark.underline ? 'saturnify-underline' : ''} ${savedMark.strike ? 'saturnify-strike' : ''}`,
+            savedMark.color || ''
+        );
     }
 
     function serializeAnnotations() {
@@ -379,7 +537,8 @@
                     start,
                     end,
                     color: mark.style.backgroundColor || '',
-                    underline: mark.classList.contains('saturnify-underline')
+                    underline: mark.classList.contains('saturnify-underline'),
+                    strike: mark.classList.contains('saturnify-strike')
                 };
             }).filter(Boolean);
 
@@ -545,7 +704,7 @@
             canvas.classList.toggle('is-drawing', isDrawing || isErasing);
             canvas.classList.toggle('is-erasing', isErasing);
             drawButton.classList.toggle('is-active', isDrawing);
-            drawButton.textContent = isDrawing ? '✎ Đang vẽ' : '✎ Vẽ';
+            drawButton.textContent = isDrawing ? '✎ Đang vẽ' : '✎ Vẽ đánh dấu';
             const eraserButton = block.querySelector('.question-eraser-control');
             if (eraserButton) {
                 eraserButton.classList.toggle('is-active', isErasing);
@@ -581,7 +740,11 @@
             });
             ['pointerup', 'pointercancel'].forEach(type => canvas.addEventListener(type, () => {
                 drawing = false;
-                if (state.currentStroke?.points.length) state.strokes.push(state.currentStroke);
+                if (state.currentStroke?.points.length) {
+                    state.strokes.push(state.currentStroke);
+                    const owner = canvas.closest('.question-block, .question');
+                    if (owner) owner.__saturnifyLastEdit = 'draw';
+                }
                 state.currentStroke = null;
                 redrawCanvas();
             }));
@@ -610,8 +773,8 @@
         toggleButton.className = 'question-markup-toggle';
         toggleButton.type = 'button';
         toggleButton.textContent = '🖊️';
-        toggleButton.title = 'Mở công cụ highlight và annotate';
-        toggleButton.setAttribute('aria-label', 'Mở công cụ highlight và annotate');
+        toggleButton.title = 'Mở công cụ highlight và đánh dấu';
+        toggleButton.setAttribute('aria-label', 'Mở công cụ highlight và đánh dấu');
 
         const markupMenu = document.createElement('span');
         markupMenu.className = 'question-markup-menu';
@@ -642,7 +805,7 @@
         });
 
         const underlineButton = document.createElement('button');
-        underlineButton.className = 'question-underline-control';
+        underlineButton.className = 'question-underline-control question-underline-mark-control';
         underlineButton.type = 'button';
         underlineButton.textContent = 'U';
         underlineButton.title = 'Gạch chân đoạn đã chọn';
@@ -650,6 +813,25 @@
         underlineButton.addEventListener('mousedown', event => event.preventDefault());
         underlineButton.addEventListener('click', () => applyTextMark(block, 'underline'));
         markupMenu.appendChild(underlineButton);
+
+        const strikeButton = document.createElement('button');
+        strikeButton.className = 'question-underline-control question-strike-control';
+        strikeButton.type = 'button';
+        strikeButton.textContent = 'S';
+        strikeButton.title = 'Gạch ngang chữ đã chọn';
+        strikeButton.setAttribute('aria-label', 'Gạch ngang chữ đã chọn');
+        strikeButton.addEventListener('mousedown', event => event.preventDefault());
+        strikeButton.addEventListener('click', () => applyTextMark(block, 'strike'));
+        markupMenu.appendChild(strikeButton);
+
+        const removeSelectedButton = document.createElement('button');
+        removeSelectedButton.className = 'question-markup-clear question-remove-selected-control';
+        removeSelectedButton.type = 'button';
+        removeSelectedButton.textContent = '🧽 Tẩy vùng chọn';
+        removeSelectedButton.title = 'Tẩy highlight chỉ ở đoạn đã chọn';
+        removeSelectedButton.setAttribute('aria-label', 'Tẩy highlight chỉ ở đoạn đã chọn');
+        removeSelectedButton.addEventListener('mousedown', event => event.preventDefault());
+        removeSelectedButton.addEventListener('click', () => removeSelectedMarks(block));
 
         const eraserToolsGroup = document.createElement('span');
         eraserToolsGroup.className = 'question-markup-option-group question-eraser-tools-group';
@@ -686,18 +868,19 @@
         const clearButton = document.createElement('button');
         clearButton.className = 'question-markup-clear';
         clearButton.type = 'button';
-        clearButton.textContent = '▧ Xóa highlight';
+        clearButton.textContent = '🧹 Xóa highlight';
         clearButton.title = 'Xóa highlight';
         clearButton.setAttribute('aria-label', 'Xóa highlight');
-        clearButton.addEventListener('click', () => clearTextMarks(block));
+        clearButton.addEventListener('click', () => { pushMarkHistory(block); clearTextMarks(block); });
+        eraserToolsMenu.appendChild(removeSelectedButton);
         eraserToolsMenu.appendChild(clearButton);
 
         const clearDrawingButton = document.createElement('button');
         clearDrawingButton.className = 'question-markup-clear';
         clearDrawingButton.type = 'button';
-        clearDrawingButton.textContent = '🗑 Xóa nét';
-        clearDrawingButton.title = 'Xóa nét vẽ annotate';
-        clearDrawingButton.setAttribute('aria-label', 'Xóa nét vẽ annotate');
+        clearDrawingButton.textContent = '🗑️ Xóa nét';
+        clearDrawingButton.title = 'Xóa nét đánh dấu';
+        clearDrawingButton.setAttribute('aria-label', 'Xóa nét đánh dấu');
         clearDrawingButton.addEventListener('click', () => {
             const canvas = block.querySelector('.question-annotation-canvas');
             canvas?.__saturnifyClearDrawing?.();
@@ -705,24 +888,25 @@
         eraserToolsMenu.appendChild(clearDrawingButton);
 
         const undoDrawingButton = document.createElement('button');
-        undoDrawingButton.className = 'question-markup-clear question-annotate-undo';
+        undoDrawingButton.className = 'question-underline-control question-annotate-undo';
         undoDrawingButton.type = 'button';
-        undoDrawingButton.textContent = '↶ Undo';
+        undoDrawingButton.textContent = '↩️';
         undoDrawingButton.title = 'Hoàn tác nét vẽ cuối cùng';
         undoDrawingButton.setAttribute('aria-label', 'Hoàn tác nét vẽ cuối cùng');
         undoDrawingButton.addEventListener('click', () => {
             const canvas = block.querySelector('.question-annotation-canvas');
+            if (block.__saturnifyLastEdit === 'mark' && undoTextMarks(block)) return;
             canvas?.__saturnifyUndoDrawing?.();
         });
-        eraserToolsMenu.appendChild(undoDrawingButton);
 
         const clearAllButton = document.createElement('button');
         clearAllButton.className = 'question-markup-clear question-markup-clear-all';
         clearAllButton.type = 'button';
-        clearAllButton.textContent = '⊗ Xóa tất cả';
+        clearAllButton.textContent = '💥 Xóa tất cả';
         clearAllButton.title = 'Xóa toàn bộ highlight và nét vẽ';
         clearAllButton.setAttribute('aria-label', 'Xóa toàn bộ highlight và nét vẽ');
         clearAllButton.addEventListener('click', () => {
+            pushMarkHistory(block);
             clearTextMarks(block);
             const canvas = block.querySelector('.question-annotation-canvas');
             canvas?.__saturnifyClearDrawing?.();
@@ -732,9 +916,9 @@
         const drawButton = document.createElement('button');
         drawButton.className = 'question-annotate-control';
         drawButton.type = 'button';
-        drawButton.textContent = '✎ Vẽ';
-        drawButton.title = 'Vẽ annotate lên câu hỏi';
-        drawButton.setAttribute('aria-label', 'Vẽ annotate lên câu hỏi');
+        drawButton.textContent = '✏️ Vẽ đánh dấu';
+        drawButton.title = 'Vẽ đánh dấu lên câu hỏi';
+        drawButton.setAttribute('aria-label', 'Vẽ đánh dấu lên câu hỏi');
         const annotation = setupAnnotationCanvas(block, drawButton);
         drawButton.addEventListener('click', () => {
             const nextMode = annotation.canvas.classList.contains('is-drawing') && !annotation.canvas.classList.contains('is-erasing')
@@ -749,7 +933,7 @@
         const sizeToggle = document.createElement('button');
         sizeToggle.className = 'question-markup-option-toggle';
         sizeToggle.type = 'button';
-        sizeToggle.textContent = '◉';
+        sizeToggle.textContent = '📏';
         sizeToggle.title = 'Chọn cỡ bút và tẩy';
         sizeToggle.setAttribute('aria-label', 'Chọn cỡ bút và tẩy');
         const sizeOptions = document.createElement('span');
@@ -816,9 +1000,9 @@
         const eraserButton = document.createElement('button');
         eraserButton.className = 'question-markup-clear question-eraser-control';
         eraserButton.type = 'button';
-        eraserButton.textContent = '⌫ Tẩy';
+        eraserButton.textContent = '🧼 Tẩy';
         eraserButton.title = 'Bật tẩy và kéo trên nét cần xóa';
-        eraserButton.setAttribute('aria-label', 'Bật tẩy annotate');
+        eraserButton.setAttribute('aria-label', 'Bật tẩy nét đánh dấu');
         eraserButton.addEventListener('click', () => {
             const nextMode = annotation.canvas.classList.contains('is-erasing') ? 'off' : 'erase';
             annotation.setDrawingMode(nextMode);
@@ -829,7 +1013,7 @@
         const eraserSizeToggle = document.createElement('button');
         eraserSizeToggle.className = 'question-markup-option-toggle';
         eraserSizeToggle.type = 'button';
-        eraserSizeToggle.textContent = '◉ Cỡ tẩy';
+        eraserSizeToggle.textContent = '📏 Cỡ tẩy';
         eraserSizeToggle.title = 'Chọn cỡ tẩy';
         eraserSizeToggle.setAttribute('aria-label', 'Chọn cỡ tẩy');
         eraserSizeToggle.dataset.selectedSize = String(annotation.state.eraserSize);
@@ -848,7 +1032,7 @@
             const margin = 8;
             const wantedLeft = toggleRect.left + toggleRect.width / 2 - optionsRect.width / 2;
             eraserSizeOptions.style.left = `${Math.max(margin, Math.min(wantedLeft, window.innerWidth - optionsRect.width - margin))}px`;
-            eraserSizeOptions.style.top = `${Math.max(margin, toggleRect.top - optionsRect.height - margin)}px`;
+            eraserSizeOptions.style.top = `${Math.min(window.innerHeight - optionsRect.height - margin, toggleRect.bottom + margin)}px`;
         });
         closeOnPointerLeave(eraserSizeGroup, () => { eraserSizeOptions.hidden = true; });
         [[10, 'Nhỏ'], [20, 'Vừa'], [32, 'Lớn']].forEach(([size, label]) => {
@@ -871,6 +1055,7 @@
         eraserToolsMenu.append(eraserButton, eraserSizeGroup);
         eraserToolsGroup.append(eraserToolsToggle, eraserToolsMenu);
         markupMenu.appendChild(eraserToolsGroup);
+        markupMenu.appendChild(undoDrawingButton);
 
         highlightToolbar.append(toggleButton, markupMenu);
         toolbar.appendChild(highlightToolbar);
@@ -1176,7 +1361,7 @@
             commitQuestionTime();
             activeQuestionIndex = nextIndex;
             activeQuestionStartedAt = Date.now();
-            window.__saturnifyCloseFloatingHighlightTools?.();
+            window.__saturnifyHideSelectionToolbar?.();
             setCurrentNavigatorQuestion(nextIndex);
         };
         window.__saturnifyActivateQuestion = activateQuestion;
@@ -1203,7 +1388,7 @@
         formatQuestionTables();
         emphasizeQuotedVocabularyQuestions();
         enhanceQuestionBlocks();
-        createFloatingHighlightControl();
+        createSelectionToolbar();
         createPdfExportControl();
         initializeQuestionTiming();
         syncNavigator();

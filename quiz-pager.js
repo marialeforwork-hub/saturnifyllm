@@ -106,7 +106,6 @@
         questionPane.className = 'qp-pane-question';
         const answerPane = document.createElement('div');
         answerPane.className = 'qp-pane-answer';
-        answerPane.appendChild(bar);
 
         if (passage) {
             questionPane.appendChild(passage);
@@ -120,7 +119,7 @@
         divider.className = 'qp-divider';
 
         if (toolbar) block.appendChild(toolbar);
-        block.append(questionPane, divider, answerPane);
+        block.append(bar, questionPane, divider, answerPane);
         if (canvas) block.appendChild(canvas);
     }
 
@@ -222,6 +221,18 @@
         footerNav.append(backBtn, nextBtn);
         footer.append(brand, pill, footerNav);
 
+        const embedded = window.parent && window.parent !== window;
+        if (embedded) {
+            document.body.classList.add('quiz-embedded');
+            topbar.querySelector('.qp-save-btn').hidden = true;
+            topbar.querySelector('.qp-exit-btn').hidden = true;
+        }
+        const printButton = document.querySelector('.quiz-export-pdf');
+        if (printButton) {
+            printButton.classList.add('qp-print-btn');
+            topbar.appendChild(printButton);
+        }
+
         // Navigator modal
         const modal = document.createElement('div');
         modal.className = 'qp-modal';
@@ -312,7 +323,7 @@
         });
 
         const annotationKey = `quiz_annotations_${studentId}_${document.title}`;
-        const isEmbedded = () => window.parent && window.parent !== window;
+        const isEmbedded = () => embedded;
 
         const exitModal = document.createElement('div');
         exitModal.className = 'qp-modal';
@@ -320,11 +331,11 @@
         exitModal.innerHTML = `
             <div class="qp-modal-card qp-exit-card" role="dialog" aria-modal="true">
                 <h2 class="qp-modal-title">Thoát bài làm?</h2>
-                <p>Tiến độ đáp án đã được lưu. Em có muốn lưu cả highlight/annotate không?</p>
+                <p>Bài làm và ghi chú được tự động lưu. Phần đánh dấu chỉ được lưu nếu em chọn “Lưu đánh dấu & thoát”.</p>
                 <div class="qp-exit-actions">
                     <button type="button" class="qp-stay">Ở lại làm bài</button>
-                    <button type="button" class="qp-leave">Thoát không lưu</button>
-                    <button type="button" class="qp-leave-save">Lưu annotate & thoát</button>
+                    <button type="button" class="qp-leave">Không lưu đánh dấu</button>
+                    <button type="button" class="qp-leave-save">Lưu đánh dấu & thoát</button>
                 </div>
             </div>`;
         document.body.appendChild(exitModal);

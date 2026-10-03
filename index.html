@@ -1212,11 +1212,11 @@
 
 <div id="exitQuizModal" style="position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10006;">
     <div style="padding: 25px 30px; max-width: 480px; width: 90%; text-align: center;">
-        <h2 style="margin-top: 0;">Lưu highlight và annotate?</h2>
-        <p style="color: #7674a5; line-height: 1.6;">Bạn có muốn giữ lại phần đã đánh dấu để xem tiếp khi mở lại bài không?</p>
+        <h2 style="margin-top: 0;">Lưu phần đánh dấu?</h2>
+        <p style="color: #7674a5; line-height: 1.6;">Bài làm và ghi chú được tự động lưu. Phần đánh dấu chỉ được lưu nếu bạn chọn “Lưu đánh dấu & thoát”.</p>
         <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
             <button onclick="closeExitQuizModal()" style="flex: 1 1 100%; padding: 10px 16px; border: 1px solid #d9deea; background: #fff; color: #4d53a2; cursor: pointer;">Ở lại làm bài</button>
-            <button onclick="finishExitQuiz(false)" style="flex: 1; padding: 10px 14px; border: 1px solid #efb8c5; background: #fff2f4; color: #9f3f58; cursor: pointer;">Thoát không lưu</button>
+            <button onclick="finishExitQuiz(false)" style="flex: 1; padding: 10px 14px; border: 1px solid #efb8c5; background: #fff2f4; color: #9f3f58; cursor: pointer;">Không lưu đánh dấu</button>
             <button onclick="finishExitQuiz(true)" style="flex: 1; padding: 10px 14px; border: 0; background: #4d53a2; color: #fff; cursor: pointer;">Lưu đánh dấu & thoát</button>
         </div>
     </div>
@@ -1849,7 +1849,12 @@
                     eliminateButton.onclick = function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        label.classList.toggle('answer-eliminated');
+                        const eliminated = label.classList.toggle('answer-eliminated');
+                        const radio = label.querySelector('input[type="radio"]');
+                        if (eliminated && radio?.checked && !radio.disabled) {
+                            radio.checked = false;
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     };
                     row.appendChild(eliminateButton);
                 });
