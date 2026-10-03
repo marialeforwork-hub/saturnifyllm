@@ -118,6 +118,37 @@ select,
     white-space: nowrap;
 }
 
+.question-context { font-weight: 400; }
+.question-stem {
+    display: block;
+    margin-top: .65em;
+    font-weight: 700;
+}
+
+body .options label.correct-answer-label {
+    background-color: #d4edda !important;
+    border-color: #28a745 !important;
+    color: #155724 !important;
+}
+
+body .options label.wrong-answer-label {
+    background-color: #f8d7da !important;
+    border-color: #dc3545 !important;
+    color: #721c24 !important;
+}
+
+body input.correct-input {
+    background-color: #d4edda !important;
+    border-color: #28a745 !important;
+    color: #155724 !important;
+}
+
+body input.wrong-input {
+    background-color: #f8d7da !important;
+    border-color: #dc3545 !important;
+    color: #721c24 !important;
+}
+
 .quiz-highlight-toolbar {
     display: inline-flex;
     align-items: center;

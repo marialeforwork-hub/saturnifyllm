@@ -84,6 +84,8 @@ body.quiz-paged .options label:hover { border-color: var(--sat-cyan) !important;
 body.quiz-paged .options label:has(input:checked) { border-color: var(--sat-ink) !important; box-shadow: 0 0 0 1.5px var(--sat-ink); background: linear-gradient(105deg, rgba(169, 229, 242, .28), rgba(247, 197, 209, .3)) !important; }
 body.quiz-paged .options label.correct-answer-label { border-color: #28a745 !important; box-shadow: 0 0 0 1.5px #28a745; background: #d4edda !important; }
 body.quiz-paged .options label.wrong-answer-label { border-color: #dc3545 !important; box-shadow: 0 0 0 1.5px #dc3545; background: #f8d7da !important; }
+body.quiz-paged .options label:has(input:checked).correct-answer-label { border-color: #28a745 !important; box-shadow: 0 0 0 1.5px #28a745; background: #d4edda !important; color: #155724 !important; }
+body.quiz-paged .options label:has(input:checked).wrong-answer-label { border-color: #dc3545 !important; box-shadow: 0 0 0 1.5px #dc3545; background: #f8d7da !important; color: #721c24 !important; }
 
 /* Question number bar */
 .qp-qbar { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; border-radius: .5rem; background: var(--qp-soft); border: 1px solid var(--sat-line); overflow: hidden; }

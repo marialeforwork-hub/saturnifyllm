@@ -3,6 +3,9 @@
 // Include AFTER the script that builds the .question-block elements.
 (function () {
     const getBlocks = () => [...document.querySelectorAll('.question-block')];
+    const isMathQuiz = () =>
+        /\b(math|arithmetic|function|circular|geometry)\b/i.test(document.title) ||
+        /(?:ORXAN|augustmath|67_GEOMETRY)/i.test(window.location.pathname);
 
     function hasAnswer(block) {
         return Boolean(
@@ -24,6 +27,60 @@
         if (first) first.textContent = first.textContent.replace(/^\s*Câu\s*\d+\s*:\s*/i, '');
     }
 
+    function findQuestionStemStart(text) {
+        const questionEnd = text.lastIndexOf('?');
+        if (questionEnd < 0) return 0;
+
+        const paragraphBreaks = [...text.slice(0, questionEnd).matchAll(/\n\s*\n/g)];
+        if (paragraphBreaks.length) {
+            const paragraphStart = paragraphBreaks[paragraphBreaks.length - 1].index + paragraphBreaks[paragraphBreaks.length - 1][0].length;
+            if (paragraphStart < questionEnd) return paragraphStart;
+        }
+
+        const sentenceStarts = [...text.slice(0, questionEnd).matchAll(/(?:^|[.!?]\s+|\n+)(?=[A-Z$])/g)];
+        return sentenceStarts.length ? sentenceStarts[sentenceStarts.length - 1].index + sentenceStarts[sentenceStarts.length - 1][0].length : 0;
+    }
+
+    function separateQuestionStem(textEl) {
+        const text = textEl.textContent;
+        const start = findQuestionStemStart(text);
+        if (start === 0) {
+            const stem = document.createElement('span');
+            stem.className = 'question-stem';
+            while (textEl.firstChild) stem.appendChild(textEl.firstChild);
+            textEl.appendChild(stem);
+            return;
+        }
+
+        const walker = document.createTreeWalker(textEl, NodeFilter.SHOW_TEXT);
+        let remaining = start;
+        let startNode = null;
+        let startOffset = 0;
+        let node;
+        while ((node = walker.nextNode())) {
+            if (remaining <= node.textContent.length) {
+                startNode = node;
+                startOffset = remaining;
+                break;
+            }
+            remaining -= node.textContent.length;
+        }
+        if (!startNode) return;
+
+        const stemRange = document.createRange();
+        stemRange.selectNodeContents(textEl);
+        stemRange.setStart(startNode, startOffset);
+        const stemContent = stemRange.extractContents();
+
+        const context = document.createElement('span');
+        context.className = 'question-context';
+        while (textEl.firstChild) context.appendChild(textEl.firstChild);
+        const stem = document.createElement('span');
+        stem.className = 'question-stem';
+        stem.appendChild(stemContent);
+        textEl.replaceChildren(context, stem);
+    }
+
     function restructureBlock(block, index) {
         if (block.querySelector(':scope > .qp-pane-question')) return;
 
@@ -34,7 +91,10 @@
         const skip = new Set([toolbar, questionText, passage, canvas].filter(Boolean));
         const rest = [...block.children].filter(child => !skip.has(child));
 
-        if (questionText) stripQuestionPrefix(questionText);
+        if (questionText) {
+            stripQuestionPrefix(questionText);
+            if (!isMathQuiz()) separateQuestionStem(questionText);
+        }
 
         const bar = document.createElement('div');
         bar.className = 'qp-qbar';
