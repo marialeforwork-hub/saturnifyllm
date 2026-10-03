@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEXT STRUCTURE AND PURPOSE - EASY - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <script src="quiz-state.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>TEXT STRUCTURE AND PURPOSE: EASY (QUESTION BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const quizData = [
+    {
+        "id": 1,
+        "question": "The following text is from Srimati Svarna Kumari Devi’s 1894 novel The Fatal Garland (translated by A. Christina Albers in 1910). Shakti is walking near a riverbank that she visited frequently during her childhood.\n\nShe crossed the woods she knew so well. <u>The trees seemed to extend their branches like welcoming arms.</u> They greeted her as an old friend. Soon she reached the river-side.\n\nWhich choice best describes the function of the underlined portion in the text as a whole?",
+        "options": {
+            "A": "It suggests that Shakti feels uncomfortable near the river.",
+            "B": "It indicates that Shakti has lost her sense of direction in the woods.",
+            "C": "It emphasizes Shakti’s sense of belonging in the landscape.",
+            "D": "It conveys Shakti’s appreciation for her long-term friendships."
+        },
+        "correctAnswer": "C",
+        "explanation": "Choice C is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. The first sentence of the text states that Shakti knows the woods she is walking in well. The next sentence, which is underlined, emphasizes Shakti’s familiarity with, and sense of security within, the woods by describing how the tree branches are friendly and “welcoming,” as they are depicted as extending open arms to her. The remainder of the text also shows that Shakti is comfortable and content in the woods by describing her as “an old friend” of the trees. Thus, the function of the underlined portion is to emphasize Shakti’s sense of belonging in the wooded landscape that she visits."
+    },
+    {
+        "id": 2,
+        "question": "Ordinary soap bubbles usually exist for a minute or less before popping due to either a rupture forced by gravity-induced drainage or the evaporation of the liquid from which the bubble is composed. But physicist Aymeric Roux and colleagues discovered ways to mitigate these factors, resulting in bubbles that can last for a year or more. For example, glycerol tends to adhere to water molecules, so <u>a bubble with a shell that contains both water and glycerol is able to draw additional water molecules from the surrounding air and thereby compensate for evaporation.</u>\n\nWhich choice best states the purpose of the underlined portion in the text as a whole?",
+        "options": {
+            "A": "It describes the effects of a process devised by researchers that increases the longevity of an object discussed in the text.",
+            "B": "It details the circumstances that prompted the research discussed in the text.",
+            "C": "It presents a reason why the phenomenon discussed in the text that the researchers wanted to avoid will inevitably occur.",
+            "D": "It mentions a method discussed in the text that researchers intend to test in future experiments."
+        },
+        "correctAnswer": "A",
+        "explanation": "Choice A is the best answer because it describes how the underlined portion of the sentence functions in the text as a whole. The text begins by discussing ordinary soap bubbles, objects that usually exist for less than a minute before popping due to either evaporation or gravity-induced drainage. The text then goes on to mention work by researchers Aymeric Roux and colleagues, who have discovered how to increase the longevity of bubbles by altering their chemical composition. Finally, the underlined portion of the text describes how this process works: since the bubble contains both water and glycerol, it can draw water molecules from the surrounding air to replace those lost to evaporation. Therefore, the underlined portion of the sentence describes the effects of a process devised by researchers that increases the longevity of an object described in the text."
+    },
+    {
+        "id": 3,
+        "question": "Using NASA’s powerful James Webb Space Telescope (JWST), Mercedes López-Morales and colleagues measured the wavelengths of light traveling through the atmosphere of WASP-39b, an exoplanet, or planet outside our solar system. Different molecules absorb different wavelengths of light, and the wavelength measurements showed the presence of carbon dioxide (CO₂) in WASP-39b’s atmosphere. This finding not only offers the first decisive evidence of CO₂ in the atmosphere of an exoplanet but also illustrates the potential for future scientific breakthroughs held by the JWST.\n\nWhich choice best describes the overall structure of the text?",
+        "options": {
+            "A": "It discusses a method used by some researchers, then states why an alternative method is superior to it.",
+            "B": "It describes how researchers made a scientific discovery, then explains the importance of that discovery.",
+            "C": "It outlines the steps taken in a scientific study, then presents a hypothesis based on that study.",
+            "D": "It examines how a group of scientists reached a conclusion, then shows how other scientists have challenged that conclusion."
+        },
+        "correctAnswer": "B",
+        "explanation": "Choice B is the best answer. The text begins by describing how the researchers used the JWST to detect CO₂ in WASP-39b’s atmosphere. Then the text discusses the significance of this finding, both as the first evidence of CO₂ in an exoplanet’s atmosphere and as an illustration of the JWST’s potential for making new discoveries in general."
+    },
+    {
+        "id": 4,
+        "question": "Researchers have found a nearly 164,000-year-old molar from a member of the archaic human species known as Denisovans in a cave in Laos, suggesting that Denisovans lived in a wider range of environments than indicated by earlier evidence. <u>Before the discovery, Denisovans were thought to have lived only at high altitudes in relatively cold climates in what are now Russia and China,</u> but the discovery of the tooth in Laos suggests that they may have lived at low altitudes in relatively warm climates in Southeast Asia as well.\n\nWhich choice best states the function of the underlined portion in the text as a whole?",
+        "options": {
+            "A": "It dismisses as untrue the research presented in the previous sentence.",
+            "B": "It defines a term used in the description that follows in the rest of the sentence.",
+            "C": "It emphasizes the main goal of the research introduced in the previous sentence.",
+            "D": "It provides context that clarifies the significance of the information that follows in the rest of the sentence."
+        },
+        "correctAnswer": "D",
+        "explanation": "Choice D is the best answer. The text describes how a new discovery expands our understanding of Denisovans. The underlined portion describes what we used to believe about Denisovans, which helps the reader understand the significance of the discovery of the molar: it suggests that they lived in more places than we’d previously thought."
+    },
+    {
+        "id": 5,
+        "question": "Companies are providing consumers with more opportunities to purchase customized products than ever before. Whether buying customized sneakers, jewelry, or clothing, consumers can participate in the design of products to meet their specific needs and tastes. In turn, companies profit too: studies have shown that consumers are willing to pay more and wait longer for a customized product. Still, it can be difficult for companies to offer customization while keeping costs low, as the standard methods of mass production may not be able to accommodate making a unique product each time.\n\nWhich choice best describes the overall structure of the text?",
+        "options": {
+            "A": "It discusses several recent innovations in product manufacturing and then suggests some potential applications of those innovations.",
+            "B": "It describes a company’s recent success with new products and then explains multiple factors that may have contributed to that success.",
+            "C": "It introduces a trend in consumer products and then explains how the trend both benefits and poses a challenge to companies.",
+            "D": "It presents two contrasting product-marketing techniques and then provides examples of one of those techniques."
+        },
+        "correctAnswer": "C",
+        "explanation": "Choice C is the best answer because it presents the best description of the overall structure of the text. The text begins by stating that companies are increasingly giving consumers opportunities to customize products, allowing them to make design choices when buying certain sneakers, jewelry, and clothing. The text then indicates that although this trend benefits companies because they can successfully charge buyers more for customized products and don’t have to rush production, it also poses a challenge because producing unique items may require different and more expensive methods than the ones typically used for mass production, raising the companies’ costs. Thus, the text first introduces a trend in consumer products and then explains how the trend both benefits and poses a challenge to companies."
+    },
+    {
+        "id": 6,
+        "question": "Historians Tiya Miles and Roy E. Finkenbine have both documented the assistance Indigenous peoples gave to Black freedom seekers leaving the South before the US Civil War. Much of the historical evidence of this help comes from Indigenous oral traditions and from autobiographies written by the freedom seekers. <u>One such narrative is Jermain Loguen’s autobiography, which tells about how Neshnabé (Potawatomi) villagers offered him food, lodging, and directions during his 1835 journey from Tennessee to Canada.</u>\n\nWhich choice best describes the function of the underlined sentence?",
+        "options": {
+            "A": "It provides an example of an autobiography that describes help given by an Indigenous people to a Black freedom seeker.",
+            "B": "It shows why Loguen decided to write in great detail about his experiences traveling from Tennessee to Canada in his autobiography.",
+            "C": "It argues that autobiographies are particularly important sources of information about geography in the United States before the Civil War.",
+            "D": "It suggests that most historians believe that Neshnabé villagers were more successful in assisting freedom seekers than other people were."
+        },
+        "correctAnswer": "A",
+        "explanation": "Choice A is the best answer. The previous sentence broadly mentions \"autobiographies written by the freedom seekers.\" This sentence identifies Loguen’s autobiography as a specific example."
+    },
+    {
+        "id": 7,
+        "question": "Why do sand cats purr but lions roar? Researchers hypothesize that this difference between the two feline species may be partly due to a U shaped bone in their throats called the hyoid. Sand cats, which are much smaller than lions, have a rigid hyoid that rumbles when the cat’s larynx vibrates, resulting in a purr. By contrast, lions have a somewhat flexible hyoid, and the bone is attached to the skull with a stretchy ligament that sand cats lack. These traits allow lions and most other species of big cats to produce powerful roars. The same traits may also prevent most big cats from purring.\n\nWhich choice best describes the overall structure of the text?",
+        "options": {
+            "A": "The text presents a theory about two species, then discusses facts that weaken it.",
+            "B": "The text compares the habitats of two species, then explains how those habitats are changing.",
+            "C": "The text describes a behavior shared by two species, then discusses other behaviors shared by them.",
+            "D": "The text poses a question about two species, then presents a possible answer."
+        },
+        "correctAnswer": "D",
+        "explanation": "Choice D is the best answer because it best describes the overall structure of the text. The text begins by posing a question about two different cat species: \"Why do sand cats purr but lions roar?\" The remainder of the text then presents a possible answer to this question by explaining a hypothesis about differences in these cats’ hyoid bone structure."
+    },
+    {
+        "id": 8,
+        "question": "In 1973, poet Miguel Algarín started inviting other writers who, like him, were Nuyorican—a term for New Yorkers of Puerto Rican heritage—to gather in his apartment to present their work. The gatherings were so well attended that Algarín soon had to rent space in a cafe to accommodate them. Thus, the Nuyorican Poets Cafe was born. Moving to a permanent location in 1981, the Nuyorican Poets Cafe expanded its original scope beyond the written word, hosting art exhibitions and musical performances as well. Half a century since its inception, it continues to foster emerging Nuyorican talent.\n\nWhich choice best describes the overall purpose of the text?",
+        "options": {
+            "A": "To explain what motivated Algarín to found the Nuyorican Poets Cafe",
+            "B": "To situate the Nuyorican Poets Cafe within the cultural life of New York as a whole",
+            "C": "To discuss why the Nuyorican Poets Cafe expanded its scope to include art and music",
+            "D": "To provide an overview of the founding and mission of the Nuyorican Poets Cafe"
+        },
+        "correctAnswer": "D",
+        "explanation": "Choice D is the best answer. The text presents a brief history of the Nuyorican Poets Cafe, from how it got started in the ’70s, to its expansion in the ’80s, to its ongoing mission today."
+    },
+    {
+        "id": 9,
+        "question": "In 2007, computer scientist Luis von Ahn was working on converting printed books into a digital format. He found that some words were distorted enough that digital scanners couldn’t recognize them, but most humans could easily read them. Based on that finding, von Ahn invented a simple security test to keep automated “bots” out of websites. The first version of the reCAPTCHA test asked users to type one known word and one of the many words scanners couldn’t recognize. Correct answers proved the users were humans and added data to the book-digitizing project.\n\nWhich choice best states the main purpose of the text?",
+        "options": {
+            "A": "To discuss von Ahn’s invention of reCAPTCHA",
+            "B": "To explain how digital scanners work",
+            "C": "To call attention to von Ahn’s book-digitizing project",
+            "D": "To indicate how popular reCAPTCHA is"
+        },
+        "correctAnswer": "A",
+        "explanation": "Choice A is the best answer because it most accurately states the main purpose of the text. After providing a brief introduction to computer scientist Luis von Ahn, the text focuses on discussing how von Ahn’s digitization work led to the invention of a digital security test known as reCAPTCHA."
+    },
+    {
+        "id": 10,
+        "question": "The following text is adapted from Cynthia Kadohata’s 2004 novel Kira-Kira.\n\n<u>[Uncle Katsuhisa] was as loud as my father was quiet.</u> Even when he wasn’t talking, he made a lot of noise, clearing his throat and sniffing and tapping his fingers.\n\n©2004 by Cynthia Kadohata\n\nWhich choice best describes the function of the underlined sentence?",
+        "options": {
+            "A": "It lists the kinds of topics Uncle Katsuhisa enjoys discussing.",
+            "B": "It suggests that Uncle Katsuhisa dislikes meeting new people.",
+            "C": "It contrasts Uncle Katsuhisa with the narrator’s father.",
+            "D": "It describes a conversation between the narrator and the narrator’s father."
+        },
+        "correctAnswer": "C",
+        "explanation": "Choice C is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. The underlined sentence establishes a difference between Uncle Katsuhisa and the narrator’s father by describing Uncle Katsuhisa as \"loud\" and the narrator’s father as \"quiet.\""
+    },
+  {
+    "id": 11,
+    "question": "Question The following text is adapted from George Bernard Shaw’s 1912 play Pygmalion. Henry Higgins has just arrived at the house of his mother (Mrs. Higgins). She is expecting her friends to visit soon. MRS. HIGGINS: I’m serious, Henry. You offend all my friends: they stop coming whenever they meet you. HIGGINS: Nonsense! I know I have no small talk; but people don’t mind. MRS. HIGGINS: Oh! don’t they? Small talk indeed! What about your large talk? Really, dear, you mustn’t stay. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To describe what Henry’s mother does when she goes out with her friends",
+      "B": "To show that Henry’s mother wants him to leave",
+      "C": "To present a detailed account of what Henry’s home looks like",
+      "D": "To explain why Henry often visits his mother"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states the main purpose of the text, which is to show that Henry’s mother, Mrs. Higgins, wants Henry to leave her house. In the text, Mrs. Higgins complains that Henry offends all her friends and that they stop coming when he’s also visiting. She then tells him directly, \"you mustn’t stay.\" The overall exchange conveys Mrs. Higgins’s intention for Henry to leave so as not to drive away her friends with his behavior. Choice A is incorrect because the text doesn’t indicate what Henry’s mother does when she’s out with her friends. Instead, it focuses on what goes on when Henry and her friends visit her at the same time, indicating that since her friends find Henry’s company disagreeable, she wishes him to leave before they arrive. Choice C is incorrect because the text doesn’t contain an account of what Henry’s home looks like. The setting is established as the house of Henry’s mother, and the dialogue focuses solely on her wish that Henry should depart before her friends arrive. Choice D is incorrect because the text doesn’t mention how often Henry visits his mother nor does it provide any explanation for why he visits his mother. Instead, it indicates that she thinks her friends dislike Henry and that she therefore wants him to depart before they arrive."
+  },
+  {
+    "id": 12,
+    "question": "Question Some bird species don’t raise their own chicks. Instead, adult females lay their eggs in other nests, next to another bird species’ own eggs. Female cuckoos have been seen quickly laying eggs in the nests of other bird species when those birds are out looking for food. After the eggs hatch, the noncuckoo parents will typically raise the cuckoo chicks as if they were their own offspring, even if the cuckoos look very different from the other chicks. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It introduces a physical feature of female cuckoos that is described later in the text.",
+      "B": "It describes the appearance of the cuckoo nests mentioned earlier in the text.",
+      "C": "It offers a detail about how female cuckoos carry out the behavior discussed in the text.",
+      "D": "It explains how other birds react to the female cuckoo behavior discussed in the text."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it best describes how the underlined sentence functions in the text as a whole. The first two sentences establish that birds of some species don’t raise their own young; instead, they lay their eggs in the nests of birds of other species. The underlined sentence then states that female cuckoo birds engage in this behavior, having been observed specifically laying their eggs in other nests while the other birds are out finding food. According to the text, the cuckoo chicks are then raised by the other birds. Thus, the underlined sentence provides a particular detail about how female cuckoos carry out the behavior of laying eggs for other birds to raise. Choice A is incorrect. Rather than mentioning a physical feature of female cuckoos, the underlined sentence introduces a specific behavior of female cuckoos: laying eggs in the nests of birds of other species when the other birds are away. The only reference to physical features is the last sentence’s general mention of cuckoo chicks looking different from chicks of other species. Choice B is incorrect because the underlined sentence refers to the nests of birds other than cuckoos and doesn’t describe how any nests look, cuckoo or otherwise. Instead, the sentence addresses how female cuckoos use other birds’ nests. Choice D is incorrect because the underlined sentence describes only female cuckoo behavior (laying eggs in the nests of birds of other species when the other birds are away); it’s the last sentence of the text that addresses the other birds’ reaction, indicating that those birds usually raise the cuckoo chicks once they’ve hatched."
+  },
+  {
+    "id": 13,
+    "question": "Question In the past, historians who wanted to examine Frederick Douglass’s diary and other personal papers had to visit the Library of Congress in Washington, DC, to view them on microfilm (film containing scaled-down reproductions of documents). But traveling to the library often added time and costs to research projects. Now, by going to the library’s website, researchers can access digitized versions of Douglass’s papers without physically going anywhere. Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It gives information about a famous person.",
+      "B": "It explains the meaning of a word.",
+      "C": "It describes a debate among historians.",
+      "D": "It summarizes an unexpected finding."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes how the underlined portion functions in the text as a whole. The underlined portion is a parenthetical phrase directly following the word “microfilm,” and it describes film containing small (“scaled-down”) images; the placement and focus of the portion indicate that it is serving to define the term “microfilm.” Choice A is incorrect. Although the text is about accessing the writings of a famous historical figure (Douglass), the underlined portion doesn’t give information about Douglass or any other person. Instead, it explains what microfilms are. Choice C is incorrect because the text never describes any kind of debate or disagreement; it simply describes a change in how researchers can access historical documents, with the underlined portion defining an important term. Choice D is incorrect because the text never makes any mention of a particular finding, unexpected or otherwise; it simply describes a change in how researchers do some of their work, with the underlined portion defining an important term."
+  },
+  {
+    "id": 14,
+    "question": "Question The majority of plastics today wind up in landfills or are, at best, recycled into materials that have a very limited range of applications. To address this problem, chemist Guoliang Liu and colleagues designed a reactor that melts polyethylene and polypropylene—two widely used plastics—into a wax. The wax can then be transformed into a surfactant (a chemical compound usable as a detergent). With this promising new method, plastic waste could be turned into a range of useful cleaning products. Which choice best states the function of the underlined portion of the text?",
+    "options": {
+      "A": "It clarifies the meaning of a scientific term.",
+      "B": "It describes an environmental concern.",
+      "C": "It explains the significance of a scientific discovery.",
+      "D": "It identifies a result that confused the team."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes how the underlined phrase functions in the text as a whole. The text states that the wax produced by Liu and colleagues’ reactor can be turned into a surfactant. The underlined phrase, which is set off with parentheses, then provides a definition for the term \"surfactant,\" explaining that it’s a chemical compound that can be used as a detergent. Thus, the underlined portion of the text functions to clarify the meaning of a scientific term. Choice B is incorrect. Though the text as a whole focuses broadly on an environmental concern, the underlined phrase does not; it simply indicates what a surfactant is. Choice C is incorrect. Though the text as a whole focuses on a scientific discovery (Liu and colleagues’ solution to the problem of plastic recycling), the underlined phrase does not explain its significance; it simply defines a scientific term used in the discussion. Choice D is incorrect. Though the text as a whole includes discussion of the result found by Liu and colleagues, the underlined phrase does not discuss it; it simply defines a scientific term used in the discussion. Additionally, at no point in the text is it mentioned that the team was confused."
+  },
+  {
+    "id": 15,
+    "question": "Question The following text is adapted from Charles Dickens’s 1854 novel Hard Times. Coketown is a fictional town in England. [Coketown] contained several large streets all very like one another, and many small streets still more like one another, inhabited by people equally like one another, who all went in and out at the same hours, with the same sound upon the same pavements, to do the same work, and to whom every day was the same as yesterday and tomorrow, and every year the counterpart of the last and the next. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To emphasize the uniformity of both the town and the people who live there",
+      "B": "To explain the limited work opportunities available to the town’s residents",
+      "C": "To reveal how the predictability of the town makes it easy for people lose track of time",
+      "D": "To argue that the simplicity of life in the town makes it a pleasant place to live"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The author describes Coketown as having streets that are all very similar and residents who live similarly and do the same work. This repetition of similarities emphasizes how everything in Coketown is alike. Choice B is incorrect. While the text mentions that all the residents “do the same work,” it never explains what that work is or why everyone does it. Besides, the idea that they all do the same work is just one of several similarities among the townspeople described in the text. Choice C is incorrect. While the last sentence states that “every day was the same as yesterday and tomorrow, and every year the counterpart of the last and the next,” it never suggests that people actually “lose track of time.” This is also too narrow to be the main idea, since time is just one of many aspects of Coketown that the text describes as always being the same. Choice D is incorrect. The text never mentions whether life is simple in Coketown, and the town sounds as though it’s probably a pretty dull place to live, rather than a pleasant one."
+  },
+  {
+    "id": 16,
+    "question": "Question The following text is from Ameen Rihani’s 1921 poem “The Wanderer.” I wander among the hills of alien lands Where Nature her prerogative resigns To Man; where Comfort in her shack reclines And all the arts and sciences commands. But in my soul The eastern billows roll— I hear the voices of my native strands. Which choice best describes the function of the underlined lines in the text as a whole?",
+    "options": {
+      "A": "It establishes that the speaker’s enthusiasm about current travels conflicts with the growing urge to return home.",
+      "B": "It illustrates the speaker’s uncertainty about maintaining strong links with relatives in distant places.",
+      "C": "It conveys the speaker’s sense of feeling a pull toward home while traveling in an unfamiliar place.",
+      "D": "It reveals that upon returning after an extended absence, the speaker longs for the way a location once felt."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately describes the function of the underlined lines in the text as a whole. In the opening line of the text, the speaker describes wandering in \"alien lands,\" which establishes that the speaker is traveling in unfamiliar territory. In the underlined lines, the speaker describes \"billows\" (large waves) rolling in the soul, which suggests that the speaker feels inner turmoil. The underlined lines go on to associate these rolling billows with voices calling to the speaker from the speaker’s \"native strands,\" or homeland, indicating that thoughts of home are prompting the emotional experience these lines describe. Taken together, the imagery in the underlined lines thus implies that the speaker feels a deep emotional connection to, or pull toward, home while traveling in an unfamiliar place. Choice A is incorrect. While the text’s first line states that the speaker is traveling and the underlined lines indicate that the speaker experiences an emotional pull toward home, neither the underlined lines nor the text as a whole establishes an enthusiasm about the current travels that conflicts with a growing urge to return home. The text’s description of the lands the speaker is traveling in focuses on their artificial quality, stating, \"Nature her prerogative resigns / To Man,\" which doesn’t suggest enthusiasm but rather a sense of detachment or even critique. Choice B is incorrect because the underlined lines don’t address uncertainty about maintaining links with relatives in distant places. In the underlined lines, the speaker expresses a sense of connection to the speaker’s homeland (\"native strands\") but doesn’t refer to any family members the speaker may have there or to concerns about maintaining any familial ties. Choice D is incorrect because the poem doesn’t indicate that the speaker has returned home after an absence. Rather, the speaker explicitly states, \"I wander among the hills of alien lands,\" establishing that the current setting is a foreign place. Moreover, the underlined lines express a sense of connection with, or pull toward, a distant homeland, not a sense of longing for how that homeland or any other location once felt."
+  },
+  {
+    "id": 17,
+    "question": "Question The following text is adapted from Louisa May Alcott’s 1869 novel An Old-Fashioned Girl. Polly, a teenager, is visiting her friend Fanny. Fanny’s friends did not interest Polly much; she was rather afraid of them [because] they seemed so much older and wiser than herself, even those younger in years. They talked about things of which she knew nothing and when Fanny tried to explain, she didn’t find them interesting; indeed, some of them rather shocked and puzzled her. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To portray Polly’s reaction to Fanny’s friends",
+      "B": "To identify the topics Polly talks about with Fanny’s friends",
+      "C": "To explain how Fanny met some of her friends",
+      "D": "To illustrate how Fanny’s friends feel about Polly"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the main purpose of the text, which is to show how Polly reacted to some of Fanny’s other friends. The text describes Polly as being frightened of Fanny’s friends because they seemed “much older and wiser” to her and elaborates that they “talked about things of which” Polly was unfamiliar, uninterested, and shocked. Thus, the main purpose of the text is to describe Polly’s impressions of Fanny’s other friends. Choice B is incorrect because the text does not provide any of the topics Polly discussed with Fanny’s friends, stating only that Polly found the topics unfamiliar, uninteresting, and shocking. Choice C is incorrect because the text says nothing about how Fanny and her other friends first met. Choice D is incorrect because the focus of the text is on Polly’s feelings about Fanny’s other friends, not on the other friends’ feelings about Polly."
+  },
+  {
+    "id": 18,
+    "question": "Question The following text is adapted from Akwaeke Emezi’s 2019 novel Pet. Jam is a teenager who lives with her father, Aloe, and her mother, Bitter, who is a painter. Bitter finished the painting in the dark morning of a day—it was well past midnight when Jam heard the studio door creak open. She stared into the velvet black of her room and listened to her mother’s footsteps walking in her [mother] and Aloe’s bedroom. There was a weight thrumming through the floorboards in a low song, and that was how Jam knew the painting was done. Bitter’s feet were singing the news. ©2019 by Akwaeke Emezi Which choice best states the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It indicates that Jam is more interested in music than in art.",
+      "B": "It adds to the idea that Bitter’s footsteps reveal something to Jam.",
+      "C": "It indicates that Bitter always sings when working on a painting.",
+      "D": "It describes Aloe’s reaction upon seeing the painting for the first time."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. The text establishes that Jam hears Bitter’s studio door open early in the morning, when it is still dark. Jam then listens to her mother’s footsteps, which seem to create a song that runs through the floorboards. The text indicates that the sound of Bitter’s footsteps convey to Jam that Bitter is done painting. The underlined sentence then builds on this idea, stating explicitly that Bitter’s feet sing the news of her completion of a painting. Thus, the sentence stating that “Bitter’s feet were singing the news” further emphasizes that Bitter’s footsteps themselves reveal information to Jam. Choice A is incorrect because the text provides no evidence that Jam prefers music to art. While the underlined sentence uses musical imagery to describe the vibrations Jam feels, this is figurative language that is describing the footsteps’ vibrations; it isn’t an indication of Jam’s personal interests. Choice C is incorrect because the text doesn’t suggest that Bitter herself sings while working on paintings. The references to singing in the text are figurative descriptions of how Bitter’s footsteps sound or feel to Jam, not literal statements about Bitter singing. Choice D is incorrect because the underlined sentence only describes Jam’s perception of her mother’s footsteps. It doesn’t provide any details about Aloe or his reaction to the painting; in fact, the text doesn’t mention Aloe seeing the painting at all."
+  },
+  {
+    "id": 19,
+    "question": "Question The following text is from Joan Didion’s memoir The Year of Magical Thinking. In the text, the author discusses her home life. [I]n California we heated our houses by building fires. We built fires even on summer evenings, because the fog came in. Fires said we were home, we had drawn the circle, we were safe through the night. ©2005 by Joan Didion Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It illustrates that a fire provides comfort beyond physical warmth.",
+      "B": "It summarizes the information that came before it in the text.",
+      "C": "It explains that the house remains cold even in summer.",
+      "D": "It suggests that the author feels comfortable in her home with or without a fire."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes how the underlined portion functions in the text as a whole. The first two sentences of the text establish that in California, houses were heated by building fires year-round. The underlined portion then indicates that the fires didn’t merely provide physical warmth: they also represented being \"home\" and feeling protected. The underlined portion thus illustrates that a fire provides comfort beyond physical warmth. Choice B is incorrect because the underlined portion doesn’t summarize information that came before it. Whereas the previous two sentences describe fires’ ability to provide physical warmth to homes, the underlined portion focuses on the psychological comfort the fires offered. Choice C is incorrect. Although the text’s second sentence mentions that fires were built in the summer because fog came in, which may have cooled the house, this detail isn’t the focus of the underlined portion. Instead, the underlined portion indicates that fires were built for reasons beyond physical warmth: to create a sense of being home and safe. Choice D is incorrect because the underlined portion focuses on the emotional significance the author places on having a fire going inside the home. There is no indication that the author feels equally comfortable without a fire present."
+  },
+  {
+    "id": 20,
+    "question": "Question San Francisco is known for the colorful murals painted on many of its buildings. The densest collection of murals is found on Balmy Alley in the Mission District neighborhood. In the 1970s, Latina artists painted vivid scenes of community life on walls along this block. As the original murals have faded, later generations of artists have painted new ones over them. As a result, Balmy Alley has become a living showcase of San Francisco’s artistic spirit, with its murals reflecting changes in the cultural life of the city. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To compare the Balmy Alley murals to other murals in San Francisco",
+      "B": "To offer an overview of the history and importance of the Balmy Alley murals",
+      "C": "To urge people to protect the murals of San Francisco from decay",
+      "D": "To describe the rise of mural painting in San Francisco beginning in the 1970s"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it best states the main purpose of the text. The text begins by briefly stating that San Francisco is known for its murals, then transitions to a discussion of a single collection of murals, which is found on Balmy Alley in the city’s Mission District. The text explains that the murals in this area were originally created in the 1970s, then observes that they have changed over time: as some have faded through the decades, others have been painted in their place. The text ends by emphasizing that these murals are significant because they reflect San Francisco’s artistic spirit and cultural life. Therefore, the text provides an overview of the history and importance of the Balmy Alley murals. Choice A is incorrect. Although it can be inferred from the text that there are murals in other areas of San Francisco besides Balmy Alley, the text doesn’t specifically discuss murals in other areas or compare the murals of Balmy Alley to those in other areas. Choice C is incorrect. By observing that some of the murals of Balmy Alley have been replaced due to fading, the text implies that murals can decay, but it never urges readers to protect this specific collection of murals—or any murals elsewhere in San Francisco, for that matter. Indeed, by describing the everchanging murals of Balmy Alley as “a living showcase of San Francisco’s artistic spirit,” the text emphasizes the positive aspects of the fact that the original Balmy Alley murals have faded and been replaced with new murals. Choice D is incorrect because the text doesn’t describe the rise of mural painting in San Francisco generally or note when this occurred. The only historical development of the 1970s mentioned in the text is the origin of the murals in a specific area of the city: Balmy Alley in the Mission District."
+  },
+  {
+    "id": 21,
+    "question": "Question The following text is from Georgia Douglas Johnson’s 1922 poem “Benediction.” Go forth, my son, Winged by my heart’s desire! Great reaches, yet unknown, Await For your possession. I may not, if I would, Retrace the way with you, My pilgrimage is through, But life is calling you! Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To express hope that a child will have the same accomplishments as his parent did",
+      "B": "To suggest that raising a child involves many struggles",
+      "C": "To warn a child that he will face many challenges throughout his life",
+      "D": "To encourage a child to embrace the experiences life will offer"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it accurately states the text’s main purpose. The poem begins with the speaker urging a child to “go forth” with her encouragement (“my heart’s desire”). The speaker goes on to suggest that new experiences (“Great reaches, yet unknown”) lie ahead for the son that “life is calling” him to seek out. Thus, the main purpose is to encourage a child to embrace the experiences available to him in his life. Choice A is incorrect because the speaker encourages the child to pursue new experiences (“Great reaches”) without knowing exactly what those experiences will be (“yet unknown”) or suggesting that they should match the speaker’s own accomplishments. Choice B is incorrect because the speaker focuses on positive possibilities for her son (“Great reaches, yet unknown”) and her enthusiastic encouragement to embrace those possibilities (“life is calling you!”), while there is no mention of raising a child or associated struggles. Choice C is incorrect because the speaker frames the possibilities for her son in a positive light when she says that “great reaches, yet unknown” are waiting for him, and this positive outlook for the son is consistent throughout the text."
+  },
+  {
+    "id": 22,
+    "question": "Question The following text is adapted from Oscar Wilde’s 1897 nonfiction work De Profundis. People whose desire is solely for self-realisation never know where they are going. They can’t know. In one sense of the word it is of course necessary to know oneself: that is the first achievement of knowledge. But to recognise that the soul of a man is unknowable, is the ultimate achievement of wisdom. The final mystery is oneself. When one has weighed the sun in the balance, and measured the steps of the moon, and mapped out the seven heavens star by star, there still remains oneself. Who can calculate the orbit of his own soul? Which choice best describes the function of the underlined question in the text as a whole?",
+    "options": {
+      "A": "It reinforces the text’s skepticism about the possibility of truly achieving self-knowledge.",
+      "B": "It speculates that some readers will share the doubts expressed in the text about the value of self-knowledge.",
+      "C": "It cautions readers that the text’s directions for how to achieve self-knowledge are hard to follow.",
+      "D": "It concedes that the definition of self-knowledge advanced in the text is unpopular."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text repeatedly claims that true self-knowledge can’t possibly be achieved, and this rhetorical question emphasizes that point. Choice B is incorrect. The underlined question doesn’t do this. The text never expresses doubts about the value of self-knowledge—rather, the text expresses doubts about the possibility of achieving self-knowledge. Choice C is incorrect. The underlined question doesn’t do this. The text doesn’t provide directions for how to achieve self-knowledge—rather, it claims that true self-knowledge is impossible to achieve. Choice D is incorrect. The underlined question doesn’t do this. The text doesn’t ever define self-knowledge, and popularity isn’t mentioned in the text at all."
+  },
+  {
+    "id": 23,
+    "question": "Question Archaeologists studying the ancient city of Pompeii in Italy recently discovered a well-preserved food shop known as a thermopolium. The site contains food remains, artworks, and decorations. These items give researchers a better understanding of what daily life in Pompeii may have been like. For example, the archaeologists found a ceramic jar that they believe likely contained a meat and seafood stew. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To compare ancient artworks with modern ones",
+      "B": "To discuss the political system of Italy",
+      "C": "To present a recent archaeological discovery",
+      "D": "To describe a region’s climate"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately describes the main purpose of the text. The text states that archaeologists recently discovered a well-preserved food shop, or thermopolium, in Pompeii, Italy. The text then further describes the contents of the discovery and provides an example of what was found. Thus, the overall purpose of the text is to present a recent archaeological discovery. Choice A is incorrect. Although the text states that archaeologists found ancient artworks, it doesn’t compare these artworks to modern ones or to any other artworks. Choice B is incorrect. Although the archaeological discovery discussed in the text was made in Italy, the text doesn’t provide any information about politics or government in Italy. Choice D is incorrect because the text doesn’t discuss the climate where the archaeological discovery was made or in any other region."
+  },
+  {
+    "id": 24,
+    "question": "Question In the early days of television in the 1940s, many people thought that US television programs would rely on the financial support of ad agencies and commercial sponsors, much like radio did. But advertisers hesitated to jump into a new space, particularly at a time when the manufacturing of new television sets was stalled due to the US’s involvement in World War II. Broadcasters, like the National Broadcasting Company (NBC), needed to persuade advertisers to support their programming despite not knowing whether there would be a robust television audience to begin with. Which choice best describes the function of the underlined phrase in the text as a whole?",
+    "options": {
+      "A": "It compares the beginnings of radio programming with the beginnings of television programming in the United States.",
+      "B": "It identifies a specific reason behind some advertisers’ hesitance to support television.",
+      "C": "It describes how broadcasters attempted to convince advertisers to support television.",
+      "D": "It explains why a type of television programming was popular at the time."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it accurately describes the function of the underlined phrase in the text as a whole. According to the text, advertisers were reluctant to support television in its early days. The underlined phrase then indicates that this reluctance was partly due to the US’s involvement in World War II, which hindered television production. Thus, the underlined phrase identifies a specific reason behind some advertisers’ hesitance to support television. Choice A is incorrect. The text merely mentions that television was expected to be financed through advertising, as radio was at the time. Nothing in the text compares the origins of radio and television. Choice C is incorrect. The underlined phrase focuses on a reason advertisers were reluctant to support television, not measures taken to convince advertisers to support television. Choice D is incorrect. The underlined phrase focuses on a reason advertisers were reluctant to support television, not what types of television programming were popular."
+  },
+  {
+    "id": 25,
+    "question": "Question In most building demolitions, the building materials are destroyed and sent to landfills. City officials in Portland, Oregon, wanted to reduce this waste. The officials passed a law requiring demolition companies to deconstruct some buildings instead. Deconstruction involves carefully taking buildings apart piece by piece. Damage to the materials is avoided so that they can be reused in new constructions. A 2019 study found that 27 percent of materials from deconstructions in Portland were able to be reused. The remaining materials were processed for recycling instead of going to a landfill. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To explain an effort made by the city of Portland to reduce demolition waste and some results of that effort",
+      "B": "To show that popular support for measures that reduce demolition waste has increased since 2019",
+      "C": "To argue that building deconstruction is not as effective as other measures at reducing demolition waste",
+      "D": "To discuss laws aimed to reduce demolition waste in Portland and compare them to similar laws in other cities"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The author first describes a Portland law aimed at reducing demolition waste, and then goes on to explain that 27% of materials from building deconstructions were able to be reused and the rest were recycled. Choice B is incorrect. The text never discusses the popularity of the law. Choice C is incorrect. The text never compares building deconstruction to other measures designed to reduce demolition waste. Choice D is incorrect. The text never mentions laws in cities other than Portland, Oregon."
+  },
+  {
+    "id": 26,
+    "question": "Question The following text is from Holly Goldberg Sloan’s 2017 novel Short. More than two years ago my parents bought a piano from some people who were moving to Utah. Mom and Dad gave it to my brothers and me for Christmas. I had to act really happy because it was such a big present, but I pretty much hated the thing from the second it was carried into the hallway upstairs, which is right next to my bedroom. The piano glared at me. It was like a songbird in a cage. It wanted to be set free. ©2017 by Holly Goldberg Sloan Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "It explains why the narrator always wanted a piano close to her bedroom.",
+      "B": "It establishes how the narrator feels about the piano.",
+      "C": "It suggests that the narrator’s brothers are talented piano players.",
+      "D": "It describes the event that led the narrator’s parents to buy a piano."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most effectively states the main purpose of the text, which is to establish the narrator’s feelings about the piano. In the text, the narrator reveals that she “had to act really happy” about the piano even though she “pretty much hated the thing” as soon as it was placed upstairs near her bedroom. The narrator also describes the piano as glaring at her and compares it to a caged bird that wants to be set free. These details establish the narrator’s feelings about the piano, suggesting that she dislikes it. Choice A is incorrect because the text doesn’t state that the narrator wanted a piano near her bedroom. In fact, she “hated the thing” from the start and felt that it glared at her. These details express dislike, not desire. Choice C is incorrect because the text doesn’t state that the narrator’s brothers are talented piano players. The only information provided in the text about the narrator’s brothers is that they were also given the piano. Choice D is incorrect because the text states only that the narrator’s parents bought the piano for the children from people who were moving. The text doesn’t give any information about what made the parents decide to buy a piano in the first place."
+  },
+  {
+    "id": 27,
+    "question": "Question Oral histories—whether they consist of interviews or recordings of songs and stories—can offer researchers a rich view of people’s everyday experiences. For her book about coal mining communities in Kentucky during the twentieth century, Karida Brown therefore relied in part on interviews with coal miners and their families. By doing so, she gained valuable insights into her subjects’ day-to-day lives. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It provides a little-known geographical fact about Kentucky.",
+      "B": "It argues that Karida Brown is an expert on United States politics.",
+      "C": "It presents a major historical event that took place in the twentieth century.",
+      "D": "It describes how Karida Brown benefited from incorporating oral history in her book."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. The text begins by pointing out one of the advantages of oral histories: that they allow researchers to document the daily experiences of people. The text then goes on to describe how Karida Brown utilized interviews with coal miners and their families for her book about twentieth-century coal mining in Kentucky. The underlined sentence affirms that the general advantages of oral histories mentioned earlier in the text were also benefits in Brown’s particular case. Thus, the underlined sentence describes how Karida Brown benefited from incorporating oral history in her book. Choice A is incorrect because though the text mentions coal miners who live in Kentucky, the underlined sentence does not offer a geographical fact about Kentucky. Choice B is incorrect because the underlined sentence does not mention United States politics or that Brown is an expert in this particular area. Choice C is incorrect. Although the text mentions that Brown’s book revolved around coal miners during the twentieth century, the underlined sentence does not focus on a major historical event during this time."
+  },
+  {
+    "id": 28,
+    "question": "Question Following the eradication of the gray wolf in Yellowstone National Park in 1926, the population of elk—a primary prey of the gray wolf—exceeded a healthy size for the park’s ecosystem. Elk overpopulation led to overgrazing of areas that a multitude of other animals relied on for food and shelter. As scientists began to see how essential the gray wolf was to the Yellowstone food chain, ecological restoration strategies were employed to reintroduce the gray wolf to the park in 1996. The rebound effect in the park’s natural ecosystem was noticed almost immediately. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It summarizes a problem that developed in Yellowstone National Park in the 1920s and then offers potential solutions to that problem.",
+      "B": "It mentions the elimination of the gray wolf from Yellowstone National Park and then explains why the wolf was eventually restored to the park.",
+      "C": "It presents a claim about the health of the Yellowstone National Park gray wolf population and then gives specific examples to support that claim.",
+      "D": "It explains why Yellowstone National Park allowed the eradication of the gray wolf and then discusses the consequences of reintroducing the wolf to the park."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes the overall structure of the text. The text begins by stating that the gray wolf was eradicated from Yellowstone National Park in 1926. It then explains the consequences of this elimination—namely that the elk population grew too large and overgrazing occurred, negatively affecting other animals in the area. The text then states that once scientists realized the importance of the gray wolf to the Yellowstone food chain, they undertook efforts leading to the wolves’ reintroduction to the park in 1996. Thus, the structure of the text can be accurately described as mentioning the elimination of the gray wolf from Yellowstone and then explaining why the wolf was later restored to the park. Choice A is incorrect. While the text does summarize a problem associated with an event in the 1920s (the eradication of gray wolves from Yellowstone in 1926), the problems discussed arose after that event—namely, the subsequent elk overpopulation, resultant overgrazing, and then further impacts to other animals in Yellowstone. Furthermore, the text doesn’t present multiple potential solutions. Instead, it describes one solution that was actually implemented: the reintroduction of gray wolves in 1996. Choice C is incorrect because the text doesn’t make a claim about the health of the gray wolf population apart from pointing out that the wolves had been eradicated from, and then subsequently restored to, Yellowstone. Instead, the text focuses on outcomes associated with the gray wolf’s eradication and reintroduction. Choice D is incorrect. Though the text does mention that the ecosystem of Yellowstone rebounded after the gray wolf was reintroduced in 1996, the text never explains why the park allowed the wolves to be eradicated in 1926. It simply states that this eradication occurred without elaborating on the decisionmaking process behind it."
+  },
+  {
+    "id": 29,
+    "question": "Question Were penguins always flightless? Theresa Cole and her team argue that penguins could fly at some point, but that they lost that ability more than 60 million years ago as they adapted to marine life. After examining various penguin fossils and genetic information, the researchers concluded that over time penguins developed underwater vision, blood oxygenation, and bone density better suited for swimming than flying. Thus, environmental conditions might have driven penguins to change from flyers to swimmers. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It defines a scientific term used in the sentence that follows.",
+      "B": "It contradicts a description in the sentence that follows.",
+      "C": "It provides an answer to the question in the previous sentence.",
+      "D": "It notes that the question in the previous sentence has not been researched."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it best describes how the underlined sentence functions in the text as a whole. The text begins with a question: have penguins always been unable to fly? The underlined sentence then presents an answer that has been offered by researchers, indicating that Theresa Cole and her team believe that penguins were once able to fly but lost that ability long ago as they began living in the sea. The text then describes the research that led to that answer. Thus, the function of the underlined sentence is to provide an answer to the question in the previous sentence. Choice A is incorrect because none of the terms used in the sentence that follows are defined in the underlined sentence; no definitions are given at all. Instead, the sentence presents Theresa Cole and her team’s answer to the earlier question about penguins’ ability to fly. Choice B is incorrect because there is no contradiction between the underlined sentence and the sentence that follows since both convey that at some point penguins underwent adaptations that limited their ability to fly and helped them swim and live in the sea. Instead of contradicting later information, the underlined sentence presents an answer to the earlier question about penguins’ ability to fly. Choice D is incorrect because the question in the previous sentence is about penguins’ ability to fly and the underlined sentence presents Theresa Cole and her team’s answer to that question based on their research into penguin flight, which is described in the rest of the text."
+  },
+  {
+    "id": 30,
+    "question": "Question Built in the 1970s, Raccoon Mountain is a pumped-storage hydropower facility (a “water-battery”) located in the United States along the Tennessee River. When energy demand is low, excess power from the regional electric utility’s nuclear plants is used to pump water (from a lower reservoir filled from the Tennessee River) up a shaft to the summit lake, where the water is stored as gravitational potential energy. When energy demand peaks, the water drains down from the summit lake, spinning turbines and generating upward of 1,700 megawatts of power— enough to power one million homes for twenty hours. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To point out the differences between two methods of energy generation",
+      "B": "To explain the basics of how a specific energy technology works",
+      "C": "To encourage regional electric utilities to build energy storage facilities",
+      "D": "To discuss the benefits of a new energy technology"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes the main purpose of the text, which is to explain the basics of how a specific energy technology works. The text introduces Raccoon Mountain as a pumped-storage hydropower facility built in the 1970s and then explains how it operates: during periods of low demand, excess power pumps water up to a lake at the mountain’s summit, and when demand for energy peaks, the water flows back down, spinning turbines along the way to generate electricity. The text provides some additional details, like the name of the water source, but the overall focus is on explaining the basics of how pumped-storage hydropower works. Choice A is incorrect because the text focuses on one method of energy generation—pumped-water hydropower—and briefly mentions another type of energy generation (nuclear plants) only to identify it as a source of power for the pumping process. The text never makes any comparison between the two methods. Choice C is incorrect because the text simply gives a factual description of how Raccoon Mountain, a pumpedstorage hydropower facility, operates; it never suggests that more energy storage facilities should be built, whether by regional utilities or by any other entity. Choice D is incorrect because the text doesn’t present pumped-storage hydropower as a new technology; it indicates that Raccoon Mountain was built in the 1970s, meaning that, rather than being new, this facility is approximately 50 years old."
+  },
+  {
+    "id": 31,
+    "question": "Question Animals use many objects as tools to achieve goals more easily. Such goals include grooming, finding food, and protecting themselves. For a long time, people thought tool use was unique to primates. Dolphins and other animals, though, have busted the myth that tool use requires hands. Inventively, dolphins use sponges to protect their noses from scratches when foraging on the seafloor. Palm cockatoos also get creative. They use leaves to pad their beaks when opening nuts. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To question the belief that birds are intelligent",
+      "B": "To compare tool use in humans with tool use in palm cockatoos",
+      "C": "To establish that tool use doesn’t indicate intelligence",
+      "D": "To argue that a variety of animals use tools"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main purpose of the text. The text first states that animals make use of objects as tools to help them achieve different goals. The text then explains that although people used to think only primates use tools, tool use by dolphins (aquatic mammals) and palm cockatoos (birds) has shown that primates are not the only animals that use tools. Thus, the main purpose of the text is to argue that a variety of animals, not just primates, use tools. Choice A is incorrect because the text doesn’t mention intelligence at all, focusing just on the idea that animals use tools. Further, the text mentions one kind of bird (palm cockatoos) only as an example of a non-primate that uses tools and describes its use of tools as creative, not unintelligent. Choice B is incorrect. Although the text mentions tool use in primates (a group that includes humans) and in palm cockatoos, it doesn’t compare humans’ tool use with palm cockatoos’ tool use. The text mentions palm cockatoos only as one example out of the variety of animals that use tools and never directly mentions tool use in humans. Choice C is incorrect because the text discusses tool use but never makes any mention of intelligence. Rather than establishing that tool use doesn’t indicate intelligence, the text describes certain tool use as inventive and creative."
+  },
+  {
+    "id": 32,
+    "question": "Question The following text is adapted from Charles Chesnutt’s 1899 short story “Mars Jeems’s Nightmare.” The narrator and his wife have recently moved to the southern United States, and Julius is their carriage driver. Julius [was] very useful when we moved to our new residence. He had a thorough knowledge of the neighborhood, was familiar with the roads and the watercourses, knew the qualities of the various soils and what they would produce, and where the best hunting and fishing were to be had. He was a marvelous hand in the management of horses and dogs. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To compare the narrator’s reaction to a new home with his wife’s reaction",
+      "B": "To give an example of Julius’s knowledge about soil",
+      "C": "To show that the narrator and Julius often hunt and fish together",
+      "D": "To explain different ways in which Julius was helpful"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes the main purpose of the text, which is to explain different ways in which Julius was helpful. The text begins with the narrator stating that Julius was very helpful to him and his wife when they moved to their new residence. The narrator then provides a list of examples to illustrate Julius’s helpfulness. For instance, the narrator states that Julius was familiar with the neighborhood’s roads, which suggests that he was helpful in navigating them, and that Julius helped manage the horses and dogs. The text’s many examples of Julius’s usefulness reinforce just how helpful he was and in how many different ways. Choice A is incorrect because the text doesn’t portray either the narrator’s or his wife’s reaction to their new home. Rather, the text focuses on how Julius was useful to the narrator and his wife in their new home. Choice B is incorrect. Although the text states that Julius was knowledgeable about the soil, this is one of several supporting details that illustrate how helpful Julius was. Moreover, the text merely states that Julius was knowledgeable about soil; it doesn’t provide an example of that knowledge. Choice C is incorrect because there’s nothing in the text to suggest the frequency with which the narrator and Julius hunted and fished together. In fact, it’s unclear from the text whether the narrator and Julius hunted and fished together at all. The text merely indicates that Julius knew the best places to hunt and fish—a detail that supports the text’s main purpose by conveying Julius’s usefulness."
+  },
+  {
+    "id": 33,
+    "question": "Question The following text is from Reyna Grande’s 2012 memoir The Distance Between Us. In the text, Grande reflects on a time when she and her older sister Mago were children. A Barbie is a type of doll. I begged Mago to come play with me. She wasn’t as interested in my Barbie as she had been just two months before, which made me sad because that was the only thing Mago had envied me for. Usually, it was me doing the envying. After I pestered her relentlessly, she finally put her notebook down and came over to me. ©2012 by Reyna Grande Which choice best describes the function of the underlined portion in the text?",
+    "options": {
+      "A": "It indicates Grande’s unhappiness over Mago’s disinterest in Grande’s doll.",
+      "B": "It expresses Grande’s anger over Mago’s refusal to spend time with her.",
+      "C": "It presents an example of how Mago and Grande generally played together as children.",
+      "D": "It provides a reason for why Mago is unwilling to play with Grande."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the function of the underlined portion in the text. The underlined portion (\"which made me sad because that was the only thing Mago had envied me for\") directly expresses Grande’s unhappiness about her sister’s diminished interest in her Barbie doll. The underlined text specifically identifies that Grande feels sad and explains why Mago’s disinterest particularly affects her—because it was the one rare instance where her older sister had envied her, rather than the reverse. Choice B is incorrect because the underlined portion expresses sadness, not anger. Although there is some correspondence between the emotions anger and envy and the text does indicate that Grande usually envies her sister, the underlined portion states that Grande feels sad about Mago’s disinterest in Grande’s Barbie, not angry about Mago’s refusal to spend time with her. Choice C is incorrect. While the first part of the sentence that contains the underlined portion indicates that Mago has previously taken an interest in Grande’s Barbie, implying that the sisters may regularly have played with the Barbie together in the past, the underlined portion doesn’t provide an example of this. The underlined portion instead explains why Mago’s recently developed disinterest in the Barbie saddens Grande. Choice D is incorrect because neither the underlined portion nor the text as a whole explains why Mago is unwilling to play with Grande. Rather than addressing Mago’s motivation or reasoning, the underlined portion describes Grande’s emotional reaction to Mago’s disinterest in Grande’s Barbie and explains why this lack of interest matters to Grande."
+  },
+  {
+    "id": 34,
+    "question": "Question The following text is from Bram Stoker’s 1911 novel The Lair of the White Worm. Adam is meeting his great-uncle Richard at a port. The meeting so auspiciously begun proceeded well. Adam, seeing that the old man was interested in the novelty of the ship, suggested that he should stay the night on board, and that he would himself be ready to start at any hour and go anywhere that the other suggested. This affectionate willingness to fall in with his own plans quite won the old man’s heart. He warmly accepted the invitation, and at once they became not only on terms of affectionate relationship, but almost like old friends. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "It states the reasons why Adam and his great-uncle Richard decide to sleep on the ship rather than finding lodging on land.",
+      "B": "It showcases how Adam’s flexibility and consideration strengthen his relationship with his great-uncle Richard.",
+      "C": "It describes why Adam and his great-uncle Richard are excited for their upcoming journey on the ship.",
+      "D": "It contrasts great-uncle Richard’s wary first impressions of Adam with his ultimate affection toward him."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes the main purpose of the text, which is to showcase how Adam’s flexibility and consideration strengthen his relationship with his great-uncle Richard. The text begins by stating that the meeting between the two characters is proceeding well and then describes Adam’s thoughtful behavior: noticing his great-uncle’s interest in the ship, Adam suggests staying on board overnight and expresses willingness to accommodate his great-uncle’s schedule and destination preferences. The text goes on to describe the positive effect of Adam’s thoughtfulness and flexibility, indicating that Adam’s “affectionate willingness” to accommodate Richard’s preferences “quite won the old man’s heart.” The text concludes by suggesting that Adam’s ability to anticipate his great-uncle’s wishes and willingness to accommodate them result in the rapid development of affection and intimacy between them, stating that they soon became “almost like old friends.” Therefore, the text’s main purpose is to demonstrate how Adam’s flexibility and consideration strengthened his and his great-uncle’s relationship. Choice A is incorrect. Although the text explains Adam’s reason for suggesting that Richard spend the night on the ship rather than finding lodging on land (which is that Adam perceives Richard’s interest in the ship), this isn’t the text’s main purpose. Rather, Adam’s suggestion about where to sleep for the night serves as an example of the consideration Adam shows toward Richard, and the text mentions it mainly to explain how an affectionate relationship developed so quickly between them. Moreover, the text only states that Adam encourages Richard to stay on the ship; it doesn’t specify where Adam plans to spend the night. Choice C is incorrect because the text doesn’t describe why Adam and his great-uncle Richard are excited about their journey. While the text mentions that Adam is willing to “start at any hour and go anywhere,” it provides no details about any planned journey, its destination, or even whether they will be continuing by ship or some other mode of transportation, nor does the text mention anything about either character’s feelings of excitement about their plans. We learn only that Adam is accommodating about potential travel plans, not that either character is particularly eager about the journey itself. The text’s main focus is on Adam and Richard’s developing relationship, not on any anticipated travel experiences. Choice D is incorrect because the text doesn’t show a contrast between initial wariness and later affection. On the contrary, the text begins by stating that the meeting between Adam and his greatuncle Richard has begun in an “auspicious,” or promising, manner and is “proceed[ing] well,” suggesting that Richard’s impression is positive from the outset. There’s no indication of any initial suspicion, caution, or reserve on Richard’s part that later changes to affection. Instead, the text describes a consistently positive interaction that deepens from a good first impression into a stronger, more familiar relationship because of Adam’s considerate behavior."
+  },
+  {
+    "id": 35,
+    "question": "Question In the 1950s, scientists didn’t know much about the ocean floor. Many scientists at the time believed that the ocean floor was mostly flat. But geologist Marie Tharp and her research partner, Bruce Heezen, proved that this idea was wrong. Using sonar data collected from the Atlantic Ocean, Tharp and Heezen showed that the floor was filled with canyons, mountains, and valleys. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It identifies a scientific belief that Tharp and Heezen showed to be wrong.",
+      "B": "It describes the design of Tharp and Heezen’s experiment.",
+      "C": "It emphasizes a disagreement between Tharp and Heezen.",
+      "D": "It presents data to support a claim that Tharp and Heezen made."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. The first sentence of the text establishes that scientists didn’t know much about the ocean floor in the 1950s. The second sentence, which is underlined, describes what many scientists thought at the time—that the ocean floor was mostly flat. The remainder of the text establishes that the ocean floor is far from flat, citing research conducted by Marie Tharp and Bruce Heezen. Thus, the purpose of the underlined sentence is to identify a scientific belief that Tharp and Heezen showed to be wrong. Choice B is incorrect. Although Tharp and Heezen’s work with sonar data in the Atlantic Ocean is mentioned later in the text, the underlined sentence doesn’t describe the design of their experiment. Instead, it identifies a belief held by scientists that Tharp and Heezen demonstrated to be wrong. Choice C is incorrect because the underlined sentence presents a belief held by many scientists in the 1950s; nowhere does the text mention a disagreement between Tharp and Heezen, whom the text describes as research partners working together to map the ocean floor. Choice D is incorrect because the underlined sentence doesn’t present data in support of a claim; instead, it presents a scientific belief that Tharp and Heezen’s work showed to be wrong."
+  },
+  {
+    "id": 36,
+    "question": "Question Jackie Ormes’s Torchy Brown in Dixie to Harlem (1937–38) was the first comic strip by a Black woman to appear in a widely read newspaper. The strip tells the story of Torchy, a young woman who leaves Mississippi to become a performer in New York City. Torchy’s story reflects the experience of the Great Migration (1910–1970), when millions of Black Americans left the South in search of opportunities in other parts of the United States. Torchy Brown thus shows how Ormes used comics to comment humorously on issues affecting Black Americans, which she continued to do throughout her career. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To show how Ormes’s Torchy Brown inspired other Black women to write comic strips in the 1930s",
+      "B": "To illustrate how the subjects Ormes addressed in her comic strips changed over the course of her career",
+      "C": "To give an example of how Ormes presented the experiences of Black Americans in her comic strips",
+      "D": "To claim that several characters in Torchy Brown were based on people that Ormes knew personally"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The text describes how Torchy Brown depicted the experiences of a young Black woman experiencing America’s Great Migration. It further states that Ormes continued to use comics throughout her career to humorously comment on important issues impacting Black Americans. Choice A is incorrect. The text never mentions other Black women comic strip writers. Choice B is incorrect. The text never mentions any changes in the subjects Ormes addressed. Choice D is incorrect. The text never mentions the inspiration for characters in Torchy Brown."
+  },
+  {
+    "id": 37,
+    "question": "Question The following text is adapted from Jason Reynolds’s 2016 novel Ghost. The narrator, who is in middle school, is at a bus stop. I just go there [to the bus stop] to look at the people working out. See, the gym across the street has this big window—like the whole wall is a window—and they have those machines that make you feel like you walking up steps and so everybody just be facing the bus stop, looking all crazy like they’re about to pass out. And trust me, there ain’t nothing funnier than that. So I check that out for a little while like it’s some kind of movie: The About to Pass Out Show, starring stair-stepper person one through ten. ©2016 by Jason Reynolds Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To give a reason why the narrator is excited to start middle school",
+      "B": "To describe an activity that the narrator finds amusing",
+      "C": "To explain a problem that the narrator has overcome",
+      "D": "To discuss a movie that the narrator saw in a theater"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes the main purpose of the text. The text describes how the narrator watches people working out at a gym through a window near a bus stop. The narrator says that \"there ain’t nothing funnier\" than watching people try to work out on the stair climber machine. Thus, the main purpose of the text is to describe an activity that the narrator finds amusing. Choice A is incorrect because the text isn’t about the narrator beginning middle school. The text describes how the narrator finds people working out at a gym amusing and makes no mention of school life. Choice C is incorrect because the text doesn’t mention any problems that the narrator currently has or has overcome. It just describes how the narrator finds watching people work out amusing. Choice D is incorrect because the narrator invents the made-up movie mentioned in the text. The text doesn’t indicate that the narrator has seen a movie in a theater. The focus of the text is on the narrator watching people at the gym, not watching a movie."
+  },
+  {
+    "id": 38,
+    "question": "Question Streams and rivers carry soil and rocks from one location to another. But there is another way for these geological materials to move. Scientists call this process “aeolian transport.” In aeolian transport, winds move small particles of soil or rock over potentially great distances. Geologist Melisa Diaz and her team studied dust in Antarctica to find out if it was moved by aeolian transport. They discovered that the dust matched geological material in Australia. Aeolian transport had carried it from one continent to another, across thousands of miles of open ocean. Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It presents Melisa Diaz’s remarks about difficulties that her team encountered.",
+      "B": "It introduces a scientific term that is used in the discussion that follows.",
+      "C": "It emphasizes the surprising nature of the findings that are presented.",
+      "D": "It explains the difference between two kinds of geological material."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes the function of the underlined portion in the text as a whole. The first two sentences introduce the idea that soil and rocks can be moved from one location to another by something other than rivers and streams. The underlined sentence then states that the term used by scientists to refer to this process is “aeolian transport.” The discussion that follows explains what aeolian transport is (the movement of small geological materials over potentially great distances by the wind) and describes an example of a study that found that dust particles had been moved by aeolian transport from Australia to Antarctica. Thus, the underlined portion introduces a scientific term that is used in the discussion that follows. Choice A is incorrect because the underlined portion of the text doesn’t present any remarks from Melisa Diaz, nor does it suggest that Diaz and her team encountered difficulties in their study. Instead, the phrase in quotation marks in the underlined portion simply presents a term that is used by scientists to refer to a specific process discussed in the text. Choice C is incorrect because nothing in either the underlined portion or the text as a whole suggests that the findings of the study presented in the text were surprising or unexpected. In fact, the text suggests that Diaz and her team wanted to see if aeolian transport could explain the appearance of certain geological materials in Antarctica, and their findings did indeed confirm the involvement of aeolian transport. Choice D is incorrect. Although the first sentence of the text mentions soil and rocks, which are two different kinds of geological material, the underlined portion doesn’t refer to these materials, nor does it explain the difference between them. Rather, the underlined portion introduces the scientific term “aeolian transport,” which is used in the discussion that follows."
+  },
+  {
+    "id": 39,
+    "question": "Question Many films from the early 1900s have been lost. These losses include several films by the first wave of Black women filmmakers. We know about these lost movies only from small pieces of evidence. For example, an advertisement for Jennie Louise Touissant Welcome’s documentary Doing Their Bit still exists. There’s a reference in a magazine to Tressie Souders’s film A Woman’s Error. And Maria P. Williams’s The Flames of Wrath is mentioned in a letter and a newspaper article, and one image from the movie was discovered in the 1990s. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "The text identifies a complex problem, then presents examples of unsuccessful attempts to solve that problem.",
+      "B": "The text summarizes a debate among researchers, then gives reasons for supporting one side in that debate.",
+      "C": "The text describes a general situation, then illustrates that situation with specific examples.",
+      "D": "The text discusses several notable individuals, then explains commonly overlooked differences between those individuals."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The first three sentences describe the general situation: these early films have been lost, and we only know about them from small pieces of evidence. The rest of the text offers specific examples of the small pieces of evidence. Choice A is incorrect. This isn’t the overall structure. The fact that we only know about these lost early films from small pieces of evidence isn’t presented as a “complex problem”—that’s too extreme. And the examples presented are not “unsuccessful attempts” to solve it. If anything, the examples represent a success, because we discovered that these films existed in the first place. Choice B is incorrect. This isn’t the overall structure. There’s no “debate” presented in the text, so there’s no “side” for the text to support. Choice D is incorrect. This isn’t the overall structure. The text doesn’t discuss any “differences” between the filmmakers."
+  },
+  {
+    "id": 40,
+    "question": "Question Hiroshi Senju is known worldwide for his paintings of waterfalls. These paintings are large and tend not to show the entire waterfall. Instead, Senju focuses on just the point where the falling water reaches the pool below, keeping the top of the waterfall out of view. While Senju’s paintings are rooted in art movements originating in the United States, the artist uses traditional Japanese techniques and materials that make his work instantly recognizable. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It introduces an artist and then explains some common characteristics of well-known paintings by that artist.",
+      "B": "It explains a specific painting technique and then provides examples of artists who use the technique.",
+      "C": "It describes a famous painting and then compares it to a lesser-known painting from the same time period.",
+      "D": "It gives an opinion on an artist and then suggests multiple reasons why the artist’s work has been largely overlooked."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively describes the overall structure of the text. The first sentence introduces Hiroshi Senju as an artist famous for his paintings of waterfalls. The rest of the text describes defining features of these “instantly recognizable” paintings: they are large, show only part of a waterfall, and draw from art movements in the US and from techniques and materials traditionally used in Japan. Thus, the text introduces Senju and then explains some common characteristics of his well-known paintings. Choice B is incorrect because the text doesn’t focus on a specific painting technique or name multiple artists. Instead, it focuses on describing some characteristics of works by one artist (Senju). Choice C is incorrect because the text doesn’t describe any single famous painting or make a comparison between paintings. Instead, it describes features that are shared by multiple paintings by Senju. Choice D is incorrect. The text doesn’t provide an opinion on Senju; it simply relates facts about him and his work. Moreover, instead of suggesting Senju’s work has been largely overlooked, the text indicates that Senju is “known worldwide for his paintings.”"
+  },
+  {
+    "id": 41,
+    "question": "Question Jazz tap is a dance form that was first developed in African American communities. Jazz tap was heavily influenced by jazz music, which became widely popular in the United States in the 1920s. Tap dancers were inspired by jazz music’s quick rhythms and by the way jazz musicians would make up melodies as they played. As jazz music continued to develop in the 1930s and 1940s, jazz tap evolved with it. Because of jazz music’s influence, jazz tap quickly developed into a dance form that was very different from earlier kinds of tap dance. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "It explains why audiences prefer some kinds of music over others.",
+      "B": "It discusses the development of a dance form.",
+      "C": "It describes how to play a musical instrument.",
+      "D": "It emphasizes the popularity of a famous dancer."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it best describes the main purpose of the text. The text indicates where and when jazz tap first developed (in African American communities in the 1920s) and what influenced it (the quick rhythms and improvisations in jazz music) and then explains that it evolved alongside jazz music in the 1930s and 1940s, resulting in a very different form of tap dance than had existed before. Therefore, the main purpose of the text is to discuss jazz tap’s development. Choice A is incorrect. Although the text indicates that jazz music became widely popular in the US in the 1920s and describes some of jazz music’s qualities, the text never explains why audiences prefer some kinds of music—jazz or otherwise—over others. Choice C is incorrect because the text never mentions any musical instruments and doesn’t describe how to play one. Choice D is incorrect because the text discusses jazz tap generally and never identifies a particular dancer, famous or otherwise."
+  },
+  {
+    "id": 42,
+    "question": "Question In 1801, a Blackfoot chief named Ac Ko Mok Ki drew a finely detailed map of the Upper Missouri region. This work demonstrates a vast amount of topographic knowledge, as the map features specific names of mountains and rivers, as well as the first-known sketch of the drainage network of the Missouri River. The map is especially notable because Ac Ko Mok Ki also included details about the numerous tribes that lived in the area. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It emphasizes Ac Ko Mok Ki’s desire to represent other tribes on the map.",
+      "B": "It explains how Ac Ko Mok Ki developed an interest in mapmaking.",
+      "C": "It identifies some reasons why the map is impressive.",
+      "D": "It details how the map was used for hunting and trading purposes."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it best describes how the underlined sentence functions in the text as a whole. The text presents information about a map drawn by Blackfoot chief Ac Ko Mok Ki in 1801. The underlined sentence states that the map \"demonstrates a vast amount of topographic knowledge\" and mentions that it features the \"specific names of mountains and rivers\" and includes the first-known sketch of the Missouri River’s drainage network. These are all characteristics that indicate that the map was executed with remarkable skill. Thus, the underlined sentence identifies some reasons why the map is impressive. Choice A is incorrect. Though the sentence after the underlined sentence in the text mentions that Ac Ko Mok Ki included information about other tribes on his map, the underlined sentence itself does not address this topic. Choice B is incorrect because nothing in the underlined sentence indicates how Ac Ko Mok Ki became interested in mapmaking, only that his mapmaking skills are impressive. Choice D is incorrect because though the underlined sentence describes several features of the map, it does not specifically describe how the map was used."
+  },
+  {
+    "id": 43,
+    "question": "Question Genetic studies have led researchers to suggest that turtles are most closely related to the group that includes modern crocodiles. But studies of fossils have suggested instead that turtles are most closely related to other groups, such as the one that contains modern snakes. <u>However, many of the fossil studies have relied on incomplete data sets. For a 2022 investigation, biologist Tiago R. Simões and colleagues examined more than 1,000 reptile fossils collected worldwide</u>. From this large data set, they found clear agreement with the results of the genetic studies. Which choice best describes the function of the underlined sentence?",
+    "options": {
+      "A": "It offers an overview of the tools scientists use to examine fossils.",
+      "B": "It describes a limitation of some studies about the origin of turtles.",
+      "C": "It summarizes previous research on the evolution of crocodiles.",
+      "D": "It criticizes a widely held belief about genetic studies of reptiles."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. The first two sentences introduce two competing views on the origins of turtles. Genetic studies place them closer to the group that includes crocodiles, while fossil studies indicate that they’re more closely related to other groups, including one that contains snakes. The next sentence, which is underlined, presents a limitation with many of the studies of fossils: their reliance on “incomplete data sets.” The last sentence summarizes a fossil study that used more complete data (“more than 1,000 reptile fossils”), which supported the genetics studies’ conclusions about turtles. Thus, the underlined sentence mainly functions to describe a limitation of some studies about the origin of turtles. Choice A is incorrect because the underlined sentence doesn’t address the topic of the tools used by scientists to examine fossils. Instead, the sentence introduces a shortcoming of many fossil studies conducted on turtle origins. Choice C is incorrect because neither the underlined portion nor the text as a whole discusses the evolution of crocodiles. Modern crocodiles are mentioned earlier in the text because, according to genetic studies, they are a part of the group that turtles may be closely related to. Choice D is incorrect. The underlined sentence is raising an issue with fossil studies, not genetic studies, saying that fossil studies have at times relied on incomplete data. Furthermore, the sentence doesn’t reference any widely held beliefs. Earlier in the text, hypotheses are mentioned that are suggested by genetic studies and fossil studies, but the underlined sentence is just introducing a limitation of some fossil studies."
+  },
+  {
+    "id": 44,
+    "question": "Question Wakako Yamauchi is best known for And the Soul Shall Dance, her 1977 play about a Japanese American family in Southern California. The play is based on a short story Yamauchi had published three years earlier. Adapting the story wasn’t easy. Theater relies on dialogue between characters, but the original story features little dialogue and instead describes its characters’ silent thoughts. To transform the story into a play, Yamauchi created situations where characters reveal their thoughts by speaking them aloud during conversations with each other. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It offers information about how Yamauchi adapted her short story into a play.",
+      "B": "It argues that Yamauchi’s play influenced later playwrights.",
+      "C": "It explains why Yamauchi’s short story is better known than the play adaptation is.",
+      "D": "It describes how Yamauchi chose the actors who performed in the play."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it best describes how the underlined sentence functions in the text as a whole. According to the text, it was hard for Yamauchi to adapt her short story into the play And the Soul Shall Dance because the story had included little dialogue, instead describing the characters’ silent thoughts. The underlined sentence offers information about how Yamauchi ultimately succeeded in adapting the story into a play: it explains that Yamauchi created situations where the characters of the play could reveal their internal thoughts while speaking with each other. Choice B is incorrect because neither the underlined sentence nor the text as a whole makes any mention of playwrights other than Yamauchi or how the play might have influenced them. Choice C is incorrect because the text states that Yamauchi is best known for her play And the Soul Shall Dance, which conveys that the play is better known than the short story it’s based on is. Choice D is incorrect because neither the underlined sentence nor the text as a whole mentions the actors who performed in the play or Yamauchi’s approach to choosing them."
+  },
+  {
+    "id": 45,
+    "question": "Question The following text is adapted from Jean Webster’s 1912 novel Daddy-Long-Legs. The narrator is a young college student writing letters detailing her weekly experiences. [The college is] organizing the Freshman basket-ball team and there’s just a chance that I shall make it. I’m little of course, but terribly quick and wiry and tough. While the others are hopping about in the air, I can dodge under their feet and grab the ball. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To compare basketball with other sports",
+      "B": "To provide details of how to play basketball",
+      "C": "To state how players will be chosen for the basketball team",
+      "D": "To explain why the narrator thinks she might make the basketball team"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes the main purpose of the text. In the first sentence of the text, the narrator states that she thinks there’s a chance she will become part of the basketball team at her college. She goes on to explain that she is \"quick\" and \"tough.\" Based on these characteristics, she thinks she has a chance to join the team. Thus, the main purpose of the text is to explain why the narrator thinks she might make the basketball team. Choice A is incorrect because the text focuses solely on basketball and doesn’t mention any other kinds of sports. Choice B is incorrect because the text doesn’t describe aspects of the game of basketball. Instead, it provides the narrator’s reasoning for thinking that she might make her school basketball team. Choice C is incorrect. Although the narrator explains why she thinks she will be chosen for the basketball team at her school, the text doesn’t go into the general decision-making process or the requirements for being picked for the team."
+  },
+  {
+    "id": 46,
+    "question": "Question Understanding juvenile sea turtles’ migratory patterns is crucial for conservation efforts. While adult sea turtles are well studied, little is known about juveniles during their oceanic stage, when they spend most of their time in the open ocean. To learn about this stage, researchers tagged and released six juvenile green sea turtles (Chelonia mydas) into the eastern Caribbean Sea. Their findings revealed that the majority of the turtles passively drifted with ocean currents throughout the region. However, two individuals swam against the currents, possibly in search of foraging grounds off the coast of South America. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To describe successful conservation efforts for sea turtles",
+      "B": "To summarize research on an understudied stage of sea turtle development",
+      "C": "To compare the behavior of adult and juvenile sea turtles during migration",
+      "D": "To suggest reasons why some juvenile sea turtles swim against the ocean currents"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states the main purpose of the text. The text begins by noting that little is known about juvenile sea turtles during their oceanic stage, establishing this as an understudied area. The text then describes a study in which researchers tagged and released six juvenile green sea turtles and reports the findings: most turtles drifted passively with currents, while two swam against them. Therefore, the main purpose of the text is to summarize research on an understudied stage of sea turtle development. Choice A is incorrect because although the text mentions that understanding migratory patterns is important for conservation, it does not describe any conservation efforts, successful or otherwise; instead, the text summarizes research findings about a stage of sea turtle development. Choice C is incorrect. Although the text notes that adult sea turtles are well studied while juveniles are not, it does not compare the migratory behavior of adults and juveniles; instead, the text focuses solely on findings about juvenile turtles. Choice D is incorrect. Although the text briefly mentions that two turtles swam against currents and speculates that they may have done so in search of foraging grounds, this is a single detail within the text’s broader summary of the study, not the main purpose of the text as a whole."
+  },
+  {
+    "id": 47,
+    "question": "Question Horizontal gene transfer occurs when an organism of one species acquires genetic material from an organism of another species through nonreproductive means. The genetic material can then be transferred “vertically” in the second species—that is, through reproductive inheritance. Scientist Atma Ivancevic and her team have hypothesized infection by invertebrate parasites as a mechanism of horizontal gene transfer between vertebrate species: while feeding, a parasite could acquire a gene from one host, then relocate to a host from a different vertebrate species and transfer the gene to it in turn. Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It explains why parasites are less susceptible to horizontal gene transfer than their hosts are.",
+      "B": "It clarifies why some genes are more likely to be transferred horizontally than others are.",
+      "C": "It contrasts how horizontal gene transfer occurs among vertebrates with how it occurs among invertebrates.",
+      "D": "It describes a means by which horizontal gene transfer might occur among vertebrates."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text defines horizontal gene transfer and then gives one possibility for how it happens in vertebrates (via infection by parasites). The underlined part describes how that mechanism could work. Choice A is incorrect. The underlined portion doesn’t do this. Parasites are only described as the mechanism that does the transferring, not the species that gives or receives the genes. Choice B is incorrect. The underlined portion doesn’t do this. The text never discusses which genes are more likely to be transferred. Choice C is incorrect. The underlined portion doesn’t do this. The text never discusses how horizontal gene transfer occurs among invertebrates."
+  },
+  {
+    "id": 48,
+    "question": "Question A team of researchers discovered that Matabele ants can identify an infected wound in a member of the colony and then treat the infection by covering the wound with antimicrobial secretions that the ants produce. The team found that the mortality rate for Matabele ants with infected injuries was reduced by 90% with this treatment, and they are hopeful that this discovery could aid in the development of new antibiotics for human use. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It summarizes research findings on Matabele ants and then identifies an area for further research.",
+      "B": "It introduces a study of Matabele ants and then explains the research methods used in the study.",
+      "C": "It describes unique properties of Matabele ants and then speculates on how those properties evolved.",
+      "D": "It identifies an issue concerning Matabele ants and then proposes a solution to address the issue."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the overall structure of the text. The text first presents what researchers found from studying Matabele ants: the ants can tell when colony members have infected wounds and can largely successfully treat those infections with their antimicrobial secretions. The text then indicates that the findings about the ants could help with the future development of antibiotics for humans. Thus, the text summarizes research findings and then identifies an area for further research. Choice B is incorrect. Although the text introduces a study about Matabele ants, it never discusses how the researchers did their work or any methods they used to produce their findings. Choice C is incorrect. Although the text does describe properties of Matabele ants—their ability to detect and largely successfully treat infected wounds in colony members—it never addresses evolution or how these properties might have changed. Choice D is incorrect because the text doesn’t present anything about Matabele ants as an issue or problem to be solved. Instead, it discusses beneficial abilities the ants have (detecting and treating infected wounds) and suggests that understanding those abilities might be useful for human medicine."
+  },
+  {
+    "id": 49,
+    "question": "Question The following text is adapted from Pam Muñoz Ryan’s 2020 novel Mañanaland. In the village where Max lives, there is an old fortress called La Reina. Children in the village say that the fortress is haunted. For as long as he could remember, Max had begged Papá [his father] to take him to see La Reina and the ruins up close. He’d be a hero among his friends if he was the first boy to cross the haunted gates! Just because Papá didn’t believe in ghosts didn’t mean they weren’t there. Maybe this summer Papá would finally take him. He was almost twelve. ©2020 by Pam Muñoz Ryan Which choice best describes the overall purpose of the text?",
+    "options": {
+      "A": "To portray how proud Max’s father is of Max",
+      "B": "To explain why Max doesn’t want to grow up yet",
+      "C": "To criticize Max for disliking summer",
+      "D": "To show how much Max wants to visit La Reina"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes the overall purpose of the text. The text indicates that \"for as long as he could remember,\" Max had \"begged\" his father to take him to La Reina. This point is later emphasized in the text by indicating that \"this summer\" his father might \"finally take\" Max to visit La Reina. Thus, the purpose of the text as a whole is to show how much Max wants to visit La Reina. Choice A is incorrect. The text does not discuss Papa’s feelings toward Max. Rather, it mentions that Max has long wanted Papa to take him to La Reina and that, unlike Max and some other children, Papa does not believe that La Reina is haunted. Choice B is incorrect. The text mentions that Max is \"almost twelve\" at the time, which suggests anticipation of growing up rather than refusal to. Choice C is incorrect. The text indicates that Max hopes to visit La Reina during the current summer, but nothing suggests that Max dislikes summer."
+  },
+  {
+    "id": 50,
+    "question": "Question The following text is from Louise Erdrich’s 1986 novel The Beet Queen. The narrator discusses her relationship with her young niece, Dot. Celestine, the narrator’s sister-in-law, is Dot’s mother. Dot was as impatient with babyhood as I. She tried at once to grow out of it. Celestine never saw that, because she, and only she, took pleasure in Dot’s helpless softness. Only Celestine was saddened by her daughter’s fierce progress. Day by day, Dot grew stronger. In her shopping-cart stroller she exercised to exhaustion, bouncing for hours to develop her leg muscles. ©1986 by Louise Erdrich Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It offers a detail that shows how Dot is growing stronger.",
+      "B": "It expresses hope that Celestine will mature psychologically.",
+      "C": "It explores some of the narrator’s psychological characteristics.",
+      "D": "It indicates how sad Celestine is by describing a behavior she engages in."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. In the text, the narrator makes observations about her young niece, Dot, noting that Dot is making progress toward outgrowing babyhood and is growing stronger \"day by day.\" The description of Dot purposefully exercising by \"bouncing for hours\" reinforces the narrator’s earlier characterization of Dot. The underlined sentence thus offers a detail that shows how Dot is growing stronger. Choice B is incorrect. While a sentence earlier in the text mentions Celestine’s psychological state (sadness because Dot is growing fast), the underlined sentence doesn’t focus on Celestine at all. Instead, the sentence focuses on Dot’s physical activities to show that she is getting stronger. Choice C is incorrect because the underlined sentence describes Dot’s behavior, not the narrator’s psychological characteristics. While a sentence earlier in the text establishes that the narrator, like Dot, was \"impatient with babyhood,\" the underlined sentence specifically addresses Dot’s physical activities in her stroller. Choice D is incorrect. While an earlier sentence in the text mentions that Celestine is sad, the underlined sentence doesn’t focus on how Celestine feels nor does it describe a behavior that Celestine engages in. The sentence focuses entirely on Dot’s actions, describing her as \"bouncing for hours\" to show that she is growing stronger."
+  },
+  {
+    "id": 51,
+    "question": "Question Catherine L. Cardelús is a researcher who studies canopy soil. Canopy soil is formed in a tree’s branches (its canopy) when dead leaves and other falling things collect. This material breaks down, becoming canopy soil. Canopy soil helps preserve a healthy water cycle (how water moves through the environment) in rainforests. This benefit is one reason Cardelús is interested in the canopy soils in large choibá trees in rainforests in Costa Rica. Which choice best describes the text’s overall structure?",
+    "options": {
+      "A": "It explains a disagreement between researchers and how it was resolved.",
+      "B": "It presents an idea and mentions a researcher who disagrees with that idea.",
+      "C": "It compares the sizes of two types of trees over several years.",
+      "D": "It introduces a researcher and gives information about what she researches."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes the overall structure of the text. The text begins by mentioning Catherine L. Cardelús, \"a researcher who studies canopy soil.\" The text then provides information about her chosen research topic: the formation of canopy soil in tree branches, the role of canopy soil in preserving a healthy water cycle in rainforests, and Cardelús’s specific interest in \"the canopy soils in large choibá trees in rainforests in Costa Rica.\" Thus, the text introduces a researcher and then gives information about what she researches. Choice A is incorrect because the text doesn’t mention any disagreement between researchers, nor does it describe how such a disagreement was resolved. Choice B is incorrect because the text doesn’t present an idea that Cardelús disagrees with; rather, it describes her research interests and the significance of canopy soil. Choice C is incorrect because the text doesn’t compare the sizes of different types of trees over time. While the text mentions \"large choibá trees,\" it doesn’t compare them to any other tree type or discuss changes in tree size over several years."
+  }
+];
+ 
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script src="quiz-pager.js" defer></script>
+</body>
+</html>
