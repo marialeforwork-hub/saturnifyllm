@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEXT STRUCTURE AND PURPOSE - MEDIUM - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <script src="quiz-state.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>TEXT STRUCTURE AND PURPOSE: MEDIUM (QUESTION BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const quizData = [
+  {
+    "id": 1,
+    "question": "A study by Dr. Paul Hanel and colleagues concluded that people are more likely to behave politely when listening to ideas they disagree with if they think about values before they engage in a discussion. Study participants were assigned to one of two groups. The experimental group spent a few minutes writing about one of their personal values before they had a group discussion on a controversial topic. And the control group spent a few minutes writing about a drink (tea, milk, etc.) before their group discussion on that topic. Hanel and colleagues found that the experimental group’s discussion was more civil than the control group’s discussion was. Which choice best describes the main purpose of the text?",
+    "options": {
+      "A": "To describe a widely held belief and how a study’s results support that belief",
+      "B": "To argue that researchers were surprised by the results of a certain study",
+      "C": "To suggest ways to improve a certain study’s experimental design",
+      "D": "To explain a study’s conclusion and how a research team arrived at that conclusion"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes the main purpose of the text, which is to explain a study’s conclusion and how researchers involved in the study arrived at that conclusion. The text begins by summarizing the main conclusion of the study conducted by Paul Hanel and colleagues: when confronted with ideas they disagree with in discussions about controversial topics, people are more likely to respond politely if they think about their personal values before engaging in such discussions. The text then goes on to describe the design of Hanel and colleagues’ experiment. By comparing interactions between members of an experimental group (who had been prompted to write about their personal values beforehand) to those between members of a control group (who had been prompted to write about a beverage), the team found that people in the experimental group behaved more civilly, or politely, than people in the control group did during discussions about a controversial topic. This finding led to the conclusion described at the beginning of the text. Choice A is incorrect. Although the text discusses the results of a study, it doesn’t provide any indication that the conclusion the study supported —that when facing disagreement, people behave more politely when they have thought about their values—is a belief that is widely held. Choice B is incorrect because the text doesn’t indicate that the researchers found the results of their study to be surprising, or contrary to what they expected. In fact, there’s no indication provided in the text about how the researchers felt about the study’s results or that the results should be considered surprising. Choice C is incorrect. Although the text discusses the experimental design of a study, it doesn’t suggest any improvements to that design; instead, it focuses on how the design enabled the researchers to draw a particular conclusion."
+  },
+  {
+    "id": 2,
+    "question": "Early in the Great Migration of 1910–1970, which involved the mass migration of Black people from the southern to the northern United States, political activist and Chicago Defender writer Fannie Barrier Williams was instrumental in helping other Black women establish themselves in the North. Many women hoped for better employment opportunities in the North because, in the South, they faced much competition for domestic employment and men tended to get agricultural work. To aid with this transition, Barrier Williams helped secure job placement in the North for many women before they even began their journey. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To introduce and illustrate Barrier Williams’s integral role in supporting other Black women as their circumstances changed during part of the Great Migration",
+      "B": "To establish that Barrier Williams used her professional connections to arrange employment for other Black women, including jobs with the Chicago Defender",
+      "C": "To demonstrate that the factors that motivated the start of the Great Migration were different for Black women than they were for Black men",
+      "D": "To provide an overview of the employment challenges faced by Black women in the agricultural and domestic spheres in the southern United States"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the text’s purpose, which is to discuss the important role Barrier Williams played in supporting many other Black women as they relocated to the northern United States during the early years of the Great Migration. After introducing Barrier Williams, the text describes how she helped find jobs for other Black women, who in many cases relocated in search of better employment prospects than the South could offer at the time. The text indicates that by doing so, she eased these women’s transition as their circumstances changed. Choice B is incorrect. Although the text mentions Barrier Williams’s work as a political activist and writer for the Chicago Defender, it doesn’t discuss any professional connections she made in these roles or indicate that she used any such connections in her work to secure employment for other Black women. Choice C is incorrect. Although the text discusses a factor that caused many women to relocate during the Great Migration, their difficulty finding employment in the South, the text doesn’t indicate that this factor motivated the start of the Great Migration. Moreover, the text doesn’t discuss the factors that motivated Black men to migrate. Choice D is incorrect. Although the text mentions the difficult employment prospects for Black women in the domestic and agricultural sectors in the South during the Great Migration, the text’s main purpose isn’t to provide an overview of the employment challenges Black women faced in these sectors. Rather, it provides this information to show that Barrier Williams played a crucial role in supporting many Black women who relocated to the North by helping them achieve one of their main goals, securing a job."
+  },
+  {
+    "id": 3,
+    "question": "Archeological excavation of Market Street Chinatown, a nineteenth-century Chinese American community in San Jose, California, provided the first evidence that Asian food products were imported to the United States in the 1800s: bones from a freshwater fish species native to Southeast Asia. <u>Jinshanzhuang—Hong Kong–based import/export firms—likely coordinated the fish’s transport from Chinese-operated fisheries in Vietnam and Malaysia to North American markets.</u> This route reveals the (often overlooked) multinational dimensions of the trade networks linking Chinese diaspora communities. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It explains why efforts to determine the country of origin of the items mentioned in the previous sentence remain inconclusive.",
+      "B": "It provides information that helps support a claim about a discovery’s significance that is presented in the following sentence.",
+      "C": "It traces the steps that were taken to locate and recover the objects that are described in the previous sentence.",
+      "D": "It outlines a hypothesis that additional evidence discussed in the following sentence casts some doubt on."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The underlined sentence provides information about import/export firms, showing how Chinese communities across the world were connected by trade routes. Choice A is incorrect. The underlined sentence never suggests that the countries of origin of the fish are in question—in fact, it tells us exactly where they came from. Choice C is incorrect. The passage never describes the steps taken to discover the fish bones described in the previous sentence. Choice D is incorrect. The underlined sentence doesn’t outline a hypothesis but instead provides evidence. And the following sentence agrees with the underlined sentence, so we could eliminate this choice just for saying that the following sentence \"casts some doubt on\" the underlined one—partly wrong is all wrong."
+  },
+  {
+    "id": 4,
+    "question": "The Bayeux Tapestry, from eleventh-century France, depicts 75 scenes over 250 feet of fabric. It was likely produced by workers embroidering in sections and then joining the resulting panels together. It’s plausible that the workshop that produced the tapestry had never produced one so large, and some researchers claim that a close examination of the joins—the places where the panels are stitched together—suggests that the workers developed and refined their joining process over the course of production. <u>For example, the first join the workers completed exhibits a clear misalignment of the borders of the two panels, whereas the later joins are virtually invisible.</u> Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It identifies the people and events depicted in the Bayeux Tapestry.",
+      "B": "It supports an argument about the workers who produced the Bayeux Tapestry.",
+      "C": "It compares the Bayeux Tapestry with other tapestries from eleventh-century France.",
+      "D": "It describes how researchers determined where the Bayeux Tapestry was produced."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes the function of the underlined sentence in the text as a whole. The text discusses the Bayeux Tapestry, making the point that the workers who produced the huge tapestry in the eleventh century might not have ever produced a tapestry so large before. The text goes on to suggest that because of this lack of previous experience, the workers developed and refined the process of joining the tapestry’s panels over time as they worked. The last sentence of the text then provides an example of an observation that suggests the workers’ process changed: clear misalignment of the borders of the two panels the workers joined first and virtually invisible joins completed later. Thus, the underlined sentence serves to support an argument about the workers who produced the tapestry. Choice A is incorrect because the example given in the last sentence of the text has to do with how the panels of the Bayeux Tapestry were joined by the workers, not with what is depicted in those panels; the text never identifies any people or places depicted in the tapestry. Choice C is incorrect because the last sentence compares how early panels in the Bayeux Tapestry were joined with how later panels in the same tapestry were joined; it doesn’t make any comparison between the Bayeux Tapestry and other tapestries from the same time in France. Choice D is incorrect because the last sentence doesn’t address the location where the Bayeux Tapestry was created; the first sentence of the text presents it as a given that the tapestry was created in France, but nothing in the text indicates how that origin was determined."
+  },
+  {
+    "id": 5,
+    "question": "In 1154, Muhammad al-Idrisi completed a collection of maps of the lands known to medieval Arabic and European scholars. This collection was titled Al-Kitāb al-Rujārī (The Book of Roger), after the Norman king Roger II who hired him to create it. To create the collection, al-Idrisi consulted Arabic and Greek maps and interviewed travelers about the lands they visited. He included these travelers’ stories alongside the map illustrations. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To discuss the benefits of studying mapmaking",
+      "B": "To explain how travelers created maps",
+      "C": "To describe a collection of medieval maps and how it was created",
+      "D": "To compare medieval Arabic and Greek mapmaking techniques"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately states the main purpose of the text, which is to describe a collection of medieval maps and how it was created. The text begins by mentioning Muhammad al-Idrisi’s collection of maps of lands known to medieval Arabic and European scholars. It then states that the Norman king Roger II hired al-Idrisi to create the collection and details al-Idrisi’s methods of creation: consulting Arabic and Greek maps and interviewing travelers. In short, the text presents a collection of medieval maps and then goes on to describe how that collection came to be. Choice A is incorrect because the text describes a collection of maps and the process of creating that collection but does not discuss the benefits of studying mapmaking in general. Choice B is incorrect because though the text mentions that al-Idrisi interviewed travelers, the text does not describe how those travelers created maps. Choice D is incorrect because though the text mentions that al-Idrisi consulted Arabic and Greek maps, the text does not offer a comparison of Arabic and Greek mapmaking techniques."
+  },
+  {
+    "id": 6,
+    "question": "Yawn contagion occurs when one individual yawns in response to another’s yawn. Studies of this behavior in primates have focused on populations in captivity, but biologist Elisabetta Palagi and her colleagues have shown that it can occur in wild primate populations as well. In their study, which focused on a wild population of gelada monkeys (Theropithecus gelada) in Ethiopia, the researchers further reported that yawn contagion most commonly occurred in males and across different social groups instead of within a single social group. Which choice best describes the function of the first sentence in the text as a whole?",
+    "options": {
+      "A": "It defines a phenomenon that is discussed in the text.",
+      "B": "It introduces a problem that is examined in the text.",
+      "C": "It makes a claim that is challenged in the text.",
+      "D": "It presents a hypothesis that is evaluated in the text."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes how the first sentence functions in the text as a whole. The first sentence introduces what yawn contagion is, explaining that it occurs when an individual yawns in response to the yawn of another individual. The text goes on to describe Elisabetta Palagi and her colleagues’ study of this phenomenon in a wild population of gelada monkeys. According to the text, the study showed that wild primate populations experience yawn contagion and that the behavior occurs most commonly in male monkeys and across social groups. Thus, the function of the first sentence is to define the phenomenon of yawn contagion that is discussed in the text. Choice B is incorrect. Although the first sentence introduces the text’s discussion of yawn contagion, it doesn’t present this behavior, or anything else, as a problem. Choice C is incorrect because the first sentence doesn’t present a claim but instead explains what yawn contagion is. Moreover, the text doesn’t challenge anything; it’s an informative text that describes the findings of a research study about yawning in wild primate populations. Choice D is incorrect. Although the text describes a scientific study, and most scientific studies are guided by a hypothesis, the text doesn’t say what Palagi and her colleagues’ hypothesis was; the text discusses their findings instead."
+  },
+  {
+    "id": 7,
+    "question": "On painter William H. Johnson’s return to the United States in 1938 after a decade in Europe, his style underwent an abrupt transformation. <u>Turning away from landscapes painted in an expressionist style—a style that often involves using fluid, distorted shapes and thick, textured brushstrokes to express the artist’s subjective experience of reality—Johnson began painting portraits of Black Americans in a bold new way.</u> Evocative of African sculpture and American and Scandinavian folk art, these portraits feature flat, deliberately oversimplified figures in a vibrant but limited color palette. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It elaborates on the previous sentence’s statement about a transitional moment in Johnson’s artistic career.",
+      "B": "It provides information about Johnson’s travels in support of a claim about his artistic influences, which is advanced in the following sentence.",
+      "C": "It recounts a moment in Johnson’s personal life that enabled the success of his subsequent career, which is summarized in the following sentence.",
+      "D": "It presents evidence that calls into question the previous sentence’s characterization of Johnson’s artistic development."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the function of the underlined sentence in the text as a whole. The first sentence of the text indicates that Johnson returned to the US in 1938 at which time his painting style suddenly changed. The second sentence is underlined and gives more detail about this stylistic change, noting that his earlier work consisted largely of landscapes in an expressionist style and his new works were highly stylized portraits of Black Americans. In other words, the function of the underlined sentence is to elaborate on a transitional moment in Johnson’s painting career. Choice B is incorrect. Although the text does mention that Johnson spent a decade in Europe, it does not discuss what other travel Johnson might have done. Furthermore, although the text mentions African, American, and Scandinavian artistic elements in Johnson’s work, it does not indicate that he traveled to different locations to learn about these practices. Choice C is incorrect because the text does not focus on Johnson’s personal life nor does it address how successful his career was in general. Choice D is incorrect because, rather than call it into question, the underlined sentence continues the discussion of Johnson’s career by adding further relevant detail of Johnson’s artistic transformation."
+  },
+  {
+    "id": 8,
+    "question": "Very little is known about the role nocturnal insects, such as moths, play in flower pollination because it is difficult to monitor insects at night. To address this problem, a team of scientists used time-lapse cameras to record pollinator visits to red clover all day and night. The recordings showed that while most pollinator visits were by bumblebees, one-third of visits were by moths. Additionally, flowers that were visited by both moths and bees produced more seeds than flowers that were only visited by bees. Which choice best states the function of the underlined sentence?",
+    "options": {
+      "A": "To describe an approach a team of scientists used to study pollinators",
+      "B": "To question a claim scientists make about pollinators",
+      "C": "To explain why moths prefer red clover to other flowers",
+      "D": "To announce an unexpected research finding about red clover"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the function of the underlined sentence. The sentence indicates that scientists used time-lapse photography during both day and night to detect pollinators visiting red clover. Therefore, the underlined sentence has the function of describing an approach scientists used in the pollinator study discussed in the text. Choice B is incorrect because the underlined sentence discusses equipment the scientists used to conduct their study, and the text provides nothing to suggest these elements of their experimental design could, by themselves, question claims resulting from the study. Choice C is incorrect because nothing in either the underlined sentence or the rest of the text addresses whether moths have a preference for red clover or any other flowers. Choice D is incorrect. Although the sentences that follow the underlined sentence discuss research findings, nothing in the text suggests that these findings were unexpected. Moreover, the underlined sentence describes part of the scientists’ experimental design (day and night time-lapse photography), not a finding of the scientists’ study."
+  },
+  {
+    "id": 9,
+    "question": "The following text is from the 1923 poem “Black Finger” by Angelina Weld Grimké, a Black American writer. A cypress is a type of evergreen tree. I have just seen a most beautiful thing, Slim and still, Against a gold, gold sky, A straight black cypress, Sensitive, Exquisite, A black finger Pointing upwards. Why, beautiful still finger, are you black? And why are you pointing upwards? Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "The speaker assesses a natural phenomenon, then questions the accuracy of her assessment.",
+      "B": "The speaker describes a distinctive sight in nature, then ponders what meaning to attribute to that sight.",
+      "C": "The speaker presents an outdoor scene, then considers a human behavior occurring within that scene.",
+      "D": "The speaker examines her surroundings, then speculates about their influence on her emotional state."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes the overall structure of the text. First, the speaker describes observing a “most beautiful” sight: a tree (“black cypress”) standing out from the golden sky behind it, looking like a person’s finger “pointing upwards” and appearing “sensitive” and “exquisite.” Then the speaker wonders about the image’s meaning, asking why the finger is black and why it’s pointing upward. Thus, the text moves from the speaker’s description of a distinctive sight in nature to her pondering about what meaning to attribute to that sight. Choice A is incorrect because the speaker assesses a natural sight—a “black cypress” tree standing “against a gold, gold sky” like a pointed finger—but doesn’t question the accuracy of her own assessment. Although she wonders why the finger, which is really a tree, is black and why it’s pointing, the speaker doesn’t suggest that her belief that the tree resembles a finger is wrong. Choice C is incorrect. Although the speaker describes seeing a “black cypress” tree standing “against a gold, gold sky” like a pointed finger, she wonders about that natural image (asking why the finger, which is really a tree, is black and why it’s pointing) and doesn’t give any indication that any people are present in the scene. Choice D is incorrect. Although the speaker examines and wonders about one thing in her surroundings—a “black cypress” tree standing “against a gold, gold sky” like a pointed finger—she doesn’t address her own emotional state or consider how it’s affected by her surroundings."
+  },
+  {
+    "id": 10,
+    "question": "<u>In Jane Austen’s novel Mansfield Park, an almost imperceptible smile from potential suitor Henry Crawford causes the protagonist Fanny Price to blush; her embarrassment grows when she suspects that he is aware of it.</u> This moment—in which Fanny not only infers Henry’s mental state through his gestures, but also infers that he is drawing inferences about her mental state—illustrates what literary scholar George Butte calls “deep intersubjectivity,” a technique for representing interactions between consciousnesses through which Austen’s novels derive much of their social and psychological drama. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It states a claim about Austen’s skill at representing psychological complexity that is reinforced by an example presented in the following sentence.",
+      "B": "It advances an interpretation of an Austen protagonist who is contrasted with protagonists from other Austen novels cited in the following sentence.",
+      "C": "It describes a recurring theme in Austen’s novels that is the focus of a literary scholar’s analysis summarized in the following sentence.",
+      "D": "It provides a synopsis of an interaction in an Austen novel that illustrates a literary concept discussed in the following sentence."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The underlined sentence provides a concrete example to ground readers’ understanding of the “deep intersubjectivity” described in the next sentence as central to Austen’s work. Choice A is incorrect. There is no evaluation made of Austen’s skill in this sentence, and no examples are given in the following sentence. This choice essentially flips the paragraph: it’s this first sentence that provides an example. Choice B is incorrect. There are no other Austen protagonists mentioned in this passage, so this couldn’t be the answer. Choice C is incorrect. The underlined sentence doesn’t identify any “recurring theme,” but instead simply describes one interaction from one book. This interaction exemplifies the literary technique of “deep intersubjectivity” that is introduced in the next sentence."
+  },
+  {
+    "id": 11,
+    "question": "Alternative-history fiction is a subgenre of science fiction in which plots center on “what if?” questions. <u>What if India had started the Industrial Revolution? What if Soviet cosmonauts had been first to land on the moon?</u> Speculative counterfactuals like these can be great fodder for stories, but they’re also commonly deployed by academic historians to better understand factors influencing historical events. Well-realized and coherent alternative-history stories can thus complement historians’ speculations about the past. Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It illustrates how academic historians have influenced writers of alternative-history fiction.",
+      "B": "It acknowledges counterfactual questions that academic historians have largely overlooked.",
+      "C": "It provides examples of the types of scenarios addressed in alternative-history fiction.",
+      "D": "It indicates specific ideas that were first raised by writers of alternative-history fiction and that subsequently inspired scholarship by academic historians."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it best describes the function of the underlined portion in the text as a whole. The text begins by defining alternative-history fiction as a subgenre centered on “what if?” questions. The underlined portion then poses two such questions—one about India starting the Industrial Revolution and one about Soviet cosmonauts landing on the moon first. The sentence that follows refers to the two questions as “speculative counterfactuals like these,” confirming that the underlined questions serve as examples. Thus, the underlined portion provides examples of the types of scenarios addressed in alternative-history fiction. Choice A is incorrect because the underlined portion provides examples of “what if?” scenarios, not evidence of a line of influence from academic historians to fiction writers; nothing in the text addresses such a relationship. The text mentions academic historians only in the context of how alternative-history stories can supplement their work. Choice B is incorrect because the text states that counterfactuals like the ones presented in the underlined portion are “commonly deployed by academic historians,” indicating engagement with such questions rather than neglect. Instead of acknowledging overlooked questions, the underlined portion provides examples of the types of scenarios addressed in alternative-history fiction. Choice D is incorrect because nothing in the text indicates that the specific questions in the underlined portion originated with fiction writers or that they subsequently inspired academic historians. Instead, the underlined portion simply illustrates the kind of “what if?” questions typical of the alternative-history fiction subgenre."
+  },
+  {
+    "id": 12,
+    "question": "Composer Florence Price won first place for her score Symphony in E Minor at the 1932 Wanamaker Foundation Awards. The piece was performed the following year by the Chicago Symphony Orchestra, a significant recognition of its quality. Price continued to compose many musical pieces throughout her career, blending traditional Black spirituals with classical European Romantic musical traditions. In recent years, Price’s concertos and symphonies have been performed and recorded by several major orchestras, further preserving her work for others to enjoy. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To provide examples of Price’s importance as a composer",
+      "B": "To argue that more major orchestras should perform Price’s compositions",
+      "C": "To describe the musical styles that inspired many of Price’s symphonies",
+      "D": "To compare Price’s scores with those of classical European composers"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text provides an overview of Florence Price’s importance by describing her success at the 1932 Wanamaker Foundation Awards, her blending of Black spirituals and classical European Romantic musical traditions, and the recent performances and recordings of her concertos and symphonies by major orchestras. Choice B is incorrect. The text does mention that Price’s compositions have been performed and recorded by major orchestras, but it doesn’t argue that more orchestras should do so. Choice C is incorrect. The text does mention the blending of Black spirituals and classical European Romantic musical traditions, but only briefly, as part of a broader overview of Price’s career. Choice D is incorrect. The text mentions Price’s blending of Black spirituals with classical European Romantic musical traditions, but it doesn’t directly compare Price’s scores with those of classical European composers."
+  },
+  {
+    "id": 13,
+    "question": "Mathematician Claude Shannon is widely regarded as a foundational figure in information theory. His most important paper, “A Mathematical Theory of Communication,” published in 1948 when he was employed at Bell Labs, utilized a concept called a “binary digit” (shortened to “bit”) to measure the amount of information in any signal and determine the fastest rate at which information could be transmitted while still being reliably decipherable. Robert Gallagher, one of Shannon’s colleagues, said that the bit was “[Shannon’s] discovery, and from it the whole communications revolution has sprung.” Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It presents a theoretical concept, illustrates how the name of the concept has changed, and shows how the name has entered common usage.",
+      "B": "It introduces a respected researcher, describes an aspect of his work, and suggests why the work is historically significant.",
+      "C": "It names the company where an important mathematician worked, details the mathematician’s career at the company, and provides an example of the recognition he received there.",
+      "D": "It mentions a paper, offers a summary of the paper’s findings, and presents a researcher’s commentary on the paper."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The text starts with a general statement that introduces Shannon, then describes a specific contribution from one of his papers, then provides a quote that illustrates just how important this contribution was. Choice A is incorrect. This isn’t the overall structure. The text only mentions very briefly, in parentheses, that “binary digit” was shortened to “bit.” It doesn’t go into detail about this name change, and it doesn’t discuss any “common usage” of the name at all. Choice C is incorrect. This isn’t the overall structure. Shannon’s employment at Bell Labs is only mentioned once, very briefly: the text never goes into detail about his career there, and it never mentions any recognition he received there. Choice D is incorrect. This is too narrow. Overall, the text is about Shannon’s importance in his field, not just this one paper of his."
+  },
+  {
+    "id": 14,
+    "question": "Chile’s Atacama Desert is one of the driest places on Earth. <u>Mary Beth Wilhelm and other astrobiologists search for life, or its remains, in this harsh place because the desert closely mirrors the extreme environment on Mars.</u> The algae and bacteria found in Atacama’s driest regions may offer clues about Martian life. By studying how these and other microorganisms survive such extreme conditions on Earth, Wilhelm’s team hopes to determine whether similar life might have existed on Mars and to develop the best tools to look for evidence of it. Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "To contrast the conditions in the Atacama Desert with those on Mars",
+      "B": "To explain why many life-forms cannot survive in the Atacama Desert",
+      "C": "To indicate why astrobiologists choose to conduct research in the Atacama Desert",
+      "D": "To describe certain limitations to conducting scientific study in the Atacama Desert"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. The first sentence describes a unique location on Earth, the Atacama Desert. The next sentence, which is the underlined sentence, states that the reason why astrobiologists study life, or its remains, in this unique location is that Atacama is a harsh environment that closely resembles the extreme environment of Mars. The remainder of the text explains that the researchers hope their work in Atacama will support inquiry into life on Mars. Thus, the underlined portion functions mainly to indicate why astrobiologists choose to conduct research in the Atacama Desert. Choice A is incorrect because to contrast two things means to show the differences between them, and the phrase \"closely mirrors\" in the underlined sentence indicates that the extreme environment in the Atacama Desert is similar to, not different from, that on Mars. This similarity is why, according to the underlined sentence, astrobiologists conduct research in Atacama. Choice B is incorrect because the underlined sentence doesn’t address forms of life that are unable to survive the harsh environment of the Atacama Desert. Instead, the underlined sentence explains why astrobiologists study life, or its remains, in this environment. Choice D is incorrect because the underlined sentence doesn’t suggest that the scientific research in the Atacama Desert is limited in any way; instead, the sentence explains that the similarity between the environments of Atacama and Mars is the reason why astrobiologists search for life, or its remains, in Atacama."
+  },
+  {
+    "id": 15,
+    "question": "Though Chloé Zhao’s films are fictional, she incorporates real events into them in a documentary-like style and casts nonprofessional actors who reside in the places that she aims to portray. She also encourages these actors, whether they are teenagers living on the Pine Ridge Indian Reservation or adults who travel the country for work, to put as much of themselves into their roles as possible. Her approach adds powerful resonance to films that explore the highly personal experiences of place and home, and often the difficult decision to stay or leave. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To argue that Chloé Zhao’s films are best understood as documentaries",
+      "B": "To discuss how Chloé Zhao’s background in documentary filmmaking has influenced her storytelling style in films",
+      "C": "To emphasize that Chloé Zhao’s decisions during the filmmaking process reinforce the themes of her films",
+      "D": "To summarize how Chloé Zhao’s style of filmmaking changed over the course of her career"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately states the main purpose of the text. The text begins by describing Zhao’s filmmaking decisions: incorporating real events, casting nonprofessional actors from the locations she portrays, and encouraging those actors to bring personal experiences to their roles. The text then states that this approach “adds powerful resonance” to films that explore themes of place, home, and the decision to stay or leave. Therefore, the main purpose of the text is to emphasize that Zhao’s filmmaking decisions reinforce the themes of her films. Choice A is incorrect because the text explicitly states that Zhao’s films are fictional. Although the text states that Zhao uses a “documentary-like style,” it does not suggest that the films are best understood as documentaries, or nonfiction movies. Instead, the text describes how her approach strengthens her films’ themes. Choice B is incorrect because the text does not discuss whether Zhao has a background in documentary filmmaking. The text does not mention her background. Instead, the text describes Zhao’s filmmaking approach and its effect on her films’ themes. Choice D is incorrect because the text does not address changes in Zhao’s filmmaking style over time; instead, it describes her consistent approach and how that approach reinforces her films’ themes."
+  },
+  {
+    "id": 16,
+    "question": "The following text is adapted from Paul Laurence Dunbar’s 1902 novel The Sport of the Gods. Joe and some of his family members have recently moved to New York City. [Joe] was wild with enthusiasm and with a desire to be a part of all that the metropolis meant. In the evening he saw the young fellows passing by dressed in their spruce clothes, and he wondered with a sort of envy where they could be going. Back home there had been no place much worth going to, except church and one or two people’s houses. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "It illustrates a character’s reaction to a new environment.",
+      "B": "It explains why a character has traveled to a city.",
+      "C": "It compares a character’s thoughts about an event at two different times of day.",
+      "D": "It presents a character feeling regret over leaving home."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the main purpose of the text. The narrator describes how Joe responds to being in “the metropolis”: he’s excited and “wild with enthusiasm.” He also envies the young fellows who walk by because, dressed as they are, they look as if they have somewhere special to go. The text contrasts this new place with the place Joe comes from, where apparently there wasn’t as much to do. Thus, the main purpose of the text is to illustrate Joe’s reaction to a new environment. Choice B is incorrect because the text makes no reference to why Joe has moved. The narrator indicates that Joe is enthusiastic about being in a city, but there’s no explanation provided for the move. Choice C is incorrect because the text makes no reference to how Joe thinks about an event. The narrator describes young men passing by in the evening and then recalls places worth going to at home—church and a few people’s houses—but there’s no explicit comparison made nor is a time of day mentioned for these events back home. Choice D is incorrect because the text doesn’t support the idea that Joe feels regret over leaving home. Instead, Joe is described as “wild with enthusiasm” at being in the city. Joe’s home is mentioned, but only to compare it unfavorably with the city."
+  },
+  {
+    "id": 17,
+    "question": "The following text is from Paul Laurence Dunbar’s 1913 poem “The Poet and His Song.” A song is but a little thing, And yet what joy it is to sing! In hours of toil it gives me zest, And when at eve I long for rest; When cows come home along the bars, And in the fold I hear the bell, As Night, the shepherd, herds his stars, I sing my song, and all is well. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To convey how engaging in song makes the speaker feel",
+      "B": "To compare the speaker to a singing shepherd",
+      "C": "To portray the speaker’s excitement about farming",
+      "D": "To describe the pieces of music the speaker enjoys hearing"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because is accurately states the main purpose of the text. The text begins by declaring that although a song is \"but a little thing,\" or seemingly insignificant, singing it brings joy and gives the speaker of the text \"zest,\" or excitement, in \"hours of toil.\" The remainder of the text explores the idea that as night is falling, singing allows the speaker to feel that \"all is well.\" Thus, the main purpose of the text is to convey how engaging in song makes the speaker feel. Choice B is incorrect. Although the text mentions a shepherd, it neither indicates that the shepherd is singing nor does it compare the shepherd to the speaker. Choice C is incorrect. The text indicates that the speaker works hard, engaging in \"hours of toil,\" and it can be inferred that the speaker likely lives in a rural area, since cows and a cowbell can be heard nearby. However, the text does not suggest that the speaker is a farmer or feels excited about farming. Moreover, the shepherd in the text is not a literal reference to someone who herds sheep but instead a figurative description of the moon as the shepherd of the stars. Choice D is incorrect because in the text, the speaker is singing a song, not listening to others sing one. Moreover, the text describes the feelings that the speaker has when singing a song, not the song itself."
+  },
+  {
+    "id": 18,
+    "question": "The following text is from the 1895 poem “Marshlands” by Emily Pauline Johnson, a Kanienkahagen (Mohawk) writer also known as Tekahionwake. \nAmong the wild rice in the still lagoon, In monotone the lizard shrills his tune. \nThe wild goose, homing, seeks a sheltering, Where rushes grow, and oozing lichens cling. \nLate cranes with heavy wing, and lazy flight, Sail up the silence with the nearing night. \nAnd like a spirit, swathed in some soft veil, Steals twilight and its shadows o’er the swale. \nHushed lie the sedges, and the vapours creep, Thick, grey and humid, while the marshes sleep. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It names animal species found in a place, then names plant species there.",
+      "B": "It sketches a setting by presenting a series of images of nature.",
+      "C": "It makes an extended comparison of nature to human emotions.",
+      "D": "It identifies a location, then refers to a person living there."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it best describes the overall structure of the text. The text first establishes the setting, a \"still lagoon,\" and then goes on to provide more details about the lagoon by presenting several descriptive images of nature, including a lizard that \"shrills his tune,\" \"oozing lichens,\" and \"thick, grey and humid\" vapors. Choice A is incorrect. Instead of simply naming species, the text presents descriptive images of nature; further, instead of naming animals and then moving on to name plants, the text refers first to a plant (\"the wild rice\"), then to two animals (\"the lizard,\" \"the wild goose\"), then to another plant (\"rushes\"), and so on. Choice C is incorrect because the text does not draw any comparison between nature and human emotions; it does not refer to human emotions at all. Choice D is incorrect. While the text does begin by identifying a specific location, a \"still lagoon,\" it makes no mention of a person living there."
+  },
+  {
+    "id": 19,
+    "question": "The following text is from Virginia Woolf’s 1919 novel Night and Day. The text describes a gathering of young artists and intellectuals. One person after another rose, and, as with <u>an ill-balanced axe, attempted to hew out</u> his conception of art a little more clearly, and sat down with the feeling that, for some reason which he could not grasp, his <u>strokes had gone awry.</u> As they sat down they turned almost invariably to the person sitting next them, and rectified and continued what they had just said in public. Which choice best describes the function of the underlined portions in the text as a whole?",
+    "options": {
+      "A": "To demonstrate individuals’ puzzlement over the reputation of a certain artwork",
+      "B": "To highlight the physical effort involved in individuals’ construction of large-scale works of art",
+      "C": "To draw attention to individuals’ discontent with the group’s conversation about art",
+      "D": "To emphasize the extent of individuals’ struggles to articulate thoughts on art"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes the function of the underlined portions in the text as a whole. The underlined portions describe the young artists and intellectuals at the gathering as trying to \"hew out,\" or give shape to, their views of art more clearly, but with each seeming to be using \"an ill-balanced axe\" and then feeling that the \"strokes had gone awry.\" In context, the metaphorical language comparing attempts to refine concepts of art to imprecisely cutting wood with an inadequate axe serves to emphasize how much the individuals at the gathering struggled to articulate, or express, their thoughts; indeed, the text explains that the individuals couldn’t quite grasp why their statements had gone awry and tended to try to rectify, or correct, them in continued discussion after they sat down. Choice A is incorrect because the underlined portions characterize aspects of the young artists and intellectuals’ attempts to present their general views of art more clearly, not their views of the reputation of a certain artwork; the text never mentions any specific artwork or its reputation. Choice B is incorrect. Although the underlined portions refer to a physical activity—cutting wood with an axe—the descriptions are metaphorical rather than literal. The text isn’t describing people constructing works of art, large-scale or otherwise; rather, it’s describing people talking at a gathering, using the idea of imprecisely cutting wood with an inadequate axe to suggest that each individual struggled when trying to present their view of art more clearly. Choice C is incorrect. Although the underlined portions do provide a reason for the young artists and intellectuals’ discontent, the text focuses on the fact that they were each dissatisfied with their own statements, not on how they felt about the group’s full conversation about art. Instead, the text explains that each individual tried to present their view of art more clearly but struggled (as if imprecisely cutting wood with an inadequate axe), couldn’t grasp what went awry, and then felt the need to rectify, or correct, what they had just said. It’s possible that the individuals were also discontented with the group’s conversation overall, but neither the underlined portions nor the text as a whole suggest that."
+  },
+  {
+    "id": 20,
+    "question": "Musician Joni Mitchell, who is also a painter, uses images she creates for her album covers to emphasize ideas expressed in her music. For the cover of her album Turbulent Indigo (1994), Mitchell painted a striking self-portrait that closely resembles Vincent van Gogh’s Self-Portrait with Bandaged Ear (1889). The image calls attention to the album’s title song, in which Mitchell sings about the legacy of the postimpressionist painter. In that song, Mitchell also hints that she feels a strong artistic connection to Van Gogh—an idea that is reinforced by her imagery on the cover. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It presents a claim about Mitchell, then gives an example supporting that claim.",
+      "B": "It discusses Van Gogh’s influence on Mitchell, then considers Mitchell’s influence on other artists.",
+      "C": "It describes a similarity between two artists, then notes a difference between them.",
+      "D": "It describes the songs on Turbulent Indigo, then explains how they relate to the album’s cover."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it accurately describes the organization of the elements within the text. The text begins with the claim that Joni Mitchell’s album covers use images she creates in order to emphasize ideas embedded in her albums. It then goes on to provide an example of how Mitchell’s self-portrait on the cover of Turbulent Indigo resembles a painting by Van Gogh, which the text indicates helps emphasize the strong connection Mitchell feels toward Van Gogh, a connection that is also expressed in the album’s title song. Choice B is incorrect because there are no references in the text to artists other than Joni Mitchell and Van Gogh. Choice C is incorrect because there is nothing in the text that calls attention to any similarities or differences between Joni Mitchell and Van Gogh. Instead, it mentions that Mitchell feels a strong “artistic connection” to Van Gogh. Choice D is incorrect because the text discusses the cover before referring to any songs, and it only references one song from the album not all the songs."
+  },
+  {
+    "id": 21,
+    "question": "The following text is from the 1924 poem “Cycle” by D’Arcy McNickle, who was a citizen of the Confederated Salish and Kootenai Tribes. There shall be new roads wending, A new beating of the drum— Men’s eyes shall have fresh seeing, Grey lives reprise their span— But under the new sun’s being, Completing what night began, There’ll be the same backs bending, The same sad feet shall drum— When this night finds its ending And day shall have come..... Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To consider how the repetitiveness inherent in human life can be both rewarding and challenging",
+      "B": "To question whether activities completed at one time of day are more memorable than those completed at another time of day",
+      "C": "To refute the idea that joy is a more commonly experienced emotion than sadness is",
+      "D": "To demonstrate how the experiences of individuals relate to the experiences of their communities"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it accurately states the main purpose of the text. The text begins by discussing the promise of the future, with positive references to renewal such as “new roads,” “new beating of the drum,” and “fresh seeing.” But with the “new sun,” the text continues, there will still be “the same backs bending” and “the same sad feet” drumming, indicating that these difficulties will follow people into this new day. The poem thus considers both the rewards and challenges associated with the repetitiveness of human life. Choice B is incorrect because the text doesn’t say anything about how memorable activities are, let alone compare the memorability of activities completed at different times of the day. Choice C is incorrect. Although the text contrasts hope with difficulty, it does not compare the relative frequency of joyful feelings with that of sad feelings. Choice D is incorrect because the text makes no distinction between the experiences of individuals and the experiences of their communities."
+  },
+  {
+    "id": 22,
+    "question": "Generally it takes Tule geese about four days to migrate south for the winter. From their summer breeding grounds in Cook Inlet, Alaska, the birds begin by flying over the Gulf of Alaska, keeping about 100 miles from the Canadian shore. They pause to rest on the Pacific Ocean, then fly toward Summer Lake, Oregon, before finally arriving at their winter destination of Sacramento Valley, California. In 2020, however, it took the geese over twice as long to make their way from Cook Inlet to Sacramento Valley. According to researchers, the reason was airborne pollutants. Which choice best states the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It illustrates a change in Tule geese’s usual flight behavior.",
+      "B": "It suggests an explanation for why Tule geese breed in Alaska.",
+      "C": "It describes part of the Tule geese’s typical winter migration journey.",
+      "D": "It compares Tule geese to other birds that migrate south for the winter."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it best states how the underlined portion functions in the text as a whole. The first sentence states that Tule geese typically take four days to migrate south. Then in the next sentence, which contains the underlined portion, the text describes the first part of that journey, which begins with the geese flying over the Gulf of Alaska while keeping about 100 miles from the Canadian shore. The rest of the text details the remainder of the geese’s typical journey and then mentions circumstances in 2020 that resulted in the geese taking an unusually long time to complete it. Thus, the underlined portion describes part of the Tule geese’s typical winter migration journey. Choice A is incorrect. Although the text concludes by stating that in 2020, Tule geese took twice as long to complete their typical migration, which suggests a change in their usual flight behavior, the underlined portion doesn’t discuss this. Instead, the underlined portion describes the first part of the Tule geese’s typical winter migration journey over the Gulf of Alaska. Choice B is incorrect. Although the sentence containing the underlined portion mentions that Tule geese breed in Alaska, the underlined portion doesn’t explain why the geese breed in that location. Rather, the text mentions Alaska to explain that it’s the starting point of the Tule geese’s typical winter migration. Choice D is incorrect because the underlined portion doesn’t discuss any other birds that migrate south for the winter. In fact, the text is only concerned with the migration of Tule geese."
+  },
+  {
+    "id": 23,
+    "question": "<u>People tend to assume that being happy is the ideal emotional state and should be an ongoing aspiration;</u> recently, however, research has suggested that it is at times beneficial to embrace negative emotions. To test whether anger can contribute to problem-solving abilities, researcher Heather Lench led an experiment in which participants were randomly assigned to view images designed to create an emotional condition—either neutral or one of anger, amusement, desire, or sadness. When asked to then solve a series of challenging puzzles, the participants in the anger condition had greater success than those in the other conditions. Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It describes a general psychological tendency that the study discussed in the text was designed to explain.",
+      "B": "It explains an assumption underlying the hypothesis investigated in the study discussed in the text.",
+      "C": "It notes a generally accepted belief that is called into question by a finding of the experiment outlined in the text.",
+      "D": "It suggests a psychological basis for the behaviors of the participants in the experiment reported in the text."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it best describes the function of the underlined portion in the text as a whole. The underlined portion states that people commonly believe happiness is the ideal emotional state. However, the text then notes that recent research suggests that negative emotions can be beneficial, as demonstrated by an experiment by Heather Lench in which participants primed to feel anger did better at solving puzzles than did those primed to feel other emotions. This finding calls into question the belief that happiness is always the ideal state. Thus, the underlined portion notes a generally accepted belief that is called into question by a finding from the experiment. Choice A is incorrect because the study does not address why people assume happiness is ideal. Rather, the text indicates the study was designed to test whether anger can contribute to problem-solving abilities. Choice B is incorrect because rather than underlying the study’s hypothesis that anger could be beneficial in some circumstances, the underlined portion presents the widely held belief that happiness is always preferable to negative emotions, which directly conflicts with that hypothesis. Choice D is incorrect because the underlined portion presents a common belief that happiness is the ideal emotional state, not an explanation for the participants’ behavior in the experiment. The text reports that participants in the anger condition performed better on the puzzles but does not explain the psychological reason for this outcome."
+  },
+  {
+    "id": 24,
+    "question": "For his 1986 album Keyboard Fantasies, Beverly Glenn-Copeland wrote songs grounded in traditional soul and folk music, then accompanied them with futuristic synthesizer arrangements featuring ambient sounds and complex rhythms. The result was so strange, so unprecedented, that the album attracted little attention when first released. In recent years, however, a younger generation of musicians has embraced the stylistic experimentation of Keyboard Fantasies. <u>Alternative R&B musicians Blood Orange and Moses Sumney, among other contemporary recording artists, cite the album as an influence.</u> Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It urges contemporary musicians to adopt the unique sound of Keyboard Fantasies.",
+      "B": "It responds to criticism of Keyboard Fantasies by some younger musicians.",
+      "C": "It offers examples of younger musicians whose work has been impacted by Keyboard Fantasies.",
+      "D": "It contrasts Keyboard Fantasies with the recordings of two younger musicians."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately describes the function of the underlined sentence in the text as a whole. The text’s subject is Beverly Glenn-Copeland’s 1986 album Keyboard Fantasies, notable for its innovative, experimental arrangements. According to the text, the album was not initially admired, but in recent years it has become popular among younger musicians. The underlined portion of the text mentions two of those musicians, Blood Orange and Moses Sumney, who “cite the album as an influence.” Therefore, the underlined portion of the text offers examples of younger musicians whose work has been impacted by Keyboard Fantasies. Choice A is incorrect because even though the underlined sentence states that Blood Orange and Moses Sumney were influenced by Keyboard Fantasies, it doesn’t say that all other musicians should also embrace the album’s experimental style. Choice B is incorrect. Although the text states that Keyboard Fantasies was not admired on its first release, the text doesn’t present any criticism of the album by younger musicians: it only presents two younger musicians who cite it as an influence. Choice D is incorrect because the underlined sentence doesn’t mention any differences between Keyboard Fantasies and the work of Blood Orange and Moses Sumney."
+  },
+  {
+    "id": 25,
+    "question": "The following text is from Charlotte Perkins Gilman’s 1910 poem “The Earth’s Entail.” No matter how we cultivate the land, Taming the forest and the prairie free; No matter how we irrigate the sand, Making the desert blossom at command, We must always leave the borders of the sea; The immeasureable reaches Of the windy wave-wet beaches, The million-mile-long margin of the sea. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "The speaker argues against interfering with nature and then gives evidence supporting this interference.",
+      "B": "The speaker presents an account of efforts to dominate nature and then cautions that such efforts are only temporary.",
+      "C": "The speaker provides examples of an admirable way of approaching nature and then challenges that approach.",
+      "D": "The speaker describes attempts to control nature and then offers a reminder that not all nature is controllable."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. This best describes the overall structure of the text. In the first half of the text, the speaker describes our attempts to control nature: cultivating, taming, and irrigating different kinds of land. In the second half, the speaker states that we can never tame the sea or the beach. Choice A is incorrect. This doesn’t describe the overall structure of the text. The speaker never argues that we should not interfere with nature. Rather, the speaker says that we are able to tame many different kinds of land, but we are unable to tame the sea or beaches. Choice B is incorrect. This doesn’t describe the overall structure of the text. The speaker never describes our cultivation, taming, and irrigation of land as “temporary.” Rather, the speaker says that we are able to tame many different kinds of land, but we are unable to tame the sea or beaches. Choice C is incorrect. This doesn’t describe the overall structure of the text. The speaker never describes our cultivation, taming, and irrigation of land as an “admirable” approach to nature.” Rather, the speaker says that we are able to tame many different kinds of land, but we are unable to tame the sea or beaches."
+  },
+  {
+    "id": 26,
+    "question": "According to Indian economist and sociologist Radhakamal Mukerjee (1889–1968), the Eurocentric concepts that informed early twentieth-century social scientific methods—for example, the idea that all social relations are reducible to struggles between individuals—had little relevance for India. Making the social sciences more responsive to Indians’ needs, Mukerjee argued, required constructing analytical categories informed by India’s cultural and ecological circumstances. Mukerjee thus proposed the communalist “Indian village” as the ideal model on which to base Indian economic and social policy. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "The text recounts Mukerjee’s early training in the social scientific disciplines and then lists social policies whose implementation Mukerjee oversaw.",
+      "B": "The text mentions some of Mukerjee’s economic theories and then traces their impact on other Indian social scientists of the twentieth century.",
+      "C": "The text presents Mukerjee’s critique of the social sciences and then provides an example of his attempts to address issues he identified in his critique.",
+      "D": "The text explains an influential economic theory and then demonstrates how that theory was more important to Mukerjee’s work than other social scientists have acknowledged."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The text does indeed present Mukerjee’s critique of the social sciences—that they were too Eurocentric—and then provides an example of how he attempted to address the issues he identified: by suggesting a social science model based on the Indian village. Choice A is incorrect. The text doesn’t discuss Mukerjee’s early training or his oversight of the implementation of social policies at all. Choice B is incorrect. The text never discusses any other Indian social scientists. Choice D is incorrect. The text never mentions other social scientists’ responses to Mukerjee’s work."
+  },
+  {
+    "id": 27,
+    "question": "The following text is adapted from Etsu Inagaki Sugimoto’s 1925 memoir A Daughter of the Samurai. As a young woman, Sugimoto moved from feudal Japan to the United States. \nThe standards of my own and my adopted country differed so widely in some ways, and my love for both lands was so sincere, that sometimes I had an odd feeling of standing upon a cloud in space, and gazing with measuring eyes upon two separate worlds. At first I was continually trying to explain, by Japanese standards, all the queer things that came every day before my surprised eyes; for no one seemed to know the origin or significance of even the most familiar customs, nor why they existed and were followed. Which choice best describes the main purpose of the text?",
+    "options": {
+      "A": "To convey the narrator’s experience of observing and making sense of differences between two cultures she embraces",
+      "B": "To establish the narrator’s hope of forming connections with new companions by sharing customs she learned as a child",
+      "C": "To reveal the narrator’s recognition that she is hesitant to ask questions about certain aspects of a culture she is newly encountering",
+      "D": "To emphasize the narrator’s wonder at discovering that the physical distance between two countries is greater than she had expected"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the main purpose of the text. The narrator asserts that she loves both her “own” country (Japan) and her “adopted country” (the United States) even though the two countries differ “widely.” She also indicates that, at first, she would try to explain unfamiliar experiences that she had in the United States using the standards ingrained in her from growing up in Japan. Thus, the main purpose of the text is to convey the narrator’s experience of observing and making sense of the differences between two cultures she embraces. Choice B is incorrect because the text makes no reference to possible companions. Although the text does indicate that the narrator sometimes used the cultural framework she acquired growing up in Japan to explain some experiences she’s had, there is no suggestion that this was in service of making friends. And although “no one seemed to know” strongly implies that the narrator has interacted with other people in the United States, there is no indication that these conversations involved her discussing Japanese customs. Choice C is incorrect because nothing in the text suggests that the narrator was hesitant to ask questions. In fact, the narrator indicates that “no one seemed to know the origin” of various customs, which provides evidence that, rather than being hesitant, she sought information from several people. Choice D is incorrect because the text makes no reference to the physical distance between Japan and the United States. Although the narrator indicates that the two countries differ “widely” and likens them to “two separate worlds,” these descriptions relate to cultural aspects of the countries and the narrator’s feelings about the two countries, not the physical distance between them."
+  },
+  {
+    "id": 28,
+    "question": "In the Here and Now Storybook (1921), educator Lucy Sprague Mitchell advanced the then controversial idea that books for very young children should imitate how they use language, since toddlers, who cannot yet grasp narrative or abstract ideas, seek reassurance in verbal repetition and naming. The most enduring example of this idea is Margaret Wise Brown’s 1947 picture book Goodnight Moon, in which a young rabbit names the objects in his room as he drifts off to sleep. Scholars note that the book’s emphasis on repetition, rhythm, and nonsense rhyme speaks directly to Mitchell’s influence. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "The text outlines a debate between two authors of children’s literature and then traces how that debate shaped theories on early childhood education.",
+      "B": "The text summarizes an argument about how children’s literature should be evaluated and then discusses a contrasting view on that subject.",
+      "C": "The text lists the literary characteristics that are common to many classics of children’s literature and then indicates the narrative subjects that are most appropriate for young children.",
+      "D": "The text presents a philosophy about what material is most suitable for children’s literature and then describes a book influenced by that philosophy."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text starts by introducing Mitchell’s philosophy about using simple, repetitive language in books for young children. Then it describes a book influenced by that philosophy, Goodnight Moon. Choice A is incorrect. Although two authors are mentioned in the text, they both agree about the type of language that should be contained in books for young children. Choice B is incorrect. The text never discusses the evaluation of children’s literature. It does provide one view of how children’s books should be written, but never introduces a competing view. Choice C is incorrect. The text doesn’t mention “many classics of children’s literature.” Instead, it describes an educational theory and identifies one example of a famous children’s book that was influenced by that theory."
+  },
+  {
+    "id": 29,
+    "question": "The following text is from Charlotte Forten Grimké’s 1888 poem “At Newport.” \nOh, deep delight to watch the gladsome waves \nExultant leap upon the rugged rocks; \n<u>Ever repulsed, yet ever rushing on— \nFilled with a life that will not know defeat;</u> \nTo see the glorious hues of sky and sea. \nThe distant snowy sails, glide spirit like, \nInto an unknown world, to feel the sweet \nEnchantment of the sea thrill all the soul, \nClearing the clouded brain, making the heart \nLeap joyous as it own bright, singing waves! Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It portrays the surroundings as an imposing and intimidating scene.",
+      "B": "It characterizes the sea’s waves as a relentless and enduring force.",
+      "C": "It conveys the speaker’s ambivalence about the natural world.",
+      "D": "It draws a contrast between the sea’s waves and the speaker’s thoughts."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes how the underlined portion functions in the text as a whole. The text presents the speaker’s experience of viewing the sea. In the underlined portion, the speaker focuses on the idea that the waves hitting rocks on the shore are a relentless and enduring force: they are constantly pushed back (“ever repulsed”) but always return (“ever rushing on”), as though they have an energy that can’t be overcome (“a life that will not know defeat”). Choice A is incorrect. Although the underlined portion characterizes the waves as a relentless force (always “repulsed” but still “rushing on” and never being defeated), the speaker doesn’t suggest that the surroundings are intimidating. Instead, the speaker presents the scene in a positive way, describing the “deep delight” of the “gladsome,” or cheerful, waves and feeling “the heart / Leap joyous” while viewing the sea. Choice C is incorrect because the underlined portion doesn’t suggest that the speaker is ambivalent, or has mixed feelings about, the natural world. Instead, it presents a single view of one part of the immediate surroundings: the speaker characterizes the sea’s waves as an unstoppable force, since they are constantly pushed back but always return (“ever repulsed, yet ever rushing on”). Choice D is incorrect. Although the text later suggests the speaker’s view of her own thoughts by referring to a “clouded brain” and a heart that leaps joyously, this reference neither occurs within the underlined portion nor establishes a clear contrast with the relentless determination of the waves. The underlined portion addresses only the speaker’s view of the waves and doesn’t suggest what her own thoughts might be."
+  },
+  {
+    "id": 30,
+    "question": "In the late 1800s, Spanish-language newspapers flourished in cities across Texas. San Antonio alone produced eleven newspapers in Spanish between 1890 and 1900. But El Paso surpassed all other cities in the state. This city produced twenty-two newspapers in Spanish during that period. El Paso is located on the border with Mexico and has always had a large population of Spanish speakers. Thus, it is unsurprising that this city became such a rich site for Spanish-language journalism. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To compare Spanish-language newspapers published in Texas today with ones published there during the late 1800s",
+      "B": "To explain that Spanish-language newspapers thrived in Texas and especially in El Paso during the late 1800s",
+      "C": "To argue that Spanish-language newspapers published in El Paso influenced the ones published in San Antonio during the late 1800s",
+      "D": "To explain why Spanish-language newspapers published in Texas were so popular in Mexico during the late 1800s"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes the main purpose of the text. The text begins by stating that there were many Spanish-language newspapers in cities across Texas in the late 1800s, citing San Antonio as a city that produced eleven such newspapers. The text then goes on to note that in El Paso, there were twenty-two newspapers published in Spanish in the late 1800s, more than any other Texas city. The text then concludes by explaining that the reason for this large number of Spanish-language newspapers was likely El Paso’s location near Mexico and its large population of Spanish speakers. Therefore, the main purpose of the text is to explain that Spanish-language newspapers thrived in Texas cities, especially in El Paso, in the late 1800s. Choice A is incorrect because the text doesn’t discuss Spanish-language newspapers published in Texas today, let alone compare them with newspapers that were published in the 1800s. Choice C is incorrect. Although the text characterizes El Paso as a particularly rich site for Spanish-language journalism in the late 1800s, the text doesn’t discuss whether newspapers published in El Paso influenced the newspapers published in other cities across Texas, including San Antonio. Choice D is incorrect because the text doesn’t mention whether Spanish-language newspapers published in Texas were also widely read in Mexico. The text only focuses on the popularity of Spanish-language newspapers within Texas, and especially in El Paso."
+  },
+  {
+    "id": 31,
+    "question": "Researchers have long hypothesized that woolly mammoths were hunted to extinction in North America by humans using spears with grooved tips known as Clovis points. One anthropologist set out to test this hypothesis. Using a mechanical spear-thrower, he launched spears with Clovis points into mounds of clay—substitutes for the animals’ large bodies. The projectiles generally penetrated only a few inches into the clay, an amount insufficient to have harmed most woolly mammoths. This led the anthropologist to conclude that hunters using spears with Clovis points likely weren’t the principal drivers of the extinction. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To argue for the significance of new findings amid an ongoing debate among researchers",
+      "B": "To discuss the advantages and disadvantages of the method used in an experiment",
+      "C": "To summarize two competing hypotheses and a major finding associated with each one",
+      "D": "To describe an experiment whose results cast doubt on an established hypothesis"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main purpose of the text, which is to describe an experiment whose results cast doubt on an established hypothesis. The text begins by noting that researchers have long believed that woolly mammoths were hunted to extinction in North America by humans using spears with Clovis points. The text then describes an experiment conducted by an anthropologist to test this hypothesis. According to the text, the results of the experiment led the anthropologist to conclude that hunters using spears with Clovis points likely weren’t the primary cause of the extinction. The anthropologist’s results cast doubt on the long-held hypothesis presented at the beginning of the text and suggest that woolly mammoths may have become extinct in North America due to some other cause. Choice A is incorrect because there’s nothing in the text to suggest that researchers have been involved in an ongoing debate. On the contrary, the text suggests that most researchers agree on the cause of the woolly mammoth’s extinction in North America. Choice B is incorrect because the text never mentions any advantages or disadvantages of the method used in the experiment, focusing instead on the results achieved using that method. Choice C is incorrect because the text addresses only one hypothesis, that mammoths were hunted to extinction in North America by humans using spears with Clovis points. Rather than present a competing hypothesis, the text explains how one anthropologist designed an experiment to test this long-held hypothesis."
+  },
+  {
+    "id": 32,
+    "question": "The north celestial pole (NCP)—the fixed point around which stars in the Northern Hemisphere (including the Sun) appear to rotate—is discernible only at night. Inspired by the navigational strategies of some insects and birds, researchers devised a method for locating the NCP in daytime using skylight polarization, which occurs as atmospheric particles scatter sunlight. A polarimetric camera captures images of polarization patterns, which rotate as the Sun’s position in the sky changes; temporal variances across images can then be used to determine an observer’s latitude and bearing relative to the NCP. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It illustrates how most navigational tools utilize the NCP, recounts how researchers discovered that certain animals are able to navigate without using the NCP, and then proposes that this discovery could be used to avoid problems in navigation associated with reliance on the NCP.",
+      "B": "It presents a celestial-based method of navigation, enumerates the comparative benefits of an alternative method used by certain animals that is based on an unrelated natural occurrence, and then indicates how researchers assessed the relative accuracy of the two methods.",
+      "C": "It explains how the NCP is typically located, emphasizes a key difference between how humans and certain animals use the NCP for navigation, and then suggests an alternative way of using the NCP to improve existing navigational instruments.",
+      "D": "It notes an obstacle to observing an astronomical phenomenon, mentions a navigational ability of certain animals that inspired a solution to that obstacle, and then explains how researchers used an optical device to mimic that ability."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it accurately describes the overall structure of the text. The text begins by pointing out an obstacle to observing the astronomical phenomenon of the NCP: the NCP is visible only at night. The text then indicates that, inspired by the ability of some insects and birds to navigate using visualizations of polarized sunlight, researchers devised a way to locate the NCP during daylight. The text then indicates that the researchers mimicked the insects’ and birds’ polarized-light visualization capabilities using a polarimetric camera. Thus, the text notes an obstacle to observing an astronomical phenomenon, mentions a navigational ability of certain animals that inspired a solution to that obstacle, and then explains how researchers used an optical device to mimic that ability. Choice A is incorrect. Although it’s reasonable to conjecture that humans have used the NCP for navigation, the text doesn’t indicate this is the case, let alone that the NCP is relevant to a majority of navigational tools. Furthermore, the text doesn’t state that researchers discovered that insects and birds navigate without the NCP; rather, it indicates that it’s known that some animals navigate by using skylight polarization to locate the NCP during the day and that this knowledge inspired the method the researchers devised. Choice B is incorrect. Although it’s reasonable to conjecture that humans have used the NCP for navigation, the text doesn’t state that this is the case. Furthermore, the text discusses how some animals’ use of navigational strategies based on the same celestial occurrence served as the inspiration for the researchers’ polarized-light approach, not as the basis for a comparison of the relative effectiveness of animal and human methods of navigation. Choice C is incorrect. Although the text implies that humans have typically been able to locate the NCP visually at night and indicates that some animals use the NCP to navigate, the text doesn’t state that humans use the NCP for navigation. The text therefore doesn’t emphasize a difference between how humans and animals use the NCP for this purpose. Furthermore, the text doesn’t suggest that existing navigational instruments will be augmented with polarimetric technologies."
+  },
+  {
+    "id": 33,
+    "question": "When ancient oak planks were unearthed during subway construction in Rome, Mauro Bernabei and his team examined the growth rings in the wood to determine where these planks came from. By comparing the growth rings on the planks to records of similar rings in oaks from Europe, the team could trace the wood to the Jura region of France, hundreds of kilometers from Rome. <u>Because timber could only have been transported from distant Jura to Rome by boat, the team’s findings suggest the complexity of Roman trade routes.</u> Which choice best describes the function of the underlined sentence in the text as a whole?",
+    "options": {
+      "A": "It presents a conclusion about Roman trade routes based on the team’s findings.",
+      "B": "It questions how the team was able to conclude that the planks were used to build a boat.",
+      "C": "It explains why the planks were made from oak rather than a different kind of wood.",
+      "D": "It describes common methods used in Roman subway construction."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes how the underlined sentence functions in the text as a whole. The first sentence explains that Bernabei and his team studied growth rings to obtain information about the ancient oak planks found during a construction project in Rome. The next sentence presents what the researchers learned: the wood from the planks came from France’s Jura region, which is far from Rome. The underlined sentence then presents the implications of the findings about the planks: the wood must have been brought to Rome by boat, a difficult task that suggests Roman trade routes were complex. Thus, the underlined sentence mainly functions to present a conclusion about Roman trade routes based on the team’s findings. Choice B is incorrect because the text doesn’t suggest that the team thought the ancient planks were used in the construction of a boat, nor does the underlined sentence question that conclusion. Instead, the text states that the wood could only have been transported from Jura to Rome in a boat. Choice C is incorrect because the underlined sentence simply offers a conclusion drawn from the team’s findings about the likely place of origin of the ancient planks; the text never mentions why oak was chosen for the planks instead of other wood. Choice D is incorrect because neither the underlined sentence nor the text as a whole addresses any methods that Romans used in constructing subways. Instead, the underlined sentence offers a conclusion drawn from the team’s findings about the likely place of origin of the ancient wooden planks discovered."
+  },
+  {
+    "id": 34,
+    "question": "Space scientists Anna-Lisa Paul, Stephen M. Elardo, and Robert Ferl planted seeds of Arabidopsis thaliana in samples of lunar regolith—the surface material of the Moon—and, serving as a control group, in terrestrial soil. They found that while all the seeds germinated, the roots of the regolith-grown plants were stunted compared with those in the control group. Moreover, unlike the plants in the control group, the regolith-grown plants exhibited red pigmentation, reduced leaf size, and inhibited growth rates—indicators of stress that were corroborated by postharvest molecular analysis. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "It describes an experiment that addressed an unresolved question about the extent to which lunar regolith resembles terrestrial soils.",
+      "B": "It compares two distinct methods of assessing indicators of stress in plants grown in a simulated lunar environment.",
+      "C": "It presents evidence in support of the hypothesis that seed germination in lunar habitats is an unattainable goal.",
+      "D": "It discusses the findings of a study that evaluated the effects of exposing a plant species to lunar soil conditions."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text describes an experiment wherein space scientists compared plant growth in terrestrial and lunar soil conditions. It then discusses the findings of the study, including the fact that all the seeds germinated but that the plants grown in lunar soil exhibited signs of stress. Choice A is incorrect. The text doesn’t address this question, and never describes any specific characteristics of either soil. It merely describes the outcome of an experiment that exposed a plant species to lunar soil conditions. Choice B is incorrect. The text never compares methods of assessing indicators of stress—instead, it simply mentions several stress indicators observed in the study (red pigmentation, reduced leaf size, and inhibited growth rates). Choice C is incorrect. The text doesn’t present any evidence that we could never achieve seed germination in lunar habitats, and in fact states that the seeds in the lunar soil did germinate."
+  },
+  {
+    "id": 35,
+    "question": "Raymond Antrobus, an accomplished poet and writer of prose, recently released his debut spoken word poetry album, The First Time I Wore Hearing Aids, in collaboration with producer Ian Brennan. The album contains both autobiographical and reflective pieces combining Antrobus’s spoken words with Brennan’s fragmented audio elements and pieces of music to convey how people who are deaf may experience sound, both its presence and absence. Some critics suggest that the album questions the function of sound in the world, highlighting that the experience of sound is multifaceted. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It introduces a collaborative spoken word poetry project, details the approach taken to produce the work, and then provides an example of critique the album received upon release.",
+      "B": "It mentions a collection of spoken word poems, distinguishes one poem as being an exemplar on the album, and then offers a summary of the subject matter of the whole collection.",
+      "C": "It summarizes the efforts to produce a collection of spoken word poems, presents biographies of two people who worked on the album, and speculates about the meaning behind the poetry.",
+      "D": "It connects two artists to the same spoken word poetry project, explains the extent of their collaboration on each poem, and then provides an overview of the technique used to produce the work."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text first introduces the album as being a collaboration between Antrobus and Brennan, then describes the approach taken to produce it, then mentions how critics have said that it calls into question the function of sound. Choice B is incorrect. While the text does mention a collection of spoken word poems, it doesn’t single out one poem as being particularly noteworthy. Additionally, the text doesn’t simply summarize the subject matter—it goes into detail about the content and production of the album. Choice C is incorrect. The text doesn’t provide biographical information about the two artists, and the text doesn’t speculate about the meaning behind the poetry—instead, it relays what some critics have said about the album. Choice D is incorrect. The text doesn’t provide just an overview of the production techniques used but instead goes into more detail about the content and audio elements of the album, as well as critical response to the album."
+  },
+  {
+    "id": 36,
+    "question": "The following text is from Sarah Orne Jewett’s 1899 short story “Martha’s Lady.” Martha is employed by Miss Pyne as a maid. \nMiss Pyne sat by the window watching, in her best dress, looking stately and calm; she seldom went out now, and it was almost time for the carriage. Martha was just coming in from the garden with the strawberries, and with more flowers in her apron. It was a bright cool evening in June, the golden robins sang in the elms, and the sun was going down behind the apple-trees at the foot of the garden. The beautiful old house stood wide open to the long-expected guest. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To convey the worries brought about by a new guest",
+      "B": "To describe how the characters have changed over time",
+      "C": "To contrast the activity indoors with the stillness outside",
+      "D": "To depict the setting as the characters await a visitor’s arrival"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately reflects the main purpose of the text. The text portrays Miss Pyne as awaiting the arrival of a carriage while Martha brings strawberries and flowers from the garden into the house. The text also describes the surroundings of the scene, stating that Miss Pyne looks \"stately and calm,\" the evening is bright and cool, and birds are singing in the garden as the sun sets. Then the last sentence states that the house was \"wide open to the long-expected guest,\" which strongly suggests that Miss Pyne’s anticipation and Martha’s activities were in preparation for the guest who is expected to arrive in the carriage. Thus, the text depicts the setting and conveys what these characters are doing as they await the arrival of their visitor. Choice A is incorrect because there is nothing in the text to indicate that the characters feel any worry about the guest’s arrival. The text indicates that the guest was \"long-expected,\" but characterizing Miss Pyne as \"stately and calm\" conflicts with the idea that the characters are worried about the guest. Choice B is incorrect because the text describes a moment in time when two characters are awaiting the arrival of a visitor rather than an extended period over which characters could be seen changing. Choice C is incorrect. Although the text describes the activity indoors (Miss Pyne sitting calmly), it describes a higher level of activity, not stillness, outside (Martha bringing fruit and flowers and birds singing)."
+  },
+  {
+    "id": 37,
+    "question": "The following text is adapted from Louise Erdrich’s 2020 novel The Night Watchman. Louis Pipestone is collecting signatures for a petition from fellow members of the Turtle Mountain Band of Chippewa on the tribe’s reservation in North Dakota. \nLouis Pipestone tended the petition like a garden. He kept it with him at all times. In town, his eyes sharpened when he noticed a tribal member who hadn’t yet signed. Wherever they were—at the gas pump, mercantile [general store], at Henry’s [Café], on the road, or outside the clinic and hospital—Louis cornered them. If they were waiting for a baby to be born, he’d have them sign. If they were laughing, if they were arguing. If they were taking a child home from school, they signed. ©2020 by Louise Erdrich Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To suggest that some tribal members refuse to sign the petition because they dislike Louis Pipestone",
+      "B": "To show that attitudes toward the petition within the tribal community change over time",
+      "C": "To demonstrate that most tribal members are enthusiastic about signing the petition",
+      "D": "To portray Louis Pipestone’s strong commitment to collecting signatures for the petition"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the text’s main purpose. The text indicates that Louis always had his petition with him, asked everyone he encountered to sign it if they hadn’t already, and lists several comical circumstances in which he might try to get someone to sign. Thus, the main purpose of the text is to illustrate Louis’s dedicated focus on getting people to sign the petition. Choice A is incorrect. Although the text suggests that Louis was aggressive in seeking signatures for the petition—for example, saying that he \"cornered\" people—nothing in the text addresses how those people feel toward Louis, let alone that they are refusing his request. Choice B is incorrect because, other than portraying Louis’s commitment to gathering signatures, the text doesn’t discuss community members’ attitudes toward Louis or the petition. Choice C is incorrect because the text never mentions the attitudes of the people Louis approaches toward the petition, but the text does indicate that he \"cornered\" prospective signatories, strongly suggesting that their enthusiasm was neither needed nor considered."
+  },
+  {
+    "id": 38,
+    "question": "The following text is from Walt Whitman’s 1860 poem “Calamus 24.” \nI HEAR it is charged against me that I seek to destroy institutions; \nBut really I am neither for nor against institutions (What indeed have I in common with them?—Or what with the destruction of them?), \nOnly I will establish in the Mannahatta [Manhattan] and in every city of These States, inland and seaboard, \nAnd in the fields and woods, and above every keel [ship] little or large, that dents the water, \nWithout edifices, or rules, or trustees, or any argument, \nThe institution of the dear love of comrades. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "The speaker questions an increasingly prevalent attitude, then summarizes his worldview.",
+      "B": "The speaker regrets his isolation from others, then predicts a profound change in society.",
+      "C": "The speaker concedes his personal shortcomings, then boasts of his many achievements.",
+      "D": "The speaker addresses a criticism leveled against him, then announces a grand ambition of his."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it best describes the overall structure of the text. The speaker begins by stating that he has heard that others are accusing him of seeking to destroy institutions. The speaker then addresses this criticism by stating that he is “neither for nor against institutions.” Instead, the speaker states that his ultimate goal is to instill “the institution of the dear love of comrades” everywhere in the country. Therefore, the overall structure of the text is best described as an address of criticism followed by an announcement of a grand ambition. Choice A is incorrect. While the speaker does address an opinion of him that he believes to be untrue, he doesn’t indicate that this attitude has become increasingly prevalent. The speaker also concludes by explaining his goal for the future rather than his current worldview. Choice B is incorrect because the text doesn’t portray the speaker as isolated or regretful, and the speaker gestures toward a hope for societal change but doesn’t offer an explicit prediction that it will happen. Choice C is incorrect because the speaker addresses a criticism of him that he believes to be false; he doesn’t admit any personal shortcomings. Moreover, the speaker concludes by stating a goal he has rather than showcasing his achievements."
+  },
+  {
+    "id": 39,
+    "question": "In many agricultural environments, the banks of streams are kept forested to protect water quality, but it’s been unclear what effects these forests may have on stream biodiversity. To investigate the issue, biologist Xingli Giam and colleagues studied an Indonesian oil palm plantation, comparing the species richness of forested streams with that of nonforested streams. Giam and colleagues found that species richness was significantly higher in forested streams, a finding the researchers attribute to the role leaf litter plays in sheltering fish from predators and providing food resources. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "It discusses research intended to settle a debate about how agricultural yields can be increased without negative effects on water quality.",
+      "B": "It explains the differences between stream-protection strategies used in oil palm plantations and stream-protection strategies used in other kinds of agricultural environments.",
+      "C": "It describes findings that challenge a previously held view about how fish that inhabit streams in agricultural environments attempt to avoid predators.",
+      "D": "It presents a study that addresses an unresolved question about the presence of forests along streams in agricultural environments."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The author first describes an unresolved question: what effect do bank forests have on stream biodiversity? Then the author presents a study that answers the question: bank forests increase stream biodiversity. Choice A is incorrect. This isn’t the main purpose of the text. The text never mentions agricultural yields. Choice B is incorrect. This isn’t the main purpose of the text. The text never mentions other kinds of agricultural environments. Choice C is incorrect. This isn’t the main purpose of the text. The text never mentions any previously held view about how fish in these streams try to avoid predators."
+  },
+  {
+    "id": 40,
+    "question": "Industrial activity is often assumed to be a threat to wildlife, but that isn’t always so. <u>Consider the silver-studded blue butterfly (Plebejus argus):</u> as forest growth has reduced grasslands in northern Germany, many of these butterflies have left meadow habitats and are now thriving in active limestone quarries. In a survey of multiple active quarries and patches of maintained grassland, an ecologist found silver-studded blue butterflies in 100% of the quarries but only 57% of the grassland patches. Moreover, butterfly populations in the quarries were four times larger than those in the meadows. Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It challenges a common assumption about the species under investigation in the research referred to in the text.",
+      "B": "It introduces discussion of a specific example that supports the general claim made in the previous sentence.",
+      "C": "It suggests that a certain species should be included in additional studies like the one mentioned later in the text.",
+      "D": "It provides a definition for an unfamiliar term that is central to the main argument in the text."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately describes how the underlined portion functions in the text as a whole. The first sentence presents the general claim that industrial activity is not always a threat to wildlife. The underlined portion of the sentence that follows suggests that the silver-studded blue butterfly is an example of wildlife thriving in areas of industrial activity: active limestone quarries. Thus, the function of the underlined portion is to introduce a specific example in support of the general claim in the previous sentence. Choice A is incorrect. Although the first sentence indicates that “industrial activity is often assumed” to harm wildlife, in the case of the silverstudded blue butterfly the text mentions neither an assumption about this species nor any challenge to such an assumption. Choice C is incorrect because the text mentions only one study: the “survey.” Additional studies are not mentioned in the text. Choice D is incorrect because neither the underlined portion nor any other portion of the text provides a definition for any of the terms used in the text’s argument."
+  },
+  {
+    "id": 41,
+    "question": "The following text is from Lucy Maud Montgomery’s 1908 novel Anne of Green Gables. Anne, an eleven-year-old girl, has come to live on a farm with a woman named Marilla in Nova Scotia, Canada. \nAnne reveled in the world of color about her. \n“Oh, Marilla,” she exclaimed one Saturday morning, coming dancing in with her arms full of gorgeous boughs, “I’m so glad I live in a world where there are Octobers. It would be terrible if we just skipped from September to November, wouldn’t it? Look at these maple branches. Don’t they give you a thrill—several thrills? I’m going to decorate my room with them.” \n“Messy things,” said Marilla, whose aesthetic sense was not noticeably developed. “You clutter up your room entirely too much with out-of-doors stuff, Anne. Bedrooms were made to sleep in.” Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To demonstrate that Anne has a newly developed appreciation of nature",
+      "B": "To describe an argument that Anne and Marilla often have",
+      "C": "To emphasize Marilla’s disapproval of how Anne has decorated her room",
+      "D": "To show that Anne and Marilla have very different personalities"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes the main purpose of the text. The text begins by noting that Anne “reveled in the world of color about her”—that is, she takes great delight in colorful things. It then relates a scene when she enthusiastically enters the house with autumn foliage and announces that she will decorate her room with it. The focus of the text then shifts to Marilla, who has an undeveloped “aesthetic sense,” or appreciation of beauty, as can be seen when she dismisses the maple leaves as “messy things” and criticizes Anne for cluttering her room with objects from outside. This episode thus illustrates that Anne and Marilla differ in their appreciation of beauty and, more generally, in their basic character: Anne is exuberant and joyful, while Marilla is stern and critical. Therefore, the purpose of the text is to show that Anne and Marilla have very different personalities. Choice A is incorrect because the text presents Anne’s appreciation of nature as a basic personality trait, not as a newfound enthusiasm, and never indicates how recently she developed that appreciation. Choice B is incorrect. Although the text portrays Anne and Marilla as having different personalities and attitudes toward natural beauty and home decoration, it doesn’t show them engaging in an argument about this difference or suggest that they often argue about it. Choice C is incorrect. Although the text does indicate that Marilla disapproves of how Anne plans to decorate her room, Marilla’s disapproval is a supporting detail that serves to develop her personality, which the text as a whole contrasts with Anne’s personality."
+  },
+  {
+    "id": 42,
+    "question": "The following text is adapted from Aphra Behn’s 1689 novel The Lucky Mistake. Atlante and Rinaldo are neighbors who have been secretly exchanging letters through Charlot, Atlante’s sister. \n[Atlante] gave this letter to Charlot; who immediately ran into the balcony with it, where she still found Rinaldo in a melancholy posture, leaning his head on his hand: She showed him the letter, but was afraid to toss it to him, for fear it might fall to the ground; so he ran and fetched a long cane, which he cleft at one end, and held it while she put the letter into the cleft, and stayed not to hear what he said to it. But never was man so transported with joy, as he was at the reading of this letter; it gives him new wounds; for to the generous, nothing obliges love so much as love. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It describes the delivery of a letter, and then portrays a character’s happiness at reading that letter.",
+      "B": "It establishes that a character is desperate to receive a letter, and then explains why another character has not yet written that letter.",
+      "C": "It presents a character’s concerns about delivering a letter, and then details the contents of that letter.",
+      "D": "It reveals the inspiration behind a character’s letter, and then emphasizes the excitement that another character feels upon receiving that letter."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the overall structure of the text. The narrator begins by explaining how Charlot carefully delivers Atlante’s letter to Rinaldo, and then relates that Rinaldo feels “transported with joy” after reading the letter. Therefore, the overall structure of the text is best described as a description of the delivery of a letter followed by the portrayal of a character’s happiness after reading the letter. Choice B is incorrect because the text indicates that the letter has been written; there’s no explanation why another character hasn’t written one. In addition, the text’s description of Rinaldo “in a melancholy posture” suggests that he’s sad and thoughtful, not that he’s desperate to receive the letter. Choice C is incorrect. Although the text states that Charlot won’t toss the letter to Rinaldo because she doesn’t want it to fall, the text doesn’t refer to the contents of the letter. Instead, the text describes how happy Rinaldo feels after reading it. Choice D is incorrect. Although the text does describe Rinaldo’s reaction to the letter, the text doesn’t begin by discussing Atlante’s inspiration for writing the letter. Instead, the text begins by discussing the delivery of the letter."
+  },
+  {
+    "id": 43,
+    "question": "The following text is adapted from Gwendolyn Bennett’s 1926 poem “Street Lamps in Early Spring.” \nNight wears a garment \nAll velvet soft, all violet blue... \nAnd over her face she draws a veil \nAs shimmering fine as floating dew... \nAnd here and there \nIn the black of her hair \nThe subtle hands of Night \nMove slowly with their gem-starred light. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It presents alternating descriptions of night in a rural area and in a city.",
+      "B": "It sketches an image of nightfall, then an image of sunrise.",
+      "C": "It makes an extended comparison of night to a human being.",
+      "D": "It portrays how night changes from one season of the year to the next."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately describes the overall structure of the text. Throughout the text, the speaker characterizes nighttime as if it were a person who wears clothing (“a garment” that is “velvet soft” and “violet blue”) and a veil “over her face” and who moves her hands “slowly with their gem-starred light” through her dark hair. Thus, the text is structured as an extended comparison of night to a human being. Choice A is incorrect because the text never mentions any particular location; instead, it focuses on presenting a single description of night as a person with certain clothing and features. Choice B is incorrect because the text doesn’t make any reference to the sun or sunrise; instead, it focuses on presenting a single image of night as a person with certain clothing and features. Choice D is incorrect. Rather than describing how nighttime changes seasonally (or in any other way), the text presents a single image of night as a person with certain clothing and features."
+  },
+  {
+    "id": 44,
+    "question": "The following text is adapted from Susan Glaspell’s 1912 short story “‘Out There.’” An elderly shop owner is looking at a picture that he recently acquired and hopes to sell. \nIt did seem that the picture failed to fit in with the rest of the shop. A persuasive young fellow who claimed he was closing out his stock let the old man have it for what he called a song. It was only a little out-of-the-way store which subsisted chiefly on the framing of pictures. The old man looked around at his views of the city, his pictures of cats and dogs, his flaming bits of landscape. “Don’t belong in here,” he fumed. And yet the old man was secretly proud of his acquisition. There was a hidden dignity in his scowling as he shuffled about pondering the least ridiculous place for the picture. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To reveal the shop owner’s conflicted feelings about the new picture",
+      "B": "To convey the shop owner’s resentment of the person he got the new picture from",
+      "C": "To describe the items that the shop owner most highly prizes",
+      "D": "To explain differences between the new picture and other pictures in the shop"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the main purpose of the text. The text begins by stating that the new picture “failed to fit in” with the other items that the shop owner has. The text goes on to illustrate that point by describing the other pictures the shop owner has, indicating that the shop owner is fuming because he doesn’t think the new picture belongs in the store. In the second paragraph, however, the text indicates that the shop owner is “secretly proud of his acquisition.” The main purpose of the text is thus to reveal the shop owner’s conflicted feelings about the new picture. Choice B is incorrect because the text doesn’t suggest that the shop owner resents the young man who sold him the new picture; in fact, the text gives no indication of the owner’s feelings about the young man at all. Choice C is incorrect. Although the text indicates that the new picture is different from the other items in the shop, there’s no suggestion that the shop owner prizes either the new picture or the pictures of the city, pets, and landscapes more than he prizes any other items. Choice D is incorrect because the text doesn’t describe what the new picture looks like; rather, the text identifies some of the other kinds of images that the shop owner has and states that they’re different from the new picture without explaining how they’re different."
+  },
+  {
+    "id": 45,
+    "question": "A team investigating frugivorous (fruit-eating) birds found that their feeding patterns vary depending on where they live within their habitat range. At the geographic boundaries of their natural range, these birds become highly selective, choosing fruits that closely match their beak size to maximize energy intake while minimizing effort. However, this fruit-selection strategy doesn’t occur at elevation boundaries (the highest and lowest altitudes of their range). In these areas, other factors, such as territorial competition among species, have a stronger influence on feeding patterns. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To describe research methods that can be used to study the habitat preferences of frugivorous birds",
+      "B": "To present research findings concerning how location within a habitat affects the feeding patterns of frugivorous birds",
+      "C": "To discuss how competition among frugivorous bird species influences their habitat boundaries",
+      "D": "To explain why habitat boundaries are more important than beak size in determining the feeding patterns of frugivorous birds"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states the main purpose of the text. The text begins by introducing research on variation in frugivorous birds’ feeding patterns based on the specific part of their habitat range the birds occupy. The text then explains that birds at the geographic edges of their range feed selectively based on beak size, whereas birds at altitude-based boundaries feed based on local competition with other species. Therefore, the main purpose of the text is to present research findings concerning how location within a habitat affects the feeding patterns of frugivorous birds. Choice A is incorrect. Although the text does discuss studying habitats of frugivorous birds, it doesn’t address specific research methods. Choice C is incorrect. Although the text mentions territorial competition as a factor affecting the feeding patterns of frugivorous birds at elevation boundaries, nothing in the text suggests that such competition affects the boundaries of those birds’ habitats. Choice D is incorrect. Although the text mentions beak size as a key factor shaping frugivorous birds’ feeding patterns at the geographic boundaries of the birds’ natural range, it doesn’t compare the relative importance of different factors or indicate that habitat boundaries matter more than beak size. Instead, the text presents findings showing that different types of boundaries—geographic and elevational—are associated with different influences on feeding patterns."
+  },
+  {
+    "id": 46,
+    "question": "The people of medieval Europe have traditionally been seen as uninterested in cleanliness and hygiene, but modern research has shown that this is largely a myth. According to historian Eleanor Janega, most medieval towns in Europe had at least one public bathhouse, which often offered both full-immersion baths and—more affordably—steam baths. <u>While such amenities were available mainly to town dwellers,</u> regular bathing in rivers and streams or daily sponge baths at home were common practices throughout medieval Europe. Which choice best describes the function of the underlined portion?",
+    "options": {
+      "A": "It asserts that in medieval Europe steam baths were more popular in rural areas than in urban ones.",
+      "B": "It describes a limitation of earlier historians’ studies of medieval European bathing habits.",
+      "C": "It concedes that not all people in medieval Europe had access to public bathhouses.",
+      "D": "It explains why Janega decided to study the popularity of public bathhouses in medieval Europe."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively describes the function of the underlined portion. The text discusses the long-standing misconception that people in medieval Europe were uninterested in cleanliness and hygiene. As evidence that this idea is false, the text cites historian Eleanor Janega’s assertion that in medieval Europe, towns usually had at least one bathhouse, where people could take immersion baths or steam baths for a fee. The underlined portion then notes that mainly town dwellers had access to these bathhouses. The remainder of the text explains that those who lacked such access were nonetheless able to bathe in outdoor waterways or take sponge baths at home. Therefore, the underlined portion concedes that some people in medieval Europe lacked access to public bathhouses. Choice A is incorrect. The underlined portion establishes that amenities such as steam baths were mainly available to town dwellers, which suggests in turn that steam baths were largely unavailable to people in rural areas. Thus, the distinction made by the underlined portion is not between the popularity of steam baths in towns versus their lack of popularity in rural areas but instead between their presence in towns and absence in rural areas. Choice B is incorrect. Although the text does explain that recent historians have disproved the idea that medieval Europeans rarely bathed, it doesn’t attribute that misconception to earlier historians of medieval Europe or suggest that their research was subject to limitations. Moreover, the underlined portion addresses a limitation of life in medieval Europe, not of historical research. Choice D is incorrect because the underlined portion doesn’t address why historian Eleanor Janega decided to study the popularity of public bathhouses in medieval Europe—nor does any portion of the text. The text mentions Janega in passing, but it doesn’t go into detail about why she decided to study the popularity of public bathhouses in medieval Europe."
+  },
+  {
+    "id": 47,
+    "question": "The following text is from Herman Melville’s 1854 novel The Lightning-rod Man. \nThe stranger still stood in the exact middle of the cottage, where he had first planted himself. His singularity impelled a closer scrutiny. A lean, gloomy figure. Hair dark and lank, mattedly streaked over his brow. His sunken pitfalls of eyes were ringed by indigo halos, and played with an innocuous sort of lightning: the gleam without the bolt. The whole man was dripping. He stood in a puddle on the bare oak floor: his strange walking-stick vertically resting at his side. Which choice best states the function of the underlined sentence in the overall structure of the text?",
+    "options": {
+      "A": "It elaborates on the previous sentence’s description of the character.",
+      "B": "It introduces the setting that is described in the sentences that follow.",
+      "C": "It establishes a contrast with the description in the previous sentence.",
+      "D": "It sets up the character description presented in the sentences that follow."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. This best states the function of the underlined sentence. The sentence basically says: “He stood out, so I looked more closely at him.” Then the rest of the text describes him in detail. Choice A is incorrect. This doesn’t state the function of the underlined sentence. The previous sentence basically says: “He was still standing in the middle of the cottage”—it doesn’t include any description of the character himself. Choice B is incorrect. This doesn’t state the function of the underlined sentence. The following sentences describe the character, not the setting. Choice C is incorrect. This doesn’t state the function of the underlined sentence. The underlined sentence basically says: “He stood out, so I looked more closely at him.” The previous sentence basically says: “He was still standing in the middle of the cottage.” There’s no contrast between these two sentences."
+  },
+  {
+    "id": 48,
+    "question": "By combining Indigenous and classical music, Cree composer and cellist Cris Derksen creates works that reflect the diverse cultural landscape of Canada. For her album Orchestral Powwow, Derksen composed new songs in the style of traditional powwow music that were accompanied by classical arrangements played by an orchestra. But where an orchestra would normally follow the directions of a conductor, the musicians on Orchestral Powwow are led by the beat of a powwow drum. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To examine how Derksen’s musical compositions blend cultures",
+      "B": "To argue that Derksen should be recognized for creating a new style of music",
+      "C": "To describe the difficulties Derksen encountered when producing her album",
+      "D": "To establish a contrast between Derksen’s classical training and her Cree heritage"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the main purpose of the text, which is to discuss how Derksen’s compositions incorporate elements from both Indigenous and classical music. After introducing Derksen, the text describes how the songs Derksen composed for her album Orchestral Powwow feature aspects of the two musical traditions. Specifically, the text notes that Derksen wrote songs in the style of traditional powwow music but accompanied them with classical arrangements played by an orchestra that followed the beat of a powwow drum rather than the directions of a conductor. In this way, Derksen’s compositions blend different cultures. Choice B is incorrect because although the text suggests that Derksen’s songs contain innovative elements since they blend styles from two different musical traditions, it doesn’t discuss whether her compositions constitute a new style of music, let alone whether Derksen should be recognized for creating a new style of music. Choice C is incorrect because the text doesn’t mention any difficulties Derksen encountered when producing her album. Rather, the text describes how the songs on the album exemplify how Derksen combines music from two different cultures. Choice D is incorrect because although the text mentions Derksen’s Cree heritage and suggests that she relies on knowledge of both Indigenous and classical music when she composes her songs, it doesn’t discuss her musical training. Additionally, the text is primarily focused on how Derksen combines different cultural traditions, not on contrasting Derksen’s training with her heritage."
+  },
+  {
+    "id": 49,
+    "question": "Part of the Atacama Desert in Peru has surprisingly rich plant life despite receiving almost no rainfall. Moisture from winter fog sustains plants once they’re growing, but the soil’s tough crust makes it hard for seeds to germinate in the first place. Local birds that dig nests in the ground seem to be of help: <u>they churn the soil, exposing buried seeds to moisture and nutrients.</u> Indeed, in 2016 Cristina Rengifo Faiffer found that mounds of soil dug up by birds were far more fertile and supported more seedlings than soil in undisturbed areas. Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It elaborates on the idea that the top layer of Atacama Desert soil forms a tough crust.",
+      "B": "It describes the process by which seeds are deposited into Atacama Desert soil.",
+      "C": "It identifies the reason particular bird species dig nests in Atacama Desert soil.",
+      "D": "It explains how certain birds promote seed germination in Atacama Desert soil."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes how the underlined portion functions in the text as a whole. The first two sentences establish a natural phenomenon: there is a richness of plant life found in the Atacama Desert despite the hard soil that makes it challenging for seeds to germinate. The next sentence, which contains the underlined portion, offers a potential explanation for the phenomenon: local birds dig ground nests exposing seeds to moisture and materials in the soil necessary for germination. The last sentence summarizes a study that compared the fertileness of mounds of dirt dug up by birds to mounds that were undisturbed to support the explanation in the underlined portion. Thus, the underlined portion mainly functions to explain how certain birds promote seed germination in the Atacama Desert soil. Choice A is incorrect because the underlined portion doesn’t address the topic of the soil’s tough crust or its formation. Instead, the text elaborates on the idea that local birds that build ground nests may help seeds germinate in the hard soil. Choice B is incorrect because the underlined portion describes how some birds may support seed germination in Atacama Desert soil but doesn’t describe how the seeds are deposited into the soil before germination begins. Choice C is incorrect because neither the underlined portion nor the text as a whole identifies a reason that a particular bird species may choose to dig ground nests in the Atacama Desert soil."
+  },
+  {
+    "id": 50,
+    "question": "The following text is from Betty Smith’s 1943 novel A Tree Grows in Brooklyn. Francie, a young girl, visits the library often. \nFrancie thought that all the books in the world were in that library and she had a plan about reading all the books in the world. She was reading a book a day in alphabetical order and not skipping the dry ones. She remembered that the first author had been Abbott. She had been reading a book a day for a long time now and she was still in the B’s. Already she had read about bees and buffaloes, Bermuda vacations and Byzantine architecture. For all her enthusiasm, she had to admit that some of the B’s had been hard going. But Francie was a reader. ©1947 by Betty Smith Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To illustrate Francie’s enjoyment of an unusual topic",
+      "B": "To explain why Francie prefers reading over other activities",
+      "C": "To portray Francie’s determination to meet a goal",
+      "D": "To describe a book that Francie greatly admires"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately describes the main purpose of the text, which is to portray Francie’s determination to reach her goal of reading all the books in the world. The text indicates that to achieve this aim, Francie works systematically and persistently: she reads all the books in the library in alphabetical order and devotes much time and effort to the project, finishing one book per day over a long period of time. The text then suggests that even though she progresses slowly (\"she was still in the B’s\") and that she struggled with some books (\"some of the B’s had been hard going\"), she doesn’t give up because she thinks of herself as \"a reader.\" These details show Francie’s resolve. Choice A is incorrect. Although the text mentions several topics (bees and buffaloes, Bermuda vacations, and Byzantine architecture) that Francie has read about, it doesn’t indicate that any of these topics are unusual or that she especially enjoyed reading about one of these topics in particular. If anything, the text suggests that she may have found some of these topics to be dull, saying that she even read the \"dry ones\"—that is, the boring books—and that some of the books were \"hard going,\" meaning they were difficult to get through. Choice B is incorrect because the text doesn’t discuss Francie’s involvement in other activities, only her dedication to reading. Although it’s possible that Francie dedicates herself to reading because she prefers it to other activities, the text doesn’t indicate whether this is the case. Choice D is incorrect. Although the text mentions one author (Abbott) whose book Francie has read as well as several topics (bees and buffaloes, Bermuda vacations, and Byzantine architecture) she has encountered, the text doesn’t say whether Francie admires any of the books she’s read so far. Instead, the text focuses on the time and effort she devotes to reaching her goal of reading all the books in the world—even ones she doesn’t enjoy."
+  },
+  {
+    "id": 51,
+    "question": "Michelene Pesantubbee, a historian and citizen of the Choctaw Nation, has identified a dilemma inherent to research on the status of women in her tribe during the 1600s and 1700s: the primary sources from that era, travel narratives and other accounts by male European colonizers, underestimate the degree of power conferred on Choctaw women by their traditional roles in political, civic, and ceremonial life. Pesantubbee argues that the Choctaw oral tradition and findings from archaeological sites in the tribe’s homeland supplement the written record by providing crucial insights into those roles. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It details the shortcomings of certain historical sources, then argues that research should avoid those sources altogether.",
+      "B": "It describes a problem that arises in research on a particular topic, then sketches a historian’s approach to addressing that problem.",
+      "C": "It lists the advantages of a particular research method, then acknowledges a historian’s criticism of that method.",
+      "D": "It characterizes a particular topic as especially challenging to research, then suggests a related topic for historians to pursue instead."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The text begins by stating a problem with research on the status of Choctaw women in the 1600s and 1700s: written primary sources underestimate the power they had in their traditional roles. Then it presents one historian’s solution: looking to oral tradition and archeological findings for more insight into these roles. Choice A is incorrect. This isn’t the overall structure. The text never says that research should avoid written primary sources, just that research should also use oral tradition and archeological sites as sources. Choice C is incorrect. This isn’t the overall structure. The text never mentions the advantages of using written primary sources. Choice D is incorrect. This isn’t the overall structure. The text never says that the status of Choctaw women during the 1600s and 1700s is too challenging to research. And it doesn’t mention any other topics to research instead."
+  },
+  {
+    "id": 52,
+    "question": "Many archaeologists assume that large-scale engineering projects in ancient societies required an elite class to plan and direct the necessary labor. However, recent discoveries, such as the excavation of an ancient canal near the Gulf Coast of Alabama, have complicated this picture. Using radiocarbon dating, a team of researchers concluded that the 1.39-kilometer-long canal was most likely constructed between 576 and 650 CE by an Indigenous society that was relatively free of social classes. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It describes a common view among archaeologists, then discusses a recent finding that challenges that view.",
+      "B": "It outlines a method used in some archaeological fieldwork, then explains why an alternative method is superior to it.",
+      "C": "It presents contradictory conclusions drawn by archaeologists, then evaluates a study that has apparently resolved that contradiction.",
+      "D": "It identifies a gap in scientific research, then presents a strategy used by some archaeologists to remedy that gap."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes the overall structure of the text. The text begins by introducing an assumption held by some archaeologists that in the past large-scale engineering projects would have needed an elite class to organize the projects and the labor. Next, the text indicates that there have been some discoveries that complicate this assumption and provides an ancient canal near the Alabama Gulf Coast as an example. Finally, the text presents research findings that an ancient canal—a large-scale project—was most likely made by an Indigenous society that didn’t have an elite class. Thus, the text describes a common view held by archaeologists and then presents a recent finding that challenges that view. Choice B is incorrect. Although the text mentions that researchers used radiocarbon dating, this occurs in the last sentence and there are no other methods mentioned or evaluated. Instead, the text presents an assumption about large-scale engineering projects and then introduces research into an ancient canal off the coast of Alabama that challenges the assumption. Choice C is incorrect because the study doesn’t present multiple contradictions that are later resolved; instead, it introduces an assumption about a society’s need for elite classes to oversee large-scale engineering projects and then later challenges that assumption by introducing a study that found that a large-scale engineering project was successfully undertaken by an Indigenous society known to have been “relatively free of social classes.” Choice D is incorrect because the text doesn’t mention a gap in scientific research. Instead, it identifies an assumption made by many archaeologists about the conditions needed for societies to undertake large-scale engineering projects and then presents an example of an ancient project that undermines that assumption."
+  },
+  {
+    "id": 53,
+    "question": "The following text is from H.D.’s 1916 poem “Mid-Day.” In the poem, the speaker is on a path in an outdoor setting. \n<u>A slight wind shakes the seed-pods—</u> \nmy thoughts are spent as the black seeds. \nMy thoughts tear me, \nI dread their fever. \nI am scattered in its whirl. \nI am scattered like \nthe hot shrivelled seeds. Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It illustrates a change in the natural environment that the speaker implies is responsible for the growing misgivings described in the text.",
+      "B": "It establishes an example of consistency in the natural landscape that the speaker then contrasts with the unpredictability of human emotions.",
+      "C": "It presents an observation of an occurrence in the natural world that the speaker then expands on to convey a sense of a turbulent interior state.",
+      "D": "It evokes the ordinariness of an event in nature to suggest that the critical self-evaluation the speaker engages in is a common pursuit."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it best describes the function of the underlined portion in the text as a whole. In the text, the speaker mentions the occurrence in nature of seedpods being shaken by a slight wind. The speaker then goes on to compare the black seeds to thoughts, using language that indicates that the speaker’s state of mind is unsettled (e.g., \"my thoughts are spent\"; \"My thoughts tear me, I dread their fever\"). The text concludes with a comparison between the speaker’s \"scattered\" state of mind and the \"hot shrivelled seeds.\" Thus, the underlined portion of the text presents an observation of an occurrence in the natural world that the speaker then expands on to convey a sense of a turbulent interior state. Choice A is incorrect because the text does not indicate that the seedpods are the cause of the speaker’s state of mind; thus, they could not be responsible for any misgivings the speaker has. Choice B is incorrect because the text does not contrast the natural landscape with the speaker’s state of mind or describe the wind shaking the seedpods as consistent; rather, the text suggests that the state of the natural world and the speaker’s state of mind are similar in that both are unsettled. Choice D is incorrect because there is no indication in the text that the speaker regularly engages in critical self-evaluation, only that in this particular instance the speaker’s state of mind is turbulent."
+  },
+  {
+    "id": 54,
+    "question": "Today composer Scott Joplin is mainly celebrated for his catchy ragtime pieces “Maple Leaf Rag” and “The Entertainer.” However, by overlooking his less famous works, listeners will miss the full range of Joplin’s creativity. For instance, his waltz “Pleasant Moments” and his opera Treemonisha skillfully blend ragtime and classical music. These masterpieces deserve as much fame as Joplin’s biggest hits. Which choice best states the main purpose of the text?",
+    "options": {
+      "A": "To describe the similarities and differences between ragtime music and opera",
+      "B": "To argue that more attention should be given to Joplin’s lesser-known works",
+      "C": "To encourage music lovers to listen to music by many different composers",
+      "D": "To explain how Joplin learned to compose and perform ragtime music"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it best states the main purpose of the text, which is to make a case for the importance of Scott Joplin’s less famous works. The text begins by introducing Joplin’s most popular works and then goes on to assert that gaining a full understanding of Joplin’s creativity requires a consideration of his lesser-known pieces as well. The text concludes by characterizing the lesser-known works \"Pleasant Moments\" and Treemonisha as masterpieces that deserve to be famous. These details indicate that the text’s main purpose is to argue that more attention should be given to Joplin’s lesser-known works. Choice A is incorrect. Although the text discusses some of the ragtime music and an opera that Joplin composed, it does not compare the two types of music in general. Instead, the text argues that Joplin’s lesser-known works, including his opera, deserve as much attention as his more famous ragtime pieces receive. Choice C is incorrect because the text discusses only Joplin’s music and does not ask music lovers to listen to a variety of composers. Instead, the text encourages listeners to pay attention to Joplin’s lesser-known works in order to gain a full understanding of his creativity. Choice D is incorrect because the text does not discuss how Joplin learned to compose and perform ragtime music. Instead, the text focuses on Joplin’s less famous works and makes a case for their importance."
+  },
+  {
+    "id": 55,
+    "question": "The following text is adapted from George Eliot’s 1857 short story “The Sad Fortunes of the Rev. Amos Barton.” \nMr. Ely is a clergyman in the town of Milby. By the laity of Milby and its neighbourhood [Mr. Ely] was regarded as a man of quite remarkable powers and learning, who must make a considerable sensation in London pulpits and drawing-rooms on his occasional visit to the metropolis; and by his brother clergy he was regarded as a discreet and agreeable fellow. Mr. Ely never got into a warm discussion; he suggested what might be thought, but rarely said what he thought himself; he never let either men or women see that he was laughing at them, and he never gave any one an opportunity of laughing at him. Which choice best describes the overall structure of the text?",
+    "options": {
+      "A": "It shows that Mr. Ely had originally been held in high regard by his friends and then details the events that caused their regard for him to subside.",
+      "B": "It implies that Mr. Ely’s neighbors are more naïve in their estimation of him than people in London are and then explains why his neighbors have been so easily misled.",
+      "C": "It stresses the discrepancy between Mr. Ely’s public and private conduct and then alludes to his motivation for hiding his true personality.",
+      "D": "It presents the favorable opinion of Mr. Ely that other people hold and then describes the behaviors of Mr. Ely that enable him to maintain that favorable opinion."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it best describes the overall structure of the text. The first part of the text presents the favorable opinions that others hold of Mr. Ely: the laity of Milby regard him as having \"remarkable powers and learning\" and assume that he also impresses people in London, while his fellow clergy see him as \"a discreet and agreeable fellow.\" The text then goes on to describe Mr. Ely’s behaviors that enable him to cultivate and preserve his positive reputation. The text conveys that he avoids confrontations, abstaining from \"warm discussion[s]\" (that is, heated or contentious ones); that he avoids offending anyone by \"rarely [saying] what he thought himself\" and by refraining from openly ridiculing anyone; and that he doesn’t give anyone any reason to ridicule or belittle his own character (\"he never gave any one an opportunity of laughing at him\"). In other words, these are all behaviors that suggest that Mr. Ely avoids doing anything that might make people dislike him or think poorly of him. Thus, the text begins by presenting the favorable view that people have of Mr. Ely and then describes the behaviors that enable him to maintain that favorable view. Choice A is incorrect because the text doesn’t describe any events that caused people’s regard for Mr. Ely to diminish. Instead, the text explains that the people of Milby hold him in high regard and describes behaviors that suggest how he cultivates that regard. Choice B is incorrect because the text doesn’t suggest that Mr. Ely’s neighbors are more naïve than Londoners are or that they’ve been misled. Although the text suggests that Mr. Ely is very guarded in his outward behavior and conceals from people when he may be internally mocking them, which might suggest that people know him less well than they think they do, there’s nothing in the text to suggest that Londoners are less naïve and therefore less easily misled than Mr. Ely’s neighbors are. The text states that the people of Milby believe Mr. Ely to be \"remarkable\" and that they assume that people in London must find him so, too; it doesn’t say anything about what Londoners actually think of him. Choice C is incorrect. While the text discusses Mr. Ely’s public conduct at length, describing the ways in which he carefully cultivates an agreeable public persona, the text doesn’t discuss how Mr. Ely behaves in private at all; it therefore wouldn’t be accurate to say that the text begins by emphasizing a discrepancy between his public and private conduct. Furthermore, although the text concludes with examples illustrating that Mr. Ely typically doesn’t share his true thoughts, indicating that he may be hiding aspects of his true personality when in public, and although the text as a whole conveys the idea that Mr. Ely benefits from this behavior, which might hint at his motives for doing so, the text doesn’t conclude by alluding to those motives. Instead, the text merely concludes with a description of the behaviors he engages in to win his neighbors’ and colleagues’ approval."
+  },
+  {
+    "id": 56,
+    "question": "The following text is from Annie Dillard’s 1987 autobiographical novel An American Childhood. The narrator is a young girl living in Pittsburgh. \nI walked. My mother had given me the freedom of the streets as soon as I could say our telephone number. I walked and memorized the neighborhood. I made a mental map and located myself upon it. At night in bed I rehearsed the small world’s scheme and set challenges: <u>Find the store using backyards only. Imagine a route from the school to my friend’s house.</u> \n©1987 by Annie Dillard Which choice best describes the function of the underlined portion in the text as a whole?",
+    "options": {
+      "A": "It describes the narrator trying to memorize her telephone number.",
+      "B": "It provides examples of what the narrator thinks about at night.",
+      "C": "It gives directions to the narrator’s favorite local store.",
+      "D": "It portrays the narrator’s relationship with her mother."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it accurately describes how the underlined portion functions in the text as a whole. In the text, the narrator explains that she walks around her neighborhood, making a \"mental map\" of the area that she imagines herself navigating through. She then states that she rehearses \"the small world’s scheme\"—that is, imagines moving through her mental map—and challenges herself to use the map in her mind while lying in bed at night. The underlined portion presents two such challenges (getting to the store through backyards and traveling from school to a friend’s house) and thus provides examples of what the narrator thinks about at night. Choice A is incorrect because the underlined portion makes no mention of memorizing a telephone number. Although the narrator mentions that she had to learn the home telephone number before her mother would give her permission to walk around the neighborhood, there is nothing in the underlined portion or the rest of the text about memorizing the telephone number. Choice C is incorrect. Although the underlined portion refers to navigation tasks like finding a route to a store only through backyards, the text contains no specific directions to any store, nor is any store identified as the narrator’s favorite. Choice D is incorrect because the underlined portion makes no mention of the narrator’s mother and doesn’t address the narrator’s relationship with her. Although the narrator mentions that her mother gave her permission as a child to walk around the neighborhood, there is nothing in the underlined portion or the rest of the text about the mother or her relationship to her child."
+  }
+];
+
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script src="quiz-pager.js" defer></script>
+</body>
+</html>
