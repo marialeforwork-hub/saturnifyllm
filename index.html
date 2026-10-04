@@ -1651,6 +1651,7 @@
         const joinChar = selectedQuizUrl.includes('?') ? '&' : '?';
 
         iframe.onload = function() {
+            installIframeResultHistoryStorageGuard();
             setupIframeSubmitInterceptor();
             setupBookmarkAndNavigation();
             restoreDraftToIframe();
@@ -1986,6 +1987,102 @@
         }
     }
 
+    const MAX_LOCAL_RESULT_ENTRIES = 100;
+    const MAX_LOCAL_RESULT_HISTORY_CHARS = 650000;
+
+    function isStorageQuotaError(error) {
+        return error?.name === 'QuotaExceededError' || error?.code === 22 || error?.code === 1014;
+    }
+
+    function localResultHistoryCandidates(results) {
+        let recent = results
+            .filter(result => result && typeof result === 'object' && !Array.isArray(result))
+            .slice(-MAX_LOCAL_RESULT_ENTRIES);
+        const candidates = [];
+
+        while (recent.length > 1) {
+            const serialized = JSON.stringify(recent);
+            if (serialized.length <= MAX_LOCAL_RESULT_HISTORY_CHARS) break;
+            recent = recent.slice(1);
+        }
+
+        candidates.push(JSON.stringify(recent));
+        while (recent.length > 0) {
+            recent = recent.slice(1);
+            candidates.push(JSON.stringify(recent));
+        }
+        return candidates;
+    }
+
+    function installIframeResultHistoryStorageGuard() {
+        try {
+            const iframeWindow = document.getElementById('quizIframe').contentWindow;
+            const storagePrototype = iframeWindow.Storage.prototype;
+            if (storagePrototype.__saturnifyResultHistoryGuard) return;
+
+            const originalSetItem = storagePrototype.setItem;
+            storagePrototype.setItem = function(key, value) {
+                if (key !== 'sat_results') {
+                    return originalSetItem.call(this, key, value);
+                }
+
+                let results;
+                try {
+                    results = JSON.parse(value);
+                } catch (error) {
+                    console.warn('Không thể đọc lịch sử bài làm để giới hạn dung lượng:', error);
+                    return originalSetItem.call(this, key, value);
+                }
+                if (!Array.isArray(results)) return originalSetItem.call(this, key, value);
+
+                for (const candidate of localResultHistoryCandidates(results)) {
+                    try {
+                        return originalSetItem.call(this, key, candidate);
+                    } catch (error) {
+                        if (!isStorageQuotaError(error)) throw error;
+                    }
+                }
+
+                console.warn('Không thể lưu lịch sử bài làm vào bộ nhớ trình duyệt do hết quota; kết quả vẫn được gửi lên Firebase.');
+            };
+            storagePrototype.__saturnifyResultHistoryGuard = true;
+
+            const existing = iframeWindow.localStorage.getItem('sat_results');
+            if (existing) storagePrototype.setItem.call(iframeWindow.localStorage, 'sat_results', existing);
+        } catch (error) {
+            console.warn('Không thể bật giới hạn dung lượng lịch sử bài làm trong quiz:', error);
+        }
+    }
+
+    function readLocalResultHistory() {
+        try {
+            const history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+            return Array.isArray(history)
+                ? history.filter(result => result && typeof result === 'object' && !Array.isArray(result))
+                : [];
+        } catch (error) {
+            console.warn('Không thể đọc lịch sử bài làm trong bộ nhớ trình duyệt:', error);
+            return [];
+        }
+    }
+
+    function saveLocalResultHistory(results) {
+        for (const candidate of localResultHistoryCandidates(results)) {
+            try {
+                localStorage.setItem('sat_results', candidate);
+                return true;
+            } catch (error) {
+                if (!isStorageQuotaError(error)) {
+                    console.error('Không thể lưu lịch sử bài làm trong bộ nhớ trình duyệt:', error);
+                    return false;
+                }
+            }
+        }
+
+        console.warn('Không thể lưu lịch sử bài làm vào bộ nhớ trình duyệt do hết quota; kết quả vẫn được gửi lên Firebase.');
+        return false;
+    }
+
     function getQuizAnnotationStorageKey() {
         const studentId = sessionStorage.getItem('studentId') || 'guest';
         return `quiz_annotations_${studentId}_${selectedQuizStorageKey || selectedQuizTitle}`;
@@ -2095,6 +2192,7 @@
         if (event.data.type === 'SAT_SUBMIT_RESULT') {
             clearInterval(autoSaveInterval);
             const resultData = event.data.data || {};
+            const localResultId = resultData.id;
             resultData.questionTimes = {
                 ...(resultData.questionTimes || {}),
                 ...iframeWindowQuestionTimes()
@@ -2128,12 +2226,22 @@
             const now = new Date();
             resultData.displayTime = now.toLocaleTimeString('vi-VN') + ' - ' + now.toLocaleDateString('vi-VN');
 
-            let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
-            const attempt = history.filter(h => (h.studentName === loggedName || h.name === loggedName) && h.quizTitle === resultData.quizTitle).length + 1;
-            resultData.attempt = attempt;
+            let history = readLocalResultHistory();
+            const existingResultIndex = localResultId == null ? -1 : history.findIndex(result =>
+                (result.localResultId != null && String(result.localResultId) === String(localResultId)) ||
+                (result.id != null && String(result.id) === String(localResultId))
+            );
+            const previousAttempts = history
+                .filter((result, index) => index !== existingResultIndex &&
+                    (result.studentName === loggedName || result.name === loggedName) &&
+                    result.quizTitle === resultData.quizTitle)
+                .map(result => Number(result.attempt) || 0);
+            resultData.attempt = previousAttempts.length ? Math.max(...previousAttempts) + 1 : 1;
+            if (localResultId != null) resultData.localResultId = localResultId;
 
-            history.push(resultData);
-            localStorage.setItem('sat_results', JSON.stringify(history));
+            if (existingResultIndex >= 0) history[existingResultIndex] = resultData;
+            else history.push(resultData);
+            saveLocalResultHistory(history);
 
             const keyToClean = selectedQuizStorageKey || resultData.quizTitle;
             if (loggedId && keyToClean) {
