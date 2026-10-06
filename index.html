@@ -1665,6 +1665,7 @@
             installIframeResultHistoryStorageGuard();
             setupIframeSubmitInterceptor();
             setupBookmarkAndNavigation();
+            setupCurrentQuestionTracking();
             restoreDraftToIframe();
             restoreSavedAnnotationsToIframe();
         };
@@ -1744,7 +1745,7 @@
                     answers: answersMap,
                     answeredCount: Object.keys(answersMap).length,
                     totalQuestions: totalQ,
-                    lastQuestionNumber: answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0,
+                    lastQuestionNumber: getCurrentQuestionNumber(questionBlocks) || (answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0),
                     questionTimes
                 });
             }
@@ -1753,6 +1754,39 @@
                 showToast("💾 Đã lưu tiến độ làm bài!");
             }
         } catch (e) { console.log("Lỗi khi lưu tiến độ:", e); }
+    }
+
+    // Câu đang nằm ở giữa khung nhìn của iframe = câu học sinh đang làm
+    function getCurrentQuestionNumber(blocks) {
+        try {
+            const iframeWin = document.getElementById('quizIframe').contentWindow;
+            const mid = iframeWin.innerHeight / 2;
+            let best = 0, bestDist = Infinity;
+            blocks.forEach((block, index) => {
+                const r = block.getBoundingClientRect();
+                const dist = (r.top <= mid && r.bottom >= mid) ? 0 : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
+                if (dist < bestDist) { bestDist = dist; best = index + 1; }
+            });
+            return best;
+        } catch (e) { return 0; }
+    }
+
+    function setupCurrentQuestionTracking() {
+        try {
+            const iframeWin = document.getElementById('quizIframe').contentWindow;
+            const blocks = iframeWin.document.querySelectorAll('.question-block, .question');
+            let lastSent = 0, timer = null;
+            iframeWin.addEventListener('scroll', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    const n = getCurrentQuestionNumber(blocks);
+                    if (n && n !== lastSent) {
+                        lastSent = n;
+                        captureAndSaveDraftFromIframe(false);
+                    }
+                }, 800);
+            }, { passive: true });
+        } catch (e) { console.log("Lỗi theo dõi câu hiện tại:", e); }
     }
 
     function iframeWindowQuestionTimes() {
