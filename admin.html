@@ -908,12 +908,12 @@
     }
 
     function getLastQuestionNumber(draft) {
-        if (Number(draft.lastQuestionNumber) > 0) return Number(draft.lastQuestionNumber);
         const answers = draft.answers || {};
-        return Object.keys(answers).reduce((last, key) => {
+        const lastAnsweredQuestion = Object.keys(answers).reduce((last, key) => {
             const match = String(key).match(/(?:câu|question)(?:_|\s*)?(\d+)/i);
             return match ? Math.max(last, Number(match[1])) : last;
         }, 0);
+        return Math.max(Number(draft.lastQuestionNumber) || 0, lastAnsweredQuestion);
     }
 
     function escapeTrackingText(value) {
@@ -1005,7 +1005,7 @@
             const answered = Number(draft.answeredCount) || Object.keys(draft.answers || {}).length;
             const total = Number(draft.totalQuestions) || 0;
             const percentage = total > 0 ? Math.round((answered / total) * 100) : 0;
-            const currentQuestion = Number(draft.lastQuestionNumber) || 0;
+            const currentQuestion = getLastQuestionNumber(draft);
             const updatedTime = formatTrackingTime(draft.updatedAt);
             const row = document.createElement('tr');
             row.innerHTML = `
