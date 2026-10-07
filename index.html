@@ -1275,6 +1275,7 @@
     let currentQuizMode = "practice";
     let pendingSubmitEvent = null;
     let bypassInterceptor = false;
+    let trackedQuestionNumber = 0;
 
     function showToast(msg) {
         const toast = document.getElementById('toastMessage');
@@ -1611,6 +1612,7 @@
 
     function startQuizWithTimer() {
         currentQuizMode = document.querySelector('input[name="quizMode"]:checked').value;
+        trackedQuestionNumber = 0;
         clearInterval(timerInterval);
         clearInterval(autoSaveInterval);
 
@@ -1745,7 +1747,7 @@
                     answers: answersMap,
                     answeredCount: Object.keys(answersMap).length,
                     totalQuestions: totalQ,
-                    lastQuestionNumber: getCurrentQuestionNumber(questionBlocks) || (answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0),
+                    lastQuestionNumber: trackedQuestionNumber || getCurrentQuestionNumber(questionBlocks) || (answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0),
                     questionTimes
                 });
             }
@@ -1775,6 +1777,7 @@
         try {
             const iframeWin = document.getElementById('quizIframe').contentWindow;
             const blocks = iframeWin.document.querySelectorAll('.question-block, .question');
+            trackedQuestionNumber = getCurrentQuestionNumber(blocks);
             let lastSent = 0, timer = null;
             iframeWin.addEventListener('scroll', () => {
                 clearTimeout(timer);
@@ -1782,6 +1785,7 @@
                     const n = getCurrentQuestionNumber(blocks);
                     if (n && n !== lastSent) {
                         lastSent = n;
+                        trackedQuestionNumber = n;
                         captureAndSaveDraftFromIframe(false);
                     }
                 }, 800);
@@ -1908,6 +1912,7 @@
                 const inputs = block.querySelectorAll('input[type="radio"], input[type="text"]');
                 inputs.forEach(input => {
                     input.addEventListener('change', () => {
+                        trackedQuestionNumber = qNum;
                         syncAnsweredNavigator();
                         captureAndSaveDraftFromIframe(false);
                     });
