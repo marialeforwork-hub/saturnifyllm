@@ -12,6 +12,7 @@
         
         /* Căn chỉnh hiển thị cho đoạn văn Passage */
         .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        .passage-intro { margin: 0 0 15px; font-style: normal; }
         
         .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; white-space: pre-line; }
         .options { list-style-type: none; padding: 0; }
@@ -527,25 +528,34 @@
     }
 
     function splitCrossTextQuestion(question) {
-        const text1Start = question.indexOf('Text 1 ');
-        const text2Start = question.indexOf(' Text 2 ', text1Start + 7);
-        if (text1Start === -1 || text2Start === -1) {
-            return { text1: '', text2: '', prompt: question };
+        const text1Match = /\bText 1 (?=[A-Z“‘])/.exec(question);
+        if (!text1Match) {
+            return { intro: '', text1: '', text2: '', prompt: question };
         }
 
-        const text2ContentStart = text2Start + ' Text 2 '.length;
+        const text1Start = text1Match.index;
+        const text1ContentStart = text1Start + text1Match[0].length;
+        const text2Match = /\bText 2 (?=[A-Z“‘])/.exec(question.slice(text1ContentStart));
+        if (!text2Match) {
+            return { intro: '', text1: '', text2: '', prompt: question };
+        }
+
+        const text2Start = text1ContentStart + text2Match.index;
+        const text2ContentStart = text2Start + text2Match[0].length;
         const rest = question.slice(text2ContentStart);
         const promptStart = rest.search(/\s+(?=(?:Based on the (?:texts?|two texts)|Which choice)\b)/);
         if (promptStart === -1) {
             return {
-                text1: question.slice(text1Start + 'Text 1 '.length, text2Start).trim(),
+                intro: question.slice(0, text1Start).trim(),
+                text1: question.slice(text1ContentStart, text2Start).trim(),
                 text2: rest.trim(),
                 prompt: ''
             };
         }
 
         return {
-            text1: question.slice(text1Start + 'Text 1 '.length, text2Start).trim(),
+            intro: question.slice(0, text1Start).trim(),
+            text1: question.slice(text1ContentStart, text2Start).trim(),
             text2: rest.slice(0, promptStart).trim(),
             prompt: rest.slice(promptStart).trim()
         };
@@ -580,6 +590,7 @@
 
             questionBlock.innerHTML = `
                 <div class="question-passage">
+                    ${passages.intro ? `<p class="passage-intro">${passages.intro}</p>` : ''}
                     ${passages.text1 ? `<section class="passage-section"><h2>Text 1</h2><p>${passages.text1}</p></section>` : ''}
                     ${passages.text2 ? `<section class="passage-section"><h2>Text 2</h2><p>${passages.text2}</p></section>` : ''}
                 </div>
