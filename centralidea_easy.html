@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CENTRAL IDEAS AND DETAILS - EASY - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; white-space: pre-line; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; white-space: pre-line; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <script src="quiz-state.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>CENTRAL IDEAS AND DETAILS: EASY (QUESTION BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const quizData = [
+  {
+    "id": 1,
+    "question": "The following text is from Jane Austen’s 1811 novel Sense and Sensibility. Elinor lives with her younger sisters and her mother, Mrs. Dashwood. <br>Elinor, this eldest daughter, whose advice was so effectual, possessed a strength of understanding, and coolness of judgment, which qualified her, though only nineteen, to be the counsellor of her mother, and enabled her frequently to counteract, to the advantage of them all, that eagerness of mind in Mrs. Dashwood which must generally have led to imprudence. She had an excellent heart;—her disposition was affectionate, and her feelings were strong; but she knew how to govern them: it was a knowledge which her mother had yet to learn; and which one of her sisters had resolved never to be taught. According to the text, what is true about Elinor?",
+    "options": {
+      "A": "Elinor often argues with her mother but fails to change her mind.",
+      "B": "Elinor can be overly sensitive with regard to family matters.",
+      "C": "Elinor thinks her mother is a bad role model.",
+      "D": "Elinor is remarkably mature for her age."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it provides a detail about Elinor that is established in the text. The text indicates that although Elinor is “only nineteen,” she gives good advice and exhibits such a high level of understanding and judgment that she serves as “the counsellor of her mother.” Thus, Elinor is mature beyond her years. Choice A is incorrect because it isn’t supported by the text: although the text says that Elinor advises her mother and often counteracts her mother’s impulses, there’s no mention of Elinor arguing with her mother or failing to change her mother’s mind. Choice B is incorrect because it isn’t supported by the text: although the text mentions that Elinor has strong feelings, it doesn’t indicate that she’s excessively sensitive when it comes to family issues. Choice C is incorrect because it isn’t supported by the text: there’s no mention of what Elinor thinks about her mother and no suggestion that she thinks her mother is a bad role model. Because she’s described as having “an excellent heart,” Elinor likely doesn’t think ill of her mother."
+  },
+  {
+    "id": 2,
+    "question": "When fashion designer Lloyd Henri Kiva New opened his store in Scottsdale, Arizona, in 1945, he quickly became known for creating delicately crafted leather goods, like belts and hats. He was perhaps most renowned for his colorful handbags, which he made by hand using a long and painstaking process. As he gained more customers, New began using sewing machines and other tools to help him produce bags more efficiently, though he continued to handcraft the crucial details that made each bag unique. Based on the text, what would have been the most likely consequence if New had not begun using sewing machines?",
+    "options": {
+      "A": "He would have been unable to ensure that each bag included unique, handcrafted details.",
+      "B": "He would have struggled to meet the increasing demand for his bags.",
+      "C": "He would have had to individually design each bag he produced.",
+      "D": "He would not have been able to generate as much interest in his bags."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents the most likely consequence if New had not begun using sewing machines. The text states that New gained new customers and that sewing machines allowed him to make bags more efficiently, or in less time than he could when sewing by hand. It’s reasonable to conclude that if New hadn’t reduced the time it took to make each bag by starting to use sewing machines, it would have been hard for him to keep up with the increased demand. Choice A is incorrect because the text indicates that New added unique, handcrafted details to his bags before he started using sewing machines and continued to do so after he started using them. Choice C is incorrect because the text doesn’t suggest that individually designing each bag would have been a consequence of not using sewing machines, since New was already designing unique details for each bag before he started using sewing machines and continued to do so after he started using them. Choice D is incorrect because the text indicates that people were already interested in New’s bags before he started using sewing machines. Rather than allowing New to generate more interest in his bags, sewing machines helped New keep up with the interest that had already grown."
+  },
+  {
+    "id": 3,
+    "question": "Ruth Asawa was an accomplished artist who worked in many art forms, including her unique tied-wire sculptures, but she was dedicated to more than the creation of art. Asawa also wanted to bring art to children in her hometown of San Francisco, California. To that end, in 1968 she cofounded the Alvarado School Arts Workshop, which brought works of art and artists into public schools, and in 1982 she helped found a San Francisco public arts high school, which was later named after her. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Asawa inspired many other artists to share their work with students in public schools.",
+      "B": "Asawa’s unique sculptures were appreciated more by local art communities than they were nationwide.",
+      "C": "Asawa’s interest in art education prompted her to create art programs for students in San Francisco.",
+      "D": "Asawa left a promising career as a sculptor to work as an art teacher in San Francisco schools."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately states the main idea of the text. The text begins by establishing Ruth Asawa as an artist who worked in several art forms but emphasizes that she was interested in art for reasons other than her desire to create it. The text mentions two ways in which Asawa brought art to children through public schools: cofounding the Alvarado School Arts Workshop in 1968 and helping found a public arts high school in 1982. Thus, the main idea is that Asawa’s interest in art education motivated her to establish arts programs for students in San Francisco. Choice A is incorrect because the text doesn’t mention Asawa inspiring other artists to share their work with students. While the text does note that the Alvarado School Arts Workshop brought works of art and artists into public schools, it doesn’t state that Asawa motivated these artists. Choice B is incorrect because the text makes no comparison between local and national appreciation of Asawa’s sculptures. While the text does mention that Asawa created unique tied-wire sculptures and was connected to San Francisco, it does not contrast her local and national critical receptions. Choice D is incorrect. Although the text emphasizes Asawa’s educational initiatives, it doesn’t state or imply that she abandoned her career as a sculptor to work as an art teacher. Instead, the text portrays her educational work as a complement to her career as a successful artist."
+  },
+  {
+    "id": 4,
+    "question": "The following text is adapted from Johanna Spyri’s 1881 novel Heidi (translated by Elisabeth Stork in 1915). Eight-year-old Heidi and her friend’s grandmother are looking at some illustrated books. <br>Heidi had come and was looking with wondering eyes at the splendid pictures in the large books, that Grandmama was showing her. Suddenly she screamed aloud, for there on the picture she saw a peaceful flock grazing on a green pasture. In the middle a shepherd was standing, leaning on his crook. The setting sun was shedding a golden light over everything. With glowing eyes Heidi devoured the scene. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Heidi is upset until she sees a serene image of a pasture in one of Grandmama’s books.",
+      "B": "Heidi is delighted and fascinated by an image she sees in one of Grandmama’s books.",
+      "C": "Heidi is initially frightened by an image in one of Grandmama’s books but quickly comes to appreciate its beauty.",
+      "D": "Heidi is inspecting an image in one of Grandmama’s books because she has never seen a shepherd with his sheep before."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most effectively states the main idea of the text, which is that Heidi is delighted and fascinated by an image she sees in one of Grandmama’s books. In the text, Heidi screams upon first seeing the picture of the green pasture. In another context, such a reaction might suggest fear, but here the reaction is followed by descriptions of an image that’s peaceful rather than scary. The text goes on to describe Heidi’s eyes as “glowing” and states that she “devoured the scene,” suggesting that the image delights and fascinates her so much that she wants to examine every detail. Together, these descriptions suggest that Heidi is thrilled and intrigued by the image in the book. Choice A is incorrect because there’s nothing in the text to suggest that Heidi is upset before seeing the peaceful image of the green pasture. Before Heidi sees that image, the text describes her as “looking with wondering eyes at the splendid pictures” in the book, suggesting that Heidi is intrigued, not that she’s unhappy. Choice C is incorrect. Although Heidi screams upon first seeing the image, the text’s description of the image and Heidi’s other reactions to it suggest that she is screaming with delight, not fear. The text describes the images in the book as “splendid” and the particular image that causes her to scream as peaceful rather than frightening. It also describes Heidi’s eyes as “glowing” and states that she “devoured the scene,” suggesting that the image of the green pasture delights and fascinates her so much that she wants to examine every detail. Choice D is incorrect because it’s unclear from the text whether Heidi has ever seen a shepherd with his sheep before. The text merely suggests that she is delighted and fascinated by the image of the shepherd and his sheep."
+  },
+  {
+    "id": 5,
+    "question": "The following text is adapted from Edgar Allan Poe’s 1849 story “Landor’s Cottage.” <br>During a pedestrian trip last summer, through one or two of the river counties of New York, I found myself, as the day declined, somewhat embarrassed about the road I was pursuing. The land undulated very remarkably; and my path, for the last hour, had wound about and about so confusedly, in its effort to keep in the valleys, that I no longer knew in what direction lay the sweet village of B——, where I had determined to stop for the night. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The narrator remembers a trip he took and admits to getting lost.",
+      "B": "The narrator recalls fond memories of a journey that he took through some beautiful river counties.",
+      "C": "The narrator describes what he saw during a long trip through a frequently visited location.",
+      "D": "The narrator explains the difficulties he encountered on a trip and how he overcame them."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The narrator is “embarrassed” about the route he took, which ends up leaving him lost and confused about how to get to his destination for the evening. Choice B is incorrect. This choice doesn’t match the passage. The narrator is embarrassed, rather than fond, and he doesn’t describe the beauty of the place. Choice C is incorrect. This choice doesn’t match the passage. We don’t know from this excerpt whether or not the narrator has visited this part of New York multiple times. Choice D is incorrect. This choice doesn’t match the passage. The narrator doesn’t explain how he overcame being lost in this excerpt."
+  },
+  {
+    "id": 6,
+    "question": "Scent is tightly interwoven with our daily lives, often evoking significant memories and important social events. This connection is of growing interest to archaeologists who hope to use it to better understand ancient rituals, trade, social hierarchies, and medicine. Although the speed at which odor molecules dissipate makes identifying ancient scents challenging, advancements in biomolecular technologies show promise in unlocking ancient aromas from preserved artifacts. Archaeological studies making use of these advancements may provide new insights into past societies. According to the text, what is one reason some archaeologists are interested in recovering scents from ancient artifacts?",
+    "options": {
+      "A": "They are investigating whether people’s sense of smell has declined in recent centuries.",
+      "B": "They believe the scents could illuminate important aspects of ancient life.",
+      "C": "They think that ancient scents would be enjoyable to people today.",
+      "D": "They hope to develop new medicines using ancient scent molecules."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The text states that archaeologists are interested in using scents to better understand \"ancient rituals, trade, social hierarchies, and medicine,\" all of which are important aspects of ancient life. Choice A is incorrect. The text doesn’t say anything about investigating if people’s sense of smell has declined in recent centuries. It says that scents fade over time—not that people have gotten worse at smelling scents. Choice C is incorrect. The text says that archaeologists are interested in using scents to better understand \"ancient rituals, trade, social hierarchies, and medicine,\" but it doesn’t say anything about ancient scents being enjoyable to people today. Choice D is incorrect. The text doesn’t say anything about developing new medicines. Rather, it says that archaeologists are interested in using scents to better understand \"ancient rituals, trade, social hierarchies, and medicine.\""
+  },
+  {
+    "id": 7,
+    "question": "Stores often play background music to create a pleasant shopping experience. Based on a survey, Amir Manzoor found that such music was linked to reduced enjoyment among customers. Manzoor thinks that one explanation for this result is that the surveyed customers may have wanted to finish their shopping as quickly as possible. They therefore weren’t focused on enjoying the experience. It’s possible that background music could improve the experience of other customers whose main goal is to have a good time while they shop. Based on the text, which research question was Manzoor’s study most likely intended to answer?",
+    "options": {
+      "A": "Does the volume of a store’s background music affect how much time customers spend in the store?",
+      "B": "How does the use of background music in stores affect customers’ shopping experience?",
+      "C": "Do customers spend more money when shopping for music in stores or online?",
+      "D": "What genres of music do customers prefer to listen to while they are shopping?"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a research question that is clearly addressed by Manzoor’s study as described in the text. The text indicates that Manzoor surveyed customers and found that background music was linked to reduced enjoyment while shopping. Manzoor then explains this result in terms of the music interfering with customers’ main goal (finishing their shopping as quickly as possible), speculating that background music might improve the experience of customers with different shopping goals. Throughout the text, the focus is on the relationship between background music and customers’ shopping experience, suggesting that Manzoor’s study was designed to answer how background music affects that experience. Choice A is incorrect because the text doesn’t mention the volume of background music or how much time customers spend in a store. Instead, the text focuses on whether background music is linked to customer enjoyment of the shopping experience. Choice C is incorrect because the text doesn’t address how much money customers spend or compare in-store and online purchasing. Rather, the text discusses background music played during shopping, not music as a product to be purchased. Choice D is incorrect because the text doesn’t discuss different genres of music or customers’ preferences for particular genres. Instead, the text addresses background music in general and its link to customer enjoyment."
+  },
+  {
+    "id": 8,
+    "question": "The following text is adapted from Edith Nesbit’s 1906 novel The Railway Children. <br>Mother did not spend all her time in paying dull [visits] to dull ladies, and sitting dully at home waiting for dull ladies to pay [visits] to her. She was almost always there, ready to play with the children, and read to them, and help them to do their home-lessons. Besides this she used to write stories for them while they were at school, and read them aloud after tea, and she always made up funny pieces of poetry for their birthdays and for other great occasions. According to the text, what is true about Mother?",
+    "options": {
+      "A": "She wishes that more ladies would visit her.",
+      "B": "Birthdays are her favorite special occasion.",
+      "C": "She creates stories and poems for her children.",
+      "D": "Reading to her children is her favorite activity."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it describes something that is true of Mother, as presented in the text. The text indicates that in addition to other activities, Mother writes stories for her children while they are at school and makes up “funny pieces of poetry” for certain occasions. Choice A is incorrect because the text suggests that Mother prefers to spend her time with her children and doesn’t sit at home hoping that ladies will visit her. Choice B is incorrect because the text says only that Mother makes up poetry for the children’s birthdays, not that she likes birthdays more than other special occasions. Choice D is incorrect because the text doesn’t suggest that Mother prefers reading to her children over the other activities she does with them, such as playing with them and writing stories and poems for them."
+  },
+  {
+    "id": 9,
+    "question": "The following text is from Laila Lalami’s 2019 novel The Other Americans. The narrator is a member of her middle school’s jazz band. <br>One day the jazz band was invited to perform at the Summer Festival in Palm Springs. Walking across the stage to the piano, I did what my teacher had advised. Pretend you’re only playing for one person. That way you won’t be so nervous. I glanced at my father, who sat in the front row, leaning his head just so, waiting. Then I closed my eyes, and began to play. ©2019 by Laila Lalami According to the text, what does the narrator do as she walks across the stage?",
+    "options": {
+      "A": "She thinks about the differences between playing the piano alone and playing in a band.",
+      "B": "She feels excitement about playing in a music festival for the first time.",
+      "C": "She remembers how hard she has practiced for the performance.",
+      "D": "She follows her teacher’s advice about managing her nervousness."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents a statement about what the narrator is doing that is directly supported by the text. According to the text, as the narrator walks across the stage to her piano, she recalls her teacher’s advice to pretend that she is playing for only one person. The text indicates that this advice was intended to help manage any nerves related to performing. Moreover, the text implies that the narrator follows this advice by deciding to focus on her father sitting in the audience. Thus, the text supports the idea that as she walks across the stage, the narrator follows her teacher’s advice about managing her nervousness. Choice A is incorrect because the text doesn’t indicate that the narrator is thinking about how playing the piano alone is different from playing the piano in a band. Rather, the narrator thinks about her teacher’s advice to pretend that she is playing the piano for only one person to help ease her nervousness about performing. Choice B is incorrect because the text provides no indication that this is the first music festival that the narrator has performed in. Furthermore, the text indicates that the narrator is nervous, not excited, to play the piano at the festival. Choice C is incorrect because the text doesn’t suggest that the narrator is remembering how hard she practiced for the performance. Rather, she is thinking about what her teacher told her to do to help ease her nerves about playing the piano in front of an audience."
+  },
+  {
+    "id": 10,
+    "question": "The following text is adapted from Oscar Wilde’s 1891 novel The Picture of Dorian Gray. Dorian Gray is taking his first look at a portrait that Hallward has painted of him. <br>Dorian passed listlessly in front of his picture and turned towards it. When he saw it he drew back, and his cheeks flushed for a moment with pleasure. A look of joy came into his eyes, as if he had recognized himself for the first time. He stood there motionless and in wonder, dimly conscious that Hallward was speaking to him, but not catching the meaning of his words. The sense of his own beauty came on him like a revelation. He had never felt it before. According to the text, what is true about Dorian?",
+    "options": {
+      "A": "He wants to know Hallward’s opinion of the portrait.",
+      "B": "He is delighted by what he sees in the portrait.",
+      "C": "He prefers portraits to other types of paintings.",
+      "D": "He is uncertain of Hallward’s talent as an artist."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a statement about Dorian that is directly supported by the text. The narrator of the text says that when Dorian sees his portrait, “his cheeks flushed for a moment with pleasure” and “a look of joy came into his eyes.” The narrator goes on to say that Dorian looked at the portrait “in wonder” and presents him as being so entranced by the portrait that he doesn’t notice what Hallward is saying to him. All these details support the description of Dorian as being delighted by what he sees in the portrait. Choice A is incorrect because Dorian isn’t depicted as interested in Hallward’s opinion of the portrait but rather as so enraptured by the painting that he’s hardly even aware of Hallward. Choice C is incorrect because the portrait of Dorian is the only painting that is mentioned in the text, so there’s no evidence that Dorian prefers portraits to other types of paintings. Although Dorian is depicted as delighted with this particular portrait, there’s no way of knowing from the text whether he likes portraits better than other kinds of paintings. Choice D is incorrect because nothing in the text suggests that Dorian is uncertain about Hallward’s talent. Instead, the text is focused on Dorian’s delight with the portrait."
+  },
+  {
+    "id": 11,
+    "question": "In 2014, Amelia Quon and her team at NASA set out to build a helicopter capable of flying on Mars. Because Mars’s atmosphere is only one percent as dense as Earth’s, the air of Mars would not provide enough resistance to the rotating blades of a standard helicopter for the aircraft to stay aloft. For five years, Quon’s team tested designs in a lab that mimicked Mars’s atmospheric conditions. The craft the team ultimately designed can fly on Mars because its blades are longer and rotate faster than those of a helicopter of the same size built for Earth. According to the text, why would a helicopter built for Earth be unable to fly on Mars?",
+    "options": {
+      "A": "Because Mars and Earth have different atmospheric conditions",
+      "B": "Because the blades of helicopters built for Earth are too large to work on Mars",
+      "C": "Because the gravity of Mars is much weaker than the gravity of Earth",
+      "D": "Because helicopters built for Earth are too small to handle the conditions on Mars"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents an explanation about a helicopter that is directly supported by the text. The text states that Mars’s atmosphere is much less dense than Earth’s, and as a result, the air on Mars doesn’t provide the resistance required to support the blades of a helicopter built for Earth and to keep the helicopter aloft. In other words, a helicopter built for Earth can’t fly on Mars because of the differences in the two planets’ atmospheres. Choice B is incorrect because instead of stating that the blades of helicopters built for Earth are too large to work on Mars, the text indicates that the helicopter built to fly on Mars actually has even longer blades than a helicopter built for Earth. Choice C is incorrect because the text never addresses the role of gravity on Mars or on Earth; instead, it focuses on atmospheric conditions. Choice D is incorrect because the text doesn’t indicate that helicopters built for Earth are too small to operate in the conditions on Mars. In fact, the text states that the size of the helicopter built to fly on Mars is the same size as a helicopter built for Earth, even though it has longer blades that rotate faster."
+  },
+  {
+    "id": 12,
+    "question": "The following text is adapted from Sylvia Acevedo’s 2018 memoir Path to the Stars: My Journey from Girl Scout to Rocket Scientist. The narrator is traveling by car with her family to Mexico City. Mario and Laura are her brother and sister. <br>Mario and I played games to see how many different license plates we could spot, and Laura liked to look for children in the back seats of the cars we passed. We were used to the forty-five-minute drive to El Paso and familiar with the six-hour ride to Chihuahua, but I wondered what the long journey to Mexico City would be like. ©2018 by Sylvia Acevedo According to the text, what did the narrator and Mario do while riding in the car?",
+    "options": {
+      "A": "They read books.",
+      "B": "They sang songs.",
+      "C": "They went to sleep.",
+      "D": "They played games."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes what the narrator and Mario did while riding in the car. The text describes a car trip that the narrator is taking with her family. The text states that during the car ride, the narrator and Mario \"played games\" to see how many different license plates they could spot. Choice A is incorrect because the text doesn’t mention the narrator and Mario reading during the car ride and instead describes them playing games. Choice B is incorrect because the text doesn’t mention the narrator and Mario singing songs during the car ride and instead describes them playing games. Choice C is incorrect because the text doesn’t mention the narrator and Mario sleeping during the car ride and instead describes them playing games."
+  },
+  {
+    "id": 13,
+    "question": "The following text is from David Barclay Moore’s 2022 novel Holler of the Fireflies. The narrator has just arrived at summer camp, which is far away from his home. <br>This place was different than I thought it would be. I’d never been somewhere like this before. I did feel scared, but also excited. ©2022 by David Barclay Moore According to the text, how does the narrator feel about being at summer camp?",
+    "options": {
+      "A": "He feels overjoyed.",
+      "B": "He feels peaceful.",
+      "C": "He feels both scared and excited.",
+      "D": "He feels both angry and jealous."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately states how the narrator feels about being at summer camp. In the text, the narrator states that after arriving at the camp, he found it to be different than he’d expected and that as a result, he felt \"scared, but also excited.\" Choice A is incorrect. In the text, the narrator describes himself as \"excited.\" Although excitement is a positive emotion, it isn’t as intensely positive as feeling overjoyed is. Moreover, the narrator also notes that he felt \"scared.\" In other words, his excitement (a positive emotion) is balanced with fear (a negative emotion). Given this mixture of positive and negative emotions, it would be inaccurate to characterize the narrator as overjoyed. Choice B is incorrect because in the text, the narrator describes himself as having felt both fear and excitement. Neither of these emotions can be thought of as peaceful and, in fact, are almost the opposite of a sense of peace. Choice D is incorrect because in the text, the narrator describes himself as both \"scared\" and \"excited,\" not angry and jealous."
+  },
+  {
+    "id": 14,
+    "question": "Having written the impassioned call to arms “Letter to the Spanish Americans” in 1791, Peruvian intellectual Juan Pablo Viscardo y Guzmán is often considered a forerunner for the independence movements in Latin America. But Viscardo’s role in history would have remained insignificant were it not for Venezuelan revolutionary Francisco de Miranda, who was handed the unpublished letter after Viscardo’s death. Miranda not only helped circulate the letter, but his edits and footnotes to the text position Miranda as a central figure in the text’s creation. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The original authorship of “Letter to the Spanish Americans” is disputed by contemporary historians.",
+      "B": "The majority of the most eloquently stated arguments in “Letter to the Spanish Americans” were written by Miranda.",
+      "C": "Miranda played a crucial role in influencing the content and distribution of “Letter to the Spanish Americans.”",
+      "D": "“Letter to the Spanish Americans” persuaded many people in Latin America to pursue national independence."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The text describes how Miranda circulated, edited, and added footnotes to “Letter to the Spanish Americans,” and it claims that the letter and its author would have “remained insignificant” if it weren’t for Miranda’s efforts. Choice A is incorrect. The text only says that Viscardo wrote the letter and that Miranda edited it: it never suggests that the original authorship of the letter is up for debate. Choice B is incorrect. This contradicts the text. The text says that Miranda edited and footnoted the letter, but it identifies Viscardo as the letter’s author. It also never identifies certain arguments as more eloquent than others. Choice D is incorrect. This is outside the scope of the text. The paragraph describes Miranda’s role in the creation and distribution of the letter, but it doesn’t get into the effects of the letter on other people."
+  },
+  {
+    "id": 15,
+    "question": "The average age at which people in the United States start businesses is 35. Economist Andrés Hincapié studied why young adults are relatively less likely to start businesses and whether there are ways to increase entrepreneurship in early adulthood. Hincapié found that one impediment is lack of knowledge about the practical details of how businesses are started; he further found that simply providing young adults with good informational resources on the topic significantly alleviates this problem. Based on the text, what would Hincapié most likely say is a promising way to increase entrepreneurship in early adulthood?",
+    "options": {
+      "A": "Creating social networks of young adults who are interested in starting a business",
+      "B": "Encouraging young adults to brainstorm business ideas",
+      "C": "Providing young adults with practical information about how to start a business",
+      "D": "Giving young adults training opportunities at a variety of businesses"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it presents a conclusion about increasing entrepreneurship in early adulthood that can be reasonably inferred from the text. The text explains that Andrés Hincapié investigated why young adults are less likely than older adults to start businesses and found that lack of knowledge of practical aspects of starting a business is a barrier. The text then states that Hincapié found that providing relevant informational resources greatly helps address that problem. Offering young adults practical information about how to start a business would be an example of providing relevant informational resources, so Hincapié would most likely say it is a promising way to increase early adult entrepreneurship. Choice A is incorrect because creating social networks of young adults interested (but presumably inexperienced) in starting a business wouldn’t involve a clear source of practical information for those young adults, and the text indicates that Hincapié identified offering relevant informational resources about starting a business as a way to significantly reduce the problem of young adults’ low participation in entrepreneurship. Choice B is incorrect because encouraging young people to brainstorm business ideas wouldn’t involve a clear source of practical information for those young adults, and the text indicates that Hincapié identified offering relevant informational resources about starting a business as a way to significantly reduce the problem of young adults’ low participation in entrepreneurship. Choice D is incorrect because providing young adults with training opportunities at existing businesses would give those young people exposure to businesses that already exist but not necessarily information about how to start a business, and the text indicates that Hincapié identified offering relevant informational resources about starting a business as a way to significantly reduce the problem of young adults’ low participation in entrepreneurship."
+  },
+  {
+    "id": 16,
+    "question": "Bicycles were first mass-produced in the late nineteenth century throughout Europe and North America, allowing individuals remarkable freedom to travel longer distances quickly and comfortably. This freedom, coupled with the affordability of the vehicle, made the bicycle immensely popular. Individuals were able to live farther from their workplaces, easily visit neighboring towns, and participate in new leisure and sport activities. Bicycling quickly became a popular social endeavor, with enthusiasts forming local cycling clubs to enjoy these newfound activities with others. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The widespread adoption of the bicycle in the late nineteenth century provided new opportunities for people.",
+      "B": "The affordability of the bicycle in the late nineteenth century made it the preferred way to travel.",
+      "C": "The popularity of the bicycle in the late nineteenth century gave rise to the first cycling clubs.",
+      "D": "The mass production of the bicycle in the late nineteenth century made it safer for people to use."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text discusses how the mass production of bicycles in the late nineteenth century allowed people to travel longer distances, live farther from their workplaces, visit neighboring towns, and participate in new activities and social clubs. All of these are new opportunities that were provided by the widespread adoption of the bicycle. Choice B is incorrect. The text never says this. It does say that the bicycle was “affordable,” and that the “freedom to travel longer distances quickly and comfortably” made the bicycle “popular,” but it never says that the bicycle was more popular than any other way of traveling (like cars or trains or horses). Choice C is incorrect. This is a detail mentioned in the text, but not the main idea. Cycling clubs are only one of the new opportunities that arose from the popularity of the mass-produced bicycle. A “main idea” should capture more of the information in the text. Choice D is incorrect. The text never says this. It doesn’t mention the safety of the mass-produced bicycle at all."
+  },
+  {
+    "id": 17,
+    "question": "The following text is adapted from Ann Petry’s 1946 novel The Street. Lutie lives in an apartment in Harlem, New York. <br>The glow from the sunset was making the street radiant. The street is nice in this light, [Lutie] thought. It was swarming with children who were playing ball and darting back and forth across the sidewalk in complicated games of tag. Girls were skipping double dutch rope, going tirelessly through the exact center of a pair of ropes, jumping first on one foot and then the other. ©1946 by Ann Petry Which choice best describes what is happening in the text?",
+    "options": {
+      "A": "Lutie is observing the appearance of the street at a particular time of day and the events occurring on it.",
+      "B": "Lutie is annoyed by the noise of children playing games on her street.",
+      "C": "Lutie is puzzled by the rules of certain children’s games.",
+      "D": "Lutie is spending time alone in her apartment because she doesn’t want to interact with her neighbors."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately states what is happening in the text. The narrator notes that Lutie thinks the street looks nice in the light of the sunset. The narrator goes on to describe what Lutie can see in the street: children playing ball or tag and girls skipping rope. Thus, what is happening in the text is that Lutie is observing the appearance of the street at a particular time of day and the events occurring on it. Choice B is incorrect. Although Lutie is observing children playing games on her street, the text doesn’t suggest that she is annoyed by the noise of the games. Instead, the text says that Lutie thinks the street looks nice in the light of the sunset. Choice C is incorrect. Although Lutie is observing children playing games on her street, the text doesn’t suggest that she is puzzled by the rules of the games. Choice D is incorrect because there is no evidence in the text that Lutie doesn’t want to interact with her neighbors or that she is in her apartment alone. All the text indicates about Lutie is that she is watching the events on the street and thinks the street looks nice in the light of the sunset."
+  },
+  {
+    "id": 18,
+    "question": "Artist Justin Favela explained that he wanted to reclaim the importance of the piñata as a symbol in Latinx culture. To do so, he created numerous sculptures from strips of tissue paper, which is similar to the material used to create piñatas. In 2017, Favela created an impressive life-size piñata-like sculpture of the Gypsy Rose lowrider car, which was displayed at the Petersen Automotive Museum in Los Angeles, California. The Gypsy Rose lowrider was famously driven by Jesse Valadez, an early president of the Los Angeles Imperials Car Club. According to the text, which piece of Favela’s art was on display in the Petersen Automotive Museum in 2017?",
+    "options": {
+      "A": "A painting of Los Angeles",
+      "B": "A sculpture of a lowrider car",
+      "C": "A painting of a piñata",
+      "D": "A sculpture of Jesse Valadez"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The text describes Favela’s approach to sculpture, and then describes the lowrider car that he depicted in 2017. Choice A is incorrect. This isn’t what the text says. The Petersen Automotive Museum is located in Los Angeles, but Favela’s artwork isn’t a painting, and it doesn’t depict L.A. Choice C is incorrect. This isn’t what the text says. Favela makes sculptures similar to piñatas, not paintings of them. Choice D is incorrect. This isn’t what the text says. Jesse Valadez owned the lowrider car that Favela depicted in sculpture."
+  },
+  {
+    "id": 19,
+    "question": "Few animals are known to spit: among them are humans, cobras, and camels. But in January 2022 at a nature preserve in southern England, birdwatcher Clare Jacobs observed a gray seal spitting a jet of water at a white-tailed eagle flying overhead. Seals had never been seen spitting before. Biologist Sean Twiss, who studies gray seals, believes that the seal may have been attempting to scare the eagle away from a food source or that the seal may have just been playing. Which choice best states the main topic of the text?",
+    "options": {
+      "A": "Bird-watching in southern England",
+      "B": "A previously unseen behavior of gray seals",
+      "C": "How white-tailed eagles defend their territory against other predators",
+      "D": "Differences between gray seals and white-tailed eagles"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states the main topic of the text. The text begins by noting that few animals are known to spit, and then it focuses on Clare Jacobs’s January 2022 observation of a gray seal spitting water at a white-tailed eagle. The text explicitly notes that this behavior had never before been observed in seals, highlighting that this was a previously unseen behavior. The text concludes with biologist Sean Twiss’s hypotheses about why the seal might have been spitting. Thus, the main topic is the observation of a previously unseen behavior (spitting) of gray seals. Choice A is incorrect because while the text does mention bird-watcher Clare Jacobs making an observation in southern England, bird-watching itself is not the main topic. The reference to bird-watching is incidental to the central focus of the novel behavior of a gray seal spitting water at an eagle. Choice C is incorrect because the text only mentions a white-tailed eagle as the target of a seal’s spitting behavior; it doesn’t provide any information about how these eagles typically behave when defending territory or interacting with other predators. Choice D is incorrect because the text doesn’t discuss differences between gray seals and white-tailed eagles. While both animals are mentioned, the text is focused on the seal’s unusual spitting behavior rather than comparing the two animals in any way."
+  },
+  {
+    "id": 20,
+    "question": "Xin Wang and colleagues have discovered the earliest known example of a flower bud in a 164-million-year-old plant fossil in China. The researchers have named the new species Florigerminis jurassica. They believe that the discovery pushes the emergence of flowering plants, or angiosperms, back to the Jurassic period, which occurred between 145 million and 201 million years ago. According to the text, how old was the fossil that Wang and colleagues discovered?",
+    "options": {
+      "A": "150 million years old",
+      "B": "145 million years old",
+      "C": "164 million years old",
+      "D": "201 million years old"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it gives the age for the fossil discovered by Wang and colleagues that is directly supported by the text. According to the text, Xin Wang and colleagues discovered a 164-million-year-old plant fossil. This plant fossil included a flower bud, which the researchers believe provides evidence that flowering plants emerged in the Jurassic period, which falls between 145 million and 201 million years ago. Choice A is incorrect because the text states that Wang and colleagues discovered a 164-million-year-old flowering plant fossil in China, not one that is 150 million years old. Although 150 million years ago would fall within the Jurassic period, according to the text it isn’t the age of the discovered fossil. Choice B is incorrect because the text states that Wang and colleagues discovered a 164-million-year-old flowering plant fossil in China, not one that is 145 million years old. Although 145 million years ago would fall at the end of the Jurassic period, according to the text it isn’t the age of the discovered fossil. Choice D is incorrect because the text states that Wang and colleagues discovered a 164-million-year-old flowering plant fossil in China, not one that is 201 million years old. Although 201 million years ago would fall at the beginning of the Jurassic period, according to the text it isn’t the age of the discovered fossil."
+  },
+  {
+    "id": 21,
+    "question": "In 1935 Hallie Flanagan was chosen to lead the Federal Theatre Project (FTP). This project was part of the new Works Progress Administration (WPA), a program created by President Franklin D. Roosevelt to provide jobs for unemployed people during the Great Depression. As the director of the FTP, Flanagan created jobs for over 12,500 performers, designers, and other theater professionals across the country. She also kept ticket prices low for the shows they staged, which meant that many people could afford to experience theater for the first time. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Jobs provided by the FTP were intended mainly for performers, designers, and other theater professionals.",
+      "B": "President Roosevelt created the WPA to provide jobs for unemployed people.",
+      "C": "During the Great Depression, many people couldn’t afford to buy theater tickets.",
+      "D": "As the director of the FTP, Flanagan succeeded in creating many jobs and introducing people to theater."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. The text begins by stating that Flanagan was chosen in 1935 to lead the Federal Theatre Project (FTP), which was part of a program created by President Franklin D. Roosevelt. The text then explains that as the director of the FTP, Flanagan created jobs for more than 12,500 theater professionals and ensured that ticket prices stayed low so that many people could afford to experience theater for the first time. Thus, the main idea of the text is that as the FTP’s director, Flanagan succeeded in creating many jobs and introducing people to theater. Choice A is incorrect. The text does suggest that jobs provided by the FTP were intended mainly for theater professionals, but this isn’t the text’s main idea. The focus of the text is Hallie Flanagan’s work as the director of the FTP, with the text’s main point being that Flanagan succeeded in creating many jobs and introducing people to theater. Choice B is incorrect. The text does state that President Roosevelt created the WPA to provide jobs for unemployed people, but this is supporting information, not the text’s main idea. The focus of the text is Hallie Flanagan’s work as the director of the FTP, which was part of the WPA, and the text’s main point is that Flanagan succeeded in creating many jobs and introducing people to theater. Choice C is incorrect. It’s true that many people couldn’t afford to buy theater tickets during the Great Depression, but this isn’t the text’s main idea. The focus of the text is Hallie Flanagan’s work as the director of the FTP, with the text’s main point being that Flanagan succeeded in creating many jobs and introducing people to theater."
+  },
+  {
+    "id": 22,
+    "question": "In 2022, researchers rediscovered ancient indigenous glyphs, or drawings, on the walls of a cave in Alabama. The cave’s ceiling was only a few feet high, affording no position from which the glyphs, being as wide as ten feet, could be viewed or photographed in their entirety. However, the researchers used a technique called photogrammetry to assemble numerous photos of the walls into a 3D model. They then worked with representatives of tribes originally from the region, including the Chickasaw Nation, to understand the significance of the animal and humanoid figures adorning the cave. According to the text, what challenge did the researchers have to overcome to examine the glyphs?",
+    "options": {
+      "A": "The cave was so remote that the researchers couldn’t easily reach it.",
+      "B": "Some of the glyphs were so faint that they couldn’t be photographed.",
+      "C": "The researchers were unable to create a 3D model of the cave.",
+      "D": "The cave’s dimensions prevented the researchers from fully viewing the glyphs."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text describes the very low ceiling of the cave, making it impossible to photograph the very wide glyphs all at once. Choice A is incorrect. The text doesn’t say this. It never suggests that the cave was remote or difficult to access, just that the cave itself was difficult to photograph well. Choice B is incorrect. The text doesn’t say this. The glyphs were so wide that they couldn’t be photographed completely. Choice C is incorrect. The text states the opposite of this. The researchers “used a technique called photogrammetry to assemble numerous photos of the walls into a 3D model.”"
+  },
+  {
+    "id": 23,
+    "question": "In the 1960s, Chavela Vargas became an unlikely star in ranchera, a style of traditional Mexican music. Most ranchera singers had clear, polished voices and performed with a full band. But Vargas accompanied her raspy voice with just her guitar. Dressed in men’s trousers and a poncho, she would perform classic songs that had been written from a male point of view and were usually sung by men. She also altered those songs by performing them much more slowly than other ranchera singers did. The slower tempo allowed her to express the emotional quality of the lyrics more fully. According to the text, what is one way that Vargas differed from other ranchera singers?",
+    "options": {
+      "A": "She possessed a voice that was clear and polished.",
+      "B": "She avoided singing songs written from a male point of view.",
+      "C": "She disliked performing classic songs.",
+      "D": "She altered classic songs by slowing them down."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it accurately describes an aspect of Chavela Vargas that the text indicates is unusual among ranchera artists. According to the text, Vargas differed from other ranchera singers by slowing the tempo of classic songs, which allowed her to express the emotional quality of the lyrics more fully. Choice A is incorrect because the text states that Vargas possessed an unusually raspy voice for a ranchera singer, not a clear and polished voice. Choice B is incorrect because the text indicates that Vargas was known to perform songs written from a male point of view, not that she avoided such songs. Choice C is incorrect because nothing in the text suggests that Vargas disliked performing classic songs. Rather, it suggests that she found innovative ways of performing them to emphasize their emotional content, which seems to suggest an affinity for such songs, not dislike."
+  },
+  {
+    "id": 24,
+    "question": "The following text is from Shyam Selvadurai’s 1994 novel Funny Boy. The seven-year-old narrator lives with his family in Sri Lanka. Radha Aunty is the narrator’s aunt. <br>Radha Aunty, who was the youngest in my father’s family, had left for America four years ago when I was three, and I could not remember what she looked like. I went into the corridor to look at the family photographs that were hung there. But all the pictures were old ones, taken when Radha Aunty was a baby or young girl. Try as I might, I couldn’t get an idea of what she looked like now. My imagination, however, was quick to fill in this void. ©1994 by Shyam Selvadurai. According to the text, why does the narrator consult some family photographs?",
+    "options": {
+      "A": "He wants to use the photographs as inspiration for a story he is writing.",
+      "B": "He is curious about how his father dressed a long time ago.",
+      "C": "He hopes the photographs will help him recall what his aunt looked like.",
+      "D": "He wants to remind his aunt of an event that is shown in an old photograph."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The text states that the narrator couldn’t remember what his Radha Aunty looked like, so he went to look at the family photographs she was in. Choice A is incorrect. There’s no mention of any story that the narrator is writing. Rather, we’re told that the narrator couldn’t remember what his aunt looked like, so he went to look at the family photographs she was in. Choice B is incorrect. The text doesn’t mention how the narrator’s father dressed. Rather, we’re told that the narrator couldn’t remember what his aunt looked like, so he went to look at the family photographs she was in. Choice D is incorrect. The text doesn’t mention any events shown in the photographs. Rather, we’re told that the narrator couldn’t remember what his aunt looked like, so he went to look at the family photographs she was in."
+  },
+  {
+    "id": 25,
+    "question": "It has long been thought that the original author of the US Pledge of Allegiance was Francis Bellamy, who said that he wrote the pledge one evening in August of 1892. But a historian recently discovered a newspaper article that was published several months before August 1892. The article describes students reciting the same pledge that Bellamy claims he first wrote in August. This means that Bellamy may not have created the pledge after all. Based on the text, what piece of knowledge about the Pledge of Allegiance has recently become uncertain?",
+    "options": {
+      "A": "How many changes were made to the pledge in the 1900s",
+      "B": "The identity of the person who first wrote the pledge",
+      "C": "The name of the newspaper that first published the pledge",
+      "D": "Which part of the pledge students liked best in 1892"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a supposed fact about the Pledge of Allegiance that, as the text explains, has recently become uncertain. The text begins by explaining the long-held belief that the original author of the US Pledge of Allegiance was Francis Bellamy, who claimed to have written it in August 1892. The text then describes a historian’s recent discovery of a newspaper article published several months before August 1892 that mentions students reciting the same pledge. The text concludes that this discovery suggests Bellamy may not have created the pledge after all. Thus, what has recently become uncertain is the identity of the person who first wrote the pledge. Choice A is incorrect because the text doesn’t address any changes made to the Pledge of Allegiance in the 1900s. The text focuses solely on the question of who originally authored the pledge in or before 1892 and doesn’t mention any subsequent modifications to its wording. Choice C is incorrect. While the text does mention a historian’s discovery of a newspaper article that described students reciting the pledge, it doesn’t suggest that the pledge was published in its entirety within that article. Moreover, the text doesn’t identify the newspaper by name or suggest the possibility of an earlier mention of the pledge in a different newspaper. Choice D is incorrect because the text doesn’t mention which parts of the Pledge of Allegiance students preferred in 1892 or at any other time. The text only states that a newspaper article described students reciting the pledge, without providing any information about their preferences regarding different portions of it."
+  },
+  {
+    "id": 26,
+    "question": "Archaeologist Veronica Waweru visited the Lewa Wildlife Conservancy in Kenya. While exploring there, Waweru noticed many rows of shallow pits carved into stone. Waweru believed the pits could have been used as game boards to play ancient versions of mancala, a two-person strategy game that is still popular today. Some of the more recent pits were carved on top of older pits. This led Waweru to think that the game was played at the site for a long time. According to the text, why does Waweru think that mancala was played at the site for a long time?",
+    "options": {
+      "A": "Some of the newer pits were carved on top of the older pits.",
+      "B": "She noticed many rows of shallow pits carved into stone.",
+      "C": "She discovered the pits at the Lewa Wildlife Conservancy.",
+      "D": "Some of the pits were shallow and others were quite deep."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents a statement about Veronica Waweru’s thinking that is supported by the text. The text begins by discussing Waweru’s discovery of evidence that ancient versions of the board game mancala had been played at a site in the Lewa Wildlife Conservancy. The evidence consisted of many rows of shallow pits carved into stone. The text goes on to state that some newer pits were carved on top of older pits, suggesting that people may have continued to play the game there over multiple generations, creating new pits over time. The text then explicitly states that the presence of newer pits carved on top of older pits was precisely what caused Waweru to think that mancala had been played at the site for a long time. Choice B is incorrect. While the text does state that Waweru \"noticed many rows of shallow pits carved into stone,\" this observation led her to believe that the pits could have been used as game boards for ancient versions of mancala but did not specifically suggest to her that the game had been played at the site for a long time. The multiple rows of pits merely suggest that these pits functioned as part of a game board; they don’t necessarily indicate how long the site had been used for that purpose. Rather, it was the fact that there appeared to be newer pits carved on top of older pits that led Waweru to think that mancala had been played at the site for a long time. Choice C is incorrect. Although the text states that Waweru found the pits at the Lewa Wildlife Conservancy, this isn’t the reason the text gives for why she thought that mancala had been played at the site for a long time. The location of the discovery only provides information about where the game was played, not how long the game had been played there. Choice D is incorrect because the text doesn’t mention any variation in the depth of the pits. The text only describes the pits collectively as shallow and doesn’t indicate that the depth of the pits factored into Waweru’s thinking about how long the site had been used for playing mancala."
+  },
+  {
+    "id": 27,
+    "question": "NASA’s Cassini probe has detected an unusual wobble in the rotation of Mimas, Saturn’s smallest moon. Using a computer model to study Mimas’s gravitational interactions with Saturn and tidal forces, geophysicist Alyssa Rhoden and colleagues have proposed that this wobble could be due to a liquid ocean moving beneath the moon’s icy surface. The researchers believe other moons should be examined to see if they too might have oceans hidden beneath their surfaces. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Rhoden and colleagues were the first to confirm that several of Saturn’s moons contain hidden oceans.",
+      "B": "Research has failed to identify signs that there is an ocean hidden beneath the surface of Mimas.",
+      "C": "Rhoden and colleagues created a new computer model that identifies moons with hidden oceans without needing to analyze the moons’ rotation.",
+      "D": "Research has revealed that an oddity in the rotation of Mimas could be explained by an ocean hidden beneath its surface."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The study isn’t definitive, but it says that Mimas’s wobbly rotation could be explained by the hidden ocean. Choice A is incorrect. This choice goes too far beyond the information in the text. Rhoden’s team proposed that one moon of Saturn could have a liquid ocean beneath its surface, and that other moons should also be examined, but no one has confirmed anything. Choice B is incorrect. This choice conflicts with the text. Research has identified at least one sign—the unusual wobble in Mimas’s rotation—that might be due to a hidden ocean beneath its surface. Choice C is incorrect. This choice doesn’t reflect the text. The computer model studies “gravitational interactions,” which seem to account for the wobbly rotation of Mimas."
+  },
+  {
+    "id": 28,
+    "question": "The following text is adapted from Frances Hodgson Burnett’s 1911 novel The Secret Garden. Mary, a young girl, recently found an overgrown hidden garden. <br>Mary was an odd, determined little person, and now she had something interesting to be determined about, she was very much absorbed, indeed. She worked and dug and pulled up weeds steadily, only becoming more pleased with her work every hour instead of tiring of it. It seemed to her like a fascinating sort of play. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Mary hides in the garden to avoid doing her chores.",
+      "B": "Mary is getting bored with pulling up so many weeds in the garden.",
+      "C": "Mary is clearing out the garden to create a space to play.",
+      "D": "Mary feels very satisfied when she’s taking care of the garden."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. The text describes Mary’s activities in an overgrown hidden garden, saying that she was “very much absorbed” and was “only becoming more pleased with her work every hour” rather than getting tired of it. She also thinks of garden activities as a “fascinating sort of play.” Thus, the main idea of the text is that Mary feels very satisfied when taking care of the garden. Choice A is incorrect because the text never makes any mention of Mary’s chores. Choice B is incorrect because the text indicates that Mary finds pulling up weeds to be fascinating, not boring. Choice C is incorrect because Mary thinks of garden activities in and of themselves as play, not as something necessary to do to create a space to play."
+  },
+  {
+    "id": 29,
+    "question": "Shimmering is a collective defense behavior that researchers have observed in giant honeybee colonies. When shimmering, different groups of bees flip their bodies up and down in what looks like waves. This defense is initiated when hornets hover near a colony, serving to deter the hornets from approaching the bees. Researchers hypothesize that this behavior is a specialized defense response to hornets, as it is not observed when other, larger predators approach the colony. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Researchers are unsure how giant honeybees defend against predators larger than hornets.",
+      "B": "Researchers think that shimmering in giant honeybees is a specific defense against hornets.",
+      "C": "Hornets are known to be the main predator of giant honeybees.",
+      "D": "Several different species of insects use shimmering to defend against hornets."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The text describes a study about how giant honeybees use shimmering to defend against hornets, but not other predators. The researchers conclude that shimmering could be a specialized defense response to hornets. Choice A is incorrect. The text says that giant honeybees don’t appear to use shimmering against other, larger predators. However, it never suggests that researchers don’t know which other defenses giant honeybees do use for those predators. Choice C is incorrect. The text says that hornets are one predator of giant honeybees, but it doesn’t say that hornets are the main predator of giant honeybees. This choice also fails to mention “shimmering,” which is a major focus of the text. Choice D is incorrect. The text only discusses the shimmering of giant honeybees—it doesn’t discuss other insects’ defense responses at all."
+  },
+  {
+    "id": 30,
+    "question": "Oluwaseyi Moejoh cofounded U-recycle Initiative Africa when she was only a teenager. Moejoh and her team founded the organization to teach young people how their actions affect the environment and why recycling is important. For example, the organization put on an exhibit of art made using recycled materials. According to the text, what is one reason Moejoh and others founded U-recycle Initiative Africa?",
+    "options": {
+      "A": "To bring attention to overlooked African artists",
+      "B": "To teach young people why recycling is important",
+      "C": "To help adults gain important outdoor skills",
+      "D": "To give teenagers advice about starting businesses"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it describes a reason that Moejoh and team founded U-recycle Initiative Africa. The text mentions two reasons the initiative was founded: to teach young people about how they affect the environment and to teach them “why recycling is important.” Thus, teaching the importance of recycling to young people accurately describes a motivation that the text cites as a reason for the initiative’s founding. Choice A is incorrect. Although art is mentioned in the text, there are no details about artists or whether they are being overlooked. Choice C is incorrect because the text is explicitly about young people and their relationship to the environment and recycling. There is no mention of adults or outdoor skills. Choice D is incorrect. Although the text discusses young people, which likely includes teenagers, there is no mention of starting businesses."
+  },
+  {
+    "id": 31,
+    "question": "Hevea brasiliensis, a tree in the Amazon rainforest, is the world’s main source of natural rubber. The tree produces a milky substance called latex that is used to make rubber. The bark of Hevea brasiliensis is helpful for the process of making rubber because it has a unique structure that makes it easy to collect latex. A network of tubes in the tree’s inner bark helps the latex to flow out easily when people make small cuts into the bark. What feature of Hevea brasiliensis does the text say is helpful for the process of making rubber?",
+    "options": {
+      "A": "Its latex produces rubber of an especially high quality.",
+      "B": "Its bark has a unique structure that makes it easy to collect latex.",
+      "C": "It is able to grow in a wide variety of climates around the world.",
+      "D": "It is one of only two trees in the Amazon that produce latex."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states what feature of Hevea brasiliensis is helpful for the process of making rubber. According to the text, this tree species produces latex, which is used to make rubber, and its inner bark contains a \"network of tubes\" that, when cut, enables the latex to flow out. The text explicitly states that this feature of Hevea brasiliensis is \"helpful for the process of making rubber.\" Choice A is incorrect because the text doesn’t mention the quality of the rubber produced from the latex of Hevea brasiliensis or compare its quality to that of rubber produced from other sources. Choice C is incorrect because the text never discusses the climates in which Hevea brasiliensis grows. Moreover, the text mentions only one region where this tree is found: the Amazon rainforest. Choice D is incorrect. Because the text states that Hevea brasiliensis is the world’s \"main source of natural rubber,\" it can be inferred that there is at least one other source. However, the text doesn’t specify whether that other source is also a tree species and, if so, whether that species grows in the Amazon rainforest."
+  },
+  {
+    "id": 32,
+    "question": "In the 1960s, Gloria Richardson led a movement to promote racial equality. Her involvement in this effort was inspired by her daughter, Donna Richardson. In 1961, Donna joined protests organized by the Student Nonviolent Coordinating Committee in Cambridge, Maryland. Following her daughter, Gloria joined these protests too. Gloria soon became the cochair of the Cambridge Nonviolent Action Committee. She was also the leader of what became known as the Cambridge movement. According to the text, what did Gloria Richardson lead?",
+    "options": {
+      "A": "The Cambridge movement",
+      "B": "Her daughter Donna’s high school",
+      "C": "Protests to support environmental protections",
+      "D": "A new business in Cambridge, Maryland"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents information about Gloria Richardson that is supported by the text. The text provides a number of details about Gloria’s involvement in efforts to promote racial equality, including that she was the leader of what became known as the Cambridge movement. Choice B is incorrect because the text never indicates that Gloria Richardson led her daughter Donna’s high school. The text says only that Gloria was inspired by her daughter to become involved in efforts to promote racial equality. Choice C is incorrect because the text doesn’t mention protests related to environmental protections. Rather, the text discusses Gloria Richardson’s involvement in efforts to promote racial equality. Choice D is incorrect because the text doesn’t indicate that Gloria Richardson led a new business in Cambridge, Maryland. Rather, the text states that she led what became known as the Cambridge movement."
+  },
+  {
+    "id": 33,
+    "question": "Microplastics are pieces of plastic that are smaller than a grain of rice. These small plastics can be found in large quantities in ocean waters. Ecologist Jessica Reichert and her team are studying the role reef-building corals have in capturing microplastics from ocean waters. Through research, her team has found that these corals may be storing up to 20 million kilograms of microplastics each year in their skeletons and tissues. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Ecologists are interested in learning more about how certain corals build large reefs.",
+      "B": "Questions remain around the impact certain corals have on ocean ecosystems.",
+      "C": "Microplastics are small pieces of plastic that can be found in ocean waters.",
+      "D": "Ecologists predict that corals store large amounts of microplastics from ocean waters."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text describes a study about how reef-building corals capture microplastics from ocean waters, which found that these corals are storing 20 million kilograms of microplastics in their skeletons and tissues. Choice A is incorrect. While the researchers are studying “reef-building corals,” the focus of their study isn’t how the corals build the reefs. Rather, they’re studying how corals may be storing microplastics from ocean waters. Choice B is incorrect. The text doesn’t mention any unanswered questions about the impact of corals on ocean ecosystems—rather, the study assesses one interaction between corals and microplastics. Choice C is incorrect. The text does say this, but it’s a detail—not the main idea. The main idea of the text is about the study that found that corals may be storing microplastics from ocean waters in their skeletons and tissues."
+  },
+  {
+    "id": 34,
+    "question": "Psychologists wanted to test how young children think about rewards and fairness. In an experiment, two teachers handed out rewards while children (ages four to six) watched. The teachers gave out the same number of rewards, but one of them counted the rewards out loud. The children were then asked who was fairer. 73% chose the teacher who counted. The psychologists think that counting showed the children that the teacher wanted to be fair. The children may have believed that the teacher who did not count did not care about fairness. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Psychologists think children cannot understand the concept of fairness until they are six years old.",
+      "B": "An experiment found that counting out loud is the best way to teach mathematical concepts to children.",
+      "C": "Psychologists think young children expect to be rewarded when the children show that they care about fairness.",
+      "D": "An experiment showed that the way rewards are given out may affect whether young children think the situation is fair."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text describes a study assessing how children think of rewards and fairness and its results. It concludes that the children in the study may have thought that a teacher who counted out loud when giving rewards cared more about fairness than a teacher who did not count out loud. Choice A is incorrect. The children in the study are described as being “four to six,” and the text doesn’t mention any differences among the different ages. Choice B is incorrect. The experiment wasn’t about teaching math—rather, it was about how counting out loud affected the children’s perception of fairness. Choice C is incorrect. The experiment doesn’t focus on whether the children care about fairness, and the text never mentions the children’s expectations of being rewarded."
+  },
+  {
+    "id": 35,
+    "question": "Scrapbooks of saved fabric pieces were commonly kept by women in the nineteenth-century United States, but few are as meticulously detailed as Hannah Ditzler Alspaugh’s work. Alongside each piece of fabric, Alspaugh recorded intimate memories, such as dressmaking with her sister. Additionally, she listed the prices and how she used the fabric. Historians note that by representing fifty years of changing textures, patterns, and dress styles, the scrapbook is a record of nineteenth-century textiles and dressmaking as well as Alspaugh’s life. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Alspaugh inspired other women to save pieces of fabric in scrapbooks and provide historical records of nineteenth-century fashions in the United States.",
+      "B": "Historians rely on fabric scrapbooks to understand how fashions changed throughout the nineteenth-century United States.",
+      "C": "Fabric scrapbooks were a popular hobby for many women in the nineteenth-century United States.",
+      "D": "Alspaugh’s scrapbook provides a detailed account of her life and historical record of fashion trends in the nineteenth-century United States."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is correct. The text describes how Alspaugh’s scrapbook is both a record of her life and a historical record of nineteenth-century textiles and dressmaking. Choice A is incorrect. The text says that it was common for American women to keep scrapbooks of fabric pieces in the nineteenth century, and it says that Alspaugh was one of these women. However, it never says that other women were inspired by Alspaugh. Choice B is incorrect. This is too general and too strong. The text says that Alspaugh’s scrapbook is a historical record of nineteenth-century textiles and dressmaking, but it never says that historians rely on such scrapbooks in general to understand how fashions changed throughout that time period. This choice also fails to even mention Alspaugh, who is the real focus of the text. Choice C is incorrect. The text does say this, but it’s a detail—not the main idea. The text is mainly about one woman’s scrapbook (Alspaugh’s), and this choice doesn’t even mention her."
+  },
+  {
+    "id": 36,
+    "question": "Arthropods—brine shrimp, hawk moths, and many other invertebrate animals—have a nervous system made up of a brain, nerve cord, and other nerves. Researchers have gained insights about this system in ancient arthropods from traces found in various fossils. For example, in a study of two fossils of the extinct arthropod species Mollisonia symmetrica, Javier Ortega-Hernández, James Weaver, and team observed clear signs of a nerve cord. They also saw possible indications of a synganglion, a brain-like mass of nerves. Researchers hope to identify more features of the nervous systems of prehistoric arthropods as additional fossils are found. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "There are several similarities between the brains of hawk moths and the brains of brine shrimp.",
+      "B": "Fossil evidence can contribute to the understanding of the nervous system in ancient arthropods.",
+      "C": "Newly discovered fossils suggest that ancient hawk moths and ancient brine shrimp had spines.",
+      "D": "Researchers need to focus on finding more fossils of ancient arthropods."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states the main idea of the text. The text states that researchers have used fossils to learn about the nervous systems of ancient arthropods. It then provides a specific example of researchers studying fossils of Mollisonia symmetrica and finding evidence of a nerve cord and possibly a synganglion (a brain-like mass of nerves). The text concludes by noting that researchers hope to discover more features of prehistoric arthropods’ nervous systems \"as additional fossils are found.\" Thus, the main idea of the text is that fossil evidence can contribute to the understanding of the nervous system in ancient arthropods. Choice A is incorrect because the text doesn’t compare the brains of hawk moths and brine shrimp. These animals are merely mentioned as examples of arthropods in the opening sentence, and the text doesn’t go on to discuss any similarities between their brains. Choice C is incorrect because the text discusses nervous systems, not spines, in ancient arthropods, and it doesn’t specifically mention findings about ancient hawk moths or brine shrimp. Choice D is incorrect. While the text concludes by noting that researchers aim to discover additional characteristics of prehistoric arthropods’ nervous systems as more fossils are uncovered, this statement doesn’t suggest that researchers need to focus on finding more fossils. Rather, it simply indicates that researchers expect to learn more about this topic as additional fossils are discovered. Moreover, the statement is just a detail that supports the main idea; it’s not the main idea itself."
+  },
+  {
+    "id": 37,
+    "question": "The following text is from Beatrice Harraden’s 1894 novel Ships that Pass in the Night. <br>In an old second-hand bookshop in London, an old man sat reading Gibbon’s History of Rome. He did not put down his book when the postman brought him a letter. He just glanced indifferently at the letter, and impatiently at the postman. Zerviah Holme did not like to be interrupted when he was reading Gibbon; and as he was always reading Gibbon, an interruption was always regarded by him as an insult. Based on the text, how did Zerviah Holme most likely feel when the letter was delivered?",
+    "options": {
+      "A": "He felt relieved because he had been expecting an important letter.",
+      "B": "He felt excited because the letter was from a good friend.",
+      "C": "He felt sad because the postman did not stop to talk with him before leaving.",
+      "D": "He felt annoyed because he was interrupted while reading his favorite author."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents a description of how Zerviah Holme felt that is directly supported by the text. The text states that Holme \"did not like to be interrupted\" while reading Gibbon and that he considered interruptions to be \"an insult.\" Furthermore, the text suggests that Gibbon is Holme’s favorite author because, as the text states, \"he was always reading Gibbon.\" Thus, Holme would have felt annoyed at having been interrupted when the letter was delivered. Choice A is incorrect because the text doesn’t suggest that Holme is relieved to receive the letter. Instead, the text states that Holme \"just glanced indifferently at the letter,\" suggesting that the letter wasn’t important to him. Choice B is incorrect because the text doesn’t suggest that Holme is excited to receive the letter. Instead, the text states that Holme didn’t put down his book to receive the letter and that he looked at the letter \"indifferently\" and at the postman \"impatiently.\" This suggests that Holme isn’t excited. Also, there is no mention that Holme knows who sent the letter. Choice C is incorrect because the text doesn’t indicate that Holme is sad or that he wants to speak with the postman. Instead, the text describes Holme as looking \"impatiently at the postman,\" which suggests that he wants the postman to leave."
+  },
+  {
+    "id": 38,
+    "question": "When Kenyan writer Ngũgĩ wa Thiong’o, who had previously published four novels in English, began writing in his native language, Gĩkũyũ, in the 1970s, several fellow writers and critics cautioned that doing so might make his works inaccessible outside his own community. Some noted that Kiswahili—widely spoken in Kenya and elsewhere in Africa—would be a more practical choice. Rejecting their arguments, Ngũgĩ went on to author dozens of acclaimed works in Gĩkũyũ that have been translated into a total of more than thirty languages. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The reaction to Ngũgĩ’s rejection of English illustrates that some literary experts believe that fame is most easily gained by writing in a widely understood language, such as Gĩkũyũ.",
+      "B": "Although Ngũgĩ insisted on publishing his first works in Gĩkũyũ, they have since been translated into many other languages.",
+      "C": "Although Ngũgĩ’s decision to write in Gĩkũyũ was met with some skepticism, it didn’t prevent him from achieving literary success.",
+      "D": "In the 1970s, Ngũgĩ became convinced that literature ought to be written in authors’ native languages, and he proceeded to publish many works in Gĩkũyũ."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately states the main idea of the text. The text begins by explaining that Kenyan writer Ngũgĩ wa Thiong’o had published four novels in English before he began writing in his native language, Gĩkũyũ, in the 1970s. The text then explains that fellow writers and critics were skeptical of this decision, warning that the choice to publish in his native language, which the text implies isn’t widely understood, would limit his readership. The text concludes by stating that despite those warnings, Ngũgĩ proceeded to publish several acclaimed novels in Gĩkũyũ that were translated into several languages, suggesting that Ngũgĩ’s works in Gĩkũyũ achieved literary success in the forms of critical recognition and a wide international readership. Thus, the main idea is that although Ngũgĩ’s decision to write in Gĩkũyũ was met with some skepticism, this choice didn’t prevent him from achieving literary success. Choice A is incorrect because it contradicts the description of Gĩkũyũ provided in the text. Rather than indicating that Gĩkũyũ is a widely understood language, as this choice claims, the text states that colleagues cautioned Ngũgĩ that writing in Gĩkũyũ instead of English “might make his works inaccessible outside his own community.” Furthermore, the text contrasts the choice of Gĩkũyũ with another alternative to English, Kiswahili, which the text indicates is “a more practical choice” given that it is “widely spoken in Kenya and elsewhere in Africa.” Choice B is incorrect because it contradicts information in the text. Although the text states that the novels Ngũgĩ published in Gĩkũyũ were later translated into other languages, the text explicitly states that Ngũgĩ had previously published four novels in English before he began writing in Gĩkũyũ in the 1970s. Thus, his first works were published in English, not Gĩkũyũ. Choice D is incorrect. The text doesn’t address what motivated Ngũgĩ’s choice to publish in his native Gĩkũyũ, and nothing in the text suggests that he intended for other authors to follow his example."
+  },
+  {
+    "id": 39,
+    "question": "In the 1700s and 1800s, European composers experimented with volume in their musical works. They did so by increasing the number of musicians playing in the orchestra. For example, in some of his operas, German composer Richard Wagner added more horns, trombones, and tubas to the orchestra. With more instruments playing at the same time, the orchestra could play extremely loudly at key moments in his operas. According to the text, how did Richard Wagner achieve moments of extremely high volume in his operas?",
+    "options": {
+      "A": "By moving the performances of his operas from outdoor stages to indoor ones",
+      "B": "By increasing the number of musicians playing horns, trombones, and tubas in the orchestra",
+      "C": "By building a concert hall whose shape would cause sounds to echo",
+      "D": "By insisting that the singers undergo special training to sing for extended periods of time"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a statement about how Richard Wagner achieved moments of extremely high volume in his operas that is supported by the text. The text states that European composers experimented with volume in their works by increasing the number of musicians in the orchestra and provides the example of Wagner, who \"added more horns, trombones, and tubas to the orchestra.\" The text explains that by having more of these instruments playing at the same time, the overall volume of the orchestra could be dramatically increased at key moments in Wagner’s operas. Choice A is incorrect because the text never indicates that Wagner moved his operas indoors to achieve moments of extremely high volume, nor does it indicate that his operas were previously performed outdoors. The only technique discussed in the text for achieving extremely high volume is Wagner’s addition of more instruments to create a bigger, louder orchestra. Choice C is incorrect because the text never says that Wagner built or used a specially designed concert hall to increase volume through echoes. The only technique discussed in the text is Wagner’s addition of more instruments to create a bigger, louder orchestra. Choice D is incorrect because the text never mentions any special training for singers related to volume or singing for extended periods. The text’s focus is entirely on the orchestra and how Wagner and other European composers used instruments to experiment with volume in their musical works."
+  },
+  {
+    "id": 40,
+    "question": "To make her art more widely available, graphic artist Elizabeth Catlett turned to linocuts. In linocut printing, an artist carves an image into a sheet of linoleum to create a stamp that is used to mass-produce prints. In the linocut series The Black Woman (1946–1947), Catlett depicts the everyday experiences of Black women alongside the achievements of well-known Black women. This pairing invites the viewer to draw connections among the women. The linocut process enabled Catlett’s work to reach a wide audience and supported her aim to unite Black women through her art. According to the text, what is significant about Catlett’s use of linocut printing?",
+    "options": {
+      "A": "Linocut printing involved using materials that were readily available to Catlett.",
+      "B": "Linocut printing helped Catlett use art to connect people, especially Black women.",
+      "C": "Catlett became commercially successful once she started using linocut printing.",
+      "D": "Catlett was one of the first Black artists to use linocut printing."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The last sentence states that the linocut process “supported her [Catlett’s] aim to unite Black women through her art.” Choice A is incorrect. The text briefly describes the linocut printing process but doesn’t discuss the availability of the materials used in the process. Choice C is incorrect. The text says that the linocut process “enabled Catlett’s work to reach a wide audience,” but that doesn’t mean that linocuts made her “commercially successful.” In other words, we don’t know how much money she made off her linocuts—we only know that more people were able to see her work. Choice D is incorrect. The text says that Catlett depicted Black women in her linocuts, but not that she was one of the first Black artists to use linocut printing."
+  },
+  {
+    "id": 41,
+    "question": "The following text is from Edith Nesbit’s 1902 novel Five Children and It. Five young siblings have just moved with their parents from London to a house in the countryside that they call the White House. <br>It was not really a pretty house at all; it was quite ordinary, and mother thought it was rather inconvenient, and was quite annoyed at there being no shelves, to speak of, and hardly a cupboard in the place. Father used to say that the ironwork on the roof and coping was like an architect’s nightmare. But the house was deep in the country, with no other house in sight, and the children had been in London for two years, without so much as once going to the seaside even for a day by an excursion train, and so the White House seemed to them a sort of Fairy Palace set down in an Earthly Paradise. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Although their parents believe the house has several drawbacks, the children are enchanted by it.",
+      "B": "The children don’t like the house nearly as much as their parents do.",
+      "C": "Each member of the family admires a different characteristic of the house.",
+      "D": "The house is beautiful and well built, but the children miss their old home in London."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text lists complaints about the house made by the mother and father, but then it says that the children thought the house was a \"Fairy Palace\" and \"Earthly Paradise.\" Choice B is incorrect. The text states the opposite of this. It describes how the mother and father dislike the house and says the children think the house seems like paradise. Choice C is incorrect. This isn’t what the text says. Only the children are said to admire the house; mother and father both complain about the house. Choice D is incorrect. The text states the opposite of this. It tells us the house was ugly and poorly built (\"an architect’s nightmare\") and suggests the children were tired of London."
+  }
+];
+ 
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script src="quiz-pager.js" defer></script>
+</body>
+</html>
