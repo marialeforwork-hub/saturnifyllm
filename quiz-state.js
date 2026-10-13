@@ -66,20 +66,29 @@
         });
     }
 
-    function clearQuizVisualState() {
+    function clearQuizVisualState(options = {}) {
+        const keepHighlights = Boolean(options && options.keepHighlights);
         getQuestionBlocks().forEach(block => {
             block.classList.remove('is-answered', 'answer-correct', 'answer-wrong', 'flagged-for-review');
             block.querySelectorAll('.correct-answer-label, .wrong-answer-label, .correct-input, .wrong-input')
                 .forEach(element => element.classList.remove('correct-answer-label', 'wrong-answer-label', 'correct-input', 'wrong-input'));
             block.querySelectorAll('.answer-eliminated').forEach(element => element.classList.remove('answer-eliminated'));
-            block.querySelectorAll('.saturnify-text-mark').forEach(mark => {
-                mark.replaceWith(...mark.childNodes);
-            });
-            block.querySelectorAll('.question-annotation-canvas').forEach(canvas => {
-                canvas.__saturnifyClearDrawing?.();
-                canvas.classList.remove('is-drawing');
-                canvas.classList.remove('is-erasing');
-            });
+
+            if (!keepHighlights) {
+                block.querySelectorAll('.saturnify-text-mark').forEach(mark => {
+                    mark.replaceWith(...mark.childNodes);
+                });
+                block.querySelectorAll('.question-annotation-canvas').forEach(canvas => {
+                    canvas.__saturnifyClearDrawing?.();
+                    canvas.classList.remove('is-drawing');
+                    canvas.classList.remove('is-erasing');
+                });
+            } else {
+                block.querySelectorAll('.question-annotation-canvas').forEach(canvas => {
+                    canvas.classList.remove('is-drawing');
+                    canvas.classList.remove('is-erasing');
+                });
+            }
             const drawButton = block.querySelector('.question-annotate-control');
             if (drawButton) {
                 drawButton.classList.remove('is-active');
@@ -1383,6 +1392,118 @@
         window.addEventListener('beforeunload', commitQuestionTime, { once: true });
     }
 
+    let resetModalEl = null;
+    let isProgrammaticReset = false;
+
+    function getOrCreateResetModal() {
+        if (resetModalEl && document.body.contains(resetModalEl)) return resetModalEl;
+
+        const modal = document.createElement('div');
+        modal.className = 'quiz-reset-modal';
+        modal.hidden = true;
+        modal.innerHTML = `
+            <div class="quiz-reset-modal-card" role="dialog" aria-modal="true" aria-labelledby="quizResetTitle">
+                <button type="button" class="quiz-reset-modal-close" aria-label="Đóng">×</button>
+                <h2 id="quizResetTitle">Làm lại bài thi</h2>
+                <p>Bạn muốn xóa toàn bộ đánh dấu hay chỉ xóa các đáp án đã chọn để làm lại bài?</p>
+                <div class="quiz-reset-modal-actions">
+                    <button type="button" class="btn-reset-answers-only">
+                        <span>📝</span> Chỉ xoá đáp án thôi
+                    </button>
+                    <button type="button" class="btn-reset-all">
+                        <span>🧹</span> Xóa hết highlight
+                    </button>
+                    <button type="button" class="btn-reset-cancel">
+                        Hủy
+                    </button>
+                </div>
+            </div>`;
+
+        const closeModal = () => {
+            modal.hidden = true;
+        };
+
+        modal.querySelector('.quiz-reset-modal-close').addEventListener('click', closeModal);
+        modal.querySelector('.btn-reset-cancel').addEventListener('click', closeModal);
+        modal.addEventListener('click', event => {
+            if (event.target === modal) closeModal();
+        });
+
+        modal.querySelector('.btn-reset-answers-only').addEventListener('click', () => {
+            closeModal();
+            performReset(true);
+        });
+
+        modal.querySelector('.btn-reset-all').addEventListener('click', () => {
+            closeModal();
+            performReset(false);
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !modal.hidden) closeModal();
+        });
+
+        document.body.appendChild(modal);
+        resetModalEl = modal;
+        return modal;
+    }
+
+    function openResetChooserModal() {
+        const modal = getOrCreateResetModal();
+        modal.hidden = false;
+        modal.querySelector('.btn-reset-answers-only')?.focus();
+    }
+
+    function showQuizToast(message) {
+        if (typeof window.__saturnifyShowToast === 'function') {
+            window.__saturnifyShowToast(message);
+            return;
+        }
+        document.querySelector('.quiz-toast, .qp-toast')?.remove();
+        const toast = document.createElement('div');
+        toast.className = 'quiz-toast qp-toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    function performReset(keepHighlights) {
+        isProgrammaticReset = true;
+        const originalConfirm = window.confirm;
+        window.confirm = () => true;
+        try {
+            const btn = document.getElementById('resetBtn');
+            if (btn) btn.click();
+        } catch (e) {
+            console.error('Lỗi khi thực hiện reset:', e);
+        } finally {
+            window.confirm = originalConfirm;
+            isProgrammaticReset = false;
+        }
+
+        clearQuizVisualState({ keepHighlights });
+
+        if (!keepHighlights) {
+            try {
+                const title = document.title || '';
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const key = localStorage.key(i);
+                    if (key && (key.startsWith('quiz_annotations_') || key.startsWith('saturnify_annotations_'))) {
+                        if (!title || key.includes(title)) {
+                            localStorage.removeItem(key);
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        if (typeof window.__saturnifyOnQuizReset === 'function') {
+            try { window.__saturnifyOnQuizReset({ keepHighlights }); } catch (e) {}
+        }
+
+        showQuizToast(keepHighlights ? '🔄 Đã làm lại bài (đã giữ lại highlight)!' : '🔄 Đã làm lại bài và xóa hết highlight!');
+    }
+
     function initialize() {
         unwrapQuestionLayoutWrappers();
         formatQuestionTables();
@@ -1396,8 +1517,13 @@
         document.addEventListener('change', syncNavigator, true);
         document.addEventListener('input', syncNavigator, true);
         document.addEventListener('click', event => {
-            if (!event.target.closest('#resetBtn, .reset-btn')) return;
-            setTimeout(clearQuizVisualState, 0);
+            const resetBtn = event.target.closest('#resetBtn, .reset-btn, .qp-reset-btn');
+            if (!resetBtn) return;
+            if (isProgrammaticReset) return;
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            openResetChooserModal();
         }, true);
 
         const observer = new MutationObserver(() => {

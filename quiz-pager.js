@@ -155,6 +155,7 @@
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 1800);
         };
+        window.__saturnifyShowToast = showToast;
 
         // Header
         const header = document.createElement('div');
@@ -371,12 +372,15 @@
             document.getElementById('checkBtn')?.click();
             setTimeout(refreshStates, 0);
         });
+
+        window.__saturnifyOnQuizReset = () => {
+            blocks.forEach(b => b.classList.remove('flagged-for-review'));
+            goTo(0);
+            refreshStates();
+        };
+
         resetBtn.addEventListener('click', () => {
             document.getElementById('resetBtn')?.click();
-            setTimeout(() => {
-                if (!blocks.some(hasAnswer)) { blocks.forEach(b => b.classList.remove('flagged-for-review')); goTo(0); }
-                refreshStates();
-            }, 0);
         });
 
         document.addEventListener('change', refreshStates);
