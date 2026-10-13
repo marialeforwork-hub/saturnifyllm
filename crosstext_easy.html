@@ -322,6 +322,31 @@
         }
     }
 
+    function splitCrossTextQuestion(question) {
+        const text1Start = question.indexOf('Text 1 ');
+        const text2Start = question.indexOf(' Text 2 ', text1Start + 7);
+        if (text1Start === -1 || text2Start === -1) {
+            return { text1: '', text2: '', prompt: question };
+        }
+
+        const text2ContentStart = text2Start + ' Text 2 '.length;
+        const rest = question.slice(text2ContentStart);
+        const promptStart = rest.search(/\s+(?=(?:Based on the (?:texts?|two texts)|Which choice)\b)/);
+        if (promptStart === -1) {
+            return {
+                text1: question.slice(text1Start + 'Text 1 '.length, text2Start).trim(),
+                text2: rest.trim(),
+                prompt: ''
+            };
+        }
+
+        return {
+            text1: question.slice(text1Start + 'Text 1 '.length, text2Start).trim(),
+            text2: rest.slice(0, promptStart).trim(),
+            prompt: rest.slice(promptStart).trim()
+        };
+    }
+
     function buildQuiz() {
         localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
         quizContainer.innerHTML = '';
@@ -333,6 +358,7 @@
             questionBlock.id = `question-${data.id}`;
             questionBlock.dataset.locked = "false";
             questionBlock.style.scrollMarginTop = "100px";
+            const passages = splitCrossTextQuestion(data.question);
 
             let optionsHtml = '';
             if (data.options && Object.keys(data.options).length > 0) {
@@ -349,7 +375,11 @@
             }
 
             questionBlock.innerHTML = `
-                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <div class="question-passage">
+                    ${passages.text1 ? `<section class="passage-section"><h2>Text 1</h2><p>${passages.text1}</p></section>` : ''}
+                    ${passages.text2 ? `<section class="passage-section"><h2>Text 2</h2><p>${passages.text2}</p></section>` : ''}
+                </div>
+                <div class="question-text">Câu ${index + 1}: ${passages.prompt}</div>
                 <ul class="options">${optionsHtml}</ul>
                 <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
             `;
