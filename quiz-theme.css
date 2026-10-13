@@ -860,6 +860,7 @@ body {
     color: #41435f !important;
     line-height: 1.5;
 }
+.options label > strong { flex-shrink: 0; white-space: nowrap; }
 .options label:hover { border-color: var(--sat-cyan) !important; background: linear-gradient(105deg, rgba(169, 229, 242, .18), rgba(247, 197, 209, .2)) !important; }
 .options input[type="radio"] { accent-color: var(--quiz-accent); }
 .question-text,
