@@ -11,6 +11,9 @@
         .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
         
         /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .q-intro { margin-bottom: 10px; font-weight: bold; }
+        .q-passage { margin: 0 0 10px 25px; font-weight: normal; }
+        .q-ask { margin-top: 10px; font-weight: bold; }
         .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
         
         .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; white-space: pre-line; }
@@ -197,6 +200,27 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    // MẪU: dán JSON mới vào quizData. Với câu có đoạn văn, viết "question" dạng:
+    // "Phần giới thiệu <br>Đoạn văn ... Câu hỏi?"  (câu hỏi là câu cuối, tự tách và in đậm).
+    // Nếu muốn chỉ định rõ câu hỏi: "Giới thiệu <br>Đoạn văn <br>Câu hỏi?"
+    // Câu không có <br> được hiển thị như bình thường.
+    function formatQuestion(raw, prefix) {
+        const parts = String(raw).split(/\s*<br\s*\/?>\s*/i);
+        if (parts.length < 2) return prefix + raw;
+        const intro = parts[0];
+        let passage, ask;
+        if (parts.length >= 3) {
+            ask = parts.pop();
+            passage = parts.slice(1).join('<br>');
+        } else {
+            const m = parts[1].match(/^(.*)\s((?:According to|Which|Based on|What|How|Why|Using|Given)\b[^?]*\?)$/s);
+            passage = m ? m[1] : parts[1];
+            ask = m ? m[2] : '';
+        }
+        return `<div class="q-intro">${prefix}${intro}</div>` +
+               `<div class="q-passage">${passage}</div>` +
+               (ask ? `<div class="q-ask">${ask}</div>` : '');
+    }
     const quizData = [
   {
     "id": 1,
@@ -733,7 +757,7 @@
             }
 
             questionBlock.innerHTML = `
-                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <div class="question-text">${formatQuestion(data.question, `Câu ${index + 1}: `)}</div>
                 <ul class="options">${optionsHtml}</ul>
                 <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
             `;
