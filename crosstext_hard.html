@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CROSS-TEXT CONNECTION - HARD - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; white-space: pre-line; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; white-space: pre-line; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <script src="quiz-state.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>CROSS-TEXT CONNECTION: HARD (BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const quizData = [
+  {
+    "id": 1,
+    "question": "Text 1 Many teleost fish species are protogynous, meaning that fertile females can become fertile males. One model holds that protogyny occurs when body size confers a greater reproductive advantage on males than on females. In teleost fish, body size is irrelevant to female reproduction, but among males (which tend to be larger than females), only individuals comparatively large enough to defend territory reproduce. An individual could thus maximize its lifetime reproductive success by staying female when small and becoming male upon reaching a critical size threshold. Text 2 Investigating protogyny in teleost fish, Alexander Goikoetxea and colleagues placed captured spotty wrasses of typical size distributions into two mixed-sex tanks. During the breeding season, they removed all males from tank 1 but none from tank 2. They observed that sexual change began in 81 percent of females in tank 1 but in no females in tank 2. Based on the texts, which choice best explains the difference in the outcomes of the two tanks in Goikoetxea and colleagues’ experiment (Text 2) using the model presented in Text 1?",
+    "options": {
+      "A": "Once the males were removed from tank 1, territories in the tank were undefended and thus even small females could maximize their reproductive success by becoming male and taking over those territories, whereas only the largest females in tank 2 could successfully take over territories due to the ongoing presence of males in the tank.",
+      "B": "With no males left in tank 1, females were potentially large enough to defend territory as males and thus could gain an advantage by becoming male at their current size, whereas females in tank 2 may not have been large enough to outcompete the males in the tank and thus would have greater reproductive success by remaining female.",
+      "C": "Differences in body size among the females in tank 1 became irrelevant to reproductive success once the males were removed, thereby eliminating any advantage to becoming male, whereas the ongoing presence of males in tank 2 made differences in body size among the females in that tank relevant to their reproductive success.",
+      "D": "Since all males were removed from tank 1, the females in the tank could not reproduce regardless of their size and thus some became male, whereas the presence of males in tank 2 meant that females in that tank could reproduce without first becoming male and thus they remained female."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it correctly applies the model presented in Text 1 to explain the different outcomes in the two tanks described in Text 2. Text 1 begins by explaining that fertile female teleost fish will sometimes become fertile males through protogyny. The model, or explanation, of protogyny advanced in Text 1 holds that among female teleost fish, size doesn’t confer any reproductive advantage, but among male teleost fish, “only individuals comparatively large enough to defend territory reproduce”—in other words, there is a direct relationship between relative body size and reproductive success, but only among male fish. Text 1 concludes by saying that, according to this model, individuals can maximize their reproductive success by “staying female when small” (when size has no relevance to reproduction) and only becoming male when they reach a certain size threshold by becoming large enough relative to other male fish to be able to defend territory. In sum, according to the model, whether protogyny is advantageous depends on a female’s body size relative to the males currently present. Text 2 describes an experiment in which fish of “typical size distributions” (meaning, size distributions consistent with Text 1’s note about the tendency of males to be larger than females) were placed in two tanks. Applying Text 1’s model, once the males (that is, the typically larger fish) were removed from tank 1, the remaining females would no longer be at a size disadvantage and could potentially defend territory as males at their current size, making sex change advantageous for some of the fish in tank 1. This would therefore explain the finding that 81 percent of female fish began changing into males. In tank 2, however, the continued presence of larger males meant that on average, females would not be large enough to outcompete the males for territory and would therefore have greater reproductive success by remaining female. In this way, the sizeadvantage model presented in Text 1 would also account for why no fish changed sex in tank 2. Choice A is incorrect because it claims that “even small females” could succeed as males once territories were undefended, contradicting Text 1’s emphasis on there being a “critical size threshold” for male reproductive success, wherein only male fish who were sufficiently large to defend territory would have a reproductive advantage. Under this model, small females would have more reproductive success by remaining female than by becoming male and being unable to compete with larger fish for territory. Additionally, this choice’s claim about tank 2—that “only the largest females” could take over territories—implies either that females defend territory (when the model in Text 1 makes no such claim) or that at least some females were sufficiently large to change sex and compete for territory with fish that began the experiment as males, yet the results show that no females in tank 2 did so. Choice C is incorrect. Not only is it based on a flawed understanding of the model presented in Text 1, it flatly contradicts the experimental results summarized in Text 2. While Text 1 clearly states that body size is irrelevant to female reproductive success, choice C states that the presence of males in tank 2 made differences in body size relevant to the females’ reproductive success. This choice also claims that the removal of males from tank 1 eliminated any advantage to becoming male, yet the researchers reported that 81 percent of females in tank 1 began changing sex. Choice D is incorrect because it doesn’t use the model proposed in Text 1 to explain the findings described in Text 2. It is common sense that a certain number of male fish are required for reproduction to occur in tank 1, but the model presented by Text 1 focuses on the individual reproductive benefits of protogyny, not on its potential to benefit the population by maintaining a favorable sex ratio."
+  },
+  {
+    "id": 2,
+    "question": "Text 1 Growth in the use of novel nanohybrids—materials created from the conjugation of multiple distinct nanomaterials, such as iron oxide and gold nanomaterials conjugated for use in magnetic imaging—has outpaced studies of nanohybrids’ environmental risks. Unfortunately, risk evaluations based on nanohybrids’ constituents are not reliable: <u>conjugation may alter constituents’ physiochemical properties such that innocuous nanomaterials form a nanohybrid that is anything but.</u> Text 2 The potential for enhanced toxicity of nanohybrids relative to the toxicity of constituent nanomaterials has drawn deserved attention, but the effects of nanomaterial conjugation vary by case. For instance, it was recently shown that a nanohybrid of silicon dioxide and zinc oxide preserved the desired optical transparency of zinc oxide nanoparticles while mitigating the nanoparticles’ potential to damage DNA. Based on the texts, how would the author of Text 2 most likely respond to the assertion in the underlined portion of Text 1?",
+    "options": {
+      "A": "By concurring that the risk described in Text 1 should be evaluated but emphasizing that the risk is more than offset by the potential benefits of nanomaterial conjugation",
+      "B": "By arguing that the situation described in Text 1 may not be representative but conceding that the effects of nanomaterial conjugation are harder to predict than researchers had expected",
+      "C": "By denying that the circumstance described in Text 1 is likely to occur but acknowledging that many aspects of nanomaterial conjugation are still poorly understood",
+      "D": "By agreeing that the possibility described in Text 1 is a cause for concern but pointing out that nanomaterial conjugation does not inevitably produce that result"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The author of Text 2 acknowledges that nanohybrids may be more toxic than their constituent parts, but also provides an example of a nanohybrid that has reduced toxicity compared to its components: silicon dioxide and zinc oxide together have all the benefits of zinc oxide nanoparticles without any of the DNA harm zinc oxide has on its own. Choice A is incorrect. While the author of Text 2 gives an example of a nanohybrid that isn’t as toxic as its constituent parts, they don’t argue that the benefit outweighs the risk. They merely argue that “the effects of nanomaterial conjugation vary by case.” Choice B is incorrect. The author of Text 2 states that the effects of nanomaterial conjugation “vary by case,” and that the attention that their potential toxicity has drawn is warranted. If the situation in Text 1 weren’t representative, then there would be less attention to the potential danger of these materials. Furthermore, neither passage suggests that researchers had expected that they could predict the effects of nanomaterial conjugation. Choice C is incorrect. The author of Text 2 agrees that the potential toxicity of nanohybrids “has drawn deserved attention,” so they aren’t denying the problem."
+  },
+  {
+    "id": 3,
+    "question": "Text 1 Soy sauce, made from fermented soybeans, is noted for its umami flavor. Umami—one of the five basic tastes along with sweet, bitter, salty, and sour—was formally classified when its taste receptors were discovered in the 2000s. In 2007, to define the pure umami flavor scientists Rie Ishii and Michael O’Mahony used broths made from shiitake mushrooms and kombu seaweed, and two panels of Japanese and US judges closely agreed on a description of the taste. Text 2 A 2022 experiment by Manon Jünger et al. led to a greater understanding of soy sauce’s flavor profile. The team initially presented a mixture of compounds with low molecular weights to taste testers who found it was not as salty or bitter as real soy sauce. Further analysis of soy sauce identified proteins, including dipeptides, that enhanced umami flavor and also contributed to saltiness. The team then made a mix of 50 chemical compounds that re-created soy sauce’s flavor. Based on the texts, if Ishii and O’Mahony (Text 1) and Jünger et al. (Text 2) were aware of the findings of both experiments, they would most likely agree with which statement?",
+    "options": {
+      "A": "On average, the diets of people in the United States tend to have fewer foods that contain certain dipeptides than the diets of people in Japan have.",
+      "B": "Chemical compounds that activate both the umami and salty taste receptors tend to have a higher molecular weight than those that only activate umami taste receptors.",
+      "C": "Fermentation introduces proteins responsible for the increase of umami flavor in soy sauce, and those proteins also increase the perception of saltiness.",
+      "D": "The broths in the 2007 experiment most likely did not have a substantial amount of the dipeptides that played a key part in the 2022 experiment."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. Ishii and O’Mahony were trying to isolate the pure umami flavor, while Jünger was trying to recreate soy sauce, which has a mix of flavors that includes umami. Accordingly, the broths from Text 1 are not described as having any soy sauce in them—just “shiitake mushrooms and kombu seaweed.” So they probably don’t have as much of the dipeptides described in Text 2, which were found to be a key part of soy sauce’s umami-ness and its saltiness. Choice A is incorrect. Neither text supports this. Neither text gets into the diets of people in the United States, nor the diets of people in Japan. Choice B is incorrect. Neither text supports this. Text 2 does talk about the molecular weights of chemical compounds, but there isn’t enough information provided about molecular weights in Text 1 to make an inference about what the scientists in Text 1 would say. Choice C is incorrect. Neither text supports this. Text 1 briefly mentions that soy sauce is “made from fermented soybeans,” but it never claims that fermentation is responsible for its flavor in any way. And Text 2 never mentions fermentation at all."
+  },
+  {
+    "id": 4,
+    "question": "Text 1 Astronomer Mark Holland and colleagues examined four white dwarfs—small, dense remnants of past stars—in order to determine the composition of exoplanets that used to orbit those stars. Studying wavelengths of light in the white dwarf atmospheres, the team reported that traces of elements such as lithium and sodium support the presence of exoplanets with continental crusts similar to Earth’s. Text 2 Past studies of white dwarf atmospheres have concluded that certain exoplanets had continental crusts. Geologist Keith Putirka and astronomer Siyi Xu argue that those studies unduly emphasize atmospheric traces of lithium and other individual elements as signifiers of the types of rock found on Earth. The studies don’t adequately account for different minerals made up of various ratios of those elements, and the possibility of rock types not found on Earth that contain those minerals. Based on the texts, how would Putirka and Xu (Text 2) most likely characterize the conclusion presented in Text 1?",
+    "options": {
+      "A": "As unexpected, because it was widely believed at the time that white dwarf exoplanets lack continental crusts",
+      "B": "As premature, because researchers have only just begun trying to determine what kinds of crusts white dwarf exoplanets had",
+      "C": "As questionable, because it rests on an incomplete consideration of potential sources of the elements detected in white dwarf atmospheres",
+      "D": "As puzzling, because it’s unusual to successfully detect lithium and sodium when analyzing wavelengths of light in white dwarf atmospheres"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it reflects how Putirka and Xu (Text 2) would likely characterize the conclusion presented in Text 1. Text 1 discusses a study by Mark Holland and colleagues in which they detected traces of lithium and sodium in the atmospheres of four white dwarf stars. The team claims that this supports the idea that exoplanets with continental crusts like Earth’s once orbited these stars. Text 2 introduces Putirka and Xu, who indicate that sodium and lithium are present in several different minerals and that some of those minerals might exist in types of rock that are not found on Earth. Therefore, Putirka and Xu would likely describe the conclusion in Text 1 as questionable because it does not consider that lithium and sodium are also found in rocks that are not like Earth’s continental crust. Choice A is incorrect because the texts do not indicate how widely held any of the viewpoints described are. Choice B is incorrect because neither text discusses how new this area of study is. Choice D is incorrect because neither text discusses how likely lithium and sodium are to be detected by analyzing wavelengths of light."
+  },
+  {
+    "id": 5,
+    "question": "Text 1 The idea that time moves in only one direction is instinctively understood, yet it puzzles physicists. According to the second law of thermodynamics, at a macroscopic level some processes of heat transfer are irreversible due to the production of entropy—after a transfer we cannot rewind time and place molecules back exactly where they were before, just as we cannot unbreak dropped eggs. But laws of physics at a microscopic or quantum level hold that those processes should be reversible. Text 2 In 2015, physicists Tiago Batalhão et al. performed an experiment in which they confirmed the irreversibility of thermodynamic processes at a quantum level, producing entropy by applying a rapidly oscillating magnetic field to a system of carbon-13 atoms in liquid chloroform. But the experiment “does not pinpoint ... what causes [irreversibility] at the microscopic level,” coauthor Mauro Paternostro said. Based on the texts, what would the author of Text 1 most likely say about the experiment described in Text 2?",
+    "options": {
+      "A": "It would suggest an interesting direction for future research were it not the case that two of the physicists who conducted the experiment disagree on the significance of its findings.",
+      "B": "It provides empirical evidence that the current understanding of an aspect of physics at a microscopic level must be incomplete.",
+      "C": "It is consistent with the current understanding of physics at a microscopic level but not at a macroscopic level.",
+      "D": "It supports a claim about an isolated system of atoms in a laboratory, but that claim should not be extrapolated to a general claim about the universe."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. Author 1 describes the puzzle that physicists still can’t solve: at a microscopic level, the “laws of physics” suggest that we should be able to reverse processes that are not reversible at a macroscopic level (and, maybe, turn back time!). The experiment confirmed that those processes are not reversible even on the microscopic level, but it didn’t explain why. This supports Author 1’s point that physicists still don’t fully understand how things work at a microscopic level—maybe the laws need to be revised. Choice A is incorrect. We can’t infer that the author of Text 1 would respond this way to the experiment. Text 2 does name two of the physicists involved in the experiment, but it never suggests that they disagree on anything. Choice C is incorrect. This is the opposite of what the experiment suggests. The experiment confirmed that the macroscopic-level law (“these things can’t be reversed—like time”) was still true on the microscopic level—meaning it supports the current understanding of physics at a macroscopic level. Choice D is incorrect. We can’t infer that the author of Text 1 would respond this way to the experiment. Neither text makes this distinction between laboratory findings and the way the universe works in general."
+  },
+  {
+    "id": 6,
+    "question": "Text 1 Mycoprotein is a fungal biomass that can be eaten as an alternative to meat. Studies of the environmental impact of its manufacture generally agree it is lower than that of beef and closer to that of chicken or pork. But the expense of producing mycoprotein restricts its availability to a few countries with postindustrial economies. Knowing that cost reductions would expand access to mycoprotein, biochemists are exploring solutions, such as a cheaper substrate to feed the mycoprotein as it grows. Text 2 Cattle farming is a principal cause of global deforestation, and a study by Florian Humpenöder and his colleagues found that replacing 20% of beef consumption worldwide with consumption of mycoprotein would cut deforestation by half if accomplished over the next thirty years. However, this would likely involve only a small change in agricultural water consumption, since water once dedicated to raising cattle would be diverted to raising crops instead. Based on the texts, how would the author of Text 1 most likely respond to the study findings mentioned in Text 2?",
+    "options": {
+      "A": "By emphasizing that since agricultural water consumption would remain static in the event of replacing beef consumption with mycoprotein consumption, an effort must be made to substitute mycoprotein for chicken and pork in diets as well",
+      "B": "By asserting that the development of a more inexpensive substrate for mycoprotein production would contribute to the goal of decreasing worldwide deforestation over time",
+      "C": "By noting that most people would be more likely to use mycoprotein as a substitute for chicken or pork in their diets than as a substitute for beef",
+      "D": "By pointing out that some countries are responsible for greater deforestation than others and thus, to have any significant effect on the environment, will have to replace more than 20% of their beef consumption with mycoprotein"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it reflects how the author of Text 1 would most likely respond to the study findings described in Text 2. The author of Text 2 discusses a study by Florian Humpenöder and his colleagues that found that deforestation would be reduced by half over the next thirty years if 20% of the beef consumed worldwide were replaced with mycoprotein. The author of Text 1 points out that mycoprotein is not widely available because of its high production cost, but goes on to note that this problem could be addressed by the creation of a cheaper substrate to feed mycoprotein. This suggests that the author of Text 1 would assert that the development of a less expensive mycoprotein substrate would contribute to the reduction in deforestation described in the study findings discussed in Text 2: if reducing the cost of mycoprotein increases people’s access to it, then mycoprotein may be able to replace beef in more people’s diets, thereby reducing the deforestation associated with beef production. Choice A is incorrect because the author of Text 1 indicates that the environmental impact of mycoprotein production is close to that of chicken or pork production, so there is no reason to think that the author would assert that replacing chicken or pork with mycoprotein would be environmentally beneficial: such a replacement would not lessen the total environmental impact of food manufacture. Additionally, the specific issue of agricultural water consumption is never mentioned in Text 1, so there is no evidence indicating what the author of Text 1 would say about that issue. Choice C is incorrect. Although Text 1 does compare the environmental effects of producing mycoprotein to those of producing chicken or pork, nothing in Text 1 suggests that the author believes that people are more likely to replace chicken or pork with mycoprotein than they are to replace beef with mycoprotein. Choice D is incorrect because Text 1 makes no mention of countries’ varying contributions to deforestation, so there is no evidence that the author of Text 1 would respond to the finding described in Text 2 by saying that some countries will have to replace more than 20% of their beef consumption with mycoprotein."
+  },
+  {
+    "id": 7,
+    "question": "Text 1 Fossils of the hominin Australopithecus africanus have been found in the Sterkfontein Caves of South Africa, but <u>assigning an age to the fossils is challenging because of the unreliability of dating methods in this context.</u> The geology of Sterkfontein has caused soil layers from different periods to mix, impeding stratigraphic dating, and dates cannot be reliably imputed from those of nearby animal bones since the bones may have been relocated by flooding. Text 2 Archaeologists used new cosmogenic nuclide dating techniques to reevaluate the ages of A. africanus fossils found in the Sterkfontein Caves. This technique involves analyzing the cosmogenic nucleotides in the breccia—the matrix of rock fragments immediately surrounding the fossils. The researchers assert that this approach avoids the potential for misdating associated with assigning ages based on Sterkfontein’s soil layers or animal bones. Based on the texts, how would the researchers in Text 2 most likely respond to the underlined portion in Text 1?",
+    "options": {
+      "A": "They would emphasize the fact that the A. africanus fossils found in the Sterkfontein Caves may have been corrupted in some way over the years.",
+      "B": "They would contend that if analyses of surrounding layers and bones in the Sterkfontein Caves were combined, then the dating of the fossils there would be more accurate.",
+      "C": "They would argue that their techniques are better suited than other methods to the unique challenges posed by the Sterkfontein Caves.",
+      "D": "They would claim that cosmogenic nuclide dating is reliable in the context of the Sterkfontein Caves because it is applied to the fossils directly."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. Text 2 states that the researchers used cosmogenic nuclide dating to \"avoid the potential for misdating\" caused by the geology of Sterkfontein, which Text 1 describes as \"challenging\" and unreliable. Choice A is incorrect. Neither text suggests that the A. africanus fossils have been \"corrupted,\" but only that traditional dating methods are difficult in Sterkfontein because of floods and soil mixing where the fossils were found. Nothing is implied to have compromised the fossils themselves. Choice B is incorrect. This choice misreads Text 2. Text 2 agrees that stratigraphy and other methods are prone to error in the context of Sterkfontein: there’s a \"potential for misdating\" when evaluating age based on soil layers and bones. Choice D is incorrect. Text 2 does not state that cosmogenic nuclide dating is applied to the fossils directly but rather to the breccia that surrounds them."
+  },
+  {
+    "id": 8,
+    "question": "Text 1 Films and television shows commonly include a long list of credits naming the people involved in a production. Credit sequences may not be exciting, but they generally ensure that everyone’s contributions are duly acknowledged. Because they are highly standardized, film and television credits are also valuable to anyone researching the careers of pioneering cast and crew members who have worked in the mediums. Text 2 Video game scholars face a major challenge in the industry’s failure to consistently credit the artists, designers, and other contributors involved in making video games. Without a reliable record of which people worked on which games, questions about the medium’s development can be difficult to answer, and the accomplishments of all but its best-known innovators can be difficult to trace. Based on the texts, how would the author of Text 1 most likely respond to the discussion in Text 2?",
+    "options": {
+      "A": "By recommending that the scholars mentioned in Text 2 consider employing the methods regularly used by film and television researchers",
+      "B": "By pointing out that credits have a different intended purpose in film and television than in the medium addressed by the scholars mentioned in Text 2",
+      "C": "By suggesting that the scholars mentioned in Text 2 rely more heavily on credits as a source of information than film and television researchers do",
+      "D": "By observing that a widespread practice in film and television largely prevents the kind of problem faced by the scholars mentioned in Text 2"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it reflects how the author of Text 1 would most likely respond to Text 2 based on the information provided. Text 2 discusses how the inconsistent use of credits to identify the contributors to video games can pose an obstacle to scholars of the medium, who rely on such credits to answer questions about the medium’s development. Text 1 notes that in film and television, on the other hand, credits are used consistently and are valuable to researchers studying the cast and crew members in these mediums. Since Text 1 asserts how the consistent use of credits benefits scholars of film and television, it can be inferred that this text’s author would respond to the discussion in Text 2 by observing that the kind of problem faced by scholars of video games—the inability to know who contributed to a particular production and how—is, in film and television studies, largely prevented by the widespread practice of credits in these mediums. Choice A is incorrect. Although Text 1 discusses a method used by film and television researchers—namely, relying on credits to research the careers of cast and crew members—the author doesn’t explicitly recommend that or any other method. Moreover, Text 1 states that films and television shows themselves, not their researchers, regularly use the method of listing credits. Choice B is incorrect. It can be inferred from Text 2 that when video games do feature credits, they have essentially the same function as credits in film and television—namely, to identify the individuals who worked on a particular production. Therefore, it is unlikely that the author of Text 1 would characterize video game credits as differing in purpose from film and television credits. Choice C is incorrect because, as Text 2 explains, credits are not consistently used in video games. Therefore, it is unlikely that the author of Text 1 would argue that scholars of the medium discussed in this text—video games—rely more heavily on credits than scholars of film and television, two mediums where credits consistently appear."
+  },
+  {
+    "id": 9,
+    "question": "Text 1 Good art often challenges and disrupts social and aesthetic norms, but the creation of public art—paintings, sculptures, and performance pieces displayed in nonmuseum or nontheatrical public settings—typically requires broad agreement among artists, civic officials, and community members about the works’ message and artistic goals. <u>Public art that fails to appease everyone by being sufficiently aesthetically and conceptually bland almost inevitably provokes backlash.</u> Text 2 Public art is commonly displayed in spaces intended for purposes other than meaningful aesthetic engagement. Some critics of public art therefore note that norm-defying pieces that aren’t effectively integrated within their surroundings in a manner that primes passersby to appreciate the pieces’ merits (as is often the case) tend to be regarded more unfavorably than similarly provocative art encountered in museums is. Based on the texts, how would the critics mentioned in Text 2 most likely respond to the underlined claim in Text 1?",
+    "options": {
+      "A": "By arguing that the reason members of the general public might disagree about a public artwork’s merits is unrelated to the unconventionality of its appearance and ideas",
+      "B": "By agreeing with the idea that only works of art that are universally appealing are suitable for displaying in public spaces",
+      "C": "By disputing the notion that civic leaders and community members are easily placated by art that is intended mainly to reinforce social norms",
+      "D": "By contending that the kinds of reactions controversial public artworks often receive aren’t exclusively the result of attributes inherent in the works themselves"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because the critics mentioned in Text 2 would argue that negative reactions to controversial public art are not solely the result of the nature of the art itself. The claim in Text 1 suggests that public artworks tend to provoke backlash when they are not “aesthetically and conceptually bland.” This implies that the content of public art alone can cause backlash. However, the critics in Text 2 offer a more nuanced explanation. They argue that norm-defying pieces of public art that are not “effectively integrated within their surroundings” are more likely to be judged harshly by the public. They also imply that a museum provides a context that prepares viewers to expect challenging art, while public environments that serve other purposes often do not. This indicates that the critics in Text 2 would contend that factors beyond the attributes of the art, like environment and presentation, play a significant role in how public art is received. Choice A is incorrect because the critics in Text 2 do not argue that unconventionality is unrelated to public disagreement about a public artwork’s merits. Rather, they acknowledge that norm-defying pieces do face unfavorable reactions, but they attribute such reactions to contextual factors like poor integration with the environment rather than dismissing the role of unconventionality entirely. Choice B is incorrect because the critics in Text 2 do not advocate for restricting public art to universally appealing works. Instead, they argue that better integration with the surroundings and situating the work in appropriate contexts could help norm-defying art be better received by passersby. Choice C is incorrect because the critics in Text 2 do not address whether civic leaders and community members are easily satisfied by norm-reinforcing art. The critics in Text 2 instead argue that installation and integration with the surrounding environment factor into how norm-defying art is received by the general public, rather than disputing how people respond to conventional art."
+  },
+  {
+    "id": 10,
+    "question": "Text 1 The Cretaceous-Paleogene (K-Pg) mass extinction event is usually attributed solely to an asteroid impact near Chicxulub, Mexico. Some scientists argue that <u>volcanic activity was the true cause, as the K-Pg event occurred relatively early in a long period of eruption of the Deccan Traps range that initially produced huge amounts of climate-altering gases.</u> These dissenters note that other mass extinctions have coincided with large volcanic eruptions, while only the K-Pg event lines up with an asteroid strike. Text 2 In a 2020 study, Pincelli Hull and her colleagues analyzed ocean core samples and modeled climate changes around the K-Pg event. The team concluded that Deccan Traps gases did affect global conditions prior to the event, but that the climate returned to normal well before the extinctions began—extinctions that instead closely align with the Chicxulub impact. Based on the texts, how would Hull’s team (Text 2) most likely respond to the argument in the underlined portion of Text 1?",
+    "options": {
+      "A": "By agreeing that the Chicxulub impact changed the climate and that the Deccan Traps eruption caused the K-Pg event",
+      "B": "By declaring that the changes in climate caused by the Deccan Traps eruption weren’t the main cause of the K-Pg event",
+      "C": "By questioning why those scientists assume that the Chicxulub impact caused the Deccan Traps eruption",
+      "D": "By asserting that the Deccan Traps eruption had a more significant effect on global conditions than those scientists claim"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it describes how Hull’s team would most likely respond to the argument in the underlined portion of Text 1, which asserts that volcanic activity in the Deccan Traps range led to changes in the climate and caused the K-Pg mass extinction event. According to Text 2, although Hull’s team found that activity in the Deccan Traps did indeed alter the climate before the K-Pg event, the team determined that the climate had returned to normal before mass extinctions began. This finding and the observation that the K-Pg extinctions closely align with the Chicxulub asteroid impact suggest that Hull’s team would likely dispute the claim in the underlined portion of Text 1 and say that the climate changes caused by the Deccan Traps activity were not the main cause of the extinctions. Choice A is incorrect because Text 2 describes how Hull’s team found that the climate had recovered from the changes brought about by the Deccan Traps activity before the K-Pg event occurred, which suggests that Hull’s team would disagree that the Deccan Traps activity caused the K-Pg event. Additionally, the claim in the underlined portion of Text 1 says nothing about how the Chicxulub impact changed the climate, so while Hull’s team might believe that the impact did in fact change the climate, they could not be said to agree with the claim in Text 1 on this point. Choice C is incorrect because there is no indication in either text that any scientists assume that the Chicxulub impact caused the Deccan Traps activity, so there is no reason to conclude that Hull’s team would question why the scientists referred to in Text 1 make such an assumption. Choice D is incorrect because Text 2 describes how Hull’s team found that the climate had recovered from the changes brought about by the Deccan Traps activity before the K-Pg event occurred, which suggests that Hull’s team would say that the Deccan Traps activity had a less enduring effect on global conditions than the scientists referenced in Text 1 believe, not that the effect on global conditions was more significant than those scientists claim."
+  },
+  {
+    "id": 11,
+    "question": "Text 1 When the 50-second-long film Arrival of the Train—which depicts what its title says, a train pulling into a station—was first shown publicly in 1896, spectators, naïve to the new medium of film and seeing a train appearing to come directly at them, leaped from their seats and fled the room. This moment marks a major cultural shift: a new way of representing and seeing the world had arrived with that train, and nothing would ever be the same. Text 2 The fact that there is no contemporary evidence that the first audience of Arrival of the Train was alarmed has not stopped the story from becoming canonical, even among film historians. But that phenomenon itself is highly revealing. Our belief that the coming of film was transformative is so strong that we invented and keep retelling a founding myth that divides cultural history into a (naïve) “before” and (sophisticated) “after.” Based on the texts, the author of Text 2 would most likely agree with which statement about the description of the first showing of Arrival of the Train in Text 1?",
+    "options": {
+      "A": "It is more motivated by a perception of the significance of the invention of film than by facts.",
+      "B": "It expresses a view about the transformative nature of film that film historians tend to regard as naïve.",
+      "C": "It is not based on evidence and reflects film historians’ belief that they are more sophisticated than today’s audiences.",
+      "D": "It reflects a misconception that is widely believed because it captures early film audiences’ sense that the new medium was alarming."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it provides a statement about the description of the first showing of Arrival of the Train in Text 1 that, based on the texts, the author of Text 2 would most likely agree with. Text 1 indicates that members of the audience, unaccustomed to the new medium of film and believing that they were looking at a real oncoming train, allegedly reacted to the film with alarm. Text 1 then goes on to treat this anecdote as a factual account of the film’s first showing, interpreting it as a moment that marked a \"major cultural shift.\" In contrast, the author of Text 2 indicates that though the story of the film’s first showing has become \"canonical,\" or widely accepted, there is no contemporary evidence to support the idea that the audience reacted as Text 1 describes. Text 2 goes on to explain that this factually questionable description likely persists because it functions as a \"founding myth\" that reinforces a widespread belief in the profoundly transformative nature of the invention of film. This indicates that the author of Text 2 would likely see the description in Text 1 as motivated primarily by cultural perceptions about film’s significance rather than by documented historical facts. Choice B is incorrect because the author of Text 2 doesn’t suggest that film historians regard the view about film’s transformative nature as naïve. On the contrary, Text 2 states that the story of the first showing of Arrival of the Train has become \"canonical, even among film historians,\" indicating that historians broadly accept this narrative as a compelling illustration of film’s impact, not that they regard either the narrative or the views it conveys about the transformative nature of film as naïve. Text 2 refers to a \"(naïve) ‘before’\" in cultural history, but this is describing how the myth itself characterizes pre-film audiences, not how historians regard views about the transformative nature of film. Choice C is incorrect. While the author of Text 2 does indicate that the story of the audience’s reaction to Arrival of the Train described in Text 1 is a myth that lacks evidence, the text doesn’t suggest that the story reflects the fact that film historians believe themselves to be more sophisticated than modern audiences are. Rather, Text 2 suggests that the story persists because of a collective cultural belief, which historians share, in the profound impact of the invention of film. Moreover, the \"naïve\" versus \"sophisticated\" distinction mentioned in Text 2 refers to how the myth characterizes audiences before and after the invention of film; it doesn’t characterize modern audiences versus film historians. Choice D is incorrect. Although the author of Text 2 would agree that the description of the first showing of Arrival of the Train in Text 1 reflects a misconception, the author wouldn’t agree that widespread belief in the misconception can be attributed to the fact that it accurately captures early audiences’ actual sense of alarm. In fact, the misconception identified by the author of Text 2 concerns the accuracy of the audience’s alleged reaction; the author questions whether early audiences were alarmed at all, stating there is \"no contemporary evidence\" that they reacted in this way. According to Text 2, the description is widely believed not because it accurately captures historical reactions but because it serves as a \"founding myth\" that supports a belief in film’s transformative cultural impact."
+  },
+  {
+    "id": 12,
+    "question": "Text 1 Chemically analyzing bulk rock-core samples from Australia’s Mount McRae Shale, Ariel Anbar et al. found a transient but significant increase in molybdenum (Mo) at a point corresponding to roughly 2.5 billion years ago (Ga). On Earth, Mo is released mainly through oxidative weathering of minerals; Anbar et al. therefore concluded that atmospheric oxygen briefly increased 2.5 Ga, then returned to its earlier negligible level. Text 2 Sarah Slotznick et al. reexamined the Mount McRae Shale core. Since chemically analyzing bulk samples can occlude contextual details, Slotznick et al. also employed high-resolution microscopy, which revealed volcanic debris—a known Mo host—around 2.5 Ga and microfractures in the surrounding matrix. The researchers assert that fluid could have reached the debris through the microfractures and initiated oxidative weathering long after debris deposition. Based on the texts, Anbar et al. (Text 1) and Slotznick et al. (Text 2) would most likely disagree about the answer to which question about the portion of the Mount McRae Shale rock-core corresponding to 2.5 Ga?",
+    "options": {
+      "A": "Does the increase in Mo in that portion suggest that atmospheric oxygen levels were not negligible before 2.5 Ga?",
+      "B": "Is the increase in Mo in that portion indicative of an increase in atmospheric oxygen dating to the same time?",
+      "C": "Is the increase in Mo in that portion attributable to oxidative weathering of the material found in that portion?",
+      "D": "Did chemically analyzing bulk samples lead to a false impression that there is an increase in Mo in that portion?"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because Anbar et al. and Slotznick et al. would most likely disagree about whether the molybdenum (Mo) increase indicates atmospheric oxygen levels specifically at 2.5 Ga. Anbar et al. conclude that the Mo increase they found “at a point corresponding to roughly 2.5 billion years ago” means that “atmospheric oxygen briefly increased 2.5 Ga, then returned to its earlier negligible level,” directly linking the timing of the Mo increase to contemporaneous atmospheric oxygen levels. In contrast, Slotznick et al. discovered volcanic debris and microfractures in the rock core and “assert that fluid could have reached the debris through the microfractures and initiated oxidative weathering long after debris deposition.” If, as Slotznick asserts, the Mo detected at the 2.5 Ga portion could have been deposited there much later through weathering processes, then the Mo increase wouldn’t necessarily indicate atmospheric oxygen levels at 2.5 Ga specifically. Thus, Anbar et al. and Slotznick et al. disagree on whether the increase in Mo in the portion of the rock core corresponding to 2.5 Ga is indicative of an increase in atmospheric oxygen dating to the same time. Choice A is incorrect because neither research team’s findings directly address atmospheric oxygen levels before 2.5 Ga. Anbar et al. conclude that oxygen “returned to its earlier negligible level” after 2.5 Ga, implying low pre–2.5 Ga levels, while Slotznick et al. focus on explaining the Mo increase through later weathering processes rather than making claims about earlier atmospheric conditions. Choice C is incorrect because both research teams would likely agree that the Mo increase is attributable to oxidative weathering. Anbar et al. state that “Mo is released mainly through oxidative weathering of minerals,” and Slotznick et al. also reference “oxidative weathering” as the process that released Mo from the volcanic debris. Their disagreement concerns the timing of this weathering, not whether oxidative weathering is responsible. Choice D is incorrect because Slotznick et al. don’t suggest that bulk chemical analysis created a false impression about the presence of increased Mo. They acknowledge that the Mo increase exists but offer a different explanation for its timing and source. They critique bulk analysis for occluding “contextual details” that would require another kind of analysis to uncover, not for producing inaccurate measurements of Mo levels."
+  },
+  {
+    "id": 13,
+    "question": "Text 1 Philosopher G.E. Moore’s most influential work entails the concept of common sense. He asserts that there are certain beliefs that all people, including philosophers, know instinctively to be true, whether or not they profess otherwise: among them, that they have bodies, or that they exist in a world with other objects that have three dimensions. Moore’s careful work on common sense may seem obvious but was in fact groundbreaking. Text 2 External world skepticism is a philosophical stance supposing that we cannot be sure of the existence of anything outside our own minds. During a lecture, G.E. Moore once offered a proof refuting this stance by holding out his hands and saying, “Here is one hand, and here is another.” Many philosophers reflexively reject this proof (Annalisa Coliva called it “an obviously annoying failure”) but have found it a challenge to articulate exactly why the proof fails. Based on the texts, how would the author of Text 1 most likely respond to proponents of the philosophical stance outlined in Text 2?",
+    "options": {
+      "A": "By agreeing with those proponents that Moore’s treatment of positions that contradict his own is fundamentally unserious",
+      "B": "By suggesting that an instinctive distaste for Moore’s position is preventing external world skeptics from constructing a sufficiently rigorous refutation of Moore",
+      "C": "By arguing that if it is valid to assert that some facts are true based on instinct, it is also valid to assert that some proofs are inadequate based on instinct",
+      "D": "By pointing out that Moore would assert that external world skepticism is at odds with other beliefs those proponents must unavoidably hold"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. According to the author of Text 1, Moore’s definition of common sense—things we instinctively know are true— includes the belief that we all “exist in a world with other objects.” The author of Text 1 describes this notion as both “obvious” and “groundbreaking.” So it’s safe to infer that the author would observe that Moore would respond to external world skeptics by arguing that since everyone instinctively knows that things exist outside of their own minds, then external world skepticism must be wrong. Choice A is incorrect. We can’t infer that the author of Text 1 would respond this way to external world skeptics. If anything, the author of Text 1 seems to agree with Moore. Choice B is incorrect. We can’t infer that the author of Text 1 would respond this way to external world skeptics. The author of Text 1 never mentions external world skeptics directly, let alone why they have a hard time refuting Moore’s position. Choice C is incorrect. We can’t infer that the author of Text 1 would respond this way to external world skeptics. Text 1’s presentation of Moore’s concept of common sense only includes the idea that some facts are true based on instinct—it doesn’t mention the idea that some proofs are inadequate based on instinct."
+  },
+  {
+    "id": 14,
+    "question": "Text 1 Like the work of Ralph Ellison before her, Toni Morrison’s novels feature scenes in which characters deliver sermons of such length and verbal dexterity that for a time, the text exchanges the formal parameters of fiction for those of oral literature. Given the many other echoes of Ellison in Morrison’s novels, both in structure and prose style, <u>these scenes suggest Ellison’s direct influence on Morrison.</u> Text 2 In their destabilizing effect on literary form, the sermons in Morrison’s works recall those in Ellison’s. Yet literature by Black Americans abounds in moments where interpolated speech erodes the division between oral and written forms that literature in English has traditionally observed. Morrison’s use of the sermon is attributable not only to the influence of Ellison but also to a community-wide strategy of resistance to externally imposed literary conventions. Based on the texts, how would the author of Text 2 most likely characterize the underlined claim in Text 1?",
+    "options": {
+      "A": "As failing to consider Ellison’s and Morrison’s equivalent uses of the sermon within the wider cultural context in which they wrote",
+      "B": "As misunderstanding the function of sermons in novels by Black American writers other than Ellison and Morrison",
+      "C": "As disregarding points of structural and stylistic divergence between the works of Ellison and those of Morrison",
+      "D": "As being indebted to the tradition of resisting literary conventions that privilege written forms, such as novels, over sermons and other oral forms"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The author of Text 2 argues that Morrison’s use of the sermon is not only influenced by Ellison, but also by a “community-wide strategy of resistance” to literary conventions practiced by Black American authors. Ellison, Text 2 alleges, is only one of many influences on Morrison. Choice B is incorrect. Neither text specifically mentions sermons in works by authors other than Morrison or Ellison, only a tendency towards eroding “the division between oral and written forms” among Black American writers. Choice C is incorrect. Both texts describe similarities between the works of Ellison and Morrison, and neither points out instances of divergence. Text 2 simply suggests that Morrison was influenced by more than just Ellison. Choice D is incorrect. While Text 2 does discuss Morrison’s resistance to certain literary conventions, it’s unclear what it would mean for the underlined claim to be “indebted” to that tradition. This choice recycles language from the text, but not in a way that makes any coherent point."
+  },
+  {
+    "id": 15,
+    "question": "Text 1 Virginia Woolf’s 1928 novel Orlando is an oddity within her body of work. Her other major novels consist mainly of scenes of everyday life and describe their characters’ interior states in great detail, whereas Orlando propels itself through a series of fantastical events and considers its characters’ psychology more superficially. Woolf herself sometimes regarded the novel as a minor work, even admitting once that she “began it as a joke.” Text 2 Like Woolf’s other great novels, Orlando portrays how people’s memories inform their experience of the present. Like those works, it examines how people navigate social interactions shaped by gender and social class. Though it is lighter in tone—more entertaining, even—this literary “joke” nonetheless engages seriously with the themes that motivated the four or five other novels by Woolf that have achieved the status of literary classics. Based on the texts, how would the author of Text 2 most likely respond to the assessment of Orlando presented in Text 1?",
+    "options": {
+      "A": "By conceding that Woolf’s talents were best suited to serious novels but asserting that the humor in Orlando is often effective",
+      "B": "By agreeing that Orlando is less impressive than certain other novels by Woolf but arguing that it should still be regarded as a classic",
+      "C": "By acknowledging that Orlando clearly differs from Woolf’s other major novels but insisting on its centrality to her body of work nonetheless",
+      "D": "By concurring that the reputation of Orlando as a minor work has led readers to overlook this novel but maintaining that the reputation is unearned"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it reflects how the author of Text 2 would most likely respond to the assessment of Orlando in Text 1. Both authors agree that Orlando is unusual for Woolf: Text 1 states that the novel examines its characters’ psychologies more superficially than Woolf’s other novels do, and Text 2 describes it as being lighter in tone. However, while Text 1 calls Orlando an “oddity” and mentions that Woolf “began it as a joke,” Text 2 asserts that Orlando engages the same themes as Woolf’s other great novels. Hence, the author of Text 2 would most likely accept that Orlando differs from Woolf’s other novels but would also insist on its importance in the context of Woolf’s work as a writer. Choice A is incorrect. Text 2 does suggest that the humor in Orlando is effective. However, there’s nothing in Text 2 to suggest that the author would agree that Woolf’s talents were best suited to serious novels. Rather, the author of Text 2 compares Orlando favorably to other novels by Woolf that are implied to be darker in tone. Choice B is incorrect because the author of Text 2 does not indicate that Orlando is less impressive than Woolf’s other novels, but instead points out that it engages the same themes as other novels by Woolf that are considered classics. Choice D is incorrect because there’s nothing in Text 1 or Text 2 to suggest that readers have generally ignored Orlando because of its reputation."
+  },
+  {
+    "id": 16,
+    "question": "Text 1 Most animals can regenerate some parts of their bodies, such as skin. But when a three-banded panther worm is cut into three pieces, each piece grows into a new worm. Researchers are investigating this feat partly to learn more about humans’ comparatively limited abilities to regenerate, and they’re making exciting progress. An especially promising discovery is that both humans and panther worms have a gene for early growth response (EGR) linked to regeneration. Text 2 When Mansi Srivastava and her team reported that panther worms, like humans, possess a gene for EGR, it caused excitement. However, as the team pointed out, the gene likely functions very differently in humans than it does in panther worms. Srivastava has likened EGR to a switch that activates other genes involved in regeneration in panther worms, but how this switch operates in humans remains unclear. Based on the texts, what would the author of Text 2 most likely say about Text 1’s characterization of the discovery involving EGR?",
+    "options": {
+      "A": "It is reasonable given that Srivastava and her team have identified how EGR functions in both humans and panther worms.",
+      "B": "It is overly optimistic given additional observations from Srivastava and her team.",
+      "C": "It is unexpected given that Srivastava and her team’s findings were generally met with enthusiasm.",
+      "D": "It is unfairly dismissive given the progress that Srivastava and her team have reported."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it reflects how the author of Text 2 would most likely respond to Text 1 based on the information provided. Text 1 discusses the discovery of a regeneration-linked gene, EGR, in both three-banded panther worms (which are capable of full regeneration) and humans (who have relatively limited regeneration abilities). Text 1 characterizes this discovery as “especially promising” and a sign of “exciting progress” in understanding human regeneration. The author of Text 2, on the other hand, focuses on the fact that the team that reported the EGR finding pointed out that while EGR’s function in humans isn’t yet known, it’s likely very different from its function in panther worms. Therefore, the author of Text 2 would most likely say that Text 1’s enthusiasm about the EGR discovery is overly optimistic given Srivastava’s team’s observations about EGR in humans. Choice A is incorrect because the author of Text 2 explains that Srivastava and her team explicitly reported that they haven’t yet identified how EGR functions in humans; therefore, the author of Text 2 wouldn’t say that Text 1’s excitement is reasonable for the stated reason. Instead, the author of Text 2 would likely characterize Text 1’s excitement as premature and overly optimistic. Choice C is incorrect because Text 1 does treat Srivastava’s team’s findings with enthusiasm; it describes the discovery of EGR in both three-banded panther worms and humans as promising and exciting. It would be illogical for the author of Text 2 to say that because most others treat the discovery with enthusiasm, Text 1’s enthusiastic characterization of the discovery is unexpected. Choice D is incorrect because Text 1 isn’t at all dismissive of Srivastava’s team’s findings; instead, Text 1 is optimistic about the EGR discovery, characterizing it as promising and exciting. There’s nothing in Text 2 to suggest that the author of Text 2 would say that Text 1’s praise for the discovery is dismissive, or disdainful."
+  },
+  {
+    "id": 17,
+    "question": "Text 1 Because literacy in Nahuatl script, the writing system of the Aztec Empire, was lost after Spain invaded central Mexico in the 1500s, it is unclear exactly how meaning was encoded in the script’s symbols. Although many scholars had assumed that the symbols signified entire words, linguist Alfonso Lacadena theorized in 2008 that they signified units of language smaller than words: individual syllables. Text 2 The growing consensus among scholars of Nahuatl script is that many of its symbols could signify either words or syllables, depending on syntax and content at any given site within a text. For example, the symbol signifying the word huipil (blouse) in some contexts could signify the syllable “pil” in others, as in the place name “Chipiltepec.” Thus, for the Aztecs, reading required a determination of how such symbols functioned each time they appeared in a text. Based on the texts, how would the author of Text 2 most likely characterize Lacadena’s theory, as described in Text 1?",
+    "options": {
+      "A": "By praising the theory for recognizing that the script’s symbols could represent entire words",
+      "B": "By arguing that the theory is overly influenced by the work of earlier scholars",
+      "C": "By approving of the theory’s emphasis on how the script changed over time",
+      "D": "By cautioning that the theory overlooks certain important aspects of how the script functioned"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. Lacadena’s theory is that Nahuatl script symbols signified syllables, but the consensus described in Text 2 is that they can signify either symbols or full words, depending on the context. So the author of Text 2 would likely consider Lacadena’s theory too simplistic: it’s missing the importance of the context in determining the meaning of a symbol. Choice A is incorrect. This conflicts with Text 1’s description of Lacadena’s theory. Lacadena’s theory is that Nahuatl script symbols signified syllables. Choice B is incorrect. This conflicts with Text 1’s description of Lacadena’s theory. Text 1 states that Lacadena’s theory differed from what earlier scholars believed. Choice C is incorrect. We can’t infer that this is how the author of Text 2 would characterize Lacadena’s theory. Neither text mentions how or even if the script changed over time."
+  },
+  {
+    "id": 18,
+    "question": "Text 1 Despite its beautiful prose, The Guns of August, Barbara Tuchman’s 1962 analysis of the start of World War I, has certain weaknesses as a work of history. It fails to address events in Eastern Europe just before the outbreak of hostilities, thereby giving the impression that Germany was the war’s principal instigator. Had Tuchman consulted secondary works available to her by scholars such as Luigi Albertini, she would not have neglected the influence of events in Eastern Europe on Germany’s actions. Text 2 Barbara Tuchman’s The Guns of August is an engrossing if dated introduction to World War I. Tuchman’s analysis of primary documents is laudable, but her main thesis that European powers committed themselves to a catastrophic outcome by refusing to deviate from military plans developed prior to the conflict is implausibly reductive. Which choice best describes a difference in how the authors of Text 1 and Text 2 view Barbara Tuchman’s The Guns of August?",
+    "options": {
+      "A": "The author of Text 1 argues that Tuchman should have relied more on the work of other historians, while the author of Text 2 implies that Tuchman’s most interesting claims result from her original research.",
+      "B": "The author of Text 1 believes that the scope of Tuchman’s research led her to an incorrect interpretation, while the author of Text 2 believes that Tuchman’s central argument is overly simplistic.",
+      "C": "The author of Text 1 asserts that the writing style of The Guns of August makes it worthwhile to read despite any perceived deficiency in Tuchman’s research, while the author of Text 2 focuses exclusively on the weakness of Tuchman’s interpretation of events.",
+      "D": "The author of Text 1 claims that Tuchman would agree that World War I was largely due to events in Eastern Europe, while the author of Text 2 maintains that Tuchman would say that Eastern European leaders were not committed to military plans in the same way that other leaders were."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. Both texts are critical of The Guns of August, but for different reasons: the author of Text 1 argues that Tuchman missed an important factor leading up to the war because she didn’t consult secondary sources, and the author of Text 2 argues that Tuchman’s main thesis is \"reductive,\" which is a close synonym for \"overly simplistic.\" Choice A is incorrect. This doesn’t accurately describe the difference. This choice’s summary of Text 1 is accurate, but Text 2 never says that Tuchman’s most interesting claims result from her original research. Choice C is incorrect. This doesn’t accurately describe the difference. Text 1 never says that The Guns of August is worthwhile to read despite its research weaknesses. Text 2 does call out a weakness of Tuchman’s interpretation of events, but it also praises her analysis of primary sources. Choice D is incorrect. This doesn’t accurately describe the difference. Text 1 actually says that Tuchman \"fails to address\" the influence of events in Eastern Europe, while Text 2 says that Tuchman’s thesis was that European powers (not Eastern European leaders) were committed to military plans."
+  },
+  {
+    "id": 19,
+    "question": "Text 1 In 2007, a team led by Alice Storey analyzed a chicken bone found in El Arenal, Chile, dating it to 1321–1407 CE—over a century before Europeans invaded the region, bringing their own chickens. Storey also found that the El Arenal chicken shared a unique genetic mutation with the ancient chicken breeds of the Polynesian Islands in the Pacific. Thus, <u>Polynesian peoples, not later Europeans, probably first introduced chickens to South America.</u> Text 2 An Australian research team weakened the case for a Polynesian origin for the El Arenal chicken by confirming that the mutation identified by Storey has occurred in breeds from around the world. More recently, though, a team led by Agusto Luzuriaga-Neira found that South American chicken breeds and Polynesian breeds share other genetic markers that European breeds lack. Thus, the preponderance of evidence now favors a Polynesian origin. Based on the texts, how would the author of Text 2 most likely respond to the underlined claim in Text 1?",
+    "options": {
+      "A": "By broadly agreeing with the claim but objecting that the timeline it presupposes conflicts with the findings of the genetic analysis conducted by Storey’s team",
+      "B": "By faulting the claim for implying that domestic animals couldn’t have been transferred from South America to the Polynesian Islands as well",
+      "C": "By critiquing the claim for being based on an assumption that before the European invasion of South America, the chickens of Europe were genetically uniform",
+      "D": "By noting that while the claim is persuasive, the findings of Luzuriaga-Neira’s team provide stronger evidence for it than the findings of the genetic analysis conducted by Storey do"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it accurately describes how the author of Text 2 would most likely respond to the underlined claim in Text 1. Text 1 indicates that Storey found a genetic mutation in South American chickens from before the European invasion and in Polynesian chickens, which implies that chickens were first brought to South America by Polynesian people. Text 2 explains that the genetic mutation Storey found is in chickens from all over the world, thus undercutting the mutation as evidence of a Polynesian origin. However, Text 2 goes on to say “[m]ore recently” Luzuriaga-Neira and colleagues found multiple genetic markers shared by South American and Polynesian chickens but “that European breeds lack,” which strongly suggests a Polynesian origin for the South American chickens. This indicates that the author of Text 2 believes Luzuriaga-Neira’s evidence for a Polynesian origin is compelling while Storey’s evidence has been undermined. Thus, the author of Text 2 would most likely agree with the underlined statement and believes Luzuriaga-Neira and colleagues’ evidence for the statement is stronger than Storey’s evidence is. Choice A is incorrect because both texts indicate that chickens were introduced to South America before the arrival of Europeans. Text 1 states that the El Arenal chicken bone dates from “1321–1407 CE—over a century before Europeans invaded the region” and concludes that these chickens were likely brought to South America by Polynesians. While Text 2 is not as explicit about the time period as Text 1 is, nothing in Text 2 undermines the timing of events ascribed to Storey’s account in Text 1. Choice B is incorrect because both texts agree that chickens were first brought to South America by Polynesian peoples (the underlined claim), and nothing in Text 2 suggests that this claim is in any way deficient because the possibility that animals could have been transferred from South America to Polynesia was not explicitly addressed. Choice C is incorrect because the criticism that Text 2 raises about the ideas in Text 1 is specifically about whether the single genetic mutation cited by Storey in fact supports the idea of a Polynesian origin for South American chickens. There is nothing in Text 2 to suggest that the underlined sentence (Storey’s conclusion) is deficient because it is based on an assumption about the genetic uniformity of European chickens."
+  },
+  {
+    "id": 20,
+    "question": "Text 1 Many studies in psychology have shown that people seek out information even when they know in advance that they have no immediate use for it and that they won’t directly benefit from it. Such findings support the consensus view among researchers of curiosity: namely, that curiosity is not instrumental but instead represents a drive to acquire information for its own sake. Text 2 While acknowledging that acquiring information is a powerful motivator, Rachit Dubey and colleagues ran an experiment to test whether emphasizing the usefulness of scientific information could increase curiosity about it. They found that when research involving rats and fruit flies was presented as having medical applications for humans, participants expressed greater interest in learning about it than when the research was not presented as useful. Based on the texts, how would Dubey and colleagues (Text 2) most likely respond to the consensus view discussed in Text 1?",
+    "options": {
+      "A": "By suggesting that curiosity may not be exclusively motivated by the desire to merely acquire information",
+      "B": "By conceding that people may seek out information that serves no immediate purpose only because they think they can use it later",
+      "C": "By pointing out that it is challenging to determine when information-seeking serves no goal beyond acquiring information",
+      "D": "By disputing the idea that curiosity can help explain apparently purposeless information-seeking behaviors"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The researchers in Text 2 recognize that acquiring information is a powerful motivator, but showed that this motivation can still be affected by other factors, like whether or not the information is expected to be useful or not. This suggests that other desires may play a part in driving people to acquire information. Choice B is incorrect. The consensus view in Text 1 is that people acquire information regardless of whether they think they can use it later. Dubey and colleagues acknowledge this fact (so they don’t claim people seek out information “only” because it might be useful later). Choice C is incorrect. This choice misreads the results of Dubey and colleagues’ study in Text 2. Neither text discusses the difficulty of determining the motivation for information-seeking. Choice D is incorrect. This choice contradicts Text 2, which starts with Dubey and colleagues “acknowledging that acquiring information is a powerful motivator” (i.e., agreeing that curiosity explains the seeking of apparently purposeless information). The research in Text 2 simply suggests that more than just curiosity can motivate information-seeking behavior when the information has a purpose."
+  },
+  {
+    "id": 21,
+    "question": "Text 1 Conventional wisdom long held that human social systems evolved in stages, beginning with hunter-gatherers forming small bands of members with roughly equal status. The shift to agriculture about 12,000 years ago sparked population growth that led to the emergence of groups with hierarchical structures: associations of clans first, then chiefdoms, and finally, bureaucratic states. Text 2 In a 2021 book, anthropologist David Graeber and archaeologist David Wengrow maintain that humans have always been socially flexible, alternately forming systems based on hierarchy and collective ones with decentralized leadership. The authors point to evidence that as far back as 50,000 years ago some hunter-gatherers adjusted their social structures seasonally, at times dispersing in small groups but also assembling into communities that included esteemed individuals. Based on the texts, how would Graeber and Wengrow (Text 2) most likely respond to the “conventional wisdom” presented in Text 1?",
+    "options": {
+      "A": "By conceding the importance of hierarchical systems but asserting the greater significance of decentralized collective societies",
+      "B": "By disputing the idea that developments in social structures have followed a linear progression through distinct stages",
+      "C": "By acknowledging that hierarchical roles likely weren’t a part of social systems before the rise of agriculture",
+      "D": "By challenging the assumption that groupings of hunter-gatherers were among the earliest forms of social structure"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it describes the most likely way that Graeber and Wengrow (Text 2) would respond to the “conventional wisdom” presented in Text 1. According to Text 1, the conventional wisdom about human social systems is that they developed through stages, beginning with hunter-gatherer bands, then moving to clan associations, then chiefdoms, and finally arriving at states with bureaucratic structures. Text 2 indicates that Graeber and Wengrow believe that human social systems have been flexible, shifting between different types of structures, including both hierarchical and collective systems, and that these shifts may have even occurred seasonally. This suggests that Graeber and Wengrow would dispute the idea that developments in social structures have followed a linear progression through distinct stages. Choice A is incorrect because nothing in Text 2 suggests that Graeber and Wengrow believe that decentralized collective societies are more significant than hierarchical systems. Text 2 is focused on Graeber and Wengrow’s view that humans have flexibly shifted among various social structures, not on the importance of particular structures relative to others. Choice C is incorrect because Text 2 doesn’t include any information suggesting that Graeber and Wengrow believe that hierarchies didn’t emerge until after the rise of agriculture. In fact, Text 2 indicates that Graeber and Wengrow cite evidence suggesting that some hunter-gatherer groups formed social structures with hierarchical elements (“communities that included esteemed individuals”) 50,000 years ago, long before the rise of agriculture, which Text 1 says occurred around 12,000 years ago. Choice D is incorrect because there’s no information in Text 2 suggesting that Graeber and Wengrow would challenge the assumption that groupings of hunter-gatherers were among the earliest forms of social structure. Although Text 1 does indicate that huntergatherer groups are assumed to be the earliest human social system, Text 2 says only that Graeber and Wengrow believe that some huntergatherer groups made use of different social structures at different times. Text 2 doesn’t imply that Graeber and Wengrow doubt that huntergatherer groups preceded most other social structures."
+  },
+  {
+    "id": 22,
+    "question": "Text 1 Hycean planets are a class of exoplanets (planets outside our solar system) with oceans of liquid water—critical to supporting life—and atmospheres rich in hydrogen. Computer models have determined that for potential hycean planets, the range of the habitable zone (HZ), the distance from a star that allows a planet to retain liquid water on its surface, begins at about 1 astronomical unit (AU). In 2021, Nikku Madhusudhan et al. identified K2-18 b as a hycean candidate, noting that the planet is located right on the inner edge of the HZ. Text 2 In a 2023 paper, Shang-Min Tsai et al. claimed that the hydrogen-rich atmospheres of K2-18 b and other hycean candidates admit wavelengths of light that cause elevated surface temperatures and increased water evaporation. Unlike earlier assessments, Tsai et al.’s calculations therefore placed the inner edge for these planets’ HZ as far out as 3.85 AU. Based on the texts, how would Tsai et al. (Text 2) most likely respond to Madhusudhan et al.’s research, as presented in Text 1?",
+    "options": {
+      "A": "By stating that the chemical composition of the atmosphere of the hycean candidate Madhusudhan et al. identified suggests that this planet’s surface is unlikely to harbor liquid water",
+      "B": "By maintaining that Madhusudhan et al. relied on a model whose estimates of surface temperatures on hycean candidates are likely too high",
+      "C": "By observing that unlike the hycean candidate Madhusudhan et al. discovered, most other types of planets with hydrogen-rich atmospheres are likely located within the HZ",
+      "D": "By arguing that K2-18 b and other hycean candidates are unlikely to support life because these planets are located too far from the stars they orbit"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it reflects how Tsai et al. would most likely respond to Madhusudhan et al.’s identification of K2-18 b as a hycean candidate. Text 1 establishes that the habitable zone (HZ) for potential hycean planets, which are typified by abundant liquid water and hydrogen-rich atmospheres, represents “the distance from a star that allows a planet to retain liquid water on its surface” and is estimated to begin at about 1 astronomical unit (AU). Based on this characterization of the HZ, Madhusudhan et al. identified K2-18 b as a hycean candidate whose location falls on the “inner edge” of the HZ—implying that its distance from its star is about 1 AU. However, Text 2 presents Tsai et al.’s claim that the same hydrogen-rich atmospheres that typify K2-18 b and other hycean candidates “admit wavelengths of light that cause elevated surface temperatures and increased water evaporation,” phenomena that would be exacerbated by proximity to their host stars. Tsai et al. instead placed the inner edge of the HZ “as far out as 3.85 AU,” implying that hycean candidates at lesser distances from their stars would be unlikely to maintain liquid oceans because of elevated surface temperatures and subsequent water evaporation. According to Tsai et al.’s HZ estimate, K2-18 b—at roughly 1 AU—would be too close to its star to retain liquid water. Therefore, based on the details in the texts, Tsai et al. would most likely respond that the very atmospheric composition that defines K2-18 b as a hycean candidate suggests that it is unlikely to harbor liquid water on its surface. Choice B is incorrect. In contrast to the suggestion that Madhusudhan et al.’s estimates of the surface temperature of hycean candidates are “likely too high,” Tsai et al.’s findings suggest the opposite: earlier assessments of the HZ didn’t fully account for the warming effect of wavelengths of light admitted by these planets’ hydrogen-rich atmospheres, which is why Tsai et al. placed the edge of the HZ farther out. The information in Text 2 therefore suggests that Tsai et al. would view Madhusudhan et al.’s temperature estimates as too low rather than as too high. Choice C is incorrect because neither text discusses other types of planets with hydrogen-rich atmospheres or compares them to hycean candidates. It therefore doesn’t follow from the information in the texts that Tsai et al. would observe that most other hydrogen-rich planets are likely within the HZ. Text 2 only indicates that the HZ for hycean candidates begins at about 3.85 AU and that K2-18 b therefore isn’t likely to be within the HZ, not that other planets with hydrogen-rich atmospheres are mostly located within the HZ. Choice D is incorrect because it mischaracterizes Tsai et al.’s findings. Rather than indicating that K2-18 b and other hycean candidates are “too far from the stars they orbit,” Tsai et al.’s findings suggest the opposite problem. Because these planets’ hydrogen-rich atmospheres admit wavelengths of light that cause elevated temperatures and water evaporation at distances of less than 3.85 AU, Tsai et al. would be more likely to argue that K2-18 b (at a distance of about 1 AU) and planets like it are too close to their stars, not too far from them. Moreover, Text 2 doesn’t suggest anything about hycean candidates more generally being unable to support life, only that hycean candidates at distances less than 3.85 AU from their stars, like K2-18 b, likely don’t have the liquid water needed to sustain life. Presumably, hycean candidates that are within the HZ described by Tsai et al. could harbor liquid oceans necessary for supporting life."
+  },
+  {
+    "id": 23,
+    "question": "Text 1 American sculptor Edmonia Lewis is best known for her sculptures that represent figures from history and mythology, such as The Death of Cleopatra and Hagar. Although Lewis sculpted other subjects, her career as a sculptor is best represented by the works in which she depicted these historical and mythical themes. Text 2 Art historians have typically ignored the many portrait busts Edmonia Lewis created. Lewis likely carved these busts (sculptures of a person’s head) frequently throughout her long career. She is known for her sculptures that represent historical figures, but Lewis likely supported herself financially by carving portrait busts for acquaintances who paid her to represent their features. Thus, Lewis’s portrait busts are a central aspect of her career as a sculptor. Based on the texts, both authors would most likely agree with which statement?",
+    "options": {
+      "A": "Lewis’s portrait busts have overshadowed her other work.",
+      "B": "The Death of Cleopatra is Lewis’s most famous piece.",
+      "C": "Sculpting representations of historical figures was a short-lived trend.",
+      "D": "Lewis’s works are varied in the subjects they depict."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. Author 1 acknowledges that Lewis sculpted other subjects besides historical and mythical figures, suggesting a variety of subjects depicted. Author 2 mentions that Lewis carved portrait busts as well as historical sculptures, which also implies variation among Lewis’s subjects. Choice A is incorrect. Neither text suggests that Lewis’s portrait busts have received more attention or appreciation than her other work. Author 1 briefly mentions her “other works,” but mostly focuses on her historical and mythical works. Author 2 states that art historians have typically ignored her portrait busts, which suggests that they haven’t overshadowed her other work. Choice B is incorrect. Neither text explicitly states that The Death of Cleopatra is Lewis’s most famous piece. Author 1 mentions it as one example of her historical works, but does not single it out as being more important or influential than Hagar. Author 2 does not mention it at all, focusing instead on her portrait busts. Choice C is incorrect. This choice isn’t supported by the texts. Neither text suggests that sculpting historical figures was a trend that faded quickly."
+  },
+  {
+    "id": 24,
+    "question": "Text 1 Ecologists have long wondered how thousands of microscopic phytoplankton species can live together near ocean surfaces competing for the same resources. According to conventional wisdom, one species should emerge after outcompeting the rest. So why do so many species remain? Ecologists’ many efforts to explain this phenomenon still haven’t uncovered a satisfactory explanation. Text 2 Ecologist Michael Behrenfeld and colleagues have connected phytoplankton’s diversity to their microscopic size. Because these organisms are so tiny, they are spaced relatively far apart from each other in ocean water and, moreover, experience that water as a relatively dense substance. This in turn makes it hard for them to move around and interact with one another. Therefore, says Behrenfeld’s team, direct competition among phytoplankton probably happens much less than previously thought. Based on the texts, how would Behrenfeld and colleagues (Text 2) most likely respond to the “conventional wisdom” discussed in Text 1?",
+    "options": {
+      "A": "By arguing that it is based on a misconception about phytoplankton species competing with one another",
+      "B": "By asserting that it fails to recognize that routine replenishment of ocean nutrients prevents competition between phytoplankton species",
+      "C": "By suggesting that their own findings help clarify how phytoplankton species are able to compete with larger organisms",
+      "D": "By recommending that more ecologists focus their research on how competition among phytoplankton species is increased with water density"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because based on Text 2, it represents how Behrenfeld and colleagues would most likely respond to the “conventional wisdom” discussed in Text 1. The conventional wisdom cited holds the opinion that when there is species diversity within a phytoplankton population, “one species should emerge after outcompeting the rest”—that is, after being so successful in competing for resources that the other species vanish from the population. However, Text 2 explains that according to Behrenfeld and colleagues, phytoplankton are so small and spaced so far apart in the water that there is “much less” direct competition for resources within phytoplankton populations than scientists had previously thought. Choice B is incorrect because Text 2 never discusses whether routine replenishment of ocean nutrients affects competition between phytoplankton species. Choice C is incorrect because the interspecies competition discussed in both texts is specifically between phytoplankton species, and neither text considers whether phytoplankton compete for resources with larger nonphytoplankton species. Choice D is incorrect because according to Text 2, Behrenfeld and colleagues argue that water density decreases, not increases, competition between phytoplankton species."
+  },
+  {
+    "id": 25,
+    "question": "Text 1 Dominique Potvin and colleagues captured five Australian magpies (Gymnorhina tibicen) to test a new design for attaching tracking devices to birds. As the researchers fitted each magpie with a tracker attached by a small harness, they noticed some magpies without trackers pecking at another magpie’s tracker until it broke off. The researchers suggest that this behavior could be evidence of magpies attempting to help another magpie without benefiting themselves. Text 2 It can be tempting to think that animals are deliberately providing help when we see them removing trackers and other equipment from one another, especially when a species is known to exhibit other cooperative behaviors. At the same time, it can be difficult to exclude the possibility that individuals are simply interested in the equipment because of its novelty, curiously pawing or pecking at it until it detaches. Based on the texts, how would the author of Text 2 most likely respond to the researchers’ perspective in Text 1 on the behavior of the magpies without trackers?",
+    "options": {
+      "A": "That behavior might have been due to the novelty of the magpies’ captive setting rather than to the novelty of the tracker.",
+      "B": "That behavior likely indicates that the magpies were deliberately attempting to benefit themselves by obtaining the tracker.",
+      "C": "That behavior may not be evidence of selflessness in Gymnorhina tibicen because not all the captured magpies demonstrated it.",
+      "D": "That behavior might be adequately explained without suggesting that the magpies were attempting to assist the other magpie."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it reflects how the author of Text 2 would most likely respond to the researchers’ perspective in Text 1 on the behavior of the magpies without trackers. According to Text 1, Dominique Potvin and colleagues observed magpies without trackers pecking at a tracker on another magpie until the device fell off. The researchers suggested that the birds might have been attempting to help the other bird, with no benefit to themselves. Text 2 generally discusses scenarios in which animals have been observed removing trackers from each other. The text cautions that it shouldn’t be assumed that these animals are helping one another deliberately, since they might simply be pecking at trackers out of curiosity, causing them to fall off eventually. Therefore, the author of Text 2 would most likely respond to Potvin and colleagues’ perspective in Text 1 by saying that the behavior of the magpies without trackers could be adequately explained without suggesting that they were attempting to assist the other magpie. Choice A is incorrect because Text 2 never discusses the novelty, or the newness and unusual quality, of the captive settings in which animals have been observed to remove trackers from other animals, nor does it suggest that such novelty might account for this behavior. Instead, the text suggests that it’s the novelty of the tracking equipment itself that might cause the behavior: interested in the trackers because they’re unusual, animals might paw or peck at them until they fall off. Choice B is incorrect because Text 2 never suggests that when animals remove trackers from other animals, they do so because they wish to obtain the trackers for themselves. Instead, Text 2 argues that animals paw or peck at trackers because they are merely curious about them. Choice C is incorrect because Text 2 doesn’t argue that when captured animals are observed removing trackers from each other, their behavior should be regarded as selfless only if all of them participate in it. Instead, the text argues that the behavior may not be selfless at all and may instead be attributed to animals’ curiosity about the new and unusual trackers."
+  },
+  {
+    "id": 26,
+    "question": "Text 1 is adapted from E.M. Forster’s 1910 novel Howards End. Text 2 discusses Howards End. King’s Cross and St. Pancras are adjacent railway terminals in London from which trains travel to the countryside. Text 1 To Margaret the station of King’s Cross had always suggested Infinity. Its very situation—withdrawn a little behind the facile splendours of St. Pancras—implied a comment on the materialism of life. Those two great arches, colourless, indifferent, shouldering between them an unlovely clock, were fit portals for some eternal adventure, whose issue might be prosperous, but would certainly not be expressed in the ordinary language of prosperity. Text 2 The interplay between opposing ideological positions in Howards End is broadly articulated in the novel’s organization of geographic space. On the one hand, the modern metropolis of London represents capitalism’s emphasis on pragmatism and the accumulation of material wealth; on the other, the English countryside, accessible via King’s Cross, fosters an idealism that values tradition, authentic personal connection, and the aesthetic—what the novel calls “the infinite.” Based on the texts, the author of Text 2 would most likely agree with which statement about King’s Cross, as it is depicted in Text 1?",
+    "options": {
+      "A": "King’s Cross has a relatively unassuming appearance whose sharp contrast with the more aesthetically pleasing appearance of St. Pancras suggests to Margaret the ascendancy of the pragmatic capitalistic outlook among London’s inhabitants.",
+      "B": "Because it is situated at the beginning of Margaret’s journey from the city to the country, King’s Cross emblematizes the intrusion of the forces of materialism and modernity into the rural spaces that the novel associates with idealism and tradition.",
+      "C": "The austerity conveyed by King’s Cross’s appearance mirrors Margaret’s disillusionment with the prospect of having authentic connections with other people in a world that chiefly values more conventional forms of prosperity.",
+      "D": "As a point of connection between London and the countryside, King’s Cross suggests to Margaret the possibility of experiencing the intangible abundance promised by the kinds of authentic engagements that the novel’s rural spaces seem to offer."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents a statement about King’s Cross, as depicted in Text 1, that the author of Text 2 would most likely agree with. In Text 1, Margaret associates King’s Cross with “Infinity” and sees its arches as portals for an adventure whose value transcends London’s mundane materialism. The author of Text 2 provides an interpretation of the novel’s geography that is consistent with Margaret’s vision, explaining that London represents capitalist materialism while the countryside—“accessible via King’s Cross”—fosters idealism, authentic connection, and the aesthetic (“the infinite”). By characterizing King’s Cross as a “point of connection between London and the countryside” that offers access to the “intangible abundance” promised by “the novel’s rural spaces,” choice D provides a reading of the railway terminal that aligns with the interpretive framework set up by the author of Text 2. Choice A is incorrect because Margaret views King’s Cross positively—as evoking infinity and eternal adventure—not as a sign of capitalism’s dominance. Text 1 characterizes St. Pancras’s splendors as “facile,” or superficial, so that the contrast elevates King’s Cross rather than signaling materialism’s ascendancy. Choice B is incorrect because the author of Text 2 positions King’s Cross as a gateway to the countryside’s idealism, not as a vehicle for materialism intruding into rural spaces. Margaret’s sense of wonder at the station arises from her sense that it offers access to the countryside’s idealism rather than to London’s materialism. Choice C is incorrect because nothing in Text 1 suggests Margaret is disillusioned; her perception of King’s Cross is defined by expansive possibility, not resignation. Moreover, Margaret finds the austerity of King’s Cross (relative to St. Pancras) appealing—its unpretentious appearance resonates with her attitude toward the “materialism of life.”"
+  }
+];
+ 
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function splitCrossTextQuestion(question) {
+        const text1Start = question.indexOf('Text 1 ');
+        const text2Start = question.indexOf(' Text 2 ', text1Start + 7);
+        if (text1Start === -1 || text2Start === -1) {
+            return { text1: '', text2: '', prompt: question };
+        }
+
+        const text2ContentStart = text2Start + ' Text 2 '.length;
+        const rest = question.slice(text2ContentStart);
+        const promptStart = rest.search(/\s+(?=(?:Based on the (?:texts?|two texts)|Which choice)\b)/);
+        if (promptStart === -1) {
+            return {
+                text1: question.slice(text1Start + 'Text 1 '.length, text2Start).trim(),
+                text2: rest.trim(),
+                prompt: ''
+            };
+        }
+
+        return {
+            text1: question.slice(text1Start + 'Text 1 '.length, text2Start).trim(),
+            text2: rest.slice(0, promptStart).trim(),
+            prompt: rest.slice(promptStart).trim()
+        };
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+            const passages = splitCrossTextQuestion(data.question);
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-passage">
+                    ${passages.text1 ? `<section class="passage-section"><h2>Text 1</h2><p>${passages.text1}</p></section>` : ''}
+                    ${passages.text2 ? `<section class="passage-section"><h2>Text 2</h2><p>${passages.text2}</p></section>` : ''}
+                </div>
+                <div class="question-text">Câu ${index + 1}: ${passages.prompt}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script src="quiz-pager.js" defer></script>
+</body>
+</html>
