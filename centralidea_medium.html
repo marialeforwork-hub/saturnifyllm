@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CENTRAL IDEAS AND DETAILS - EASY - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .q-intro { margin-bottom: 10px; font-weight: bold; }
+        .q-passage { margin: 0 0 10px 25px; font-weight: normal; }
+        .q-ask { margin-top: 10px; font-weight: bold; }
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; white-space: pre-line; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; white-space: pre-line; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <script src="quiz-state.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>CENTRAL IDEAS AND DETAILS: EASY (BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    // MẪU: dán JSON mới vào quizData. Với câu có đoạn văn, viết "question" dạng:
+    // "Phần giới thiệu <br>Đoạn văn ... Câu hỏi?"  (câu hỏi là câu cuối, tự tách và in đậm).
+    // Nếu muốn chỉ định rõ câu hỏi: "Giới thiệu <br>Đoạn văn <br>Câu hỏi?"
+    // Câu không có <br> được hiển thị như bình thường.
+    function formatQuestion(raw, prefix) {
+        const parts = String(raw).split(/\s*<br\s*\/?>\s*/i);
+        if (parts.length < 2) return prefix + raw;
+        const intro = parts[0];
+        let passage, ask;
+        if (parts.length >= 3) {
+            ask = parts.pop();
+            passage = parts.slice(1).join('<br>');
+        } else {
+            const m = parts[1].match(/^(.*)\s((?:According to|Which|Based on|What|How|Why|Using|Given)\b[^?]*\?)$/s);
+            passage = m ? m[1] : parts[1];
+            ask = m ? m[2] : '';
+        }
+        return `<div class="q-intro">${prefix}${intro}</div>` +
+               `<div class="q-passage">${passage}</div>` +
+               (ask ? `<div class="q-ask">${ask}</div>` : '');
+    }
+    const quizData = [
+  {
+    "id": 1,
+    "question": "A common assumption among art historians is that the invention of photography in the mid-nineteenth century displaced the painted portrait in the public consciousness. The diminishing popularity of the portrait miniature, which coincided with the rise of photography, seems to support this claim. However, photography’s impact on the portrait miniature may be overstated. Although records from art exhibitions in the Netherlands from 1820 to 1892 show a decrease in the number of both full-sized and miniature portraits submitted, this trend was established before the invention of photography. Based on the text, what can be concluded about the diminishing popularity of the portrait miniature in the nineteenth century?",
+    "options": {
+      "A": "Factors other than the rise of photography may be more directly responsible for the portrait miniature’s decline.",
+      "B": "Although portrait miniatures became less common than photographs, they were widely regarded as having more artistic merit.",
+      "C": "The popularity of the portrait miniature likely persisted for longer than art historians have assumed.",
+      "D": "As demand for portrait miniatures decreased, portrait artists likely shifted their creative focus to photography."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text says that the impact of photography on the portrait miniature might be \"overstated,\" as some records show a decrease in the number of portrait miniatures before the invention of photography. From this, we can conclude that factors other than the rise of photography may be more directly responsible for the portrait miniature’s decline. Choice B is incorrect. The text never discusses the \"artistic merit\" of either art form. Choice C is incorrect. The text never suggests that the portrait miniature was popular for longer than historians thought—if anything, it suggests that the portrait miniature started losing its popularity earlier than historians thought. Choice D is incorrect. The text never suggests that portrait painters shifted to become photographers."
+  },
+  {
+    "id": 2,
+    "question": "Believing that living in an impractical space can heighten awareness and even improve health, conceptual artists Madeline Gins and Shusaku Arakawa designed an apartment building in Japan to be more fanciful than functional. A kitchen counter is chest-high on one side and knee-high on the other; a ceiling has a door to nowhere. The effect is disorienting but invigorating: after four years there, filmmaker Nobu Yamaoka reported significant health benefits. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Although inhabiting a home surrounded by fanciful features such as those designed by Gins and Arakawa can be rejuvenating, it is unsustainable.",
+      "B": "Designing disorienting spaces like those in the Gins and Arakawa building is the most effective way to create a physically stimulating environment.",
+      "C": "As a filmmaker, Yamaoka has long supported the designs of conceptual artists such as Gins and Arakawa.",
+      "D": "Although impractical, the design of the apartment building by Gins and Arakawa may improve the well-being of the building’s residents."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. According to the text, conceptual artists Gins and Arakawa have designed an apartment building that is disorienting because of several unconventional elements, such as uneven kitchen counters and “a door to nowhere.” The text goes on to suggest that there may be benefits to this kind of design because filmmaker Yamaoka lived in the apartment building for four years and reported health benefits. Thus, although the design is impractical, it may improve the well-being of the apartment building’s residents. Choice A is incorrect. Although the text mentions that Yamaoka lived in the apartment for four years, it doesn’t address how long someone can beneficially live in a home surrounded by fanciful features or whether doing so can be sustained. Choice B is incorrect. Although the text mentions the potential benefits of living in a home with disorienting design features, it doesn’t suggest that this is the most effective method to create a physically stimulating environment. Choice C is incorrect because the text refers to Yamaoka to support the claim that Gins and Arakawa’s apartment building design may be beneficial, but the text doesn’t indicate that Yamaoka supports the designs of other conceptual artists."
+  },
+  {
+    "id": 3,
+    "question": "During the World War II era, some Mexican American women adopted a striking new look called pachuca style. They wore altered men’s jackets or zoot suits (wide-legged, long-coated suits) and dramatic makeup, and they combed their hair into high, rounded shapes. Some people criticized pachuca style, saying it was dangerous and women should dress traditionally. But historians see things differently. They see pachuca style as a form of rebellion against the era’s rigid social expectations for women. They say that it showed a desire for self-expression and freedom on the part of women who adopted the style. According to the text, how do historians view pachuca style?",
+    "options": {
+      "A": "They think that pachuca style was such a popular trend that it continues to influence fashion in the United States to the present day.",
+      "B": "They think that pachuca style was a way for some Mexican American women to express themselves and resist strict social expectations.",
+      "C": "They think that pachuca style was celebrated because it enabled some Mexican American women to show their support for the United States during World War II.",
+      "D": "They think that pachuca style was similar to other fashion trends that different groups of women adopted in the same period."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a statement about how historians view pachuca style that is supported by the text. The text first describes the distinctive pachuca style of dress adopted by some Mexican American women during World War II, saying that some criticized it and asserted that women should dress traditionally. The text then goes on to contrast this position with that of historians, who \"see things differently\": according to these historians, the pachuca style showed a wish for freedom and self-expression, and it acted as a kind of rebellion against what society expected of women at the time. Therefore, according to the text, historians think that the pachuca style was a way for Mexican women to express themselves and resist strict social expectations. Choice A is incorrect because the text explicitly describes the pachuca style as a distinctive look adopted during the World War II era. It does not indicate that the pachuca style influences fashion in the United States in the present day. Choice C is incorrect because the text does not indicate that Mexican American women wore the pachuca style to show support for the United States during World War II; rather, the style was a means of self-expression and rebellion against social expectations. Choice D is incorrect because the text does not compare the pachuca style to other fashion trends: the pachuca style is the only style mentioned."
+  },
+  {
+    "id": 4,
+    "question": "Utah is home to Pando, a colony of about 47,000 quaking aspen trees that all share a single root system. Pando is one of the largest single organisms by mass on Earth, but ecologists are worried that its growth is declining in part because of grazing by animals. The ecologists say that strong fences could prevent deer from eating young trees and help Pando start thriving again. According to the text, why are ecologists worried about Pando?",
+    "options": {
+      "A": "It isn’t growing at the same rate it used to.",
+      "B": "It isn’t producing young trees anymore.",
+      "C": "It can’t grow into new areas because it is blocked by fences.",
+      "D": "Its root system can’t support many more new trees."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents an explanation that is directly stated in the text for why ecologists are worried about Pando. The text states that Pando is a colony of about 47,000 quaking aspen trees that represents one of the largest organisms on Earth. According to the text, ecologists are worried that Pando’s growth is declining, partly because animals are feeding on the trees. In other words, the ecologists are worried that Pando isn’t growing at the same rate it used to. Choice B is incorrect. Rather than indicating that Pando isn’t producing young trees anymore, the text reveals that Pando is indeed producing young trees, stating that those trees can be protected from grazing deer by strong fences. Choice C is incorrect because the text states that fences can be used to prevent deer from eating Pando’s young trees, not that Pando itself can’t grow in new areas because it’s blocked by fences. Choice D is incorrect because the text offers no evidence that Pando’s root system is incapable of supporting new trees or is otherwise a cause of worry for ecologists."
+  },
+  {
+    "id": 5,
+    "question": "Biologists have predicted that birds’ feather structures vary with habitat temperature, but this hadn’t been tested in mountain environments. Ornithologist Sahas Barve studied feathers from 249 songbird species inhabiting different elevations—and thus experiencing different temperatures—in the Himalayan Mountains. He found that feathers of high-elevation species not only have a greater proportion of warming downy sections to flat and smooth sections than do feathers of low-elevation species, but high-elevation species’ feathers also tend to be longer, providing a thicker layer of insulation. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Barve’s investigation shows that some species of Himalayan songbirds have evolved feathers that better regulate body temperature than do the feathers of other species, contradicting previous predictions.",
+      "B": "Barve found an association between habitat temperature and feather structure among Himalayan songbirds, lending new support to a general prediction.",
+      "C": "Barve discovered that songbirds have adapted to their environment by growing feathers without flat and smooth sections, complicating an earlier hypothesis.",
+      "D": "The results of Barve’s study suggest that the ability of birds to withstand cold temperatures is determined more strongly by feather length than feather structure, challenging an established belief."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states the main idea of the text. The first sentence of the text introduces the prediction that the structures of birds’ feathers vary with habitat temperature and notes that this prediction hadn’t been tested in mountain environments. The rest of the text focuses on a study by Barve, an ornithologist. The text indicates that Barve studied feathers of 249 songbird species in habitats at different elevations—and, therefore, different temperatures (as the text establishes that elevation affects temperature)—in the Himalayan Mountains. The text then explains that Barve found that compared to feathers of low-elevation species, feathers of high-elevation species have a greater proportion of warming sections and are of a length that provides more insulation—in other words, feather structure varies with elevation-driven temperature differences. Thus, the main idea of the text is that Barve found an association between habitat temperature and feather structure among Himalayan songbirds and that this finding supports a general prediction that hadn’t previously been tested in mountain environments. Choice A is incorrect because the text specifically focuses on Barve’s finding of a relationship between feather structure and elevation—which corresponds to temperature differences—and not on the broader claim that some birds have feathers better suited to regulating body temperature than others, without reference to a consistent pattern. Moreover, Barve’s finding supports the prediction presented in the text (that feather structures vary with habitat temperature), and there’s no indication that it contradicts any other predictions. Choice C is incorrect because the text doesn’t indicate that Barve found that songbird species have adapted to their environment by growing feathers without flat and smooth sections; his finding of different proportions of such sections in feathers depending on elevation suggests that they do have flat and smooth sections. Moreover, Barve’s finding supports the prediction presented in the text (that feather structures vary with habitat temperature), and there’s no indication that it complicates any other earlier hypothesis. Choice D is incorrect because the text doesn’t mention a comparison of the effects of feather structure and feather length; in fact, the text suggests that length is part of feather structure, since Barve’s finding concerning structure addresses proportions of warming downy sections and insulation-providing length. Moreover, the text doesn’t refer to an established belief, presenting instead a prediction that hadn’t been tested in mountain environments before Barve conducted his study."
+  },
+  {
+    "id": 6,
+    "question": "In a study by Mika R. Moran, Daniel A. Rodriguez, and colleagues, residents of Quito, Ecuador, and Lima, Peru, were surveyed about parks in their cities. Of the 618 respondents from Quito, 82.9% indicated that they use the city’s parks, and of the 663 respondents from Lima, 72.7% indicated using city parks. Given that the percentage of Quito respondents who reported living within a 10-minute walk of a park was much lower than that reported by Lima respondents, greater proximity alone can’t explain the difference in park use. The text makes which point about the difference between the proportions of Quito residents and Lima residents using parks?",
+    "options": {
+      "A": "It was much larger than the researchers conducting the study expected.",
+      "B": "It is caused by something other than the parks’ proximity to city residents.",
+      "C": "It could be due to inaccuracies in the survey results.",
+      "D": "It was calculated using sources that predate the survey."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a statement about the difference between the proportions of Quito residents and Lima residents using parks that is supported by the text. The text states that 82.9% of surveyed Quito residents and 72.7% of surveyed Lima residents reported using their city’s parks. The text then notes that compared to Lima respondents, a much smaller percentage of Quito respondents said they live within a 10-minute walk of a park. The text concludes that because a greater proportion of Quito respondents used parks despite generally living farther from them than Lima respondents did, \"greater proximity\"—being closer to a park—\"can’t explain the difference in park use.\" That is, the text makes the point that the difference between the proportions of Quito residents and Lima residents using parks is caused by something other than the distance of the parks from city residents. Choice A is incorrect because the text doesn’t address whether the researchers had expected a particular result and doesn’t indicate that they were surprised by the difference in park usage between the two cities’ residents. The text simply presents the survey findings without stating the researchers’ expectations. Choice C is incorrect because the text gives no indication that there might be inaccuracies in the survey results; the text presents the findings as factual information and uses them as the basis for a conclusion that a certain factor doesn’t explain differences in park usage between Quito and Lima residents. Choice D is incorrect because the text doesn’t mention any sources that predate the survey or suggest that the difference in proportions was calculated using such sources. According to the text, the information about park usage came directly from the survey of residents in Quito and Lima."
+  },
+  {
+    "id": 7,
+    "question": "A contraction of “you all,” the pronoun “y’all” has long been used as a plural version of “you” in the South and in Black communities around the US. In recent decades, most other English-speaking communities in the US have begun to use “y’all.” What explains its rise in popularity? Many varieties of English have no pronoun that specifically addresses more than one person and instead must use “you” to address both one person and more than one. But “y’all” always refers to two or more people. As a result, it conveys the speaker’s meaning more precisely than “you” can. Which does the text most directly attempt to answer?",
+    "options": {
+      "A": "How many other plural versions of the pronoun “you” are there in English, besides “y’all”?",
+      "B": "Why has the pronoun “y’all” become more widely used in the US?",
+      "C": "When was the first recorded use of the pronoun “y’all” in the English language?",
+      "D": "Is “y’all” commonly used in English-speaking regions of the world besides the US?"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a that the text is attempting to answer: why has the pronoun \"y’all\" become more widely used in the US? The text begins by explaining where and how the plural pronoun \"y’all\" originated and then goes on to state that its use has been rising in popularity, even in areas outside of its place of origin. The text then attributes this rise in popularity to the fact that many varieties of English do not have a pronoun to address more than one person, and thus \"you\" must function as both a singular and plural pronoun. Choice A is incorrect because while the text states that \"y’all\" is used as a plural of \"you\" in English, it does not discuss other plural forms of the word. Choice C is incorrect because while the text discusses the general origins of the pronoun \"y’all,\" it does not state when the use of the pronoun was first recorded in the English language. Choice D is incorrect because though the text addresses the use of the pronoun \"y’all\" within English-speaking communities in the US, it does not address its use outside of that geographic area."
+  },
+  {
+    "id": 8,
+    "question": "In 1934 physicist Eugene Wigner posited the existence of a crystal consisting entirely of electrons in a honeycomb-like structure. The so-called Wigner crystal remained largely conjecture, however, until Feng Wang and colleagues announced in 2021 that they had captured an image of one. The researchers trapped electrons between two semiconductors and then cooled the apparatus, causing the electrons to settle into a crystalline structure. By inserting an ultrathin sheet of graphene above the crystal, the researchers obtained an impression—the first visual confirmation of the Wigner crystal. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Researchers have obtained the most definitive evidence to date of the existence of the Wigner crystal.",
+      "B": "Researchers have identified an innovative new method for working with unusual crystalline structures.",
+      "C": "Graphene is the most important of the components required to capture an image of a Wigner crystal.",
+      "D": "It’s difficult to acquire an image of a Wigner crystal because of the crystal’s honeycomb structure."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately states the main idea of the text. According to the text, Eugene Wigner hypothesized that a crystal could exist that would be composed of electrons and have a honeycomb-like shape. The text goes on to say that the existence of the Wigner crystal remained unconfirmed until Feng Wang and colleagues were able to make an impression of one using two semiconductors and an ultrathin sheet of graphene. Thus, the main idea is that researchers have obtained the most definitive evidence to date of the existence of the Wigner crystal. Choice B is incorrect because the text focuses on one kind of crystal—the Wigner crystal— and doesn’t discuss crystalline structures in general. And although the text conveys that Wang and colleagues figured out a way to capture an image of a Wigner crystal, it doesn’t address the idea of applying this approach to other types of crystals. Choice C is incorrect because the text describes in general the process Wang and colleagues followed to obtain an impression of the Wigner crystal; it doesn’t address the relative importance of each component in that process. Choice D is incorrect because the text doesn’t state that researchers had a hard time getting an impression of the Wigner crystal because of its honeycomb structure. Nothing in the text indicates why it took so long to prove the existence of this crystal or take an impression of it."
+  },
+  {
+    "id": 9,
+    "question": "The following text is adapted from Countee Cullen’s 1926 poem “Thoughts in a Zoo.” <br>They in their cruel traps, and we in ours, <br>Survey each other’s rage, and pass the hours <br>Commiserating each the other’s woe, <br>To mitigate his own pain’s fiery glow. <br>Man could but little proffer in exchange <br>Save that his cages have a larger range. <br>That lion with his lordly, untamed heart <br>Has in some man his human counterpart, <br>Some lofty soul in dreams and visions wrapped, <br>But in the stifling flesh securely trapped. Based on the text, what challenge do humans sometimes experience?",
+    "options": {
+      "A": "They cannot effectively tame certain wild animals because of a lack of compassion.",
+      "B": "They cannot focus on setting attainable goals because of a lack of motivation.",
+      "C": "They quickly become frustrated when faced with difficult tasks because of a lack of self-control.",
+      "D": "They have aspirations that cannot be fulfilled because of certain limitations."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text metaphorically likens humans to animals in a zoo, suggesting that humans have dreams that they cannot fulfill because they are trapped. Choice A is incorrect. The speaker says that the lion has an “untamed heart,” but the speaker doesn’t actually mention anything about humans taming wild animals or a lack of compassion. Choice B is incorrect. The speaker doesn’t suggest that humans lack motivation. Rather, the speaker thinks that humans are “trapped” and prevented from achieving their dreams. Choice C is incorrect. The speaker doesn’t mention anything about humans becoming frustrated or lacking self-control. Rather, the speaker thinks that humans are “trapped” and prevented from achieving their dreams."
+  },
+  {
+    "id": 10,
+    "question": "Paleontologist Alan Tennyson and colleagues studied fossil bones found in New Zealand that are more than 55 million years old. The researchers determined that the fossil bones belonged to two previously unknown species of prehistoric penguins. Moreover, they estimated that one of the two penguin species was more than three times the size of the emperor penguin, which is the largest penguin species that exists today. Based on the text, which choice best describes the two previously unknown penguin species?",
+    "options": {
+      "A": "They are frequently studied by paleontologists.",
+      "B": "They are no longer living species.",
+      "C": "They were smaller than penguin species that exist today.",
+      "D": "They spent little of their lives in water."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a statement about the two previously unknown penguin species that is supported by the text. According to the text, Alan Tennyson and colleagues studied fossil bones belonging to two previously unknown penguin species that are described as prehistoric, or ancient. The text goes on to say that one of the two species was considerably larger than the emperor penguin, which is currently the largest penguin in existence. Thus, the text indicates that the other species aren’t in existence today, or that the two previously unknown penguin species are no longer living species. Choice A is incorrect. Although the text states that Alan Tennyson is a paleontologist who studied the fossils of two previously unknown penguin species, it doesn’t say whether these penguins are frequently studied by paleontologists. Choice C is incorrect because the text says that one of the two previously unknown penguin species was three times larger than the emperor penguin (a penguin alive today), not that they were both smaller than penguin species that exist today. Choice D is incorrect because the text doesn’t discuss whether the two previously unknown penguin species spent any time in water."
+  },
+  {
+    "id": 11,
+    "question": "Historians point to the rule of the Piast dynasty as crucial to the formation of the Polish state. However, some differentiate between members of the dynasty like Mieszko II Lambert, who ruled as king from 1025 to 1031 CE, and less well-documented figures like Siemomysł, who is said to have ruled in the 10th century but whose historical actuality is disputed. Siemomysł appears in the Gesta principum Polonorum, a chronicle of medieval Polish history written between 1112 and 1118. However, the chronicle’s documentation of Siemomysł relies on oral tradition, unlike its records of later rulers. According to the text, what is a difference between how historians view Siemomysł and how they view Mieszko II Lambert?",
+    "options": {
+      "A": "Historians agree that Mieszko II Lambert existed, but disagree about whether Siemomysł existed.",
+      "B": "Historians believe that the Gesta principum Polonorum provides more evidence for Siemomysł’s existence than it does for Mieszko II Lambert’s existence.",
+      "C": "Historians agree that Siemomysł ruled Poland much later than Mieszko II Lambert.",
+      "D": "Historians find the orally transmitted stories affirming the existence of Mieszko II Lambert to be more convincing than similar stories about Siemomysł."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents a statement about how historians view Siemomysł and Mieszko II Lambert that is supported by the text. The text states that the Piast dynasty had a number of different members. The text refers to two of the rulers in the Piast dynasty by name: Mieszko II Lambert, whose rule was known to have occurred from 1025 to 1031 CE, and Siemomysł (\"whose historical actuality is disputed\"), for whom less is known and who therefore is the subject of debate among historians. The text further casts doubt about Siemomysł by stating that he is \"said to have ruled\" during the 10th century, or the 900s, which suggests the possibility that he didn’t rule. The text also mentions that the chronicle’s documentation of Siemomysł relies on oral tradition, unlike its records of later rulers, including Mieszko II Lambert. This indicates that historians agree that Mieszko II Lambert was an actual historical figure, but they disagree about whether Siemomysł existed. Choice B is incorrect because the text states that the Gesta principum Polonorum’s documentation of Siemomysł comes from oral tradition— spoken rather than written documentation—unlike its records of rulers who came after Siemomysł. This suggests that the chronicle provides less reliable evidence rather than more evidence for Siemomysł’s existence in the 900s (or the 10th century) than it does for later rulers like Mieszko II Lambert, who ruled from 1025 to 1031 CE. Choice C is incorrect because the text indicates the opposite: Siemomysł supposedly ruled earlier in the 10th century, while Mieszko II Lambert ruled from 1025 to 1031 CE. The 10th century spans the years from 901 to 1000 CE, so Siemomysł is believed to have ruled earlier than Mieszko II Lambert did, not later as this choice states. Choice D is incorrect. Although the text mentions that information in the written chronicle Gesta principum Polonorum draws its information about Siemomysł from the oral tradition, it doesn’t mention orally transmitted stories about Mieszko II Lambert. Instead, it states that the chronicle’s documentation of Siemomysł relies on oral tradition unlike the records of later rulers do, which suggests that the documentation of later rulers such as Mieszko II Lambert did not rely on oral tradition. Thus, no comparison can be made about how convincing the orally transmitted stories of each ruler are to historians."
+  },
+  {
+    "id": 12,
+    "question": "Archaeologists have observed similarities in the tools, such as bidirectional blades, uncovered at the Neolithic-period Mesopotamian settlement of Çayönü Tepesi and those uncovered at roughly contemporaneous settlements elsewhere in Southwest Asia, including those in the South Levant, Central Anatolia, and Central Zagros. Although similarities in tools could be attributed to imitative behavior or trade, Nefize Ezgi Altınışık et al. found evidence of genetic affinity among the populations of Çayönü Tepesi, Central Anatolia, the South Levant, and—to a lesser extent— Central Zagros. Information in the text best supports which statement about the finding made by Altınışık et al.?",
+    "options": {
+      "A": "It implies that people and tools likely arrived in Çayönü Tepesi from settlements in Central Anatolia and the South Levant at an earlier time than they did from settlements in Central Zagros.",
+      "B": "It raises the possibility that similarities in the design of tools found at Neolithic settlements in Southwest Asia emerged due to population blending between those settlements.",
+      "C": "It suggests that in the Neolithic period, people in the South Levant and Central Anatolia imitated tool designs originating in Çayönü Tepesi more frequently than people in Central Zagros did.",
+      "D": "It helps explain why contemporaneous Neolithic peoples in Southwest Asia had similar tools but lacked other obvious cultural similarities."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a statement about Altınışık et al.’s finding that is supported by the text. The text notes that tool similarities across Neolithic settlements could be attributed to imitative behavior or trade. However, Altınışık et al. found evidence of genetic affinity (that is, genetic relatedness) among the populations of these settlements. Genetic relatedness among populations with similar tools raises an alternative possibility: the tool similarities may have emerged through population blending rather than through imitation or trade alone. Thus, the finding raises the possibility that tool design similarities resulted from population blending. Choice A is incorrect because the text doesn’t address the timing or direction of migration between settlements. Although lesser genetic affinity with Central Zagros could reflect various historical patterns, the text presents genetic relatedness as evidence of population intermixing, not as evidence about when people or tools arrived at particular locations. Choice C is incorrect because the text doesn’t indicate that tools originated specifically at Çayönü Tepesi or that other settlements imitated its designs. Although the text notes that genetic affinity with Central Zagros was found “to a lesser extent,” this describes degrees of genetic relatedness, not the frequency of tool imitation. Instead, the text presents tool similarities as a shared phenomenon across settlements. Choice D is incorrect because the text doesn’t discuss a lack of cultural similarities among Neolithic peoples in Southwest Asia. Rather, the text focuses solely on tool similarities and genetic affinity without addressing other cultural parallels or differences."
+  },
+  {
+    "id": 13,
+    "question": "Philadelphia’s Black Pearl Chamber Orchestra, founded by Jeri Lynne Johnson, performs classical music, from well-known compositions by Beethoven to contemporary works by Jessie Montgomery. For the orchestra’s iConduct! program, Johnson invites community members to learn some basic elements of conducting and then experience conducting the Black Pearl orchestra themselves. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The Black Pearl orchestra performs music from all over the world but mostly performs music composed by Philadelphians.",
+      "B": "Johnson founded the Black Pearl orchestra to perform classical music by contemporary artist Jessie Montgomery.",
+      "C": "The Black Pearl orchestra gives community members the chance to both listen to and participate in classical music performance.",
+      "D": "Johnson has community members conduct an orchestra to demonstrate how difficult the task is."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately states the main idea of the text. The text begins by stating that the Black Pearl orchestra performs classical music, and then goes on to explain that the orchestra offers an iConduct! program. According to the text, this program offers community members the opportunity to learn some basics about conducting and then apply what they learn by conducting the orchestra themselves. Thus, the main idea of the text is that community members can both listen to and participate in a classical music performance. Choice A is incorrect. Although the text states that the Black Pearl orchestra is based in Philadelphia, it doesn’t indicate that most of the music it plays was composed by Philadelphians. Choice B is incorrect. Although the text does state that Johnson founded the Black Pearl orchestra, this is just a detail and not the main focus of the text. Moreover, while the text does say that the orchestra sometimes plays music by Montgomery, it doesn’t assert that the orchestra was founded solely for the purpose of performing Montgomery’s work. Choice D is incorrect. Although the text explains that community members are invited to conduct the Black Pearl orchestra after participating in the iConduct! program, the text doesn’t indicate that Johnson allows community members to do this for the specific purpose of showing how difficult the task is."
+  },
+  {
+    "id": 14,
+    "question": "Readers sometimes divide the works of twentieth-century English author Evelyn Waugh into two periods: one consisting of his early satirical novels and the other consisting of his later, more serious—even ponderous—books. Critic Seamus Perry, however, challenges that strict division. Perry argues that Waugh’s writing didn’t change over time as much as some readers have suggested. For instance, Perry contends that some of Waugh’s earliest works, notably his biography of artist Dante Gabriel Rossetti, exhibit the earnest romanticism that would characterize Waugh’s later fiction. Based on the text, which statement about Waugh’s works would Perry most likely agree with?",
+    "options": {
+      "A": "Waugh’s works can appropriately be separated into two periods by their subject matter and tone.",
+      "B": "Regardless of when they were written, Waugh’s works have important similarities that transcend their differences.",
+      "C": "The earliest of Waugh’s works exhibit a satirical tone, even if that tone is more apparent in Waugh’s later works.",
+      "D": "Over time, Waugh’s works became less humorous and more focused on weightier topics."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a statement that is consistent with Perry’s position as described in the text. The text explains that although Waugh’s works are sometimes divided into an early period typified by satirical novels and a later period consisting of “more serious” works, Perry “challenges that strict division” and argues that Waugh’s writing “didn’t change over time as much as some readers have suggested.” As evidence, Perry notes that Waugh’s biography of Dante Gabriel Rossetti and other early works show the “earnest romanticism” associated with Waugh’s later fiction, suggesting continuity across the two periods and also across genres. It is therefore likely that Perry would agree that Waugh’s works have important similarities that transcend their differences, regardless of when they were written. Choice A is incorrect because the text states that Perry challenges the “strict division” of Waugh’s works into two periods typified by their subject matter and tone. Perry therefore would likely disagree that such separation is appropriate; instead, he argues that Waugh’s writing shows more continuity across time than this division suggests. Choice C is incorrect because it mischaracterizes the similarity that Perry notes in Waugh’s earlier and later works. Perry contends that Waugh’s early works exhibit the “earnest romanticism” of his later fiction, not that the early works’ satirical tone appears more prominently later. Although the text mentions that Waugh’s earlier works are often satirical, Perry’s argument doesn’t emphasize this trait or trace its development over time. Choice D is incorrect because it reflects the periodization of Waugh’s works that Perry is challenging. The text indicates that Perry argues against the idea that Waugh’s writing changed dramatically over the course of his career, and Perry specifically emphasizes a point of similarity between Waugh’s earlier and later works. Given this stance, it’s unlikely that Perry would agree that Waugh’s works became less humorous and more serious over time."
+  },
+  {
+    "id": 15,
+    "question": "For centuries, the widespread acknowledgment of the involvement of the cerebellum—a dense brain structure in vertebrates—in coordinating motor control in humans has hindered recognition of other possible functions of the structure. Neuroscience research from the last two decades now suggests that the cerebellum regulates emotion and social behavior, and recent research by Ilaria Carta and colleagues has identified a pathway connecting the cerebellum to a center for motivation and reward processing known as the ventral tegmental area (VTA). Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The recent verification of a pathway between the VTA and the cerebellum confirms the cerebellum’s long-suspected role in motor coordination.",
+      "B": "Recent advances in the field of neuroscience have challenged widely accepted claims about the function of a pathway connecting the VTA and the cerebellum.",
+      "C": "The cerebellum has primarily been thought to regulate motor functioning, but in recent years neuroscience researchers have been uncovering additional functions.",
+      "D": "Technological limitations have historically hindered the study of the cerebellum, but the recent development of new technologies has led to greater insights into its functions."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The text says that the cerebellum has long been thought to regulate motor functioning, but new research shows that it may also have other functions—including regulating emotion and social behavior and some connection to motivation and rewards processing. Choice A is incorrect. The VTA is described as “a center for motivation and reward processing,” and the discovery of the pathway between the VTA and the cerebellum supports the theory that the cerebellum is involved in functions other than motor coordination. Choice B is incorrect. The text says that recent research has identified this pathway, but it doesn’t discuss any previous “widely accepted claims” about the pathway’s function. The “widespread acknowledgement” mentioned early in the passage is about the cerebellum alone, not its connection to the VTA. Choice D is incorrect. The text never discusses any technological limitations or any new technologies."
+  },
+  {
+    "id": 16,
+    "question": "In West Africa, jalis have traditionally been keepers of information about family histories and records of important events. They have often served as teachers and advisers, too. New technologies may have changed some aspects of the role today, but jalis continue to be valued for knowing and protecting their peoples’ stories. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Even though there have been some changes in their role, jalis continue to preserve their communities’ histories.",
+      "B": "Although jalis have many roles, many of them like teaching best.",
+      "C": "Jalis have been entertaining the people within their communities for centuries.",
+      "D": "Technology can now do some of the things jalis used to be responsible for."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it best states the main idea of the text. According to the text, jalis’ traditional role has been to maintain information about families’ histories and significant events. The text goes on to say that although technological changes have altered jalis’ role somewhat, jalis are still valued for preserving the histories of their communities. Choice B is incorrect because the text says nothing about jalis’ views of the various tasks they perform. There is no information to support the idea that many jalis prefer teaching to other tasks. Choice C is incorrect because the text doesn’t describe jalis as being sources of entertainment. Rather, jalis are presented as valued sources of knowledge. Additionally, the text gives no indication of how long jalis have been serving their communities. Choice D is incorrect because the main focus of the text is on jalis’ role and their continued value despite the effects of technology, not on what technology can now do. Although the text indicates that jalis’ role has changed as a result of technological changes, the text doesn’t present any specific information about technology performing tasks that jalis once performed."
+  },
+  {
+    "id": 17,
+    "question": "Algae living within the tissues of corals play a critical role in keeping corals, and the marine ecosystems they are part of, thriving. Some coral species appear brown in color when healthy due to the algae colonies living in their tissues. In the event of an environmental stressor, the algae can die or be expelled, causing the corals to appear white. To recover the algae, the bleached corals then begin to produce bright colors, which block intense sunlight, encouraging the light-sensitive algae to recolonize the corals. What does the text most strongly suggest about corals that produce bright colors?",
+    "options": {
+      "A": "These corals have likely been subjected to stressful environmental conditions.",
+      "B": "These corals are likely more vulnerable to exposure from intense sunlight than white corals are.",
+      "C": "These corals have likely recovered from an environmental event without the assistance of algae colonies.",
+      "D": "These corals are more likely to survive without algae colonies than brown corals are."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text says that corals produce bright colors to block sunlight and encourage algae to recolonize after “an environmental stressor.” From this, we can infer that corals that produce bright colors have probably been subjected to an environmental stressor. Choice B is incorrect. The text says that corals produce bright colors to block intense sunlight, which protects the light-sensitive algae that keep the coral healthy. In other words, bright colors make the coral’s health less vulnerable to intense sunlight. Choice C is incorrect. The text says that corals produce bright colors to encourage algae to recolonize, not that they have recovered without the assistance of algae colonies. Choice D is incorrect. The text never compares the likelihood of differently colored corals surviving without algae colonies."
+  },
+  {
+    "id": 18,
+    "question": "The following text is from Anton Chekhov’s 1898 short story “Ionitch” (translated by Marian Fell in 1915). The text is set in a Russian city referred to as the city of S. <br>If newcomers to the little provincial city of S. complained that life there was monotonous and dull, its inhabitants would answer that, on the contrary, S. was a very amusing place, indeed, that it had a library and a club, that balls were given there, and finally, that very pleasant families lived there with whom one might become acquainted. And they always pointed to the Turkins as the most accomplished and most enlightened family of all. What does the text suggest about the Turkins?",
+    "options": {
+      "A": "They are relative newcomers to the city of S.",
+      "B": "They have a unique status in the city of S.",
+      "C": "They have long disliked living in the city of S.",
+      "D": "They are amused by the other residents of the city of S."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a statement about the Turkins that is suggested by the text. The text explains that while many pleasant families live in the city of S., inhabitants of the city consider the Turkins to be \"the most accomplished and most enlightened family of all.\" Thus, by indicating that they are seen as more accomplished and more enlightened than all the other families in the city of S., the text suggests that the Turkins have a unique status there. Choice A is incorrect because the text doesn’t indicate that the Turkins have recently moved to the city of S.; it provides no information about when the Turkins arrived. Choice C is incorrect because the text explains how the Turkins are viewed by others in the city of S. but gives no indication of how the Turkins feel about living there. Choice D is incorrect because the text explains how the Turkins are viewed by other residents of the city of S. but gives no indication of how the Turkins view the other residents."
+  },
+  {
+    "id": 19,
+    "question": "To dye wool, Navajo (Diné) weaver Lillie Taylor uses plants and vegetables from Arizona, where she lives. For example, she achieved the deep reds and browns featured in her 2003 rug In the Path of the Four Seasons by using Arizona dock roots, drying and grinding them before mixing the powder with water to create a dye bath. To intensify the appearance of certain colors, Taylor also sometimes mixes in clay obtained from nearby soil. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Reds and browns are not commonly featured in most of Taylor’s rugs.",
+      "B": "Taylor draws on local resources in the approach she uses to dye wool.",
+      "C": "Taylor finds it difficult to locate Arizona dock root in the desert.",
+      "D": "In the Path of the Four Seasons is widely acclaimed for its many colors and innovative weaving techniques."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. It best states the main idea of the text. The text opens with the statement that Taylor uses local plants and vegetables to dye wool. The rest of the text describes how she does this. Choice A is incorrect. This doesn’t state the main idea of the text. The text only mentions one rug: In the Path of the Four Seasons, in which reds and browns are featured. It never mentions whether or not these colors are featured in her other rugs. Choice C is incorrect. This doesn’t state the main idea of the text. The text never says that Taylor finds it difficult to locate Arizona dock roots. Choice D is incorrect. This doesn’t state the main idea of the text. The text never says that In the Path of the Four Seasons is widely acclaimed. Rather, it discusses the rug to illustrate the point made earlier in the passage: that Taylor uses local plants and vegetables to dye wool."
+  },
+  {
+    "id": 20,
+    "question": "The ancient writing system used in the Maya kingdoms of southern Mexico and Central America had a symbol for the number zero. The earliest known example of the symbol dates to more than 2,000 years ago. At that time, almost none of the writing systems elsewhere in the world possessed a zero symbol. And the use of zero in Mexico and Central America may be even more ancient. Some historians suggest that Maya mathematicians inherited it from the Olmec civilization, which flourished in the region 2,400–3,600 years ago. According to the text, what do some historians suggest about Maya civilization?",
+    "options": {
+      "A": "Maya civilization acquired the use of zero from the Olmec civilization.",
+      "B": "Maya civilization respected its historians more than it respected its mathematicians.",
+      "C": "Maya civilization was highly secretive about its intellectual achievements.",
+      "D": "Maya civilization tried to introduce its writing system to other civilizations."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents information about Maya civilization that is supported by the text. The text states that the writing system used in the Maya kingdoms had a symbol for the number zero. It goes on to say that at the time of the zero symbol’s earliest example, more than 2,000 years ago, almost no other writing systems in the world featured such a symbol. The text also points out that some historians suggest that Maya mathematicians inherited the use of zero from the Olmec civilization, which existed in the same area as the Maya civilization at an earlier date. Thus, according to the text, some historians suggest that the Maya civilization acquired the use of zero from the Olmec civilization. Choice B is incorrect because although the text mentions present-day historians and Maya mathematicians, it does not say anything about how much the Maya civilization respected its historians and mathematicians. Choice C is incorrect because the text does not indicate that the Maya civilization treated its use of the zero symbol, or any other intellectual achievements, as secrets to be kept from other civilizations. Choice D is incorrect because although the text mentions historians who suggest that the writing system of the Maya civilization inherited some features from the earlier Olmec civilization, the text does not describe any attempts of Maya civilization to introduce its writing system to other civilizations."
+  },
+  {
+    "id": 21,
+    "question": "At over a thousand pages across two volumes, The Fifty-Year Mission, compiled by Edward Gross and Mark A. Altman, is presented as the “complete, uncensored, unauthorized oral history” as told by the people behind the media franchise Star Trek. The work aspires to be comprehensive by, for example, including accounts from cast and crew members of every Star Trek television series and film to date. But while The Fifty-Year Mission is clearly a unique and valuable resource, it has a shortcoming common among oral histories: it lacks a clear authorial point of view that could otherwise unite the various accounts into a cohesive whole. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The compilers of The Fifty-Year Mission had lofty goals for their oral history of the Star Trek franchise, but the published work lacks information about many key events in the franchise’s history.",
+      "B": "The Fifty-Year Mission includes more accounts from people involved with Star Trek television shows than it does from people involved with Star Trek films.",
+      "C": "The large amount of material compiled into The Fifty-Year Mission is surprising given that many of the people involved in the Star Trek franchise did not participate in the oral history project.",
+      "D": "The Fifty-Year Mission represents a worthwhile attempt to thoroughly recount the history of the Star Trek franchise, but its approach has an important limitation."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. According to the text, Gross and Altman’s book is a \"valuable resource\" because it’s a \"complete, uncensored, unauthorized oral history\" that features accounts from people involved with \"every Star Trek television series and film\" made. However, the text also points out an inherent shortcoming of the oral history approach used by the book’s creators: the lack of an authorial voice that could unify the many accounts into a coherent narrative. Thus, the text’s main idea is that while the book’s attempt at presenting a comprehensive oral history of the Star Trek franchise is a worthwhile one, the approach the creators selected has an important limitation. Choice A is incorrect. While the goal of the book’s creators (providing a comprehensive history of the Star Trek franchise) could be described as lofty, the text’s criticism of the book is focused on the shortcomings of the oral history form, not on events in the Star Trek franchise that were not reflected in the book. Choice B is incorrect because the text doesn’t suggest that the book includes more accounts from people involved with television shows than with films. In fact, the text explicitly states that the book includes accounts from people involved with \"every Star Trek television series and film\" ever made. Choice C is incorrect because the text doesn’t indicate that many people involved with the Star Trek franchise failed to participate in the book’s oral history project. The only mention of the scope of participation states that the book includes accounts \"from cast and crew members of every Star Trek television series and film to date.\" This information implies a high level of participation from relevant individuals, not a lack of participation."
+  },
+  {
+    "id": 22,
+    "question": "In present-day Chiapas, Mexico, archaeologist Robert Rosenswig, remote-sensing specialist Ricardo López-Torrijos, and colleagues have located 41 smaller settlements surrounding the ancient Mesoamerican city of Izapa. The researchers have concluded that these settlements were culturally linked to Izapa because each of the settlements is the same age and configured in the same manner as Izapa, with a pyramid to the north and a plaza to the south. Their shared structural orientation suggests that residents of the settlements likely performed some of the same cultural ceremonies as residents in Izapa did. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Researchers have determined that the arrangement of Izapa’s structures was based on those of other nearby settlements.",
+      "B": "Cultural ceremonies in Izapa seem to have played a more important role for its residents than those in smaller, surrounding settlements did.",
+      "C": "Although archaeologists have learned much about Izapa over years of research, they have only recently found the smaller settlements that surrounded it.",
+      "D": "Researchers have inferred that Izapa was related to the smaller settlements that surrounded it based in part on the similarity of their construction."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. The text indicates that Rosenswig, López-Torrijos, and colleagues concluded that there is a cultural link between the city of Izapa and the 41 smaller settlements they located around the city. According to the text, the researchers reached this conclusion because Izapa and the settlements are of the same age and configuration in that all have a pyramid to the north and a plaza to the south. Thus, the main idea of the text is that researchers have inferred that Izapa was related to the smaller settlements that surrounded it based in part on the similarity of their construction. Choice A is incorrect. Although the text discusses a similarity between how structures in Izapa and nearby settlements are arranged, the text doesn’t indicate that the arrangement in Izapa is based on those of the nearby settlements. Choice B is incorrect. Although the text mentions that residents of Izapa and its surrounding settlements may have performed the same cultural ceremonies, the text doesn’t discuss the ceremonies’ importance for the residents. Choice C is incorrect. Although the text describes findings about Izapa, it doesn’t specify how much archaeologists have learned about Izapa over the years. Additionally, while the text indicates that the discovery of the 41 smaller settlements surrounding Izapa was made in present-day Chiapas and thus may be of recent date, this is a detail in the text, not its main idea."
+  },
+  {
+    "id": 23,
+    "question": "Given the immense scope of space, the search for extraterrestrial life is almost necessarily concentrated on the exoplanets deemed to have the most plausible chance of success—typically, atmosphere-bearing terrestrial planets orbiting within a certain range of their stars (termed the habitable zone). Claiming that Earth experienced a long transition from single-lid to plate tectonics that accelerated the emergence and evolution of complex organisms, researchers Robert J. Stern and Taras V. Gerya hold that consideration of tectonics, an often overlooked factor, could help further narrow the search for advanced extraterrestrial species. Based on the text, what do Stern and Gerya most likely believe about the development of complex life on exoplanets?",
+    "options": {
+      "A": "It is more likely to occur on habitable zone planets with atmospheres and plate tectonics than on otherwise similar planets that lack plate tectonics.",
+      "B": "It is more likely to occur if habitable zone planets with atmospheres transition from single-lid to plate tectonics late in their history than if they transition early in their history.",
+      "C": "It is unlikely unless the transition from single-lid to plate tectonics occurs before the acquisition of a lasting atmosphere.",
+      "D": "It is probably more dependent on the presence of plate tectonics than on orbital distance from a host star or the presence of an atmosphere."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes what Stern and Gerya most likely believe about the development of complex life on exoplanets. The text indicates that the search for extraterrestrial life already focuses on atmosphere-bearing planets in the habitable zone because their conditions are best suited for complex organisms. Stern and Gerya claim that plate tectonics on Earth accelerated the emergence of complex organisms, and they therefore hold that tectonics could “help further narrow the search.” This phrase implies that plate tectonics should be added to the existing criteria. In other words, the text implies that among habitable zone planets with atmospheres, those that also have plate tectonics would be more likely to enable the development of complex life than otherwise similar planets lacking plate tectonics. Choice B is incorrect because the text doesn’t address whether the timing of the transition to plate tectonics—early versus late in a planet’s history—affects the likelihood of complex life. Although the text mentions that plate tectonics emerged on Earth after a “long transition” and that this process accelerated the development of complex life, it presents these details as context for why plate tectonics matter, not as a claim about when the transition would have needed to occur within the planet’s history. Choice C is incorrect because the text doesn’t discuss the timing of the acquisition of an atmosphere in relation to that of the transition to plate tectonics or explain why this would be relevant to the development of complex life. Rather, the text presents these as independent factors relevant to the search for extraterrestrial life. Choice D is incorrect because the text presents plate tectonics as an additional factor to consider alongside orbital distance from a host star and atmosphere, not as a more important one. Stern and Gerya propose that tectonics could “help further narrow the search,” which implies supplementing, rather than superseding, the existing criteria."
+  },
+  {
+    "id": 24,
+    "question": "The painter María Izquierdo played an important role in the development of twentieth-century Mexican art, but her work has never been wellknown in the United States except among art historians. One reason for Izquierdo’s relative obscurity is the enormous popularity of some of her peers. In particular, the painters Frida Kahlo and Diego Rivera have so captivated the interest of US audiences that Izquierdo and other Mexican artists from the period often get overlooked, despite the high quality of their work. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Izquierdo’s work is not as well-known in the United States as it should be because Kahlo and Rivera draw so much of the public’s attention.",
+      "B": "During Izquierdo’s lifetime, her paintings were displayed in galleries in the United States much more frequently than paintings by Kahlo and Rivera were.",
+      "C": "Izquierdo painted some of the same subjects that Kahlo and Rivera painted but used different techniques than they used.",
+      "D": "Few of Izquierdo’s works are in galleries today because she produced only a small number of paintings."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately states the main idea of the text. The text begins by stating that María Izquierdo was an important figure in the history of twentieth-century Mexican art, but despite her importance, her work hasn’t received widespread recognition in the United States. According to the text, one reason for this is that Frida Kahlo and Diego Rivera are so famous in the US that they overshadow other important Mexican artists, including Izquierdo. Thus, the main idea of the text is that Izquierdo’s work is less well known in the US than it should be because Kahlo and Rivera draw most of the public’s attention. Choice B is incorrect because the text doesn’t discuss the appearance of Izquierdo’s paintings in galleries in the US during her lifetime, nor does it suggest that her paintings were displayed more frequently than paintings by Kahlo or Rivera were. Instead, the text focuses on the fact that Izquierdo has been overlooked in the US because of Kahlo’s and Rivera’s greater popularity. Choice C is incorrect because the text doesn’t discuss either the subject matter of Izquierdo’s paintings or the techniques she used, nor does it compare these aspects of her paintings with those of Kahlo’s and Rivera’s paintings. Choice D is incorrect because the text doesn’t mention how many of Izquierdo’s paintings appear in galleries today, nor does it state that she produced only a small number of paintings."
+  },
+  {
+    "id": 25,
+    "question": "Since its completion in 2014, Bosco Verticale (Vertical Forest)—a pair of residential towers in Milan, Italy, covered by vegetation—has become a striking symbol of environmental sustainability in architecture. Stefano Boeri intended his design, which features balconies that are home to hundreds of trees, to serve as a model for promoting urban biodiversity. However, the concept has faced skepticism: critics note that although the trees used in Bosco Verticale were specifically cultivated for the project, it’s too early to tell if they can thrive in this unusual setting. According to the text, why are some critics skeptical of the concept behind Bosco Verticale?",
+    "options": {
+      "A": "Some essential aspects of Bosco Verticale’s design are difficult to adapt to locations other than Milan.",
+      "B": "The plant life on Bosco Verticale ended up being less varied than Boeri had envisioned it would be.",
+      "C": "The construction of Bosco Verticale was no less environmentally damaging than the construction of more conventional buildings is.",
+      "D": "It is unclear whether Bosco Verticale can support the plant life included in its design."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents a statement about critics’ skepticism of Bosco Verticale that is supported by the text. The text states that Boeri’s design for Bosco Verticale features hundreds of trees on balconies and is intended to serve as a model for promoting urban biodiversity. But the text goes on to state that some critics believe that it is too early to determine if the trees planted on Bosco Verticale can thrive there. Therefore, according to the text, critics are skeptical of the concept behind Bosco Verticale because it is unclear whether Bosco Verticale can support the plant life included in its design. Choice A is incorrect. Although the text states that one of Boeri’s goals was for Bosco Verticale to serve as a model for promoting biodiversity in architecture, which suggests that Boeri would likely support the idea of reproducing the same concept in other locations, the text does not discuss whether it is feasible to adapt the design to locations other than Milan. Instead, the text describes critics’ concerns that the plant life that currently exists on Bosco Verticale might not thrive in its current setting. Choice B is incorrect. Although the text states that one of Boeri’s goals in creating Bosco Verticale was to promote biodiversity, which implies a goal of including varied plant life in the design, it does not mention whether the hundreds of trees that were planted on its balconies failed to meet this goal. Rather, the text states that some critics are concerned that the trees on Bosco Verticale’s balconies may not thrive in this setting. Choice C is incorrect because the text does not mention how Bosco Verticale was constructed, let alone how environmentally destructive its construction may have been relative to the construction of more conventional buildings."
+  },
+  {
+    "id": 26,
+    "question": "Choctaw/Cherokee artist Jeffrey Gibson turns punching bags used by boxers into art by decorating them with beadwork and elements of Native dressmaking. These elements include leather fringe and jingles, the metal cones that cover the dresses worn in the jingle dance, a women’s dance of the Ojibwe people. Thus, Gibson combines an object commonly associated with masculinity (a punching bag) with art forms traditionally practiced by women in most Native communities (beadwork and dressmaking). In this way, he rejects the division of male and female gender roles. Which choice best describes Gibson’s approach to art, as presented in the text?",
+    "options": {
+      "A": "He draws from traditional Native art forms to create his original works.",
+      "B": "He has been influenced by Native and non-Native artists equally.",
+      "C": "He finds inspiration from boxing in designing the dresses he makes.",
+      "D": "He rejects expectations about color and pattern when incorporating beadwork."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately describes Gibson’s approach to art. As the text explains, Gibson, who is Cherokee and Choctaw, transforms punching bags into art pieces by applying (or attaching) to them beadwork and elements of Native dressmaking, including leather fringe and the jingles of the jingle dress. The text goes on to say that in most Native communities, the art forms of beadwork and dressmaking are traditionally practiced by women. Therefore, Gibson’s approach to art consists of creating original works by drawing from traditional Native art forms. Choice B is incorrect. Because Gibson incorporates Native art forms into his own original artwork, it can be inferred that he has been influenced by other Native artists, but the text never suggests that non-Native artists have influenced him. Choice C is incorrect because the text doesn’t indicate that Gibson designs dresses influenced by boxing but instead that he turns punching bags, which are used in boxing, into works of art by applying elements of Native dressmaking to them. Choice D is incorrect. Although Gibson does incorporate beadwork into his art, the text never mentions the colors or patterns that he uses or suggests that his art defies the expectations that people might have about color and pattern in beadwork."
+  },
+  {
+    "id": 27,
+    "question": "The following text is from Ahmet Hamdi Tanpinar’s 1961 novel The Time Regulation Institute (translated from the Turkish in 2014 by Maureen Freely and Alexander Dawe). The narrator was once involved with the Time Regulation Institute, a fictional bureaucracy that regulates the time of Turkey’s clocks. <br>I may be the most humble and absurd man in the world and, as my wife says, the most slovenly creature you may ever meet—that is, before the founding of our institute—but I did come to know a truly great man who possessed a natural genius for invention. I spent years at his side. I watched the way he worked. I witnessed how an idea would suddenly catch fire in his mind and take shape, like a tree sprouting shoots and branches, before coming into being. ©2014 by Maureen Freely and Alexander Dawe Which choice best states the main idea of the text?",
+    "options": {
+      "A": "A person was fortunate enough to have found love despite his obvious shortcomings.",
+      "B": "An exceptionally talented person professes humility to avoid intimidating others.",
+      "C": "A person appreciates the extensive time he passed in the company of someone he deeply admired.",
+      "D": "A truly brilliant person lets ideas mature in his mind before expressing them aloud."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately describes the main idea of the text: a person appreciates the extensive time he passed in the company of a man he deeply admired. The speaker says that he spent \"years\" (a long period of time) in the company of a \"truly great man\" with \"a natural genius for invention.\" These phrases indicate the speaker’s feelings of admiration. Choice A is incorrect because though the text indicates that the speaker feels professional admiration for the \"truly great man,\" the text does not indicate that the speaker feels love for him; nor does the text indicate that the speaker’s humility, absurdity, and slovenly nature proved to be an obstacle to this professional relationship. Choice B is incorrect because though the speaker describes himself as humble, the text does not indicate that he is exceptionally talented; nor does the text indicate that the \"truly great man\" professes humility or is concerned with whether he intimidates others. Choice D is incorrect because the text does not indicate how either the speaker or the \"truly great man\" express their ideas."
+  },
+  {
+    "id": 28,
+    "question": "A subject of much speculation, distinctive sets of parallel ridges mark the icy crust of Europa, Jupiter’s smallest moon. Researchers now claim that the ridges’ formation mechanism mirrors that of a strikingly similar pair on Greenland’s ice sheet. There, surface water seeped through fissures in the sheet and formed a water pocket that subsequently disrupted the overlying ice, forcing fragments of it upward and outward into peaks, as the pocket froze and expanded. Although Europa lacks liquid surface water, the same process could be driven by the moon’s subsurface ocean. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Researchers think that the ridges on Europa and the ridges in Greenland may have been formed by the same process even though Europa, unlike Greenland, doesn’t have liquid water on its surface.",
+      "B": "The primary difference between the ridges on Europa and the ridges in Greenland is that unlike the Europa ridges, the Greenland ridges are parallel.",
+      "C": "The pair of ridges found on Greenland’s ice sheet appear to have formed long before the recently discovered sets of ridges on Europa formed.",
+      "D": "Researchers don’t understand why Europa is marked by so many sets of ridges when the moon doesn’t have any liquid water on its surface that could have collected and expanded under the icy crust."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it accurately states the main idea of the text. The text focuses on formations of parallel ice ridges on Jupiter’s moon Europa that are said to be formed by the same mechanism that formed a parallel set of ridges on Greenland’s ice sheet. The text indicates that in Greenland, water on the surface seeps to the lower portion of the ice sheet, resulting in uplift that creates the ridges, and it states that although Europa lacks liquid water on its surface, the same process could be driven by an ocean below Europa’s surface. In other words, the main idea of the text is that parallel ridges in the ice on Europa and Greenland are likely caused by similar processes even though in Greenland the process begins with liquid water on the surface while Europa lacks liquid water on the surface. Choice B is incorrect because the text states outright that the ridges on Europa are parallel and furthermore refers to Greenland’s ridges as \"strikingly similar\" to those on Europa. Choice C is incorrect because the text makes no mention of when any of the ice ridges formed, either separately or relative to one another. Choice D is incorrect because the text does not indicate any uncertainty about the reason for the ice ridges on Europa and, in fact, clearly states that researchers now claim to know the mechanism that created the ridges."
+  },
+  {
+    "id": 29,
+    "question": "NASA’s Aspera mission, led by Carlos Vargas, will investigate the circumgalactic medium (CGM), the huge swaths of low-density gas that fill and surround galaxies. Specifically, the team will focus on portions of the gas that exist in a “warm-hot” phase: these portions haven’t previously been observable but are thought to fuel new star formation and hold most of the mass that makes up a galaxy. Using a telescope capable of revealing these parts of the CGM, the Aspera mission should help answer long-standing questions about how galaxies emerge, change, and even interact. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "As the leader of NASA’s Aspera mission, Vargas will be the first person to investigate the makeup of the CGM.",
+      "B": "Although galaxies that are surrounded by the CGM have been studied, researchers have been unable to directly observe low-density gas in the CGM in the “warm-hot” phase.",
+      "C": "Researchers don’t yet have a complete understanding of the process of galaxy evolution but have raised the possibility that galaxies interact with each other at times.",
+      "D": "The Aspera mission is expected to produce the first direct observations of CGM gas in the “warm-hot” phase, which likely has an important role in the evolution of galaxies."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. The text begins by mentioning NASA’s Aspera mission, which will investigate the low-density gas that makes up the circumgalactic medium (CGM). According to the text, this mission will focus on a portion of the CGM’s gas that exists in a “warm-hot” phase; this “warm-hot” gas has not been previously observed, but it is thought to make up most of the mass of galaxies and play a part in star formation. Finally, the text mentions a telescope capable of examining this previously unobservable “warm-hot” gas: the Aspera mission will use this telescope in the hope of answering questions about galaxy formation and change. Therefore, the main idea of the text is that the Aspera mission is likely to produce the first direct observations of CGM gas in the “warmhot” phase, which likely has an important role in the evolution of galaxies. Choice A is incorrect. Although this choice mentions the Aspera mission, names its leader, and generally states the mission’s purpose, it does not reference the “warm-hot” gas or fully convey the reason why the Aspera mission is significant. Choice B is incorrect. Although this choice mentions the “warm-hot” gas that makes up a portion of the CGM, it does not reference the Aspera mission or describe its importance. The text also does not mention that galaxies surrounded by the CGM have been studied. Choice C is incorrect. Although this choice describes a problem related to the CGM that researchers have been attempting to solve and presents the speculation of those researchers, it does not mention the Aspera mission or describe its purpose."
+  },
+  {
+    "id": 30,
+    "question": "Many intellectual histories of the Black Power movement of the 1960s and 1970s rely heavily on essays and other explicitly ideological works as primary sources, a tendency that can overrepresent the perspectives of a small number of thinkers, most of whom were male. Historian Ashley D. Farmer has shown that expanding the array of primary sources to encompass more types of print material—including political cartoons, advertisements, and artwork—leads to a much better understanding of the movement and the crucial and diverse roles that Black women played in shaping it. Which choice best describes the main idea of the text?",
+    "options": {
+      "A": "Farmer’s methods and research have enriched the historical understanding of the Black Power movement and Black women’s contributions to it.",
+      "B": "Before Farmer’s research, historians had largely ignored the intellectual dimensions of the Black Power movement.",
+      "C": "Other historians of the Black Power movement have criticized Farmer’s use of unconventional primary sources.",
+      "D": "The figures in the Black Power movement whom historians tend to cite would have agreed with Farmer’s conclusions about women’s roles in the movement."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. It best describes the main idea of the text. The text starts by saying that historians of the Black Power movement are too reliant on openly ideological works, which were written mostly by men, as sources. The text then describes Farmer’s research: she has shown that including other kinds of sources leads to a better understanding of the Black Power movement and the role Black women played in it. Choice B is incorrect. This doesn’t describe the main idea of the text. In fact, it conflicts with the text. The text says that historians have relied on \"essays and other explicitly ideological works,\" which suggests that they have studied at least some of the intellectual dimensions of the Black Power movement. Choice C is incorrect. This doesn’t describe the main idea of the text. The text never mentions how other historians of the Black Power movement view Farmer’s use of unconventional sources. In fact, the text itself argues in favor of Farmer’s research, claiming that it has led to a \"much better understanding of the movement.\" Choice D is incorrect. This doesn’t describe the main idea of the text. The text never mentions what any figures in the Black Power movement thought about women’s roles in the movement."
+  },
+  {
+    "id": 31,
+    "question": "Using the Stratospheric Observatory for Infrared Astronomy (SOFIA), a team of astronomers mapped out the magnetic field of G47, one of the Milky Way’s galactic bones (dense clouds of gas and dust that run through the middle of the arm of a spiral galaxy). Surprisingly, the map revealed a magnetic field with no clear pattern or direction. The researchers had expected the magnetic field to be similar to the more uniform fields seen in galactic bones in other arms of the Milky Way. According to the text, what was surprising about the researchers’ mapping of the magnetic field of galactic bone G47?",
+    "options": {
+      "A": "It showed a weaker magnetic field than expected.",
+      "B": "It implied that previous mappings of the magnetic field were inaccurate.",
+      "C": "It produced magnetic field measurements similar to those for other galactic bones.",
+      "D": "It revealed a magnetic field that wasn’t uniform."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents the point about the magnetic field mapping that the text describes as surprising. The text indicates that a team of astronomers mapped the magnetic field of G47, a galactic bone in the Milky Way, and that the mapping \"surprisingly\" revealed \"no clear pattern or direction\" in the magnetic field. The text then adds that the researchers had thought the magnetic field would be as uniform as the magnetic fields of other galactic bones in the Milky Way are. In other words, the researchers were surprised that the mapping revealed a magnetic field that wasn’t uniform. Choice A is incorrect because the text doesn’t indicate that the mapping surprisingly showed a weaker magnetic field than the researchers had expected. The text makes no mention of the magnetic field’s strength, only its lack of a clear pattern or direction. Choice B is incorrect because the text doesn’t indicate that the magnetic field mapping suggested to researchers that previous mappings were inaccurate. Although the text states that the mapping didn’t show what researchers had expected based on their knowledge of other magnetic fields, there’s no indication that G47’s magnetic field had ever been mapped before. Choice C is incorrect because the text indicates that the researchers were surprised that the magnetic field was different from, not similar to, the magnetic fields of other galactic bones; the text states that because other galactic bones in the Milky Way are more uniform, the researchers had expected the magnetic field of G47 to be more uniform than it turned out to be."
+  },
+  {
+    "id": 32,
+    "question": "In many of his sculptures, artist Richard Hunt uses broad forms rather than extreme accuracy to hint at specific people or ideas. In his first major work, Arachne (1956), Hunt constructed the mythical character Arachne, a weaver who was changed into a spider, by welding bits of steel together into something that, although vaguely human, is strange and machine-like. And his large bronze sculpture The Light of Truth (2021) commemorates activist and journalist Ida B. Wells using mainly flowing, curved pieces of metal that create stylized flame. Which choice best states the text’s main idea about Hunt?",
+    "options": {
+      "A": "He often depicts the subjects of his sculptures using an unrealistic style.",
+      "B": "He uses different kinds of materials depending on what kind of sculpture he plans to create.",
+      "C": "He tends to base his art on important historical figures rather than on fictional characters.",
+      "D": "He has altered his approach to sculpture over time, and his works have become increasingly abstract."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately states the main idea of the text. According to the text, many of Richard Hunt’s sculptures “use broad forms rather than extreme accuracy”—in other words, they are more abstract than realistic. To illustrate Hunt’s abstract approach, the text characterizes his sculpture of Arachne as “vaguely human” and his work in honor of Ida B. Wells as “using mainly flowing, curved pieces of metal that create stylized flame.” Thus, the main idea is that Hunt often depicts the subjects of his sculptures using an unrealistic style. Choice B is incorrect. Although the text indicates that one of Hunt’s sculptures is made of steel and another of bronze, there is no mention of why he chose these materials. Choice C is incorrect because the text says nothing about how Hunt chose the subjects for his sculptures. Furthermore, of the two examples provided in the text, only Ida B. Wells is an important historical figure; Arachne is a “mythical character.” Choice D is incorrect because the text says nothing about how Hunt’s style changed over time. In fact, although the two examples of Hunt’s work discussed in the text were created 65 years apart, they are both described as heavily stylized rather than realistic, which may suggest that some aspects of Hunt’s style haven’t changed over that time."
+  },
+  {
+    "id": 33,
+    "question": "The following text is adapted from Robert Louis Stevenson’s 1883 novel Treasure Island. Bill is a sailor staying at the Admiral Benbow, an inn run by the narrator’s parents. <br>Every day when [Bill] came back from his stroll he would ask if any seafaring men had gone by along the road. At first we thought it was the want of company of his own kind that made him ask this question, but at last we began to see he was desirous to avoid them. When a seaman did [stay] at the Admiral Benbow (as now and then some did) he would look in at him through the curtained door before he entered the parlour; and he was always sure to be as silent as a mouse when any such was present. According to the text, why does Bill regularly ask about “seafaring men”?",
+    "options": {
+      "A": "He’s hoping to find an old friend and fellow sailor.",
+      "B": "He’s trying to secure a job as part of the crew on a new ship.",
+      "C": "He isn’t sure that other guests at the inn will be welcoming of sailors.",
+      "D": "He doesn’t want to encounter any other sailor unexpectedly."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The narrator says that, at first, they thought Bill asked regularly about other seafarers because he wanted their company, but eventually they realized that Bill actually wanted to avoid them. Choice A is incorrect. This isn’t the reason the text gives for why Bill regularly asks about “seafaring men.” The narrator says that, at first, they thought Bill asked regularly about other seafarers because he wanted their company, but eventually they realized that Bill wanted to avoid them. Choice B is incorrect. This isn’t the reason the text gives for why Bill regularly asks about “seafaring men.” The narrator says that, at first, they thought Bill asked regularly about other seafarers because he wanted their company, but eventually they realized that Bill wanted to avoid them. Choice C is incorrect. This isn’t the reason the text gives for why Bill regularly asks about “seafaring men.” The narrator says that, at first, they thought Bill asked regularly about other seafarers because he wanted their company, but eventually they realized that Bill wanted to avoid them."
+  },
+  {
+    "id": 34,
+    "question": "The following text is adapted from Guy de Maupassant’s nineteenth-century short story “The Trip of Le Horla” (translated by Albert M. C. McMaster, A. E. Henderson, Mme. Quesada, et al.). The narrator is part of a group traveling in a hot-air balloon at night. <br>The earth no longer seems to exist, it is buried in milky vapors that resemble a sea. We are now alone in space with the moon, which looks like another balloon travelling opposite us; and our balloon, which shines in the air, appears like another, larger moon, a world wandering in the sky amid the stars, through infinity. We no longer speak, think nor live; we float along through space in delicious inertia. The air which is bearing us up has made of us all beings which resemble itself, silent, joyous, irresponsible beings, peculiarly alert, although motionless. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The narrator feels a growing sense of isolation even though his companions are nearby during the balloon ride.",
+      "B": "The narrator and his companions are completely absorbed in the change in perspective they gain while riding in the balloon.",
+      "C": "The narrator and his companions are troubled by the disorienting effects of the altitude while riding in the balloon.",
+      "D": "The narrator is pleasantly surprised by his companions’ unrestrained enthusiasm about the sensation of riding in the balloon."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states the main idea of the text. The narrator describes the view he and his companions have from the balloon: the earth lies beneath \"milky vapors,\" and the balloon itself looks like another moon. The narrator goes on to explain how the people riding in the balloon are affected by the ride, explaining that they are immersed in the experience: floating along in \"delicious inertia,\" or inactivity, like \"silent, joyous, irresponsible beings.\" Thus, the main idea is that the narrator and his companions are completely absorbed in the change in perspective they gain while riding in the balloon. Choice A is incorrect because the narrator never describes himself as feeling isolated from his companions; instead, he characterizes riding in the balloon as an experience he is sharing with them. And although he does imply a sense of isolation, it is isolation from those on the ground, as when he says of himself and his companions, \"We are now alone.\" Choice C is incorrect because the narrator doesn’t suggest that he or his companions are troubled by the effects of the balloon ride. Instead, he describes himself and his companions as \"joyous\" and the experience of floating in the balloon as \"delicious.\" Choice D is incorrect because nothing in the text suggests that the narrator is surprised by his companions’ response to the balloon ride. In fact, the text indicates that the narrator and his companions are having the same experience: they’re described as \"silent\" and \"motionless,\" rather than as having unrestrained enthusiasm."
+  },
+  {
+    "id": 35,
+    "question": "The recovery of a 1,000-year-old Chinese shipwreck in the Java Sea near present-day Indonesia has yielded a treasure trove of artifacts, including thousands of small ceramic bowls. Using a portable X-ray fluorescence analyzer tool, Lisa Niziolek and her team were able to detect the chemical composition of these bowls without damaging them. By comparing the chemical signatures of the bowls with those of the materials still at old Chinese kiln sites, Niziolek and her team can pinpoint which Chinese kilns likely produced the ceramic bowls. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Because of a new technology, researchers can locate and recover more shipwrecks than they could in the past.",
+      "B": "Researchers have been able to identify the location of a number of Chinese kilns in operation 1,000 years ago.",
+      "C": "With the help of a special tool, researchers have determined the likely origin of bowls recovered from a shipwreck.",
+      "D": "Before the invention of portable X-ray fluorescence, researchers needed to take a small piece out of an artifact to analyze its components."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most accurately states the main idea of the text. According to the text, thousands of ceramic bowls were found in a recovered Chinese shipwreck. The text goes on to say that Niziolek and her team used a special tool, a portable X-ray fluorescence analyzer, to determine the bowls’ chemical signatures. Comparing these chemical signatures with the chemical signatures of materials they had collected from old Chinese kiln sites, the text says, allowed the researchers to identify which kilns had produced the bowls. In other words, the researchers determined the bowls’ origin. Choice A is incorrect. Although the text indicates that the researchers used technology in the form of a portable X-ray fluorescence analyzer, it doesn’t specifically state that this technology is new. In addition, the text says that Niziolek and her team used the tool to determine the chemical composition of bowls that were found in a Chinese shipwreck, not to locate and recover the shipwreck itself. There’s no indication in the text that a new technology can help researchers locate and recover shipwrecks. Choice B is incorrect because the text indicates that the researchers collected materials from old kiln sites for chemical comparison with the ceramic bowls, which means that the researchers must have already known the location of those kiln sites. Rather than identifying the location of the kilns, the researchers determined which kilns in operation 1,000 years ago had likely produced the bowls that were found in the shipwreck. Choice D is incorrect. Although the text says that using a portable Xray fluorescence analyzer tool enabled Niziolek and her team to analyze artifacts in the form of ceramic bowls without damaging them, the text doesn’t discuss how researchers analyzed artifacts before this tool was invented. Moreover, the point that the bowls were left undamaged isn’t the text’s main idea. Rather, it’s a detail that’s provided to develop the main idea, which is that the researchers used a special tool to determine where the bowls had been produced."
+  },
+  {
+    "id": 36,
+    "question": "The following text is adapted from Christina Rossetti’s 1881 poem “Monna Innominata 2.” <br>I wish I could remember that first day, <br>First hour, first moment of your meeting me, <br>If bright or dim the season, it might be <br>Summer or Winter for [all] I can say; <br>So unrecorded did it slip away, <br>So blind was I to see and to foresee, <br>So dull to mark the budding of my tree <br>That would not blossom yet for many a May. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "The speaker celebrates how the passage of time has strengthened a relationship that once seemed unimportant.",
+      "B": "Because the speaker did not anticipate how important a relationship would become, she cannot recall how the relationship began, which she regrets.",
+      "C": "As the anniversary of the beginning of an important relationship approaches, the speaker feels conflicted about how best to commemorate it.",
+      "D": "After years of neglecting a once valuable relationship, the speaker worries it may be too late for her to salvage the relationship."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The speaker says that they wish they could remember when they first met someone, but they can’t remember the meeting at all, because they didn’t know at the time that the relationship would \"blossom\" later on. Choice A is incorrect. The speaker does say that the relationship has \"blossomed\" over time, but only briefly at the end—and they don’t really \"celebrate\" that fact. Rather, the text has a more regretful tone: it’s about how the speaker can’t remember first meeting this person, and they wish they could. Choice C is incorrect. The speaker doesn’t mention an anniversary—in fact, the speaker can’t remember when they met the person they’re talking about. Choice D is incorrect. The speaker doesn’t say that they neglected the relationship. In fact, the speaker suggests that the relationship has become very important to them—that’s why the speaker wishes that they could remember their first meeting."
+  },
+  {
+    "id": 37,
+    "question": "The following text is from Mark Haber’s 2022 novel Saint Sebastian’s Abyss. The narrator and Schmidt are both art critics. <br>When my first wife admitted to Schmidt over dinner that she didn’t find art, painting in particular, especially compelling, Schmidt winced, set down his fork, and sighed dramatically; he then excused himself, explaining an appointment he’d forgotten about had suddenly and inexplicably been remembered, while making it abundantly clear there was no appointment at all. ©2022 by Mark Haber Based on the text, what is notable about Schmidt’s behavior?",
+    "options": {
+      "A": "Schmidt is only given to theatrical behavior when in the company of the narrator and his first wife.",
+      "B": "Schmidt’s absentmindedness regarding his schedule is uncharacteristic of him.",
+      "C": "Schmidt’s departure is occasioned by the resumption of a previous disagreement with the narrator’s first wife about a particular painting.",
+      "D": "Schmidt conveys his feelings about one of his dining companions without explicitly stating them."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately describes what is notable about Schmidt’s behavior. According to the text, when the narrator’s first wife admits she doesn’t find art particularly compelling, Schmidt responds by wincing, sighing dramatically, and abruptly leaving dinner with an obviously false excuse about a remembered appointment. The narrator makes it clear that there is no actual appointment and that the excuse is merely a pretense. Through these actions—the physical reactions of wincing and sighing, followed by the transparent excuse to leave—Schmidt clearly communicates his disapproval of the wife without directly stating his feelings about her. Choice A is incorrect because the text provides no evidence that Schmidt’s theatrical behavior—wincing, sighing dramatically, and abruptly leaving dinner—is unique to situations involving the narrator and his first wife. The text describes only one interaction involving Schmidt, so there’s no basis for determining whether his dramatic reactions are typical of him in all situations or limited to this particular social context. Choice B is incorrect because nothing in the text suggests that Schmidt is typically mindful of his schedule or that forgetting appointments would be uncharacteristic of him. Rather, the text makes it clear that Schmidt hasn’t actually forgotten an appointment at all—the narrator indicates that Schmidt’s reason for leaving is an obvious fabrication, not a genuine instance of absentmindedness. Choice C is incorrect because the text doesn’t mention any previous disagreement between Schmidt and the narrator’s first wife about a particular painting or any other topic. The text presents what appears to be a spontaneous reaction by Schmidt to the wife’s statement about not finding art compelling, not the continuation of an earlier conversation or dispute."
+  },
+  {
+    "id": 38,
+    "question": "The following text is from Ezra Pound’s 1909 poem “Hymn III,” based on the work of Marcantonio Flaminio. <br>As a fragile and lovely flower unfolds its gleaming <br>foliage on the breast of the fostering earth, if <br>the dew and the rain draw it forth; <br>So doth my tender mind flourish, if it be fed with the <br>sweet dew of the fostering spirit, <br>Lacking this, it beginneth straightway to languish, <br>even as a floweret born upon dry earth, if the <br>dew and the rain tend it not. Based on the text, in what way is the human mind like a flower?",
+    "options": {
+      "A": "It becomes increasingly vigorous with the passage of time.",
+      "B": "It draws strength from changes in the weather.",
+      "C": "It requires proper nourishment in order to thrive.",
+      "D": "It perseveres despite challenging circumstances."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it presents a description of how the human mind is like a flower that is directly supported by the text. The text compares the needs of a “fragile and lovely flower” to those of the speaker’s “tender mind”: both need to be fed if they’re going to survive. Without such feeding, they’ll “beginneth straightway to languish,” or weaken. Thus, the text suggests that the human mind is like a flower in that they both need proper nourishment in order to thrive. Choice A is incorrect because the text doesn’t address the passage of time or describe either the human mind or a flower as becoming increasingly vigorous. Choice B is incorrect because the text doesn’t suggest that human minds or flowers draw strength from changes in weather. The references to rain in the text pertain to a flower’s need for water rather than the general effects of changing weather. Choice D is incorrect because the text doesn’t suggest that the human mind or a flower will persist regardless of challenging circumstances. In fact, the text indicates that they’ll both languish right away if not given what they need."
+  },
+  {
+    "id": 39,
+    "question": "Archaeologists have discovered a runestone in Norway that may contain the earliest example of written words in Scandinavia. Carbon dating at the discovery site revealed that the stone was likely carved between 1 and 250 CE. Runologist Kristel Zilmer believes the stone will be helpful in learning more about the use of runic alphabets in early Iron Age Scandinavia. Which choice best states the main topic of the text?",
+    "options": {
+      "A": "Battles of the Iron Age",
+      "B": "A runestone found in Norway",
+      "C": "A new method for dating rock samples",
+      "D": "The research interests of Kristel Zilmer"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most accurately states the main topic of the text. The text begins by stating that archaeologists in Norway have discovered what may be the oldest known runestone (a stone with an inscription in the runic alphabets used in the region in ancient times). According to the text, the object was created between 1 and 250 CE. The text then mentions a researcher who comments on the runestone’s significance to the study of runic alphabets. Thus, the main focus throughout the text is a runestone found in Norway. Choice A is incorrect because the text mentions the Iron Age only to indicate the era when the runestone was created and when runic alphabets were in use; there’s no discussion of battles during this era. Choice C is incorrect because the text mentions the carbon dating method just once and does so only to indicate the age of the runestone; moreover, the text doesn’t suggest that this method is new. Choice D is incorrect. Although the text indicates that Zilmer is a runologist, or a scholar of runestones, it does so in a single sentence, so Zilmer’s scholarly interests are therefore not a primary focus of the text."
+  },
+  {
+    "id": 40,
+    "question": "To understand how Paleolithic artists navigated dark caves, archaeologist Mª Ángeles Medina-Alcaide and her team tested different lighting methods in a cave in Spain using replicas of artifacts found in European caves with art. They used three different Paleolithic light sources— torches, animal-fat lamps, and fireplaces—determining that each likely had a specific purpose. For instance, the team learned that the animal-fat lamps were less useful than torches while walking because the lamps didn’t illuminate the cave floor. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Medina-Alcaide and her team’s study demonstrated that fireplaces were essential to the creators of Paleolithic cave art.",
+      "B": "Medina-Alcaide and her team discovered that Paleolithic cave artists in Spain used animal-fat lamps more often than they used torches.",
+      "C": "Medina-Alcaide and her team were reluctant to draw many conclusions from their study because of the difficulty they had replicating light sources based on known artifacts.",
+      "D": "Medina-Alcaide and her team tested Paleolithic light sources and learned some details about how Paleolithic artists traveled within dark caves."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. The text indicates that archaeologist Mª Ángeles Medina-Alcaide and her team used replicas of Paleolithic light sources to understand how Paleolithic artists moved through dark caves. The researchers learned, for example, that torches were more helpful for moving through caves than animal-fat lamps were. Thus, the main idea of the text is that Medina-Alcaide and her team tested Paleolithic light sources and learned some details about how Paleolithic artists traveled within dark caves. Choice A is incorrect because the text doesn’t address the usefulness of fireplaces for Paleolithic cave artists; it only mentions fireplaces briefly as one of the three lighting methods the researchers tested. Choice B is incorrect because the text doesn’t discuss how often Paleolithic cave artists used each kind of light source tested. Although the text does compare animal-fat lamps with another lighting method, the point of that comparison is that animal-fat lamps were less useful than torches when walking, not that one method was used more often than another. Choice C is incorrect because the text doesn’t discuss either how difficult it was for Medina-Alcaide and her team to replicate light sources or how the team felt about drawing conclusions from their study. Instead, the text reveals that the team was able to conclude that each light source likely had a distinct purpose."
+  },
+  {
+    "id": 41,
+    "question": "Microplastics are tiny pieces of plastic waste. Areas of the ocean with higher concentrations of microplastic particles also have smaller and fewer waves. A study by Yukun Sun and colleagues found that the concentration of microplastic particles cannot be the only reason for this reduced wave activity because the concentration of particles that would have the observed effect is much higher than that found in these areas of the ocean. However, they found that surfactants, chemicals often used to manufacture plastics, are released into the water from microplastics and have a much stronger wave-reducing effect. According to the text, what did Sun and colleagues discover about surfactants?",
+    "options": {
+      "A": "They have a much stronger effect on wave activity than microplastics alone do.",
+      "B": "They are mainly composed of water.",
+      "C": "They are helpful for removing microplastics from the ocean.",
+      "D": "They can be used to contain microplastics within certain areas of the ocean."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents a statement about surfactants that is supported by the text. The text indicates that higher concentrations of microplastics have been associated with waves that are relatively small and few. According to the text, however, a study by Sun and colleagues found that concentrations of microplastic particles can’t be the only reason for the reduced wave activity because a much higher concentration of particles is needed to produce that observed effect. Instead, the text indicates that Sun and colleagues found that surfactants are released from microplastics into the ocean and have a much stronger wave-reducing effect than microplastics alone do. Choice B is incorrect because the text doesn’t discuss what surfactants are made of. Instead, it indicates that surfactants are frequently used to manufacture microplastics and that Sun and colleagues discovered that surfactants are released from microplastics into the ocean. Choice C is incorrect because the text doesn’t discuss how microplastics can be removed from the ocean. Instead, the text indicates that Sun and colleagues discovered that surfactants are released into the ocean from microplastics and have a much stronger wave-reducing effect than microplastics alone do. Choice D is incorrect because the text doesn’t indicate that surfactants can be used to contain microplastics within certain areas of the ocean. Instead, the text indicates that Sun and colleagues discovered that surfactants are released from microplastics into the ocean and have a much stronger wave-reducing effect than microplastics alone do."
+  },
+  {
+    "id": 42,
+    "question": "The ice melted on a Norwegian mountain during a particularly warm summer in 2019, revealing a 1,700-year-old sandal to a mountaineer looking for artifacts. The sandal would normally have degraded quickly, but it was instead well preserved for centuries by the surrounding ice. According to archaeologist Espen Finstad and his team, the sandal, like those worn by imperial Romans, wouldn’t have offered any protection from the cold in the mountains, so some kind of insulation, like fabric or animal skin, would have needed to be worn on the feet with the sandal. What does the text indicate about the discovery of the sandal?",
+    "options": {
+      "A": "Temperatures contributed to both protecting and revealing the sandal.",
+      "B": "The discovery revealed that the Roman Empire had more influence on Norway than archaeologists previously assumed.",
+      "C": "Archaeologists would have found the sandal eventually without help from the general public.",
+      "D": "The sandal would have degraded if it hadn’t been removed from the ice."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. A \"particularly warm summer\" revealed the sandal, and centuries of ice kept it \"well preserved.\" Choice B is incorrect. This choice doesn’t reflect the information in the text. The sandal is similar to Roman sandals, but there is no indication that it was a result of Roman influence. Choice C is incorrect. The text doesn’t support this choice. We don’t have enough information to know whether or not archaeologists would have found the sandal without people like the treasure-hunting mountaineer. Choice D is incorrect. The text says the opposite of this choice. The sandal was preserved by the ice for centuries."
+  },
+  {
+    "id": 43,
+    "question": "In a study of new technology adoption, Davit Marikyan et al. examined negative disconfirmation (which occurs when experiences fall short of one’s expectations) to determine whether it could lead to positive outcomes for users. The team focused on established users of “smart home” technology, which presents inherent utilization challenges but tends to attract users with high expectations, often leading to feelings of dissonance. The researchers found that many users employed cognitive mechanisms to mitigate those feelings, ultimately reversing their initial sense of disappointment. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Research suggests that most users of smart home technology will not achieve a feeling of satisfaction given the utilization challenges of such technology.",
+      "B": "Although most smart home technology is aimed at meeting or exceeding users’ high expectations, those expectations in general remain poorly understood.",
+      "C": "Research suggests that users with high expectations for a new technology can feel content with that technology even after experiencing negative disconfirmation.",
+      "D": "Although negative disconfirmation has often been studied, little is known about the cognitive mechanisms shaping users’ reactions to it in the context of new technology adoption."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The passage begins by describing the study, and concludes with its results: \"many users employed cognitive mechanisms to mitigate those feelings [of negative disconfirmation].\" Choice A is incorrect. This is the opposite of what the text claims. Rather, the researchers found that \"many users\" reversed \"their initial sense of disappointment.\" Choice B is incorrect. This choice doesn’t reflect the text. What the expectations of smart home tech users are is not discussed. Choice D is incorrect. This choice doesn’t reflect the text. How often these topics have been studied is not mentioned."
+  },
+  {
+    "id": 44,
+    "question": "The following text is adapted from Jack London’s 1903 novel The Call of the Wild. Buck is a sled dog living with John Thornton in Yukon, Canada. <br>Thornton alone held [Buck]. The rest of mankind was as nothing. Chance travellers might praise or pet him; but he was cold under it all, and from a too demonstrative man he would get up and walk away. When Thornton’s partners, Hans and Pete, arrived on the long-expected raft, Buck refused to notice them till he learned they were close to Thornton; after that he tolerated them in a passive sort of way, accepting favors from them as though he favored them by accepting. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Buck has become less social since he began living with Thornton.",
+      "B": "Buck mistrusts humans and does his best to avoid them.",
+      "C": "Buck has been especially well liked by most of Thornton’s friends.",
+      "D": "Buck holds Thornton in higher regard than any other person."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. After establishing that Buck views most people “as nothing,” the text explains that Buck won’t acknowledge people other than Thornton unless they appear friendly toward Thornton, and even then he’s only reluctantly accepting. Thus, the text focuses on the idea that Thornton has a special status in Buck’s mind, with Buck holding him in higher regard than other people. Choice A is incorrect because the text conveys that Buck isn’t social with people other than Thornton but doesn’t address Buck’s life or temperament before he lived with Thornton. Choice B is incorrect because the text conveys that Buck doesn’t really care about people other than Thornton and is aloof toward them. However, there’s no indication that Buck mistrusts and avoids people generally; indeed, he accepts Thornton, who is a human. Choice C is incorrect because the text refers to random travelers praising and petting Buck and Thornton’s partners giving Buck favors, but there’s no indication that any of these people are Thornton’s friends or that they have a particular fondness for Buck."
+  },
+  {
+    "id": 45,
+    "question": "To protect themselves when being attacked, hagfish—jawless marine animals that resemble eels—will release large quantities of slimy, mucuslike threads. Because these threads are unusually strong and elastic, scientist Atsuko Negishi and her colleagues have been trying to recreate them in a lab as an eco-friendly alternative to petroleum-based fibers that are often used in fabrics. The researchers want to reproduce the threads in the lab because farming hagfish for their slime would be expensive and potentially harmful to the hagfish. Which choice best states the text’s main idea?",
+    "options": {
+      "A": "The slimy threads that hagfish release might help researchers create a new kind of fabric.",
+      "B": "Hagfish have inspired researchers to develop a new petroleum-based fabric.",
+      "C": "Hagfish are not well suited to being raised in captivity.",
+      "D": "The ability of hagfish to slime their attackers compensates for their being jawless."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text first describes hagfish slime and its properties, then it transitions to talking about the possibilities of using lab-made equivalents to use in eco-friendly fabrics. Choice B is incorrect. The text says the opposite of this choice. The researchers are developing an alternative to petroleum-based fabric. Choice C is incorrect. This choice is too narrow to be the main point of the text. Only one line describes how farming would be “potentially harmful” to the hagfish. Choice D is incorrect. This choice isn’t supported by the text. We don’t know from the text whether being jawless makes the hagfish more vulnerable."
+  },
+  {
+    "id": 46,
+    "question": "Culinary anthropologist Vertamae Smart-Grosvenor may be known for her decades of work in national public television and radio, but her book Vibration Cooking: or, the Travel Notes of a Geechee Girl is likely her most influential project. The 1970 book, whose title refers to SmartGrosvenor’s roots in the Low Country of South Carolina, was unusual for its time. It combined memoir, recipes, travel writing, and social commentary and challenged notions about conventions of food and cooking. Long admired by many, the book and its author have shaped contemporary approaches to writing about cuisine. Which choice best describes the main idea of the text?",
+    "options": {
+      "A": "Smart-Grosvenor’s unconventional book Vibration Cooking: or, the Travel Notes of a Geechee Girl is an important contribution to food writing.",
+      "B": "Smart-Grosvenor held many different positions over her life, including reporter and food writer.",
+      "C": "Smart-Grosvenor’s groundbreaking book Vibration Cooking: or, the Travel Notes of a Geechee Girl didn’t receive the praise it deserved when it was first published in 1970.",
+      "D": "Smart-Grosvenor was a talented chef whose work inspired many people to start cooking for themselves."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately states the main idea of the text. The text describes the book Vibration Cooking: or, the Travel Notes of a Geechee Girl as Smart-Grosvenor’s “most influential project” and as “unusual for its time.” The text also notes that the book and author have influenced contemporary approaches to writing about food and cooking. Therefore, the text mainly conveys that Vibration Cooking: or, the Travel Notes of a Geechee Girl is an unconventional and important contribution to food writing. Choice B is incorrect. Although the text mentions that Smart-Grosvenor worked in national public television and radio and was a food writer, these details aren’t the main focus. Rather than focusing on Smart-Grosvenor’s various jobs, the text focuses specifically on one specific book she wrote. Choice C is incorrect. Although the text suggests that Vibration Cooking: or, the Travel Notes of a Geechee Girl was groundbreaking, it doesn’t suggest that the book didn’t receive praise when it was published. In fact, the text states that the book is “long admired.” Choice D is incorrect because the text states that Smart-Grosvenor was a culinary anthropologist and that her book influenced later approaches to food writing but doesn’t indicate that Smart-Grosvenor or her book influenced people to begin cooking for themselves."
+  },
+  {
+    "id": 47,
+    "question": "Recently, scientists looked at data collected by NASA’s InSight lander to learn more about seismic activity on Mars, known as marsquakes. The data show that the marsquakes all started from the same location on the planet. This discovery was surprising to scientists, as they expected that the marsquakes would originate from all over the planet because of the cooling of the planet’s surface. Now, scientists believe that there could be areas of active magma flows deep beneath the planet’s surface that trigger the marsquakes. According to the text, what was surprising to scientists studying the seismic activity data from NASA’s InSight lander?",
+    "options": {
+      "A": "The surface temperature of Mars has been rising.",
+      "B": "There were different types of seismic waves causing marsquakes.",
+      "C": "NASA’s InSight lander collected less data than scientists had expected.",
+      "D": "All the marsquakes started from the same location on the planet."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents a statement about what surprised the scientists that is supported by the text. The text states that the marsquakes described in the data from NASA’s InSight lander originated from the same location on Mars. The text goes on to say that because they had expected the opposite (that marsquakes would originate from all over the planet) this discovery surprised the scientists. Choice A is incorrect because the text doesn’t say that the data from NASA’s InSight lander revealed any surprising information about the planet’s surface temperature. Instead, the text mentions the cooling of Mars’s surface as a reason the scientists expected that marsquakes had multiple origins. In addition, cooling would indicate that the temperature has been falling rather than rising. Choice B is incorrect. Although the text indicates that by studying seismic activity scientists found a possible explanation for what causes marsquakes, the text doesn’t say that they discovered that marsquakes are caused by different types of seismic waves. Rather, the text states that based on the data from NASA’s InSight lander, scientists now believe that this seismic activity happens because of areas of active magma that flow below the planet’s surface. Choice C is incorrect because the text doesn’t discuss the amount of data NASA’s InSight lander collected or whether scientists who studied the data found the amount to be as expected. Instead, the text focuses on what the data revealed about where on Mars the marsquakes originated."
+  },
+  {
+    "id": 48,
+    "question": "Businesses selling clothing and other fashion items face obstacles in trying to forecast how much product to order: tastes and styles change quickly, while manufacturing clothing takes a significant amount of time. Researchers Youran Fu and Marshall Fisher have found that combining sellers’ own data with information gathered from social media can dramatically improve the accuracy of such forecasts—by 24 to 57 percent in the cases they directly studied. Better predictions mean demand is easier to meet without retailers becoming overstocked. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "Using multiple data sources can enhance the ability of sellers in the fashion industry to anticipate demand.",
+      "B": "Social media is revolutionizing how both sellers and researchers view the fashion industry.",
+      "C": "Becoming overstocked is the main preoccupation of sellers trying to forecast demand for fashion items.",
+      "D": "Retailers can use their own data to accurately predict how tastes and styles are evolving."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most accurately states the main idea of the text. The text explains that fashion retailers face challenges in forecasting product demand due to rapidly changing tastes and lengthy manufacturing times. It then presents research by Fu and Fisher showing that combining retailers’ own data with social media information significantly improves forecast accuracy. The text concludes by noting that better predictions help retailers meet demand without becoming overstocked. Thus, the main idea is that using multiple data sources (retailers’ own data combined with social media information) can enhance fashion retailers’ ability to anticipate demand. Choice B is incorrect because the text doesn’t claim that social media is revolutionizing, or fundamentally changing, how sellers and researchers view the fashion industry. The text never addresses the way the fashion industry is viewed; rather, it discusses a practical approach sellers in the industry can take to better match production with demand. Choice C is incorrect. Although avoiding overstocking is mentioned as a benefit of an approach that can help fashion sellers better predict demand, the text doesn’t focus on overstocking or characterize it as the main concern of sellers. Rather, the text is focused on discussing the approach itself. Choice D is incorrect because the text suggests that fashion sellers encounter obstacles when using their own data to try to forecast demand as tastes and styles change; the text focuses on the idea that instead of using their own data alone, retailers should combine their own data with social media information to more accurately forecast demand."
+  },
+  {
+    "id": 49,
+    "question": "In her 1998 book Blues Legacies and Black Feminism, Angela Y. Davis bases her analysis in part on recordings of songs sung in the 1920s by Gertrude “Ma” Rainey and Bessie Smith. Davis focuses on how Rainey and Smith improvised the lyrics—replacing the original lines with mischievous jokes and wordplay. Davis’s work was particularly labor intensive because in order to transcribe, or write down, the lyrics as Rainey and Smith sang them, Davis had to listen repeatedly to the vinyl recordings, which weren’t very clear. What does the text most strongly suggest about the songs sung by Rainey and Smith?",
+    "options": {
+      "A": "The songs have grown in popularity since Rainey and Smith first sang them.",
+      "B": "There were more recordings made of Rainey’s songs than there were of Smith’s.",
+      "C": "There were few, if any, reliable transcriptions of Smith’s and Rainey’s improvised lyrics when Davis began her research.",
+      "D": "According to Davis, the songs sung by Rainey were more musically innovative than those sung by Smith typically were."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it describes the songs sung by Gertrude \"Ma\" Rainey and Bessie Smith in a way the text implies is accurate. The text describes Angela Y. Davis’s research on Rainey and Smith for her book Blues Legacies and Black Feminism, focusing on her efforts to transcribe the improvised lyrics in Rainey’s and Smith’s songs. The text calls Davis’s transcription process \"labor intensive\" since the lack of clarity in the recordings required her to listen to each repeatedly to verify the accuracy of her transcripts. The fact that Davis undertook a painstaking transcription process using only fairly low-fidelity recordings suggests that reliable transcriptions were otherwise unavailable to her. Choice A is incorrect. The text doesn’t discuss the popularity of Rainey’s and Smith’s songs either in the 1920s or after. Although it is plausible that the music of Rainey and Smith is more widely enjoyed than it was in the 1920s, this isn’t supported by the text. Choice B is incorrect. The text doesn’t discuss which of Rainey and Smith was the more prolific recording artist and so provides no support for such a claim. Choice D is incorrect. The text discusses the creativity of both Rainey and Smith, but it does so only to note similarities between them in terms of improvisation and wit, not to emphasize differences between them or Davis’s relative views of the artists’ inventiveness."
+  },
+  {
+    "id": 50,
+    "question": "Online surveys are a common tool researchers use to collect information. These surveys are usually designed for use on personal computers (PCs), but more people are using smartphones to complete them than they are PCs. This shift in device usage may change how participants interact with online surveys. When researchers Jean Philippe Décieux and Philipp E. Sischka investigated, they found that PC users were more likely to multitask while taking surveys than smartphone users were, but PC users were also more likely to complete the surveys. Which choice best states the main idea of the text?",
+    "options": {
+      "A": "People are choosing to take online surveys on smartphones more often than they are on PCs because smartphones are convenient.",
+      "B": "Researchers are investigating why survey completion rates are higher on PCs than they are on smartphones, despite increased multitasking on PCs.",
+      "C": "Researchers prefer online surveys to other ways of collecting information because they think online survey results are more reliable.",
+      "D": "A study shows that the type of device people use to complete online surveys affects how they interact with these surveys."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most accurately states the main idea of the text. The text opens by noting that online surveys are usually designed for PCs but that more people now use smartphones to take them—a shift, the text proposes, that may affect how participants interact with the surveys. The text then describes study findings—PC users were more likely to multitask but also more likely to complete surveys than smartphone users were—as evidence to illustrate the overall point that device type does indeed change how participants behave when responding to surveys. Thus, the text as a whole conveys the idea that according to a study, the type of device people use to complete online surveys affects how they interact with these surveys. Choice A is incorrect. Although the text notes that more people are using smartphones than PCs for surveys, it doesn’t indicate why people are making this choice, much less suggest that convenience is a factor in this shift. The text focuses on the consequences of the shift in device usage, not on its causes. Choice B is incorrect. Although the text reports that PC users were more likely to complete surveys than smartphone users were despite also being more likely to multitask while taking the surveys, it doesn’t frame the study as an inquiry into the reasons for these differences in completion rates. Instead, the text presents these findings to illustrate how device type affects survey participants’ interactions with online surveys. Choice C is incorrect. Although the text states that online surveys are commonly used in research, the text doesn’t discuss whether researchers prefer online surveys over other data collection methods, nor does it indicate that online surveys are more reliable than alternative methods. Rather, the text focuses on how different devices affect the way participants interact with online surveys."
+  },
+  {
+    "id": 51,
+    "question": "The following text is adapted from Charles W. Chesnutt’s 1901 novel The Marrow of Tradition. <br>Mrs. Ochiltree was a woman of strong individuality, whose comments upon her acquaintance[s], present or absent, were marked by a frankness at times no less than startling. This characteristic caused her to be more or less avoided. Mrs. Ochiltree was aware of this sentiment on the part of her acquaintance[s], and rather exulted in it. Based on the text, what is true about Mrs. Ochiltree’s acquaintances?",
+    "options": {
+      "A": "They try to refrain from discussing topics that would upset Mrs. Ochiltree.",
+      "B": "They are unable to spend as much time with Mrs. Ochiltree as she would like.",
+      "C": "They are too preoccupied with their own concerns to speak with Mrs. Ochiltree.",
+      "D": "They are likely offended by what Mrs. Ochiltree has said about them."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents a statement about Mrs. Ochiltree’s acquaintances that is supported by the text. The text indicates that Mrs. Ochiltree makes comments about her acquaintances that are frank, or direct and blunt, and sometimes startling. It also states that because of this behavior, the acquaintances tend to avoid Mrs. Ochiltree. Together, these details suggest that the acquaintances choose not to be around Mrs. Ochiltree because they are offended by the things she has said about them. Choice A is incorrect because the text doesn’t suggest that Mrs. Ochiltree’s acquaintances avoid discussing topics that would upset Mrs. Ochiltree; instead, it states that they avoid being around Mrs. Ochiltree at all. Choice B is incorrect because the text makes it clear that Mrs. Ochiltree knows her acquaintances often avoid her and is pleased about it (she “rather exulted in it”), not that she wants to spend more time with them. Choice C is incorrect because the text doesn’t suggest that Mrs. Ochiltree’s acquaintances don’t speak with Mrs. Ochiltree because they are too focused on their own concerns, but rather because they don’t like the frank comments she makes."
+  },
+  {
+    "id": 52,
+    "question": "Cats can judge unseen people’s positions in space by the sound of their voices and thus react with surprise when the same person calls to them from two different locations in a short span of time. Saho Takagi and colleagues reached this conclusion by measuring cats’ levels of surprise based on their ear and head movements while the cats heard recordings of their owners’ voices from two speakers spaced far apart. Cats exhibited a low level of surprise when owners’ voices were played twice from the same speaker, but they showed a high level of surprise when the voice was played once each from the two different speakers. According to the text, how did the researchers determine the level of surprise displayed by the cats in the study?",
+    "options": {
+      "A": "They watched how each cat moved its ears and head.",
+      "B": "They examined how each cat reacted to the voice of a stranger.",
+      "C": "They studied how each cat physically interacted with its owner.",
+      "D": "They tracked how each cat moved around the room."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it explains how the researchers determined the level of surprise displayed by the cats in the study. The text states that Saho Takagi and colleagues played recordings of the voice of each cat’s owner and measured how surprised the cat was by the recording based on how it moved its ears and head. Choice B is incorrect because, as the text explains, the recordings played for each cat in the study were of the voice of the cat’s owner, not a stranger’s voice. Choice C is incorrect because the text explains that during the study, the cats didn’t interact directly with their owners; instead, the cats listened to recordings of their owners’ voices. Choice D is incorrect because the text doesn’t indicate that the researchers monitored the cats’ movement around the room in which the study was conducted."
+  }
+];
+ 
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">${formatQuestion(data.question, `Câu ${index + 1}: `)}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script src="quiz-pager.js" defer></script>
+</body>
+</html>
