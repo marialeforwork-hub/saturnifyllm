@@ -1348,11 +1348,22 @@
 
     function initializeQuestionTiming() {
         const blocks = getQuestionBlocks();
+        if (new URLSearchParams(window.location.search).get('saturnifyQuestionTimer') !== '1') return;
         if (!blocks.length || window.__saturnifyQuestionTimingReady) return;
 
         window.__saturnifyQuestionTimingReady = true;
         window.__saturnifyQuestionTimes = questionTimes;
         window.__commitSaturnifyQuestionTime = commitQuestionTime;
+        window.__saturnifyRestoreQuestionTimes = savedTimes => {
+            if (!savedTimes || typeof savedTimes !== 'object') return;
+            Object.entries(savedTimes).forEach(([questionNumber, seconds]) => {
+                const parsed = Number(seconds);
+                if (Number.isFinite(parsed) && parsed >= 0) {
+                    questionTimes[questionNumber] = parsed;
+                }
+            });
+            updateQuestionTimerReadout();
+        };
 
         const setCurrentNavigatorQuestion = index => {
             const buttons = getNavigatorButtons();
@@ -1372,6 +1383,17 @@
             activeQuestionStartedAt = Date.now();
             window.__saturnifyHideSelectionToolbar?.();
             setCurrentNavigatorQuestion(nextIndex);
+            updateQuestionTimerReadout();
+        };
+        const updateQuestionTimerReadout = () => {
+            if (activeQuestionIndex < 0) return;
+            const elapsedSeconds = (questionTimes[activeQuestionIndex + 1] || 0) +
+                (activeQuestionStartedAt ? (Date.now() - activeQuestionStartedAt) / 1000 : 0);
+            window.parent.postMessage({
+                type: 'SAT_QUESTION_TIMER',
+                questionNumber: activeQuestionIndex + 1,
+                elapsedSeconds
+            }, '*');
         };
         window.__saturnifyActivateQuestion = activateQuestion;
 
@@ -1389,6 +1411,8 @@
         activeQuestionIndex = 0;
         activeQuestionStartedAt = Date.now();
         setCurrentNavigatorQuestion(activeQuestionIndex);
+        updateQuestionTimerReadout();
+        window.setInterval(updateQuestionTimerReadout, 1000);
         window.addEventListener('beforeunload', commitQuestionTime, { once: true });
     }
 
@@ -1500,6 +1524,13 @@
         if (typeof window.__saturnifyOnQuizReset === 'function') {
             try { window.__saturnifyOnQuizReset({ keepHighlights }); } catch (e) {}
         }
+
+        Object.keys(questionTimes).forEach(questionNumber => delete questionTimes[questionNumber]);
+        activeQuestionStartedAt = activeQuestionIndex >= 0 ? Date.now() : 0;
+        window.parent.postMessage({
+            type: 'SAT_QUIZ_RESET',
+            quizTitle: document.title || ''
+        }, '*');
 
         showQuizToast(keepHighlights ? '🔄 Đã làm lại bài (đã giữ lại highlight)!' : '🔄 Đã làm lại bài và xóa hết highlight!');
     }
