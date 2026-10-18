@@ -1179,6 +1179,17 @@
                     <div class="progress-container"><div class="progress-bar"></div></div>
                     <div class="progress-text">Chưa bắt đầu</div>
                 </li>
+                <li class="quiz-item" data-title="CENTRAL IDEAS AND DETAILS - Question Bank - MEDIUM" data-storage-key="centralidea_medium">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 CENTRAL IDEAS AND DETAILS - Question Bank - MEDIUM</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('centralidea_medium.html', 'CENTRAL IDEAS AND DETAILS - Question Bank - MEDIUM', 'centralidea_medium')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('centralidea_medium')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
             </ul>
         </div>
     </div>
@@ -1307,8 +1318,8 @@
     window.sendResultToFirebase = window.sendResultToFirebase || function() {};
 
     const STUDENT_PASSCODES = {
-        "THUVINH":  { name: "Thu Vinh", role: "math_only" },
-        "GIAHIEN":  { name: "Gia Hiển", role: "math_only" },
+        "THUVINH":  { name: "Thu Vinh", role: "full_student" },
+        "DUCANH":  { name: "Đức Anh", role: "full_student" },
         "DINHANH":  { name: "Đình Anh", role: "full_student" },
         "BAOANH":  { name: "Bảo Anh", role: "full_student" },
         "ANHKHOA":  { name: "Anh Khoa", role: "full_student" },
