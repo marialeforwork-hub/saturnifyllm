@@ -327,27 +327,167 @@
         .category-toggle:focus-visible { outline: 3px solid rgba(242, 184, 75, .65); outline-offset: 3px; }
         .quiz-category.is-collapsed .quiz-list { display: none; }
         .quiz-category.is-collapsed .category-title { margin-bottom: 0; }
-        .quiz-list { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+        .quiz-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+            align-items: start;
+            gap: 1.25rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .quiz-group-card {
+            min-width: 0;
+            padding: 0 1.1rem 1rem;
+            overflow: hidden;
+            border: 1px solid rgba(101, 98, 198, .15);
+            border-radius: var(--radius-lg);
+            background: var(--color-surface);
+            box-shadow: 0 .4rem 1.2rem rgba(77, 83, 162, .06);
+        }
+        .quiz-group-cover {
+            display: flex;
+            min-height: 6.5rem;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin: 0 -1.1rem;
+            padding: 1.1rem;
+            background:
+                radial-gradient(ellipse 9rem 6rem at 90% 0%, rgba(101, 98, 198, .13) 0 70%, transparent 71%),
+                radial-gradient(ellipse 6rem 5rem at 100% 100%, rgba(88, 188, 216, .16) 0 70%, transparent 71%),
+                linear-gradient(135deg, #f0effb, #fff0f4 55%, #eaf8fb);
+        }
+        .quiz-group-kicker,
+        .quiz-group-count {
+            display: inline-flex;
+            min-height: 2rem;
+            align-items: center;
+            padding: .4rem .75rem;
+            border: 1px solid rgba(255, 255, 255, .75);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .78);
+            color: var(--ink-950);
+            font: 700 .67rem 'DM Mono', Consolas, monospace;
+        }
+        .quiz-group-content { padding-top: .9rem; }
+        .quiz-group-title { margin: 0; color: var(--ink-950); font-size: 1.15rem; font-weight: 800; line-height: 1.35; }
+        .quiz-group-description { margin: .35rem 0 .9rem; color: var(--color-muted); font-size: .8rem; line-height: 1.45; }
+        .quiz-group-progress { margin: 0 0 .85rem; color: var(--color-muted); font: 500 .68rem 'DM Mono', Consolas, monospace; }
+        .quiz-group-toggle {
+            display: inline-flex;
+            width: 100%;
+            min-height: 2.75rem;
+            align-items: center;
+            justify-content: space-between;
+            gap: .6rem;
+            padding: .65rem .9rem;
+            border: 1px solid var(--color-line);
+            border-radius: var(--button-radius);
+            background: transparent;
+            color: var(--ink-950);
+            cursor: pointer;
+            font: 700 .75rem 'DM Mono', Consolas, monospace;
+        }
+        .quiz-group-toggle:hover { background: var(--sand-100); }
+        .quiz-group-toggle:focus-visible { outline: 3px solid rgba(242, 184, 75, .65); outline-offset: 3px; }
+        .quiz-group-chevron { transition: transform .2s ease; }
+        .quiz-group-card.is-expanded .quiz-group-chevron { transform: rotate(180deg); }
+        .quiz-group-list { grid-template-columns: minmax(0, 1fr); gap: .75rem; margin-top: 1rem; }
+        .quiz-group-list[hidden] { display: none; }
+        .quiz-group-list .quiz-item {
+            min-height: 0;
+            grid-template-rows: 3.5rem auto auto .5rem auto auto auto;
+            padding: 0 .9rem .8rem;
+            border-radius: var(--radius-md);
+            box-shadow: none;
+        }
+        .quiz-group-list .quiz-item::before { margin: 0 -.9rem; }
+        .quiz-group-list .quiz-item::after { margin: .8rem; font-size: .6rem; }
+        .quiz-group-list .quiz-title { margin: .8rem 0 .45rem; font-size: .95rem; }
+        .quiz-group-list .quiz-meta-item { min-height: 1.8rem; padding: .3rem .55rem; font-size: .68rem; }
+        .quiz-group-list .action-btns { grid-row: 5; }
+        .quiz-group-list .action-btns button { min-height: 2.4rem; }
+        .quiz-group-list .quiz-item .progress-container { grid-row: 6; margin-top: .65rem; }
+        .quiz-group-list .quiz-item .progress-text { grid-row: 7; }
 
         .quiz-item {
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
+            position: relative;
+            display: grid;
+            grid-template-rows: 8rem auto auto 1fr auto auto auto;
+            min-width: 0;
+            min-height: 19rem;
             margin: 0;
-            padding: 1.15rem 1.25rem;
-            border: 1px solid var(--color-line);
-            border-radius: var(--radius-md);
+            padding: 0 1.25rem 1.15rem;
+            overflow: hidden;
+            border: 1px solid rgba(101, 98, 198, .13);
+            border-radius: var(--radius-lg);
             background: var(--color-surface);
+            box-shadow: 0 .4rem 1.2rem rgba(77, 83, 162, .06);
             transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
         }
-        .quiz-item:hover { border-color: rgba(101, 98, 198, .38); box-shadow: 0 .7rem 1.8rem rgba(101, 98, 198, .11); transform: translateX(.25rem); }
-        .quiz-item-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .85rem; }
-        .quiz-title { color: var(--ink-950); font-size: .98rem; font-weight: 700; line-height: 1.4; }
-        .action-btns { display: flex; flex: 0 0 auto; gap: .5rem; }
-        .btn-start { min-height: 2.45rem; padding: .55rem .95rem; font-size: .76rem; }
+        .quiz-item::before {
+            grid-area: 1 / 1;
+            margin: 0 -1.25rem;
+            background:
+                radial-gradient(ellipse 11rem 8rem at 90% 0%, rgba(101, 98, 198, .12) 0 70%, transparent 71%),
+                radial-gradient(ellipse 6rem 5rem at 100% 100%, rgba(88, 188, 216, .16) 0 70%, transparent 71%),
+                radial-gradient(ellipse 9rem 7rem at 0% 100%, rgba(251, 113, 139, .11), transparent 72%),
+                linear-gradient(135deg, #f0effb, #fff0f4 55%, #eaf8fb);
+            content: '';
+        }
+        .quiz-item::after {
+            grid-area: 1 / 1;
+            align-self: start;
+            justify-self: start;
+            margin: 1.25rem;
+            padding: .45rem .8rem;
+            border: 1px solid rgba(255, 255, 255, .7);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .75);
+            color: var(--ink-950);
+            content: 'SAT PRACTICE';
+            font: 700 .65rem 'DM Mono', Consolas, monospace;
+            letter-spacing: .06em;
+        }
+        .quiz-item:hover { border-color: rgba(101, 98, 198, .38); box-shadow: 0 .8rem 2rem rgba(101, 98, 198, .12); transform: translateY(-3px); }
+        .quiz-item-header { display: contents; }
+        .quiz-title {
+            grid-row: 2;
+            align-self: end;
+            margin: 1.2rem 0 .65rem;
+            color: var(--ink-950);
+            font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+            font-weight: 800;
+            line-height: 1.35;
+        }
+        .quiz-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .55rem;
+            grid-row: 3;
+            min-height: 2rem;
+            color: var(--ink-800);
+        }
+        .quiz-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            min-height: 2rem;
+            padding: .4rem .7rem;
+            border: 1px solid rgba(101, 98, 198, .06);
+            border-radius: 999px;
+            background: #f8f7f5;
+            font: 500 .75rem 'DM Mono', Consolas, monospace;
+            white-space: nowrap;
+        }
+        .quiz-meta-item svg { width: 1rem; height: 1rem; flex: 0 0 auto; color: var(--slate-500); }
+        .action-btns { display: flex; grid-row: 5; gap: .5rem; align-self: end; }
+        .btn-start { min-height: 2.75rem; flex: 1; padding: .65rem .95rem; font-size: .76rem; }
         .btn-reset,
         .btn-exit {
-            min-height: 2.45rem;
+            min-height: 2.75rem;
             padding: .55rem .85rem;
             border: 1px solid var(--ink-950);
             border-radius: var(--button-radius);
@@ -360,9 +500,9 @@
         .btn-reset:hover,
         .btn-exit:hover { background: var(--ink-950); color: #fff; }
 
-        .progress-container { width: 100%; height: .45rem; margin-top: .15rem; overflow: hidden; border-radius: 99px; background: var(--sand-200); box-shadow: none; }
+        .quiz-item .progress-container { grid-row: 6; width: 100%; height: .4rem; margin-top: .85rem; overflow: hidden; border-radius: 99px; background: var(--sand-200); box-shadow: none; }
         .progress-bar { height: 100%; color: transparent; background: linear-gradient(90deg, var(--gold-400), var(--mint-500)); transition: width .4s ease; }
-        .progress-text { margin-top: .55rem; color: var(--color-muted); font: 500 .7rem 'DM Mono', Consolas, monospace; text-align: right; }
+        .quiz-item .progress-text { grid-row: 7; margin: .45rem 0 0; color: var(--color-muted); font: 500 .68rem 'DM Mono', Consolas, monospace; text-align: right; }
 
         #toastMessage { right: 1.25rem; bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid rgba(255, 255, 255, .25); border-radius: var(--radius-md); background: var(--ink-950); box-shadow: var(--shadow-card); color: #fff; font: 500 .78rem 'DM Mono', Consolas, monospace; }
         #quizRunner { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; background: var(--sand-50); }
@@ -428,7 +568,10 @@
             .login-box input[type="text"],
             .login-box button { width: 100%; }
             .login-box button { margin: .75rem 0 0; }
-            .quiz-item-header { align-items: flex-start; flex-direction: column; }
+            .quiz-list { grid-template-columns: minmax(0, 1fr); gap: .9rem; }
+            .quiz-item { min-height: 18rem; }
+            .quiz-group-card { padding-right: .85rem; padding-left: .85rem; }
+            .quiz-group-cover { margin-right: -.85rem; margin-left: -.85rem; }
             .action-btns { width: 100%; }
             .action-btns button { flex: 1; }
             #timerHeader { grid-template-columns: minmax(0, 1fr) auto; gap: .3rem .6rem; padding: .5rem .75rem; }
@@ -1374,6 +1517,43 @@
                         const radioNames = new Set([...doc.querySelectorAll('input[type="radio"]')].map(i => i.name));
                         count = radioNames.size;
                     }
+                    if (count === 0) {
+                        const quizDataScript = [...doc.scripts]
+                            .map(script => script.textContent.match(/\b(?:const|let|var)\s+quizData\s*=\s*\[/))
+                            .find(match => match);
+                        if (quizDataScript) {
+                            const scriptText = quizDataScript.input;
+                            let squareDepth = 0;
+                            let objectDepth = 0;
+                            let stringQuote = '';
+                            let escaped = false;
+                            let objectCount = 0;
+
+                            for (let index = quizDataScript.index; index < scriptText.length; index++) {
+                                const character = scriptText[index];
+                                if (stringQuote) {
+                                    if (escaped) escaped = false;
+                                    else if (character === '\\') escaped = true;
+                                    else if (character === stringQuote) stringQuote = '';
+                                    continue;
+                                }
+                                if (character === '"' || character === "'" || character === '`') {
+                                    stringQuote = character;
+                                } else if (character === '[') {
+                                    squareDepth++;
+                                } else if (character === ']') {
+                                    squareDepth--;
+                                    if (squareDepth === 0) break;
+                                } else if (character === '{') {
+                                    if (squareDepth === 1 && objectDepth === 0) objectCount++;
+                                    objectDepth++;
+                                } else if (character === '}') {
+                                    objectDepth--;
+                                }
+                            }
+                            count = objectCount;
+                        }
+                    }
                     if (count > 0) item.setAttribute('data-total', count);
                 } catch (e) { console.log("Chưa quét file:", quizUrl); }
             }
@@ -1426,12 +1606,115 @@
         location.reload();
     }
 
+    function getQuizGroup(title) {
+        const normalizedTitle = title.trim().toLowerCase();
+        const groups = [
+            { match: /^đề practice ex\d+$/, title: 'Đề Practice SAT', description: 'Các đề luyện tập theo mã bài.' },
+            { match: /^math practice - orxan\b/, title: 'Math Practice - ORXAN', description: 'Các đề ORXAN và bài tuyển chọn.' },
+            { match: /^basic arithmetic - /, title: 'Basic Arithmetic', description: 'Luyện tập số học theo từng cấp độ.' },
+            { match: /^function - /, title: 'Function', description: 'Luyện tập hàm số theo từng cấp độ.' },
+            { match: /^circular - /, title: 'Circular', description: 'Luyện tập dạng Circular theo từng cấp độ.' },
+            { match: /^word in context\b/, title: 'Word in Context', description: 'Các bài luyện từ vựng trong ngữ cảnh.' },
+            { match: /^rhetorical synthesis\b/, title: 'Rhetorical Synthesis', description: 'Các bài luyện tổng hợp thông tin và mục đích tu từ.' },
+            { match: /^text structure and purpose\b/, title: 'Text Structure and Purpose', description: 'Các bài đọc về cấu trúc và mục đích văn bản.' },
+            { match: /^cross-text connection\b/, title: 'Cross-Text Connection', description: 'Các bài đọc kết nối và đối chiếu văn bản.' },
+            { match: /^central ideas and details\b/, title: 'Central Ideas and Details', description: 'Các bài đọc về ý chính và chi tiết.' }
+        ];
+        return groups.find(group => group.match.test(normalizedTitle)) || null;
+    }
+
+    function groupQuizCards() {
+        const groupsByList = new Map();
+        document.querySelectorAll('.quiz-item').forEach(item => {
+            const group = getQuizGroup(item.getAttribute('data-title') || '');
+            if (!group) return;
+            const list = item.parentElement;
+            if (!groupsByList.has(list)) groupsByList.set(list, new Map());
+            const groups = groupsByList.get(list);
+            if (!groups.has(group.title)) groups.set(group.title, { ...group, items: [] });
+            groups.get(group.title).items.push(item);
+        });
+
+        groupsByList.forEach(groups => {
+            groups.forEach(group => {
+                if (group.items.length < 2) return;
+                const card = document.createElement('li');
+                card.className = 'quiz-group-card';
+                card.dataset.groupTitle = group.title.toLowerCase();
+
+                const cover = document.createElement('div');
+                cover.className = 'quiz-group-cover';
+                const kicker = document.createElement('span');
+                kicker.className = 'quiz-group-kicker';
+                kicker.textContent = 'NHÓM BÀI TẬP';
+                const count = document.createElement('span');
+                count.className = 'quiz-group-count';
+                count.textContent = `${group.items.length} bài`;
+                cover.append(kicker, count);
+
+                const content = document.createElement('div');
+                content.className = 'quiz-group-content';
+                const title = document.createElement('h3');
+                title.className = 'quiz-group-title';
+                title.textContent = group.title;
+                const description = document.createElement('p');
+                description.className = 'quiz-group-description';
+                description.textContent = group.description;
+                const progress = document.createElement('p');
+                progress.className = 'quiz-group-progress';
+                progress.textContent = 'Chưa có tiến độ';
+
+                const toggle = document.createElement('button');
+                toggle.type = 'button';
+                toggle.className = 'quiz-group-toggle';
+                toggle.setAttribute('aria-expanded', 'false');
+                const toggleLabel = document.createElement('span');
+                toggleLabel.textContent = 'Xem các bài';
+                const chevron = document.createElement('span');
+                chevron.className = 'quiz-group-chevron';
+                chevron.setAttribute('aria-hidden', 'true');
+                chevron.textContent = '⌄';
+                toggle.append(toggleLabel, chevron);
+                toggle.addEventListener('click', () => toggleQuizGroup(card));
+
+                const childList = document.createElement('ul');
+                childList.className = 'quiz-list quiz-group-list';
+                childList.hidden = true;
+
+                content.append(title, description, progress, toggle);
+                card.append(cover, content, childList);
+                group.items[0].before(card);
+                group.items.forEach(item => childList.append(item));
+            });
+        });
+    }
+
+    function toggleQuizGroup(card, expanded) {
+        const list = card.querySelector('.quiz-group-list');
+        const button = card.querySelector('.quiz-group-toggle');
+        const isExpanded = expanded ?? list.hidden;
+        list.hidden = !isExpanded;
+        card.classList.toggle('is-expanded', isExpanded);
+        button.setAttribute('aria-expanded', String(isExpanded));
+        button.querySelector('span').textContent = isExpanded ? 'Thu gọn' : 'Xem các bài';
+    }
+
     function filterQuizzes() {
-        let input = document.getElementById('searchInput').value.toLowerCase();
-        let items = document.querySelectorAll('.quiz-item');
-        items.forEach(item => {
-            let title = item.getAttribute('data-title').toLowerCase();
-            item.style.display = title.includes(input) ? 'flex' : 'none';
+        const input = document.getElementById('searchInput').value.trim().toLowerCase();
+        document.querySelectorAll('.quiz-group-card').forEach(card => {
+            const items = [...card.querySelectorAll('.quiz-item')];
+            const matches = items.filter(item => (item.getAttribute('data-title') || '').toLowerCase().includes(input));
+            const groupMatches = card.dataset.groupTitle.includes(input);
+            card.style.display = !input || matches.length || groupMatches ? '' : 'none';
+            items.forEach(item => {
+                item.style.display = !input || groupMatches || matches.includes(item) ? '' : 'none';
+            });
+            toggleQuizGroup(card, Boolean(input && (groupMatches || matches.length)));
+        });
+        document.querySelectorAll('.quiz-item').forEach(item => {
+            if (item.closest('.quiz-group-card')) return;
+            const title = (item.getAttribute('data-title') || '').toLowerCase();
+            item.style.display = !input || title.includes(input) ? '' : 'none';
         });
     }
 
@@ -1446,6 +1729,19 @@
         button.setAttribute('aria-expanded', String(!isCollapsed));
         button.setAttribute('title', isCollapsed ? 'Mở rộng danh sách' : 'Thu gọn danh sách');
         button.textContent = isCollapsed ? 'Mở rộng' : 'Thu gọn';
+    }
+
+    function updateQuizGroupProgress() {
+        document.querySelectorAll('.quiz-group-card').forEach(card => {
+            const items = [...card.querySelectorAll('.quiz-item')];
+            const started = items.filter(item => Number(item.dataset.answered) > 0).length;
+            const answered = items.reduce((sum, item) => sum + (Number(item.dataset.answered) || 0), 0);
+            const total = items.reduce((sum, item) => sum + (Number(item.dataset.total) || 0), 0);
+            const progress = card.querySelector('.quiz-group-progress');
+            progress.textContent = total
+                ? `${started}/${items.length} bài đang làm • ${answered}/${total} câu đã trả lời`
+                : started ? `${started}/${items.length} bài đang làm` : 'Chưa có tiến độ';
+        });
     }
 
     function updateAllProgressBars() {
@@ -1466,9 +1762,32 @@
             }
 
             let total = parseInt(savedTotal) || parseInt(item.getAttribute('data-total')) || 0;
+            item.dataset.answered = String(answeredCount);
+            item.dataset.total = String(total);
             const bar = item.querySelector('.progress-bar');
             const text = item.querySelector('.progress-text');
             const startBtn = item.querySelector('.btn-start');
+            let meta = item.querySelector('.quiz-meta');
+            if (!meta) {
+                meta = document.createElement('div');
+                meta.className = 'quiz-meta';
+                const header = item.querySelector('.quiz-item-header');
+                if (header) header.insertAdjacentElement('afterend', meta);
+            }
+            const detectedTotal = total > 0 ? `${total} câu hỏi` : 'Số câu chưa rõ';
+            meta.innerHTML = `
+                <span class="quiz-meta-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+                    </svg>
+                    Thời gian tùy chọn
+                </span>
+                <span class="quiz-meta-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                        <path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path><path d="M14 3v5h5M9 13h6M9 17h6"></path>
+                    </svg>
+                    ${detectedTotal}
+                </span>`;
             
             if (bar && text) {
                 if (total > 0) {
@@ -1499,6 +1818,7 @@
                 }
             }
         });
+        updateQuizGroupProgress();
     }
 
     function renderStudentHistory() {
@@ -2323,6 +2643,7 @@
     }
 
     window.onload = function() {
+        groupQuizCards();
         if (sessionStorage.getItem('userRole')) {
             applyAccessRights();
         }
