@@ -1037,8 +1037,8 @@
         resultsBody.innerHTML = '';
 
         const filteredResults = rawResultsData.filter(item => {
-            const nameMatch = (item.name || item.studentName || '').toLowerCase().includes(keyword);
-            const idMatch = (item.id || item.studentId || '').toLowerCase().includes(keyword);
+            const nameMatch = String(item.name || item.studentName || '').toLowerCase().includes(keyword);
+            const idMatch = String(item.id || item.studentId || '').toLowerCase().includes(keyword);
             const quizMatch = selectedQuiz === 'ALL' || item.quizTitle === selectedQuiz;
             return (nameMatch || idMatch) && quizMatch;
         });
@@ -1074,8 +1074,8 @@
         draftsBody.innerHTML = '';
 
         const filteredDrafts = rawDraftsData.filter(item => {
-            const nameMatch = (item.studentName || '').toLowerCase().includes(keyword);
-            const idMatch = (item.studentId || '').toLowerCase().includes(keyword);
+            const nameMatch = String(item.studentName || '').toLowerCase().includes(keyword);
+            const idMatch = String(item.studentId || '').toLowerCase().includes(keyword);
             const quizTitle = item.quizTitle || item.storageKey || '';
             const quizMatch = selectedQuiz === 'ALL' || quizTitle === selectedQuiz;
             return (nameMatch || idMatch) && quizMatch;
