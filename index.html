@@ -1459,6 +1459,11 @@
 <script>
     window.syncDraftToFirebase = window.syncDraftToFirebase || function() {};
     window.sendResultToFirebase = window.sendResultToFirebase || function() {};
+    let resolveDraftApiReady;
+    window.saturnifyDraftApiReady = new Promise(resolve => {
+        resolveDraftApiReady = resolve;
+    });
+    window.resolveSaturnifyDraftApiReady = () => resolveDraftApiReady();
 
     const STUDENT_PASSCODES = {
         "THUVINH":  { name: "Thu Vinh", role: "full_student" },
@@ -1483,6 +1488,7 @@
     let pendingSubmitEvent = null;
     let bypassInterceptor = false;
     let trackedQuestionNumber = 0;
+    let isRestoringDraft = false;
 
     function showToast(msg) {
         const toast = document.getElementById('toastMessage');
@@ -2115,59 +2121,123 @@
         const joinChar = selectedQuizUrl.includes('?') ? '&' : '?';
         const questionTimerParam = questionTimingEnabled ? '1' : '0';
 
-        iframe.onload = function() {
-            installIframeResultHistoryStorageGuard();
-            const quizItem = [...document.querySelectorAll('.quiz-item')]
-                .find(item => item.getAttribute('data-storage-key') === selectedQuizStorageKey);
-            if (quizItem && iframe.contentDocument?.title) {
-                quizItem.dataset.documentTitle = iframe.contentDocument.title.trim();
+        isRestoringDraft = true;
+        iframe.style.visibility = 'hidden';
+        iframe.onload = async function() {
+            try {
+                installIframeResultHistoryStorageGuard();
+                const quizItem = [...document.querySelectorAll('.quiz-item')]
+                    .find(item => item.getAttribute('data-storage-key') === selectedQuizStorageKey);
+                if (quizItem && iframe.contentDocument?.title) {
+                    quizItem.dataset.documentTitle = iframe.contentDocument.title.trim();
+                }
+                setupIframeSubmitInterceptor();
+                setupBookmarkAndNavigation();
+                setupCurrentQuestionTracking();
+                await restoreDraftToIframe();
+                restoreSavedAnnotationsToIframe();
+            } catch (error) {
+                console.error('Không thể khởi tạo bài quiz:', error);
+                showToast('⚠️ Không thể tải đầy đủ tiến độ bài làm.');
+            } finally {
+                isRestoringDraft = false;
+                iframe.style.visibility = '';
+                updateAllProgressBars();
             }
-            setupIframeSubmitInterceptor();
-            setupBookmarkAndNavigation();
-            setupCurrentQuestionTracking();
-            restoreDraftToIframe();
-            restoreSavedAnnotationsToIframe();
         };
 
         iframe.src = selectedQuizUrl + joinChar + 'studentName=' + encodeURIComponent(curName) + '&studentId=' + encodeURIComponent(curId) + '&saturnifyQuestionTimer=' + questionTimerParam;
         document.getElementById('quizRunner').classList.remove('hidden');
     }
 
-    function restoreDraftToIframe() {
+    async function restoreDraftToIframe() {
+        const studentId = sessionStorage.getItem('studentId');
+        if (!studentId || !selectedQuizStorageKey) return;
+
+        const draftKey = `quiz_draft_${studentId}_${selectedQuizStorageKey}`;
+        let savedAnswers = {};
+        let questionTimes = {};
+
         try {
-            const studentId = sessionStorage.getItem('studentId');
-            if (!studentId || !selectedQuizStorageKey) return;
-
-            const draftKey = `quiz_draft_${studentId}_${selectedQuizStorageKey}`;
             const savedRaw = localStorage.getItem(draftKey);
-            if (!savedRaw) return;
+            if (savedRaw) {
+                const localAnswers = JSON.parse(savedRaw);
+                if (localAnswers && typeof localAnswers === 'object' && !Array.isArray(localAnswers)) {
+                    savedAnswers = localAnswers;
+                }
+            }
+            const savedQuestionTimes = localStorage.getItem(draftKey + '_times');
+            if (savedQuestionTimes) {
+                const localQuestionTimes = JSON.parse(savedQuestionTimes);
+                if (localQuestionTimes && typeof localQuestionTimes === 'object' && !Array.isArray(localQuestionTimes)) {
+                    questionTimes = localQuestionTimes;
+                }
+            }
+        } catch (error) {
+            console.warn('Không thể đọc tiến độ đã lưu trên thiết bị này:', error);
+        }
 
-            const savedAnswers = JSON.parse(savedRaw);
+        try {
+            await Promise.race([
+                window.saturnifyDraftApiReady,
+                new Promise(resolve => setTimeout(resolve, 5000))
+            ]);
+            if (typeof window.loadDraftFromFirebase !== 'function') {
+                throw new Error('Dịch vụ tải tiến độ Cloud chưa sẵn sàng.');
+            }
+            const cloudDraft = await window.loadDraftFromFirebase(studentId, selectedQuizStorageKey);
+            if (cloudDraft?.answers && typeof cloudDraft.answers === 'object' && !Array.isArray(cloudDraft.answers)) {
+                savedAnswers = cloudDraft.answers;
+                questionTimes = cloudDraft.questionTimes && typeof cloudDraft.questionTimes === 'object'
+                    ? cloudDraft.questionTimes
+                    : {};
+            }
+        } catch (error) {
+            console.error('Không thể tải tiến độ làm bài từ Cloud:', error);
+            showToast('⚠️ Không tải được tiến độ từ Cloud; sẽ thử dùng bản lưu trên thiết bị.');
+        }
+
+        try {
             const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
+            iframeDoc.querySelectorAll('input[type="radio"]').forEach(input => { input.checked = false; });
+            iframeDoc.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => { input.value = ''; });
 
             Object.entries(savedAnswers).forEach(([qName, val]) => {
-                const radio = iframeDoc.querySelector(`input[type="radio"][name="${qName}"][value="${val}"]`);
+                const radio = [...iframeDoc.querySelectorAll('input[type="radio"]')]
+                    .find(input => input.name === qName && input.value === String(val));
                 if (radio) {
                     radio.checked = true;
                     radio.dispatchEvent(new Event('change', { bubbles: true }));
                 } else {
-                    const textInput = iframeDoc.querySelector(`input[name="${qName}"]`);
+                    const textInput = [...iframeDoc.querySelectorAll('input[name]')]
+                        .find(input => input.name === qName && input.type !== 'radio');
                     if (textInput) {
-                        textInput.value = val;
+                        textInput.value = String(val);
                         textInput.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 }
             });
-            const savedQuestionTimes = localStorage.getItem(draftKey + '_times');
-            if (savedQuestionTimes) {
-                iframeDoc.defaultView.__saturnifyRestoreQuestionTimes?.(JSON.parse(savedQuestionTimes));
+            try {
+                localStorage.setItem(draftKey, JSON.stringify(savedAnswers));
+                localStorage.setItem(draftKey + '_times', JSON.stringify(questionTimes));
+                const totalQuestions = iframeDoc.querySelectorAll('.question-block, .question').length;
+                if (totalQuestions > 0) localStorage.setItem(draftKey + '_total', String(totalQuestions));
+            } catch (error) {
+                console.warn('Không thể cập nhật bản lưu tiến độ trên thiết bị này:', error);
             }
-            console.log("🔄 [Restore] Đã khôi phục thành công các đáp án đã chọn!");
-        } catch (e) { console.log("Lỗi khôi phục nháp iframe:", e); }
+            iframeDoc.defaultView.__saturnifyRestoreQuestionTimes?.(questionTimes);
+            if (Object.keys(savedAnswers).length) {
+                console.log('🔄 [Restore] Đã khôi phục tiến độ làm bài!');
+            }
+        } catch (error) {
+            console.error('Không thể khôi phục tiến độ vào bài quiz:', error);
+            showToast('⚠️ Không thể khôi phục tiến độ bài làm.');
+        }
     }
 
     // TÍNH NĂNG BẢO LƯU TIẾN ĐỘ (SAVE PROGRESS)
     function captureAndSaveDraftFromIframe(showNotification = false) {
+        if (isRestoringDraft) return;
         try {
             const studentId = sessionStorage.getItem('studentId');
             const studentName = sessionStorage.getItem('studentName');
@@ -2807,7 +2877,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
@@ -2821,6 +2891,13 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    window.loadDraftFromFirebase = async function(studentId, storageKey) {
+        const draftRef = doc(db, "drafts", `${studentId}_${storageKey}`);
+        const draftSnapshot = await getDoc(draftRef);
+        return draftSnapshot.exists() ? draftSnapshot.data() : null;
+    };
+    window.resolveSaturnifyDraftApiReady?.();
 
     window.syncDraftToFirebase = async function(draftData) {
         try {
