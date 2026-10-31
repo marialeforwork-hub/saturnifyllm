@@ -1348,8 +1348,8 @@
                     <div class="quiz-item-header">
                         <span class="quiz-title">📝 TRANSITIONS - Question Bank - MEDIUM</span>
                         <div class="action-btns">
-                            <button class="btn-start" onclick="openTimerModal('transition_medium.html', 'TRANSITIONS - Question Bank - MEDIUM', 'transition_medium')">Làm bài</button>
-                            <button class="btn-reset" onclick="resetQuizProgress('transition_medium')">🔄 Làm lại</button>
+                            <button class="btn-start" onclick="openTimerModal('transitions_medium.html', 'TRANSITIONS - Question Bank - MEDIUM', 'transitions_medium')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('transitions_medium')">🔄 Làm lại</button>
                         </div>
                     </div>
                     <div class="progress-container"><div class="progress-bar"></div></div>
@@ -1646,7 +1646,8 @@
             { match: /^rhetorical synthesis\b/, title: 'Rhetorical Synthesis', description: 'Các bài luyện tổng hợp thông tin và mục đích tu từ.' },
             { match: /^text structure and purpose\b/, title: 'Text Structure and Purpose', description: 'Các bài đọc về cấu trúc và mục đích văn bản.' },
             { match: /^cross-text connection\b/, title: 'Cross-Text Connection', description: 'Các bài đọc kết nối và đối chiếu văn bản.' },
-            { match: /^central ideas and details\b/, title: 'Central Ideas and Details', description: 'Các bài đọc về ý chính và chi tiết.' }
+            { match: /^central ideas and details\b/, title: 'Central Ideas and Details', description: 'Các bài đọc về ý chính và chi tiết.' },
+            { match: /^transitions?\b/, title: 'Transitions', description: 'Các bài luyện sử dụng từ nối và chuyển ý, gồm quiz và ngân hàng câu hỏi theo cấp độ.' }
         ];
         return groups.find(group => group.match.test(normalizedTitle)) || null;
     }
