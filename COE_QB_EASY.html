@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COE - QUESTION BANK - EASY</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; white-space: pre-line; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; white-space: pre-line; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <script src="quiz-state.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>COE: QUESTION BANK - EASY</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const quizData = [
+  {
+    "id": 1,
+    "question": "<img src=\"COE_QB_EASY_images/q01_75e07a4d.png\" alt=\"Question 1\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "shrimp cocktail for meal B.",
+      "B": "hot cocoa for meal C.",
+      "C": "sugar cookie cubes for meal B.",
+      "D": "chicken and vegetables for meal A."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the table to complete the statement. The table shows that on day 1, the menu for NASA’s Gemini missions included sugar cookie cubes for meal B. Choice A is incorrect because according to the table, shrimp cocktail was served on day 4, not day 1; moreover, the item was served for meal C, not meal B, as this choice claims. Choice B is incorrect because according to the table, hot cocoa was served on day 3, not on day 1; moreover, the item was served for meal A, not for meal C, as this choice claims. Choice D is incorrect because according to the table, chicken and vegetables were served on day 2, not on day 1; moreover, the item was served for meal B, not for meal A, as this choice claims."
+  },
+  {
+    "id": 2,
+    "question": "Ochre sea stars live in tidal pools along the shoreline of the Pacific Ocean. At night, they move to higher shore levels in search of prey. But scientists Corey Garza and Carlos Robles noticed that ochre sea stars stayed at lower levels at night after heavy rains. Garza and Robles hypothesized that a layer of fresh water formed by rainfall was a barrier to the sea stars. To test their hypothesis, the scientists did an experiment. They placed some sea stars in a climbable tank of seawater and other sea stars in a similar tank of seawater with a layer of fresh water on top. Then, the scientists watched the sea stars’ behavior at night. Which finding from the experiment, if true, would most directly support Garza and Robles’s hypothesis?",
+    "options": {
+      "A": "None of the sea stars climbed to the tops of the tanks, but sea stars in the tank with only seawater moved around the bottom of the tank more than sea stars in the other tank did.",
+      "B": "Sea stars in the tank with only seawater climbed to the top of the tank, but sea stars in the other tank stopped climbing just below the layer of fresh water.",
+      "C": "Both groups of sea stars climbed to the tops of the tanks, but sea stars in the tank with only seawater climbed more slowly than sea stars in the other tank did.",
+      "D": "Sea stars in the tank with only seawater mostly stayed near the bottom of the tank, but sea stars in the other tank climbed into the layer of fresh water."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a finding that, if true, would support Garza and Robles’s hypothesis that a layer of fresh water forms a barrier to ochre sea stars. The text explains that the sea stars tend to move to higher shore levels at night in search of prey, but after a heavy rain, the sea stars stay at lower shore levels. Garza and Robles hypothesize that rainfall results in a layer of fresh water that the sea stars don’t cross. To determine whether fresh water forms a barrier to sea stars, Garza and Robles observed how sea stars behaved in a tank of only seawater and in a tank of seawater with a layer of fresh water on top. If the sea stars climbed to the top of the tank with only seawater but stopped climbing just below the layer of fresh water in the other tank, that would suggest that fresh water does indeed serve as a barrier to the sea stars, thereby supporting Garza and Robles’s hypothesis. Choice A is incorrect because finding that sea stars in the tank with only seawater moved around the bottom of the tank more than sea stars in the other tank did but that none of the stars in either tank climbed to the top would be irrelevant to Garza and Robles’s hypothesis. Such a finding would reveal nothing about whether fresh water serves as a barrier to sea stars. Choice C is incorrect because finding that sea stars climbed to the top of both tanks would weaken, not support, Garza and Robles’s hypothesis, since it would indicate that the layer of fresh water wasn’t a barrier to the sea stars. Choice D is incorrect because finding that sea stars in the tank with only seawater mostly stayed near the bottom of the tank but sea stars in the other tank climbed into the layer of fresh water wouldn’t support Garza and Robles’s hypothesis. Instead, such a finding would suggest that the layer of fresh water wasn’t a barrier to the sea stars, thereby weakening Garza and Robles’s hypothesis."
+  },
+  {
+    "id": 3,
+    "question": "<img src=\"COE_QB_EASY_images/q03_0147b080.png\" alt=\"Question 3\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "33 meters tall.",
+      "B": "47 meters tall.",
+      "C": "40 meters tall.",
+      "D": "60 meters tall."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the table to complete the text about the el Castillo pyramid. The table presents information for the location, height, and age of four pyramids, and the task is to use the data from the table to complete the text by choosing the correct height for el Castillo, which the table shows is 40 meters. Choice A is incorrect because, according to the table, el Castillo is 40 meters tall, not 33 meters, which is the height of the Great Pyramid in Mexico. Choice B is incorrect because, according to the table, el Castillo is 40 meters tall, not 47 meters, which is the height of the Pyramid of Sahure in Egypt. Choice D is incorrect because, according to the table, el Castillo is 40 meters tall, not 60 meters, which is the height of the Pyramid of Djoser in Egypt."
+  },
+  {
+    "id": 4,
+    "question": "<img src=\"COE_QB_EASY_images/q04_7a1877be.png\" alt=\"Question 4\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Isoguanine and purine were detected in both meteorite samples but not in the soil sample.",
+      "B": "Adenine and xanthine were detected in both of the meteorite samples and in the soil sample.",
+      "C": "Hypoxanthine and purine were detected in both the Murchison meteorite sample 2 and in the soil sample.",
+      "D": "Isoguanine and hypoxanthine were detected in the Murchison meteorite sample 1 but not in sample 2."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The researchers concluded that the meteorite’s nucleobases weren’t the result of soil contamination. Presence of nucleobases in the meteorite and not in soil provides evidence that those nucleobases likely didn’t come from the soil. Choice B is incorrect. This choice doesn’t justify the conclusion. The researchers concluded that the meteorite’s nucleobases weren’t the result of soil contamination. If the nucleobases are present in both the soil and meteorite, then it’s possible that these nucleobases came from the soil. Choice C is incorrect. This choice misreads the table. Purine was not detected in the soil sample. Choice D is incorrect. This choice misreads the table. Both isoguanine and hypoxanthine were detected in both Murchison meteorite samples."
+  },
+  {
+    "id": 5,
+    "question": "<img src=\"COE_QB_EASY_images/q05_d6e97054.png\" alt=\"Question 5\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "only children.",
+      "B": "both adolescents and adults.",
+      "C": "only adolescents.",
+      "D": "only adults."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the table to complete the text’s comparison of the studies about food choices. The table shows information from four studies about food choices, including each study’s location, the context of the food choices examined, the study population, and the number of participants. According to the table, the study with the greatest number of participants (142) was conducted in Ghana and Kenya and involved only adolescents. Choice A is incorrect because the table indicates that the study that involved only children was conducted in the United States and had 44 participants—not the greatest number of participants. According to the table, the study with the greatest number of participants (142) involved only adolescents. Choice B is incorrect because the table indicates that the study population that consisted of both adolescents and adults was the India study, which had 94 participants—not the greatest number of participants. According to the table, the study with the greatest number of participants (142) involved only adolescents. Choice D is incorrect because, according to the table and the text, the study that involved only adults was conducted in Canada and had 17 participants—the smallest, not the greatest, number of participants in the table."
+  },
+  {
+    "id": 6,
+    "question": "O Pioneers! is a 1913 novel by Willa Cather. In the novel, Cather portrays Alexandra Bergson as having a deep emotional connection to her natural surroundings: ______ Which quotation from O Pioneers! most effectively illustrates the claim?",
+    "options": {
+      "A": "“She had never known before how much the country meant to her. The chirping of the insects down in the long grass had been like the sweetest music. She had felt as if her heart were hiding down there, somewhere, with the quail and the plover and all the little wild things that crooned or buzzed in the sun. Under the long shaggy ridges, she felt the future stirring.”",
+      "B": "“Alexandra talked to the men about their crops and to the women about their poultry. She spent a whole day with one young farmer who had been away at school, and who was experimenting with a new kind of clover hay. She learned a great deal.”",
+      "C": "“Alexandra drove off alone. The rattle of her wagon was lost in the howling of the wind, but her lantern, held firmly between her feet, made a moving point of light along the highway, going deeper and deeper into the dark country.”",
+      "D": "“It was Alexandra who read the papers and followed the markets, and who learned by the mistakes of their neighbors. It was Alexandra who could always tell about what it had cost to fatten each steer, and who could guess the weight of a hog before it went on the scales closer than John Bergson [her father] himself.”"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents the quotation that most directly illustrates the claim that Cather portrays Alexandra as having a deep emotional connection to her natural surroundings. This quotation states that the country meant a great deal to Alexandra and then goes on to detail several ways in which her natural surroundings affect her emotionally: the insects sound like “the sweetest music,” she feels as though “her heart were hiding” in the grass “with the quail and the plover,” and near the ridges she feels “the future stirring.” Choice B is incorrect because the quotation doesn’t suggest that Alexandra had a deep emotional connection to her natural surroundings but instead describes how she interacts with the people around her to learn more about crops, poultry, and experiments with clover hay. Choice C is incorrect because the quotation doesn’t suggest that Alexandra has a deep emotional connection to her natural surroundings but instead describes her nighttime depar ture in a wagon. The quotation says nothing about Alexandra’s emotional state. Choice D is incorrect because the quotation doesn’t convey Alexandra’s deep emotional connection to her natural surroundings; instead, this quotation describes how well she understands the markets and livestock."
+  },
+  {
+    "id": 7,
+    "question": "<img src=\"COE_QB_EASY_images/q07_3dc911d6.png\" alt=\"Question 7\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "from 2003 to 2023, the House of Representatives had a higher percentage of those members than the Senate did.",
+      "B": "from 1953 to 2003, those members constituted a majority in both houses of Congress.",
+      "C": "the percentage of those members decreased substantially in both houses of Congress from 1973 to 2013.",
+      "D": "the percentage of those members remained fairly consistent, regardless of house, from 1993 to 2023."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it accurately uses data from the graph to complete the statement regarding the research institute’s findings about veteran representation in Congress. The graph shows that the percentage of veterans in both houses of Congress decreased dramatically from 1973 to 2013. In 1973, the House of Representatives consisted of approximately 74% veterans, and the Senate was made up of approximately 79% veterans. By 2013, veteran members of both houses had fallen to approximately 17%–18%. This represents a substantial decrease of more than 50% in each house over this 40-year period. Choice A is incorrect because from 2003 to 2023, the House of Representatives did not consistently have a higher percentage of veterans than the Senate did. According to the graph, in 2003 the Senate was made up of approximately 35% veterans, while the House consisted of approximately 23% veterans. In 2013, the number of veterans in the Senate was still slightly higher (approximately 18%) than in the House (approximately 17%). Only in 2023 did the House have a marginally higher percentage than the Senate. Choice B is incorrect because veterans did not constitute a majority in both houses throughout the entire period shown in the graph from 1953 to 2003. According to the graph, both houses had a majority of veterans in 1953 (approximately 62% in the House and approximately 74% in the Senate) and in 1973 (approximately 74% in the House and approximately 79% in the Senate), but by 1993 the House had fallen below 50% to approximately 40% veterans. By 2003, both houses were well below 50%. Choice D is incorrect because the percentage of veterans in Congress did not remain consistent from 1993 to 2023. The graph shows significant changes in the number of members reporting past military service during this period, particularly the continued decline from 1993 to 2003. In 1993, the House had approximately 40% veterans and the Senate had approximately 63% veterans, but by 2003 these percentages had dropped to approximately 23% and 35%, respectively. Fur thermore, there was a large gap between the two houses in 1993 that narrowed considerably by 2013, which contradicts the claim that the percentage of veterans across both houses “remained fairly consistent” during this period."
+  },
+  {
+    "id": 8,
+    "question": "“To You” is an 1856 poem by Walt Whitman. In the poem, Whitman suggests that readers, whom he addresses directly, have not fully understood themselves, writing, ______ Which quotation from “To You” most effectively illustrates the claim?",
+    "options": {
+      "A": "“You have not known what you are, you have slumber’d upon yourself / all your life, / Your eyelids have been the same as closed most of the time.”",
+      "B": "“These immense meadows, these interminable rivers, you are immense / and interminable as they.”",
+      "C": "“I should have made my way straight to you long ago, / I should have blabb’d nothing but you, I should have chanted nothing / but you.”",
+      "D": "“I will leave all and come and make the hymns of you, / None has understood you, but I understand you.”"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents the quotation that most directly illustrates the claim that Whitman’s poem suggests that its readers haven’t fully understood themselves. This quotation makes that point directly by saying to readers, “You have not known what you are.” The quotation goes on to reinforce this point using a metaphor of sleep, saying that readers have “slumber’d” and that their “eyelids have been the same as closed most of the time.” Choice B is incorrect because this quotation doesn’t suggest that readers haven’t fully understood themselves but instead characterizes readers as “immense” and “interminable.” Although immense and interminable things can be difficult to understand, this quotation doesn’t make that point. Choice C is incorrect because this quotation doesn’t suggest that readers haven’t fully understood themselves but instead conveys the speaker’s regret over not having celebrated readers sooner. In fact, this quotation says nothing at all about readers themselves—it’s focused solely on the speaker’s feelings about readers. Choice D is incorrect because this quotation doesn’t suggest that readers haven’t fully understood themselves; instead, this quotation makes the point that the speaker has understood readers and is determined to create “hymns” about them."
+  },
+  {
+    "id": 9,
+    "question": "<img src=\"COE_QB_EASY_images/q09_6177abc5.png\" alt=\"Question 9\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "2000–2004.",
+      "B": "1995–1999.",
+      "C": "1970–1974.",
+      "D": "1985–1989."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most effectively uses data from the table to complete the statement about video game availability. The text states that just a few games released in the past are available today and then indicates that there is a period of years from which only 14.22 percent of the games released are available. The table shows that 14.22 percent of games are still available from the years 1995–1999. Choice A is incorrect because the years 2000–2004 are not represented in the table. Choice C is incorrect because the years 1970–1974 are not represented in the table. Choice D is incorrect because the years 1985–1989 correspond to a percentage of games still available of 15.38 percent, not 14.22 percent."
+  },
+  {
+    "id": 10,
+    "question": "<img src=\"COE_QB_EASY_images/q10_bc1b8a42.png\" alt=\"Question 10\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "50%.",
+      "B": "15%.",
+      "C": "90%.",
+      "D": "29%."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it effectively uses data from the table to complete the student’s claim about the highest percentage of bus stops with shaded shelter in the areas represented. The table shows the highest average surface temperature of five areas and the percentage of bus stops with shaded shelter in each area, and 29% is the highest percentage listed. Choice A is incorrect because the list of percentages of bus stops with shaded shelter does not include 50%; the highest percentage in the table is 29%. Choice B is incorrect because 15% is the lowest value in the listed percentages of bus stops with shaded shelter, not the highest value. Choice C is incorrect because the list of percentages of bus stops with shaded shelter does not include 90%; the highest percentage in the table is 29%."
+  },
+  {
+    "id": 11,
+    "question": "“We Are Marching” is a 1921 poem by Carrie Law Morgan Figgs. In the poem, the speaker predicts future success: ______ Which quotation from “We Are Marching” most effectively illustrates the claim?",
+    "options": {
+      "A": "“Can’t you hearthe sound of feet?”",
+      "B": "“You who are out just get in line.”",
+      "C": "“We have answered duty’s call.”",
+      "D": "“We shall never know defeat.”"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most effectively illustrates the claim that the speaker in the poem \"We Are Marching\" predicts future success. To say that someone will \"never know\" an experience—like defeat, or being unsuccessful—is to indicate that they will never personally have that experience. Thus, when the speaker says that the marching group \"shall never know defeat, \" the speaker is predicting that the group will experience only success in the future. Choice A is incorrect because the quotation presents a question about an activity already taking place (marching), not a statement about future success. The speaker is asking if the sound of marching feet is being heard. Choice B is incorrect because the quotation directs an immediate action instead of making a prediction about the future. The speaker is telling people to \"get in line, \" or to join the march that’s already happening. Choice C is incorrect because the quotation describes a past action instead of making a prediction about the future. The speaker is stating that those in the march have \"answered duty’s call\"—that is, that they have acted out of a sense of duty."
+  },
+  {
+    "id": 12,
+    "question": "<img src=\"COE_QB_EASY_images/q12_f452410b.png\" alt=\"Question 12\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "a longer footprint, and a longer average stride.",
+      "B": "a longer footprint, and a shorter average stride.",
+      "C": "a shorter footprint, and a longer average stride.",
+      "D": "a shorter footprint, and a shorter average stride."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the table to complete the claim about the tracks left by two therapods. The table indicates that the set of tracks labeled La Torre 6A has an estimated footprint length of 32.8 centimeters, an average stride length of 5.23 meters, and an estimated mean speed of 6.5–10.3 meters per second. For the set of tracks labeled La Torre 6B, on the other hand, the estimated footprint length is 28.9 centimeters, the average stride length is 5.57 meters, and the estimated mean speed is 8.8–12.4 meters per second. Therefore, the therapod that left the La Torre 6B tracks had a shorter footprint and a longer average stride than the one that left the La Torre 6A tracks. Choice A is incorrect. While it is true that of the two therapods, the one that left the La Torre 6B tracks had a longer average stride, it didn’t have a longer footprint: the table shows that its estimated footprint length is 28.9 centimeters, while La Torre 6A’s estimated footprint length is 32.8 centimeters. Choice B is incorrect because the table shows that of the two therapods, the one that left the La Torre 6B tracks had a footprint length estimated at 28.9 centimeters, which is shorter than the 32.8 centimeters estimated for the other set of tracks. Moreover, the therapod that left the La Torre 6B tracks had a longer average stride, not shorter: 5.57 meters, compared with 5.23 meters for the other set of tracks. Choice D is incorrect. While it is true that of the two therapods, the one that left the La Torre 6B tracks had a shorter footprint, it didn’t have a shorter average stride: the table shows that its average stride length is 5.57 meters, while La Torre 6A’s average stride length is 5.23 meters."
+  },
+  {
+    "id": 13,
+    "question": "<img src=\"COE_QB_EASY_images/q13_0cf13ece.png\" alt=\"Question 13\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "1999",
+      "B": "2012",
+      "C": "2020",
+      "D": "1992"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it accurately reflects the data in the table. According to the table, the dolphin with ID FB43 has a recording year of 1992. Choice A is incorrect. None of the dolphins in the table have a recording year of 1999. Choice B is incorrect. The table shows 2012 as the recording year for the dolphin with ID FB07, not ID FB43. Choice C is incorrect. None of the dolphins in the table have a recording year of 2020."
+  },
+  {
+    "id": 14,
+    "question": "<img src=\"COE_QB_EASY_images/q14_0fc0a773.png\" alt=\"Question 14\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "The Minneapolis Institute of Art has several works by Siah Armajani.",
+      "B": "Many people who have been to Minneapolis say that the Minneapolis Institute of Art is wor th visiting.",
+      "C": "Mississippi Delta has been praised by some art critics.",
+      "D": "Each year, more people access the online image of Mississippi Delta than visit the Minneapolis Institute of Art in person."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents a finding that, if true, would most directly support the student’s claim that putting a work online increases the number of people who experience it. The text states that the Minneapolis Institute of Art has more than 90,000 artworks. It goes on to explain that images of a subset of these works can be viewed online, such as an image of Armajani’s drawing Mississippi Delta. The text then presents a student’s claim that online images of art can increase the number of people who experience the work. If more people view Armajani’s drawing online than they do in person, this finding would support the student’s claim about the benefits of putting a work from the museum online. Thus, this finding would most directly support the claim because, if it were true, more people would view Mississippi Delta online than would visit the entire museum in person. Choice A is incorrect because information about the museum having several works by Armajani wouldn’t address the student’s claim about how putting artworks online affects the number of people who experience them. The quantity of works by one artist that are held in a museum collection wouldn’t support a claim about audience size or the impact of online accessibility. Choice B is incorrect because opinions about the museum would only relate to the institution’s reputation. This finding wouldn’t provide information about online accessibility or whether digital images increase the number of people who view specific artworks. Choice C is incorrect because critics’ praise for Mississippi Delta wouldn’t address the student’s claim about how online access increases the number of people who can experience a work. Although positive comments from art critics could affect interest in an artwork, this finding wouldn’t provide information about how many people experience the work or whether online accessibility increases that number."
+  },
+  {
+    "id": 15,
+    "question": "<img src=\"COE_QB_EASY_images/q15_9debe79a.png\" alt=\"Question 15\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "the lowest temperature for both Cameron and Teec Nos Pos was 65°.",
+      "B": "Tuba City’s average highest temperature was 94°, while Teec Nos Pos’s was 93°.",
+      "C": "Ramah’s average highest temperature was 83°, while Cameron’s was 99°.",
+      "D": "the lowest temperature for both Ramah and Tuba City was 50°."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it effectively uses data from the table to complete the statement, providing an example of how the people of the Navajo Nation can experience different climate conditions depending on where they live. The table shows the average highest temperatures and average lowest temperatures in four locations in the Navajo Nation in July. According to the table, Ramah’s average highest temperature for July was 83°, whereas Cameron’s average highest temperature was much higher, at 99°. This difference illustrates the statement that the people of the Navajo Nation can experience different climate conditions depending on where they live. Choice A is incorrect because it states that Cameron and Teec Nos Pos had the same average lowest temperature (65°) for July, which suggests a similarity in climate conditions in those locations rather than a difference. Choice B is incorrect because it misrepresents the data from the table, which shows that the average highest temperature in July for Tuba City was 83°, not 94°, and for Teec Nos Pos it was 94°, not 93°. Even if the cited data accurately reflected the data in the table, the similarity between the two values for average highest temperature would suggest that people in the two locations likely experience similar climate conditions, not different climate conditions. Choice D is incorrect because it states that Ramah and Tuba City had the same average lowest temperature (50°) for July, which suggests a similarity in climate conditions in those locations rather than a difference."
+  },
+  {
+    "id": 16,
+    "question": "“Aunt Sue’s Stories” is a 1926 poem by Langston Hughes. In the poem, the speaker indicates that the stories Aunt Sue tells are based on Aunt Sue’s personal experiences, saying that ______ Which choice most effectively uses a quotation from “Aunt Sue’s Stories” to illustrate the claim?",
+    "options": {
+      "A": "dark shadows “cross and recross / Aunt Sue’s stories.”",
+      "B": "a listening child “knows that Aunt Sue / Never got her stories out of any book at all, / But that they came / Right out of her own life.”",
+      "C": "the stories are told during “Summer nights on the front porch.”",
+      "D": "the people in the stories “Mingle themselves softly / In the flow of old Aunt Sue’s voice, / Mingle themselves softly.”"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most effectively illustrates the speaker of the poem’s claim that the stories Aunt Sue tells are based on Aunt Sue’s personal experiences. In the quotation, the speaker conveys the listening child’s point of view that Aunt Sue’s stories originate from her personal experiences and are not taken from books or other external sources. The listening child explicitly contrasts two possible sources for Aunt Sue’s stories: a book (whose potentially fictitious stories are implied to be written by someone else) or “her own life.” By having the child confidently assert that Aunt Sue “never got her stories out of any book at all,” the speaker indicates that Aunt Sue’s stories are instead informed by her lived experiences. Choice A is incorrect because it describes an element or image that recurs within Aunt Sue’s stories rather than indicating that these stories have a real-life basis. The reference to dark shadows that “cross and recross” the stories functions as imagery on a literal, visual level and may also evoke figurative darkness, but this detail by itself doesn’t suggest that the stories are based on Aunt Sue’s personal experiences. Choice C is incorrect because it identifies the setting of Aunt Sue’s storytelling rather than describing the real-life basis of the stories themselves. The quotation states that Aunt Sue tells her stories on “summer nights on the front porch,” which establishes when and where the storytelling occurs; however, no information is provided about the origins of the stories that Aunt Sue tells within this setting. Choice D is incorrect because it describes the movement or circulation of characters in the stories as Aunt Sue speaks rather than establishing that these stories have a real-life basis. The quotation primarily evokes the sounds of Aunt Sue’s voice and the seemingly easy “flow” of this voice in her storytelling. Although the characters who “mingle…in the flow of old Aunt Sue’s voice” are to some extent created or animated by her voice, no information is provided about the characters themselves or their relationship to Aunt Sue’s actual experiences."
+  },
+  {
+    "id": 17,
+    "question": "<img src=\"COE_QB_EASY_images/q17_b8199d5a.png\" alt=\"Question 17\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "4,268,873 square miles",
+      "B": "4,471 square miles",
+      "C": "304 square miles",
+      "D": "6,880 square miles"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it states the total area of Bahrain that is indicated in the table. The table presents the total area (in square miles) and population for Bahrain, Qatar, and Kuwait, and it indicates that the total area of Bahrain is 304 square miles. Choice A is incorrect because the table indicates that 4,268,873 is the population of Kuwait, not the total area of Bahrain. Choice B is incorrect because the table indicates that 4,471 square miles is the total area of Qatar, not of Bahrain. Choice D is incorrect because the table indicates that 6,880 square miles is the total area of Kuwait, not of Bahrain."
+  },
+  {
+    "id": 18,
+    "question": "<img src=\"COE_QB_EASY_images/q18_30c3aa98.png\" alt=\"Question 18\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "The rise in copper production in Michigan slowed from 1902 to 1909.",
+      "B": "Montana and Arizona produced more copper than Michigan did in 1909.",
+      "C": "Fewer than 100 million pounds of copper were produced in Arizona in 1889.",
+      "D": "Copper production rose significantly from 1889 to 1909 for Arizona, Michigan, and Montana."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text asks us to provide examples of several states that saw rapid growth in copper production from the 1890s onward. The graph depicts Arizona, Michigan, and Montana all experiencing such rapid growth during this time period. Choice A is incorrect. The claim is about states experiencing rapid growth in copper production. This statement only discusses one state and does not provide evidence of rapid growth—in fact, it discusses a slow-down of growth. Choice B is incorrect. The claim is about states experiencing rapid growth in copper production, and this statement provides a comparison of production rates between states, rather than an example of rapid growth. Choice C is incorrect. The claim is about several states experiencing rapid growth in copper production. This statement only discusses one state and does not provide evidence of growth in copper production."
+  },
+  {
+    "id": 19,
+    "question": "<img src=\"COE_QB_EASY_images/q19_239d3535.png\" alt=\"Question 19\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Toronto",
+      "B": "Montréal",
+      "C": "Québec City",
+      "D": "Halifax"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because the graph shows that Montréal had the largest population in 1891 among the four cities represented. According to the data points in the graph for the year 1891, Montréal’s population was approximately 220,000, which is greater than the respective populations of Toronto (approximately 180,000), Québec City (approximately 60,000), and Halifax (approximately 40,000). Choice A is incorrect because Toronto’s population in 1891 was approximately 180,000, which is the second largest among the four cities shown but still clearly smaller than Montréal’s population of approximately 220,000. Choice C is incorrect because Québec City had a population of approximately 60,000 in 1891, making it only the third largest of the four cities shown. Choice D is incorrect because Halifax had a population of approximately 40,000 people in 1891. Of the four cities shown in the graph, Halifax has the smallest population, not the largest."
+  },
+  {
+    "id": 20,
+    "question": "<img src=\"COE_QB_EASY_images/q20_4042ff0b.png\" alt=\"Question 20\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "and they each reported the same level of comfort.",
+      "B": "even though each participant’s ratings varied throughout the day.",
+      "C": "but participant 20 reported feeling significantly colder than the other two participants did.",
+      "D": "but participant 1 reported feeling warmer than the other two participants did."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The text describes the comfort rating scale: from −3 (very cold) to +3 (very hot), with 0 being neutral. Participant 20 gave a −2 comfort rating, a full three points colder on the scale than the other two participants. Choice A is incorrect. This choice misreads the table. Participant 1 and participant 21 reported the same level of comfort, but participant 20’s comfort level was three points lower. Choice B is incorrect. This choice doesn’t use data from the table. The table only shows us one survey, so we don’t know if the participants’ ratings varied throughout the day. Choice D is incorrect. This choice misreads the table. Participant 1 and participant 21 reported the same level of comfort."
+  },
+  {
+    "id": 21,
+    "question": "Biologists have generally believed that the diet of jaguars consists mostly of land-based mammals, but researchers studying a population of jaguars living in the Brazilian Pantanal, a tropical wetland, claim that jaguars can survive on a diet of more fish and aquatic reptiles than mammals. Which finding, if true, would most directly support the researchers’ claim?",
+    "options": {
+      "A": "Aquatic reptile and fish remains were detected more often than were mammal remains in an analysis of jaguar waste matter found in the area.",
+      "B": "Exceptionally high numbers of yacare caiman, an aquatic reptile, were found living in the area.",
+      "C": "Aquatic prey like the reptiles and fish in the area provide a source of omega-3 fatty acids that aren’t often found in land mammals.",
+      "D": "When jaguars in the area preyed on mammals, they tended to prefer semiaquatic ones like capybaras."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents a finding that, if true, would support the researchers’ claim about the diets of jaguars in the Brazilian Pantanal. The text notes that jaguars generally eat land-based mammals, but researchers claim that jaguars in the Pantanal can survive on a diet that includes more fish and aquatic reptiles than mammals. Finding that the remains of aquatic reptiles and fish appear more often in these jaguars’ waste than the remains of mammals do would support the researchers’ claim, since it would suggest that fish and aquatic reptiles are a more significant part of the jaguars’ diet than mammals are. Choice B is incorrect because finding that a particular aquatic reptile exists in high numbers in the area would not support the researchers’ claim about the jaguars’ diet. The mere presence of many aquatic reptiles nearby does not mean that the jaguars eat those reptiles, let alone survive on more aquatic reptiles and fish than mammals. Choice C is incorrect. Although finding that aquatic reptiles and fish can provide nutrients that land mammals typically do not provide could help explain why some animals eat those reptiles and fish, it would not indicate whether the jaguars in particular eat those reptiles and fish and thus would not support the researchers’ claim. Choice D is incorrect because finding that when preying on mammals, jaguars prefer semiaquatic mammals, such as capybaras, would be irrelevant to the researchers’ claim that the jaguars can survive on a diet of more fish and aquatic reptiles than mammals. The type of mammals the jaguars tend to eat does not indicate anything about whether fish and aquatic reptiles are part of the jaguars’ diet."
+  },
+  {
+    "id": 22,
+    "question": "<img src=\"COE_QB_EASY_images/q22_b71861fc.png\" alt=\"Question 22\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "10%",
+      "B": "95%",
+      "C": "25%",
+      "D": "50%"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it states the percentage of participants who mentioned costs in the interviews conducted by Judith Hilton and her team. The text states that Hilton and her team interviewed participants about factors that would encourage them to switch from single- use plastic containers to reusable containers. The graph presents three factors mentioned in the interviews (convenience, costs, and established behaviors) and the percentage of participants who mentioned each one. The graph shows that about 50% of participants mentioned costs as a factor. Choice A is incorrect because the graph shows that about 50% of participants, not 10%, mentioned costs as a factor. Choice B is incorrect because the graph shows that about 50% of participants, not 95%, mentioned costs as a factor. Choice C is incorrect because the graph shows that about 50% of participants, not 25%, mentioned costs as a factor."
+  },
+  {
+    "id": 23,
+    "question": "Many scientists have believed that giraffes are solitary creatures, preferring to spend their time alone instead of with others. But observations of giraffes and their behavior in recent years has suggested that these animals may be more social than we once thought. For example, scientists Zoe Muller and Stephen Harris claim that giraffes may even help each other care for one another’s newborns. Which finding, if true, would most directly support Muller and Harris’s conclusion?",
+    "options": {
+      "A": "Female giraffes have been observed feeding young giraffes that aren’t their direct offspring.",
+      "B": "Confrontations between a younger and an older male giraffe are frequently observed.",
+      "C": "Some female giraffes have been observed sniffing and licking their newborn offspring.",
+      "D": "Giraffes are able to make sounds but are rarely observed communicating with others."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. If female giraffes feed nonoffspring young, that’s direct evidence that \"giraffes may even help each other care for one another’s newborns. \" Choice B is incorrect. Confrontations between males doesn’t tell us anything about whether giraffes help each other care for newborns. Choice C is incorrect. While this option does mention newborn offspring, it only discusses a mother’s behavior toward her own child, not another giraffe’s child. Choice D is incorrect. Whether or not giraffes are observed communicating with each other doesn’t tell us anything about whether they help each other care for newborns."
+  },
+  {
+    "id": 24,
+    "question": "<img src=\"COE_QB_EASY_images/q24_a9ac31e4.png\" alt=\"Question 24\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "a larger area than either the Fiescher glacier or the Unteraar glacier.",
+      "B": "a smaller area than the Fiescher glacier but a larger area than the Unteraar glacier.",
+      "C": "a smaller area than either the Fiescher glacier or the Unteraar glacier.",
+      "D": "a larger area than the Fiescher glacier but a smaller area than the Unteraar glacier."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The claim is that measurements such as total area can be used to compare glaciers. The graph shows us the area measurements for three glaciers. Of those, Gorner has the largest area. Choice B is incorrect. This choice misreads the graph. The graph shows that Gorner has the largest area of the three. Choice C is incorrect. This choice misreads the graph. The graph shows that Gorner has the largest area of the three. Choice D is incorrect. This choice misreads the graph. The graph shows that Gorner has the largest area of the three."
+  },
+  {
+    "id": 25,
+    "question": "<img src=\"COE_QB_EASY_images/q25_df34b586.png\" alt=\"Question 25\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "the Philippines increased dramatically from 1908 to 1918.",
+      "B": "New Zealand were largely consistent from 1903 to 1918.",
+      "C": "Australia increased steadily from 1903 to 1918.",
+      "D": "Turkey declined substantially from 1913 to 1918."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the graph to complete the example. According to the graph, fewer than 10,000 sewing machines were sold in the Philippines in both 1903 and 1908, but nearly 30,000 were sold in 1913 and around 45,000 were sold in 1918. This increase illustrates the statement in the text that demand for Singer sewing machines grew significantly in the early twentieth century in overseas countries other than Russia, Germany, and the United Kingdom. Choice B is incorrect because consistent sales of Singer sewing machines in New Zealand from 1903 to 1918 do not indicate that demand for the product increased but rather that demand remained relatively the same. Choice C is incorrect because it does not accurately describe the data in the graph. Although sales in Australia did increase somewhat between 1903 and 1908, there was very little change between 1908 and 1913, and then sales declined between 1913 and 1918. The data for Australia, then, do not show a steady increase from 1903 to 1918. Choice D is incorrect because declining sales of Singer sewing machines in Turkey from 1913 to 1918 do not point to an increase in demand for the product but rather to a decline in demand."
+  },
+  {
+    "id": 26,
+    "question": "<img src=\"COE_QB_EASY_images/q26_b29c520a.png\" alt=\"Question 26\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "jet fuel.",
+      "B": "POP biofuel.",
+      "C": "ethanol.",
+      "D": "gasoline."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most effectively uses data from the graph to complete the sentence about which fuel has the highest energy density. Of the four bars in the graph, the highest (indicating the greatest energy density in MJ/L) is for POP biofuel. According to the graph, the energy densities of the fuels shown are approximately 40 MJ/L for POP biofuel, 36 MJ/L for gasoline, 34 MJ/L for jet fuel, and 23 MJ/L for ethanol. Choice A is incorrect. The task is to find the fuel in the graph with the highest bar (indicating the greatest energy density in MJ/L), and jet fuel has the third-highest bar in the graph, not the highest. According to the graph, the energy densities of the fuels shown are approximately 40 MJ/L for POP biofuel, 36 MJ/L for gasoline, 34 MJ/L for jet fuel, and 23 MJ/L for ethanol. Choice C is incorrect. The task is to find the fuel in the graph with the highest bar (indicating the greatest energy density in MJ/L), and ethanol has the lowest bar in the graph, not the highest. According to the graph, the energy densities of the fuels shown are approximately 40 MJ/L for POP biofuel, 36 MJ/L for gasoline, 34 MJ/L for jet fuel, and 23 MJ/L for ethanol. Choice D is incorrect. The task is to find the fuel in the graph with the highest bar (indicating the greatest energy density in MJ/L), and gasoline has the second-highest bar in the graph, not the highest. According to the graph, the energy densities of the fuels shown are approximately 40 MJ/L for POP biofuel, 36 MJ/L for gasoline, 34 MJ/L for jet fuel, and 23 MJ/L for ethanol."
+  },
+  {
+    "id": 27,
+    "question": "Treasure Island is an 1883 novel by Robert Louis Stevenson. When the narrator was a child, his father ran a hotel. A mysterious sailor came to stay at the hotel. The narrator was frightened of the sailor, as can be seen when the narrator says, ______ Which quotation from Treasure Island most effectively illustrates the claim?",
+    "options": {
+      "A": "“I remember [the sailor] as if it were yesterday, as he came plodding to the inn door, his sea-chest following behind him in a hand-barrow.”",
+      "B": "“[The sailor] was a very silent man by custom. All day he hung round the cove or upon the cliffs with a brass telescope.”",
+      "C": "“All the time he lived with us [the sailor] made no change whatever in his dress but to buy some stockings from a hawker. One of the [corners] of his hat having fallen down, he let it hang from that day for th, though it was a great annoyance when it blew.”",
+      "D": "“How [the sailor] haunted my dreams, I need scarcely tell you. On stormy nights, when the wind shook the four corners of the house and the surf roared along the cove and up the cliffs, I would see him in a thousand forms, and with a thousand diabolical expressions.”"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most effectively illustrates the claim that the narrator was frightened of the sailor. The quotation describes the sailor haunting the narrator’s dreams, appearing in \"a thousand forms\" with \"a thousand diabolical expressions. \" This vivid imagery conveys the intense psychological fear the narrator experienced when thinking about the sailor. Fur thermore, the quotation evokes the narrator’s terror and dread by describing a stormy night setting with wind shaking the house and a roaring surf. Choice A is incorrect because this quotation does not provide any details to suggest that the narrator was afraid of the sailor. It simply describes the narrator’s memory of the sailor arriving at the inn with his sea chest. Choice B is incorrect because this quotation does not effectively illustrate the claim that the narrator was frightened of the sailor. The quotation provides several details about the sailor, including that it was his custom to remain silent. However, the quotation does not relate these details to the narrator’s experience of being frightened of the sailor. Choice C is incorrect because this quotation focuses on aspects of the sailor’s appearance and dress. There is no connection made in the quotation between these physical details and the narrator’s sense of being frightened of the sailor."
+  },
+  {
+    "id": 28,
+    "question": "“Valia” is a 1907 short story by Leonid Andreyev. In the story, the author emphasizes that the setting where the character Valia is reading is nearly silent: ______ Which quotation from “Valia” most effectively illustrates the claim?",
+    "options": {
+      "A": "“The hand in which he carried his book was getting stiff with cold, but he would not ask his mother to take the book from him.”",
+      "B": "“Valia was reading a huge, very huge book, almost half as large as himself.”",
+      "C": "“Valia approached the window and examined the toys.”",
+      "D": "“Everything in the room was quiet, so quiet that the only thing to be heard was the rustling of the pages he turned.”"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it presents a quotation that illustrates the author’s emphasis on the near silence of the setting where the character Valia is reading. In the quotation, the author highlights the near silence of the setting by twice using the word “quiet” to describe the room. The author also calls attention to the fact that Valia is reading in a nearly silent setting by noting that the only sound to be heard is that of the pages being turned. Choice A is incorrect because this quotation suggests that Valia is in a chilly setting that causes his hand to become cold, not that he’s in a nearly silent setting. Choice B is incorrect because this quotation emphasizes the size of the book Valia is reading, not the setting where he’s reading it. Choice C is incorrect because this quotation describes Valia approaching a window and looking at toys, not reading in a quiet setting."
+  },
+  {
+    "id": 29,
+    "question": "<img src=\"COE_QB_EASY_images/q29_81498c6a.png\" alt=\"Question 29\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "$31.78.",
+      "B": "$23.72.",
+      "C": "$22.98.",
+      "D": "$28.94."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the table to complete the text’s discussion of how much a grower could have expected to receive on average for a box of lemons in July 2021. The table lists the average prices received by US citrus growers in dollars per box for grapefruits, oranges, and lemons in June 2020, June 2021, July 2020, and July 2021. According to the table, the average price of a box of lemons in July 2021 was $31.78. Choice B is incorrect because the text indicates that the employee of a citrus grower wishes to know the average price for a box of lemons in July 2021. According to the table, $23.72 was the average price for a box of grapefruits in June 2021, not for a box of lemons in July 2021. Choice C is incorrect because the text indicates that the employee of a citrus grower wishes to know the average price for a box of lemons in July 2021. According to the table, $22.98 was the average price for a box of grapefruits in July 2021, not for a box of lemons in July 2021. Choice D is incorrect because the text indicates that the employee of a citrus grower wishes to know the average price for a box of lemons in July 2021. According to the table, $28.94 was the average price for a box of lemons in June 2021, not in July 2021."
+  },
+  {
+    "id": 30,
+    "question": "<img src=\"COE_QB_EASY_images/q30_38e79659.png\" alt=\"Question 30\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "7.35 million visitors.",
+      "B": "9.60 million visitors.",
+      "C": "6.40 million visitors.",
+      "D": "5.60 million visitors."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the table to complete the example of the high cost and low popularity of world’s fairs. The text presents Chow’s argument that the United States hasn’t hosted a world’s fair since 1984 because people think these exhibitions are overly expensive and insufficiently popular. The text then cites the 1984 World’s Fair as an example, noting that it cost $350 million. Since the example should illustrate both high cost and insufficient popularity, the best completion of the example is the information from the table that the 1984 World’s Fair had 7.35 million visitors. Choice B is incorrect because it misrepresents data from the table. The table indicates that the 1984 World’s Fair, which is the world’s fair used as an example in the text, had 7.35 million, not 9.60 million, visitors. Choice C is incorrect because it misrepresents data from the table. The table indicates that the 1984 World’s Fair, which is the world’s fair used as an example in the text, had 7.35 million, not 6.40 million, visitors. Choice D is incorrect because it misrepresents data from the table. The table indicates that the 1984 World’s Fair, which is the world’s fair used as an example in the text, had 7.35 million, not 5.60 million, visitors."
+  },
+  {
+    "id": 31,
+    "question": "<img src=\"COE_QB_EASY_images/q31_25b70215.png\" alt=\"Question 31\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Himalayan balsam.",
+      "B": "common dandelion.",
+      "C": "star chickweed.",
+      "D": "Virginia spring beauty."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most effectively uses data from the table to complete the example of a neighboring species that has a negative effect value. The table lists neighboring species, target species, and effect values. The table shows that only one neighboring species, the common dandelion, has a negative effect value (−0.6254). Choice A is incorrect because the table shows that the neighboring species Himalayan balsam has a positive effect value, 0.7905, so it isn’t an example of a neighboring species with a negative effect value. Choice C is incorrect because the table shows that star chickweed is a target species, so it isn’t an example of a neighboring species with a negative effect value. Choice D is incorrect because the table shows that the neighboring species Virginia spring beauty has a positive effect value, 0.4853, so it isn’t an example of a neighboring species with a negative effect value."
+  },
+  {
+    "id": 32,
+    "question": "<img src=\"COE_QB_EASY_images/q32_1703403b.png\" alt=\"Question 32\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Rincón’s average rainfall is greater than that of Isabela, San Sebastián, and Ponce.",
+      "B": "Rincón and Ponce have an average rainfall of about 5 inches, and Isabela and San Sebastián have an average rainfall of about 10 inches.",
+      "C": "Rincón, Ponce, and Isabela each have an average rainfall below 8 inches, but San Sebastián’s average rainfall that month is greater than 8 inches.",
+      "D": "Rincón has a similar average rainfall to Isabela, and Ponce has a similar average rainfall to San Sebastián."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the graph to complete the statement about average rainfall in September in select Puer to Rican cities. The graph shows that between 1981 and 2010 Rincón, Ponce, and Isabela all had an average rainfall during the month of September of about 6 inches, and San Sebastián had an average rainfall of nearly 11 inches. Describing the average September rainfall of Rincón, Ponce, and Isabela as below 8 inches and the average September rainfall of San Sebastián as greater than 8 inches therefore offers an accurate description of the data in the graph and most effectively completes the statement. Choice A is incorrect because it offers an inaccurate interpretation of the data in the graph. The graph shows that in September, Rincón, Isabela, and Ponce all have an average rainfall of about 6 inches, and San Sebastián has an average rainfall of nearly 11 inches. Therefore, Rincón’s average rainfall is the same as, not greater than, that of Isabela and Ponce, and it is below, not greater than, that of San Sebastián. Choice B is incorrect because it inaccurately describes the data in the graph. In September, Rincón and Ponce have an average rainfall of about 6 inches, not 5 inches; Isabela has an average rainfall of about 6 inches, not 10 inches; and San Sebastián has an average rainfall of nearly 11 inches, not 10 inches. Choice D is incorrect because although the graph shows a similar average rainfall (about 6 inches) for Rincón and Isabela in September, it doesn’t show that Ponce has a similar average rainfall to San Sebastián during this month. In September, Ponce’s average rainfall is about 6 inches, whereas San Sebastián’s average rainfall is nearly 11 inches."
+  },
+  {
+    "id": 33,
+    "question": "<img src=\"COE_QB_EASY_images/q33_eb775f90.png\" alt=\"Question 33\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "the number of cars produced increased but the number of companies producing cars decreased.",
+      "B": "both the number of cars produced and the number of companies producing cars remained unchanged.",
+      "C": "the number of cars produced decreased but the number of companies producing cars remained unchanged.",
+      "D": "both the number of cars produced and the number of companies producing cars increased."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the table to complete the statement about the US auto industry in the early twentieth century. The table shows the number of cars produced annually and number of companies producing cars in the United States between 1910 and 1925 in increments of five years. According to the table, the number of cars produced consistently increased from one increment to the next, going from 123,990 cars in 1910 to 3,185,881 cars in 1925. At the same time, the table shows that the number of companies producing cars consistently decreased, going from 320 companies in 1910 to only 80 companies in 1925. Thus, the table shows that the number of cars produced increased from 1910 to 1925, even as the number of companies producing cars decreased. Choice B is incorrect. The table shows that the number of cars produced in the US increased, going from 123,990 in 1910 to 3,185,881 in 1925, instead of remaining unchanged, and the table also shows that the number of companies producing cars decreased from 320 to 80 instead of remaining unchanged. Choice C is incorrect because the table indicates that the number of cars produced consistently increased from 1910 to 1925, going from 123,990 cars to 3,185,881 cars, instead of decreasing; moreover, the table shows that the number of companies producing cars from 1910 to 1925 declined from 320 to 80 instead of remaining unchanged. Choice D is incorrect because the table indicates that the number of companies producing cars consistently decreased from 1910 to 1925, going from 320 companies to only 80 companies."
+  },
+  {
+    "id": 34,
+    "question": "<img src=\"COE_QB_EASY_images/q34_c4bee178.png\" alt=\"Question 34\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Eris and Makemake.",
+      "B": "Haumea and Eris.",
+      "C": "Pluto and Haumea.",
+      "D": "Makemake and Ceres."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the table to complete the statement about dwarf planets that have exactly one moon. The table lists several dwarf planets in one column and the number of moons that each of those dwarf planets has in another column. The text states that some dwarf planets have exactly one moon and indicates that there are two examples. Only two dwarf planets in the table have exactly one moon: Eris and Makemake. Choice B is incorrect. According to the table, Eris has exactly one moon, but Haumea has two moons. Choice C is incorrect. According to the table, Haumea has two moons, and Pluto has five moons. Thus, they are not examples of dwarf planets with exactly one moon. Choice D is incorrect because while the table indicates that Makemake has exactly one moon, the table shows that Ceres has no moons at all."
+  },
+  {
+    "id": 35,
+    "question": "<img src=\"COE_QB_EASY_images/q35_b470d853.png\" alt=\"Question 35\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Zion National Park.",
+      "B": "Rocky Mountain National Park.",
+      "C": "Yellowstone National Park.",
+      "D": "Grand Canyon National Park."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the graph to complete the statement about the US national park with the highest number of recreation visits during a three-month period. The line graph shows the number of recreation visits to four US national parks for the months of June, July, and August 2021. According to the graph, the number of recreation visits to Yellowstone National Park in June was approximately 940,000; in July, the number of visits was approximately 1,080,000; and in August, the number of visits was approximately 920,000. In all three months, the number of visits to Yellowstone was higher than the number of visits to any other park in each month. Choice A is incorrect. According to the graph, the number of recreation visits to Zion National Park was approximately 680,000 in June, about 580,000 in July, and about 470,000 in August, each of which is lower than the number of visits to Yellowstone in the same months. Choice B is incorrect. According to the graph, the number of recreation visits to Rocky Mountain National Park was approximately 670,000 in June, about 900,000 in July, and about 750,000 in August, each of which is lower than the number of visits to Yellowstone in the same months. Choice D is incorrect. According to the graph, the number of recreation visits to Grand Canyon National Park was approximately 540,000 in June, about 560,000 in July, and about 430,000 in August, each of which is lower than the total visits to Yellowstone in the same months."
+  },
+  {
+    "id": 36,
+    "question": "<img src=\"COE_QB_EASY_images/q36_38d75269.png\" alt=\"Question 36\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "“Echelman uses a special program that makes a 3D model of the sculpture.”",
+      "B": "“The first part of planning a new sculpture is done using paper and pencil, and then a digital program is used to finalize the design.”",
+      "C": "“The materials that Echelman uses to build her sculptures are both flexible and strong.”",
+      "D": "“Each sculpture is designed to reflect local landmarks from the area in which it is eventually installed.”"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it presents the quotation that most effectively illustrates the claim that Echelman’s sculptures appear delicate but are in fact quite durable. The text explains that Echelman’s sculptures include flowing shapes that mimic the wind. If it is true that the materials she uses are both flexible and strong, that would help explain why the works are durable even though they appear delicate. Choice A is incorrect because the claim in the text is not about how Echelman models her work before sculpting. Choice B is incorrect because the claim in the text is not about the planning and design phases of Echelman’s work. Choice D is incorrect because the claim in the text is not about how the sculptures relate to their locations."
+  },
+  {
+    "id": 37,
+    "question": "<img src=\"COE_QB_EASY_images/q37_e18d75ea.png\" alt=\"Question 37\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "More than 2,000 meters below the surface",
+      "B": "150 to 400 meters below the surface",
+      "C": "500 to 2,000 meters below the surface",
+      "D": "250 to 500 meters below the surface"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The table shows the depths below the ocean surface at which four species of deep-sea fish live. According to the table, the range of depths at which the southern stoplight loosejaw lives is 500–2,000 meters below the surface. Choice A is incorrect because the table indicates that the southern stoplight loosejaw lives 500–2,000 meters below the ocean surface, not at depths more than 2,000 meters below the surface. Choice B is incorrect because the table indicates that the southern stoplight loosejaw lives 500–2,000 meters below the ocean surface, not 150–400 meters below the surface. Choice D is incorrect because the table indicates that the southern stoplight loosejaw lives 500–2,000 meters below the ocean surface, not 250–500 meters below the surface."
+  },
+  {
+    "id": 38,
+    "question": "<img src=\"COE_QB_EASY_images/q38_a04807d8.png\" alt=\"Question 38\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "2016.",
+      "B": "2018.",
+      "C": "2019.",
+      "D": "2017."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most effectively uses data from the table to complete the statement about the year when both museums had the highest number of visits. The table shows the number of visits (in millions) from 2016 to 2019 to two museums: the National Museum of the American Indian and the National Museum of African American History and Culture. It indicates that the highest number of visits to the National Museum of the American Indian was 1.2 million in 2017 and that the highest number of visits to the National Museum of African American History and Culture was 2.4 million, also in 2017. Choice A is incorrect because the table shows that in 2016, the National Museum of the American Indian had 1.1 million visits and that the National Museum of African American History and Culture had 0.73 million visits, both of which are lower than the number of visits these museums had in 2017. Choice B is incorrect because the table shows that in 2018, the National Museum of the American Indian had 1.1 million visits and that the National Museum of African American History and Culture had 1.9 million visits, both of which are lower than the number of visits these museums had in 2017. Choice C is incorrect because the table shows that in 2019, the National Museum of the American Indian had 0.96 million visits and that the National Museum of African American History and Culture had 2.0 million visits, both of which are lower than the number of visits these museums had in 2017."
+  },
+  {
+    "id": 39,
+    "question": "<img src=\"COE_QB_EASY_images/q39_0992bd73.png\" alt=\"Question 39\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "remained largely consistent from 2005 to 2022, whereas the level of bridging trust showed more variability from 2005 to 2022.",
+      "B": "consistently grew from 2005 to 2022, whereas the level of bridging trust largely declined from 2005 to 2022.",
+      "C": "was the same in 2018 as it was in 2022 but remained lower than the level of bridging trust in 2018 and 2022.",
+      "D": "declined from 2005 to 2022 but remained higher than the level of bridging trust from 2005 to 2018."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the graph to complete the statement about the level of bonding trust in the UK. The text defines bonding trust as trust within already existing relationships and bridging trust as trust between different groups, often involving interactions beyond one’s immediate social circle, giving as an example meeting someone at a networking event, a type of event where people would typically make new acquaintances. The graph presents the percentage of UK survey respondents who indicated that they trust people at least somewhat in two categories—people they know personally (bonding trust) and people they are meeting for the first time (bridging trust)—in 2005, 2018, and 2022. According to the graph, the percentage representing bonding trust remained fairly consistent over the period, at approximately 96% in 2005, 97% in 2018, and 97% in 2022. By contrast, the percentage representing bridging trust showed more variability, rising from approximately 46% in 2005 to approximately 55% in 2018 before falling to approximately 53% in 2022. Choice B is incorrect because the graph shows that the percentage representing bonding trust didn’t consistently grow from 2005 to 2022; rather, it remained largely consistent at approximately 96%, 97%, and 97% in 2005, 2018, and 2022, respectively. Moreover, the graph shows that the percentage representing bridging trust didn’t largely decline from 2005 to 2022; rather, it rose from approximately 46% in 2005 to approximately 55% in 2018 before falling slightly to approximately 53% in 2022. Choice C is incorrect. While the graph indicates that the percentage representing bonding trust was approximately the same in 2018 and 2022 (approximately 97%), the graph also shows that bonding trust was substantially higher than, not lower than, bridging trust in both 2018 (approximately 55%) and 2022 (approximately 53%). Choice D is incorrect. While the graph does indicate that bonding trust remained higher than bridging trust from 2005 to 2018, the claim that bonding trust declined from 2005 to 2022 isn’t supported by the graph. The graph shows that the percentage representing bonding trust rose slightly from approximately 96% in 2005 to approximately 97% in both 2018 and 2022."
+  },
+  {
+    "id": 40,
+    "question": "<img src=\"COE_QB_EASY_images/q40_6af80ff3.png\" alt=\"Question 40\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Each of the three sponges was inhabited by at least one male A. fasciatus and at least one undetermined A. fasciatus.",
+      "B": "Sponge 1 was inhabited by 17 male A. fasciatus.",
+      "C": "Each of the three sponges was inhabited by at least one male A. fasciatus and at least one female A. fasciatus.",
+      "D": "Sponge 1 was inhabited by 13 female A. fasciatus."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it accurately describes data from the graph that support the claim that the team found that male and female Atelomycterus fasciatus (banded sand catsharks) share the same sponge. The graph presents the number of male, female, and undetermined banded sand catsharks found in each of three sponges—sponge 1, sponge 2, and sponge 3. The graph shows that approximately 17 male sharks and 13 female sharks were found in sponge 1, approximately 1 male shark and 2 female sharks were found in sponge 2, and approximately 2 male sharks and 1 female shark were found in sponge 3. Thus, the graph shows that male and female sharks were found sharing the same sponges. Choice A is incorrect because the graph shows that one of the sponges (sponge 1) was not inhabited by any undetermined banded sand catsharks. Additionally, this choice doesn’t give any information about female sharks, so it can’t support the claim that male and female sharks are actually found in the same sponge. Choice B is incorrect because it doesn’t give any information about female sharks. The graph does show that approximately 17 male banded sand catsharks inhabited sponge 1, but that information alone can’t support the claim that male and female sharks are found in the same sponge. Choice D is incorrect because it doesn’t give any information about male banded sand catsharks. The graph does show that approximately 13 female banded sand catsharks inhabited sponge 1, but that information alone can’t support the claim that male and female sharks are found in the same sponge."
+  },
+  {
+    "id": 41,
+    "question": "“Banking Coal” is a 1922 poem by Jean Toomer. The poem describes a fire being lit and maintained. In the poem, the speaker praises the person who built the fire: ______ Which quotation from “Banking Coal” most effectively illustrates the claim?",
+    "options": {
+      "A": "“I’ve seen them set to work, each in his way, / Though all with shovels and with ashes.”",
+      "B": "“Whoever it was who brought the first wood and coal / To start the Fire, did his part well.”",
+      "C": "“Sometimes the fire left alone / Would die...”",
+      "D": "“Whereupon they’d crawl in hooded night-caps / Contentedly to bed.”"
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a quotation that effectively illustrates the claim that the speaker in the poem praises the person who built the fire. In the quotation, the speaker explicitly refers to the builder of the fire—the one “who brought the first wood and coal / To start the Fire”—and offers praise, stating that this person “did his part well.” Choice A is incorrect. Although the quotation describes seeing people working with shovels and ashes, which can be associated with tending a fire, it doesn’t mention the building of the fire or single out any person for praise. Choice C is incorrect. Although the quotation refers to the fire, it describes the fire dying when left alone, not the starting of the fire or the person who built it. Choice D is incorrect because the quotation makes no reference to the fire and doesn’t praise anyone; it simply states that people got into bed contentedly in nightcaps."
+  },
+  {
+    "id": 42,
+    "question": "<img src=\"COE_QB_EASY_images/q42_23b5cb59.png\" alt=\"Question 42\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "170 electoral college votes.",
+      "B": "103 electoral college votes.",
+      "C": "62 electoral college votes.",
+      "D": "44 electoral college votes."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the table to complete the statement about the 15th US presidential election. The table shows the total number of electoral college votes and the total number of popular votes received by each of three candidates. The table shows that Polk received 170 electoral college votes. Choice B is incorrect because the table shows that Polk received 170 electoral college votes, not 103. According to the table, none of the candidates received a total of 103 votes of either type (electoral college or popular). Choice C is incorrect because the table shows that Polk received 170 electoral college votes, not 62. According to the table, none of the candidates received a total of 62 votes of either type (electoral college or popular). Choice D is incorrect because the table shows that Polk received 170 electoral college votes, not 44. According to the table, none of the candidates received a total of 44 votes of either type (electoral college or popular)."
+  },
+  {
+    "id": 43,
+    "question": "<img src=\"COE_QB_EASY_images/q43_ac7166f7.png\" alt=\"Question 43\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "“I have a bike, but I don’t ride it very often. When the weather is nice, I sometimes use my bike to go into town to do some shopping.”",
+      "B": "“I just got a new bike, and I’m looking forward to going on rides with my friends soon.”",
+      "C": "“I bike to my job every day. There’s a nice bike path that goes through a park, but I use the bike lane on the main road because it’s faster.”",
+      "D": "“I usually bike to work, but I’m taking the bus now because my bike has a broken part that needs to be fixed.”"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it presents a response that best supports the underlined claim that experienced riders who mainly bike to work tend to prefer routes that reduce their travel time. The bike rider responds that they bike to work every day and that they use the bike lane because it is faster; thus, it is reasonable to assume that they are an experienced rider who prefers routes that reduce their travel time to work. Choice A is incorrect because this response does not address the claim. The claim is about experienced riders preferring to take routes that reduce their travel time on the way to work; however, this response is from an inexperienced rider who is discussing biking for personal reasons. Choice B is incorrect because this response is not related to the underlined claim. The response from this rider does not establish the level of experience they have with riding, nor does it state that the rider uses a bike to get to work. Choice D is incorrect. Although this response is from an experienced rider who mainly bikes to work, the response also mentions that the rider’s bike is broken, which is not related to any route preference."
+  },
+  {
+    "id": 44,
+    "question": "<img src=\"COE_QB_EASY_images/q44_e441da80.png\" alt=\"Question 44\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "The newspaper published approximately 1,000 investigative articles in 2010 and approximately 500 in 2019.",
+      "B": "The smallest annual number of investigative articles published in the newspaper during the period shown is approximately 1,600 in 2013.",
+      "C": "The greatest annual number of investigative articles published in the newspaper during the period shown is approximately 1,000 in 2017.",
+      "D": "The newspaper published approximately 1,000 investigative articles in 2010 and approximately 1,600 in 2013."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. By comparing the number of investigative articles in 2010 to the number in 2019, we can see that the number has fallen overall. Choice B is incorrect. This choice misreads the graph. The 1,600 articles published in 2013 was the largest annual number of investigative articles published during the period. Also, notice that the claim focuses on an overall change, while this choice just focuses on one year. We can’t determine an overall increase or decrease by looking at just one year. Choice C is incorrect. The 1,000 articles published in 2017 wasn’t the largest number published during the period. Also, notice that the claim focuses on an overall change, while this choice just focuses on one year. We can’t determine an overall increase or decrease by looking at just one year. Choice D is incorrect. This choice doesn’t justify the claim. The claim is about a decrease in articles published between 2010 and 2019. This data shows an increase in articles published over a different period (2010-2013)."
+  },
+  {
+    "id": 45,
+    "question": "<img src=\"COE_QB_EASY_images/q45_e37f79a7.png\" alt=\"Question 45\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "April.",
+      "B": "March.",
+      "C": "January.",
+      "D": "February."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it effectively uses data from the table to complete the statement, identifying the month in which the United States had the highest number of housing starts in 2022. According to the table, which shows the number of US housing starts from January to April 2022, the highest number of housing starts was 1,803 thousand, which occurred in April. Choice B is incorrect because March had 1,713 thousand housing starts, which is lower than the number of starts in April and in February. Choice C is incorrect because January had 1,669 thousand housing starts, which is the lowest of all the months listed in the table. Choice D is incorrect because February had 1,771 thousand housing starts, which is lower than the number of starts in April."
+  },
+  {
+    "id": 46,
+    "question": "<img src=\"COE_QB_EASY_images/q46_0b634641.png\" alt=\"Question 46\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "There were about as many drawings with an example of an insect as there were with an example of a bird.",
+      "B": "The fewest number of drawings contained an example of a bird.",
+      "C": "More of the drawings had an example of an insect than an example of a mammal.",
+      "D": "More of the drawings had an example of a mammal than either an example of a bird or an example of an insect."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it accurately describes data from the graph that support the researchers’ conclusion that children may be more aware of mammals than of other animals. The graph presents the percent of drawings by schoolchildren that contained an example of an animal from a cer tain group (mammals, birds, or insects). The graph shows that approximately 80% of the drawings contained an example of a mammal, while only approximately 69% contained an example of a bird and only about 55% contained an example of an insect. The fact that mammals were included in more drawings than either birds or insects were supports the idea that children may be particularly aware of mammals in their environments. Choice A is incorrect because the graph shows that there were not \"about as many\" drawings with insects as there were drawings with birds (approximately 69% of the drawings included an example of a bird, while only about 55% included an example of an insect). Fur ther, comparing only the numbers for birds and insects wouldn’t indicate anything about the schoolchildren’s awareness of mammals. Choice B is incorrect because the graph shows that insects, not birds, were the group that appeared in the fewest number of drawings (approximately 69% of the drawings included an example of a bird but only about 55% included an example of an insect). Fur ther, stating that examples from one nonmammal group appeared in the fewest number of drawings would provide no evidence about the schoolchildren’s awareness of mammals. Choice C is incorrect because the graph shows that more drawings had an example of a mammal than an example of an insect, not the other way around (approximately 80% of the drawings included an example of a mammal, while only about 55% included an example of an insect). Fur ther, examples of a nonmammal group appearing in more drawings than examples of mammals did would actually weaken the claim that schoolchildren may be more aware of mammals than of other animals."
+  },
+  {
+    "id": 47,
+    "question": "“The Rock and the Sea” is an 1893 poem by Charlotte Perkins Gilman. In the poem, a rock is portrayed as intending to confront and restrain the sea: ______ Which quotation from “The Rock and the Sea” most effectively illustrates the claim?",
+    "options": {
+      "A": "“I am the Rock. Black midnight falls; / The terrible breakers rise like walls; / With curling lips and gleaming teeth / They plunge and tear at my bones beneath.”",
+      "B": "“I am the Sea. I hold the land / As one holds an apple in his hand, / Hold it fast with sleepless eyes, / Watching the continents sink and rise.”",
+      "C": "“I am the Rock, presumptuous Sea! / I am set to encounter thee. / Angry and loud or gentle and still, / I am set here to limit thy power, and I will!”",
+      "D": "“I am the Sea. The ear th I sway; / Granite to me is potter’s clay; / Under the touch of my careless waves / It rises in turrets and sinks in caves.”"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses a quotation from “The Rock and the Sea” to illustrate the claim that the poem portrays a rock that is intent on confronting and restraining the sea. In the quotation, the rock is presented as addressing the sea, saying “I am set to encounter thee” and “I am set here to limit thy power, and I will!” These statements suggest that the rock plans to oppose the sea and keep it from becoming too powerful. Choice A is incorrect because this quotation doesn’t express the rock’s intentions to confront and restrain the sea; instead, it describes how the rock perceives the sea’s “terrible breakers,” or waves, that crash onto the rock and tear at it. Choice B is incorrect because it doesn’t present the rock’s intentions. Instead, it presents the point of view of the sea and its perceived power over the land. Choice D is incorrect because this quotation doesn’t convey the rock’s intentions. Instead, it expresses the sea’s thoughts about how much stronger it is than the rock, stating that granite, which is usually a hard substance, is soft like clay to the powerful sea."
+  },
+  {
+    "id": 48,
+    "question": "Just Patty is a 1911 novel by Jean Webster. Patty and her friends have just been informed that they will no longer be roommates while at school. Patty talks to Mrs. Trent, the head of the school, about the situation. The narrator presents Patty as trying hard to convince Mrs. Trent to allow the group to continue sharing a room: ______ Which quotation from Just Patty most effectively illustrates the claim?",
+    "options": {
+      "A": "“[Mrs. Trent’s] lips twitched. It was a fact, deplored by her assistants, that her sense of humour frequently ran away with her sense of justice.”",
+      "B": "“[Mrs. Trent] nodded dismissal, and the three of them found themselves in the hall again. They looked at one another for a moment of blank silence.”",
+      "C": "“Patty’s eyes suddenly brightened. She seized [her friends] by [the] elbow and shoved them into the empty schoolroom.”",
+      "D": "“Patty did use all the diplomacy at her command. Having dwelt touchingly upon their long friendship, and their sorrow at being separated, she passed lightly to the matter of their new roommates.”"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because the quotation directly illustrates Patty trying hard to convince Mrs. Trent to allow the group to continue sharing a room. The phrase \"Patty did use all the diplomacy at her command\" explicitly shows her making a determined effort to be persuasive. The quotation fur ther details Patty’s specific tactics: she \"dwelt touchingly upon their long friendship, and their sorrow at being separated. \" These details illustrate the claim by suggesting that Patty carefully crafted and delivered an emotional appeal to Mrs. Trent about the effects of changing the group’s rooming situation. Choice A is incorrect because although the quotation describes a reaction by Mrs. Trent, it does not reveal anything about the events or conversation that might have prompted this reaction. Instead of depicting Patty’s efforts to be persuasive during such a conversation, the quotation focuses on Mrs. Trent’s character traits; specifically, it describes the relationship between her \"sense of humour\" and her \"sense of justice. \" While the latter trait may be relevant to Patty’s situation, the quotation doesn’t show the extent of her efforts to convince Mrs. Trent to reconsider the change in rooming arrangements. Choice B is incorrect because this quotation describes the reaction of a group of three students immediately after an encounter with Mrs. Trent. It shows the outcome of an implied conversation but does not provide any evidence about the topic or nature of the conversation itself, and therefore does not illustrate Patty’s efforts during a conversation to convince Mrs. Trent to change her mind about the rooming situation. Choice C is incorrect because although this quotation suggests that Patty can be assertive (she abruptly grabbed her friends and \"shoved them into the empty schoolroom\"), it doesn’t show Patty asserting herself by trying to convince Mrs. Trent to reconsider the proposed rooming arrangements. The quotation doesn’t allude to Mrs. Trent or to Patty’s desire to continue sharing a room with a group of friends."
+  },
+  {
+    "id": 49,
+    "question": "<img src=\"COE_QB_EASY_images/q49_26ee16ba.png\" alt=\"Question 49\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Students tend to be more enthusiastic about rap music than they are about hip-hop music.",
+      "B": "Students who are highly interested in social justice issues typically don’t sign up for courses that incorporate hip-hop and rap music.",
+      "C": "Educators report that they enjoy teaching courses that involve hip-hop and rap music more than teaching courses that don’t.",
+      "D": "Courses that incorporate hip-hop and rap music are among the courses with the highest enrollment and attendance rates."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. Enrollment and attendance are logical ways to measure whether students are interested and engaged. High enrollment and attendance suggests a high level of interest and engagement. Choice A is incorrect. This choice doesn’t support the claim. Students’ preferences between hip-hop and rap aren’t relevant to the claim, which is focused on whether or not students like classes that use hip-hop pedagogy (which includes the educational use of both hip-hop and rap). Choice B is incorrect. This choice doesn’t support the claim. While the first part of the sentence discusses social justice, the underlined claim focuses on student success, which is unrelated. Choice C is incorrect. This choice doesn’t support the claim. This tells us about teacher enjoyment, which isn’t relevant to a claim about student interest and engagement."
+  },
+  {
+    "id": 50,
+    "question": "<img src=\"COE_QB_EASY_images/q50_0b96fa93.png\" alt=\"Question 50\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "silver maple.",
+      "B": "sugar maple.",
+      "C": "red maple.",
+      "D": "Norway maple."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the table to complete the statement about the forestry student’s project. The table shows five types of maple trees, each tree’s maximum height, and whether each tree is native to Nor th America. The text indicates that the student needs to recommend a maple tree that’s native to Nor th America and won’t reach a height greater than 60 feet. The red maple is the only tree listed in the table that meets these criteria: its maximum height is 60 feet—meaning that it won’t grow higher than 60 feet—and it’s native to Nor th America. Choice A is incorrect because the text states that the student needs to recommend a tree that’s native to Nor th America and won’t grow higher than 60 feet, but the table shows that the maximum height of the silver maple is 70 feet. Choice B is incorrect because the text states that the student needs to recommend a tree that’s native to Nor th America and won’t grow higher than 60 feet, but the table shows that the maximum height of the sugar maple is 75 feet. Choice D is incorrect because the text states that the student needs to recommend a tree that’s native to Nor th America and won’t grow higher than 60 feet, but the table shows that the Norway maple isn’t native to Nor th America."
+  },
+  {
+    "id": 51,
+    "question": "<img src=\"COE_QB_EASY_images/q51_89f71526.png\" alt=\"Question 51\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Alcedo.",
+      "B": "Pacaya.",
+      "C": "Fernandina.",
+      "D": "Maule."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. Pacaya had a deformation rate of almost 3.5 centimeters per month, while Sierra Negra had a deformation rate of less than 3 centimeters per month. Therefore, Sierra Negra’s deformation rate was lower than Pacaya’s. Choice A is incorrect. Alcedo has a lower rate of deformation than Sierra Negra. Choice C is incorrect. Fernandina has a lower rate of deformation than Sierra Negra. Choice D is incorrect. Maule has a lower rate of deformation than Sierra Negra."
+  },
+  {
+    "id": 52,
+    "question": "<img src=\"COE_QB_EASY_images/q52_8af28416.png\" alt=\"Question 52\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Washington had between 600 and 800 organic farms.",
+      "B": "New York had fewer than 800 organic farms.",
+      "C": "Wisconsin and Iowa each had between 1,200 and 1,400 organic farms.",
+      "D": "Pennsylvania had more than 1,200 organic farms."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it uses data from the graph to accurately complete the text. The graph shows the number of organic farms located in each of six US states in 2016: between 2,600 and 2,800 in California; between 1,200 and 1,400 in Wisconsin; between 1,000 and 1,200 in New York; approximately 800 in Pennsylvania; and between 600 and 800 in both Iowa and Washington. The last sentence of the text provides information about the number of organic farms in 2016, first describing the number in California. The best completion of the sentence is the choice that accurately describes the number of organic farms in 2016 in another state, which the assertion that Washington had between 600 and 800 organic farms provides. Choice B is incorrect because it doesn’t accurately reflect the data from the graph. The graph indicates that there were between 1,000 and 1,200 organic farms in New York, not fewer than 800 organic farms. Choice C is incorrect because it doesn’t accurately reflect the data from the graph. While the graph indicates that there were between 1,200 and 1,400 organic farms in Wisconsin in 2016, there were only between 600 and 800 in Iowa. Choice D is incorrect because it doesn’t accurately reflect the data from the graph. The graph indicates that in 2016 there were approximately 800 organic farms in Pennsylvania, not more than 1,200."
+  },
+  {
+    "id": 53,
+    "question": "Many trees produce growth rings as they age, with each ring in a tree’s trunk representing one year in the tree’s life. This often makes it fairly easy to determine how old a tree was when it was cut down. To do so, you look at the tree stump and count the dark rings you see. But a researcher claims that this method often can’t be used to identify the age of olive trees. Which detail, if true, would most directly support the researcher’s claim?",
+    "options": {
+      "A": "The oldest olive tree in the world is likely over 1,100 years old.",
+      "B": "Narrow growth rings can suggest that an olive tree experienced harsh conditions.",
+      "C": "Many olive trees have growth rings that are difficult to see.",
+      "D": "Olive trees thrive in areas with hot, dry summers."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it presents a detail that, if true, would most directly support the researcher’s claim about the difficulty of determining olive tree age by ring counting. The text explains that for many trees, counting the dark rings visible in a tree stump is a reliable method for determining the tree’s age. However, if olive trees have growth rings that are difficult to see, it would be hard to count the individual rings. Therefore, the ring-counting method would be challenging or impossible to use for olive trees. This directly supports the researcher’s claim that the ring-counting method often can’t be used for olive trees because it identifies a specific characteristic of olive trees that could render this approach impracticable. Choice A is incorrect because the probable age of the oldest olive tree doesn’t explain why counting rings wouldn’t work for determining olive tree age. The older age of some olive trees might make counting more tedious but doesn’t pose an insurmountable obstacle to adopting the method. The researcher’s claim is about the feasibility of the ring-counting method for olive trees, not about the potential impracticality of employing this method for particularly long-lived trees. Choice B is incorrect because the fact that narrow growth rings might indicate harsh growing conditions has no direct bearing on the claim that counting rings often can’t be used to determine olive tree age. It is possible that growth rings that are too narrowly spaced might be difficult to count, but the researcher’s claim relates to the inapplicability of the ring-counting method to olive trees in general rather than to olive trees that have experienced harsh conditions. Moreover, as long as they are visible, even narrow growth rings might permit the ring-counting method to be used to determine tree age. Choice D is incorrect because the ideal climate conditions for olive trees don’t explain why counting rings wouldn’t work as a method for determining their age. While growing conditions might affect ring formation patterns, the simple fact that olive trees thrive in hot, dry environments doesn’t directly address why the conventional method of counting rings would be ineffective for determining their age."
+  },
+  {
+    "id": 54,
+    "question": "<img src=\"COE_QB_EASY_images/q54_303bcc41.png\" alt=\"Question 54\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "wild boar.",
+      "B": "eastern gray kangaroo.",
+      "C": "African bush elephant.",
+      "D": "white-tailed deer."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it accurately identifies the species with the highest global biomass, the white-tailed deer at approximately 2.7 million metric tons. The graph shows the global biomass for four wild land mammal species with the highest global biomass. The graph indicates that the African bush elephant’s global biomass is about 1.3 million metric tons, the eastern gray kangaroo’s is about 0.6 million metric tons, and the wild boar’s is about 1.9 million metric tons. These values are all lower than the global biomass for the white-tailed deer’s approximately 2.7 million metric tons. Thus, the white-tailed deer is the species with the highest global biomass. Choice A is incorrect because although the graph indicates that the wild boar has a relatively high global biomass of about 1.9 million metric tons, it is not the species with the highest value. The white-tailed deer is the species with the highest global biomass at about 2.7 million metric tons. Choice B is incorrect because the eastern gray kangaroo has the lowest global biomass value shown on the graph at about 0.6 million metric tons, not the highest global biomass. The white-tailed deer has the highest at about 2.7 million metric tons. Choice C is incorrect because although the African bush elephant has a substantial global biomass of about 1.3 million metric tons, it is not the species with the highest value according to the graph. The white-tailed deer has the highest global biomass at about 2.7 million metric tons."
+  },
+  {
+    "id": 55,
+    "question": "<img src=\"COE_QB_EASY_images/q55_ede3f942.png\" alt=\"Question 55\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "13.50 square miles.",
+      "B": "53.68 square miles.",
+      "C": "9.36 square miles.",
+      "D": "39.21 square miles."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most effectively uses data from the table to support the statement about the tribal nation of Los Coyotes Band of Cahuilla and Cupeño Indians in California. The text states that most tribal nations in California are less than 50 square miles in total area and provides Los Coyotes Band of Cahuilla and Cupeño Indians as an example. According to the table, the tribal nation of Los Coyotes Band of Cahuilla and Cupeño Indians covers 39.21 square miles in Southern California, which is less than 50 square miles. Choice A is incorrect because it cites the area of La Jolla Band of Luiseño Indians (13.50 square miles), not that of Los Coyotes Band of Cahuilla and Cupeño Indians. Choice B is incorrect because it cites the area of the Agua Caliente Band of Cahuilla Indians (53.68 square miles), not that of Los Coyotes Band of Cahuilla and Cupeño Indians. Additionally, this area is greater than 50 square miles and therefore wouldn’t be an effective example for illustrating the text’s statement that most tribal nations in California are less than 50 square miles in total area. Choice C is incorrect because it cites the area of the Pauma Band of Luiseño Mission Indians (9.36 square miles), not that of Los Coyotes Band of Cahuilla and Cupeño Indians."
+  },
+  {
+    "id": 56,
+    "question": "<img src=\"COE_QB_EASY_images/q56_46e45728.png\" alt=\"Question 56\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "the cold-dry season for both females and males.",
+      "B": "the cold-dry season for females and the hot-dry season for males.",
+      "C": "the hot-dry season for females and the monsoon season for males.",
+      "D": "the monsoon season for both females and males."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. Females only traveled 9.28 km per day in the cold-dry season, versus 12.64 and 12.48 km per day in the monsoon and hot-dry seasons, respectively. Males only traveled 15.81 km per day per day in the cold-dry season, versus 18.93 and 18.87 km per day in the monsoon and hot-dry seasons, respectively. So, the cold-dry season was the season where both males and females had the least daily travel. Choice B is incorrect. Although females traveled least in the cold-dry season, males didn’t travel least in the hot-dry season. Instead, they traveled less per day in the cold-dry season as well. Choice C is incorrect. Females had less daily travel in the cold-dry season than in the hot-dry season (9.28 versus 12.48 km per day), and males had less daily travel in the cold-dry season than in the monsoon season (15.81 versus 18.93 km per day). Choice D is incorrect. In fact, both females and males traveled the most kilometers per day in the monsoon season."
+  },
+  {
+    "id": 57,
+    "question": "<img src=\"COE_QB_EASY_images/q57_faaf484f.png\" alt=\"Question 57\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "South West area.",
+      "B": "South Central area.",
+      "C": "Nor th East area.",
+      "D": "Nor th Central area."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the table to complete the statement about the bike path survey. The table lists five city areas and the percent of residents in each area who are in favor of adding more bike paths. The text ends with the statement that the highest level of demand was in the area with 88% of the residents saying they wanted more bike paths, and the table shows that the South West area is the one where 88% of residents gave that response. Choice B is incorrect because the table shows that 33%, not 88%, of residents in the South Central area were in favor of more bike paths. Choice C is incorrect because the table shows that 12%, not 88%, of residents in the Nor th East area were in favor of more bike paths. Choice D is incorrect because the table shows that 26%, not 88%, of residents in the Nor th Central area were in favor of more bike paths."
+  },
+  {
+    "id": 58,
+    "question": "<img src=\"COE_QB_EASY_images/q58_94c726fb.png\" alt=\"Question 58\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "0.59 million metric tons of copper in 1995.",
+      "B": "0.44 million metric tons of copper in 1995.",
+      "C": "0.26 million metric tons of copper in 1995.",
+      "D": "2.49 million metric tons of copper in 1995."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the table to complete the statement about copper mining. The table shows the amount of copper mined in each of four countries in 1995 and 2020. According to the text, a student who consults the table notes that the country that mined 0.55 million metric tons of copper in 2020 had mined a different amount in 1995. The table indicates that Kazakhstan is the country that mined 0.55 million metric tons of copper in 2020 and 0.26 million metric tons of copper in 1995. Choice A is incorrect because it doesn’t provide the amount of copper mined in 1995 by Kazakhstan, the country that mined 0.55 million metric tons of copper in 2020. According to the table, Canada mined 0.73 million metric tons of copper in 1995 and 0.59 million metric tons in 2020. It didn’t mine 0.55 million metric tons in either year. Choice B is incorrect because it doesn’t provide the amount of copper mined in 1995 by Kazakhstan, the country that mined 0.55 million metric tons of copper in 2020. According to the table, Indonesia mined 0.44 million metric tons of copper in 1995 and 0.51 million metric tons in 2020. It didn’t mine 0.55 million metric tons in either year. Choice D is incorrect because it doesn’t provide the amount of copper mined in 1995 by Kazakhstan, the country that mined 0.55 million metric tons of copper in 2020. According to the table, Chile mined 2.49 million metric tons of copper in 1995 and 5.73 million metric tons in 2020. It didn’t mine 0.55 million metric tons in either year."
+  },
+  {
+    "id": 59,
+    "question": "Among the most visited art museums in the world, the Galleria dell’Accademia in Florence had approximately 1.7 million visitors in 2019. The Galleria dell’Accademia also offers vir tual tours that art lovers can view online for free. Although there were initial concerns that people who viewed the vir tual tours would then consider an in-person visit unnecessary, museum administrators claim that their surveys of in-person visitors show that those concerns were unjustified. Which statement, if true, would most directly support the administrators’ claim?",
+    "options": {
+      "A": "Many surveyed visitors to the Galleria dell’Accademia indicated that the vir tual tours convinced them to plan an in-person visit.",
+      "B": "Most surveyed visitors to the Galleria dell’Accademia indicated that they were unaware of the vir tual tours before their first in-person visit.",
+      "C": "Most surveyed visitors to the Galleria dell’Accademia indicated that they lived somewhere other than Florence.",
+      "D": "Many surveyed visitors to the Galleria dell’Accademia indicated that they would likely view the vir tual tours in order to reminisce about their in- person visit."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents a finding that, if true, would most directly support the museum administrators’ claim that concerns about vir tual tours replacing in-person visits were unjustified. The text explains that after the Galleria dell’Accademia began offering online tours, there were concerns that if people viewed these vir tual tours, they would consider an in-person visit to be unnecessary. The finding that many visitors who were surveyed indicated that the vir tual tours actually convinced them to plan an in-person visit directly contradicts these concerns. Rather than deterring in-person visits, vir tual tours actively encouraged them, providing strong support for the administrators’ claim that the initial concerns were unfounded. Choice B is incorrect. The finding that most surveyed visitors were unaware of the vir tual tours before their first in-person visit wouldn’t directly address whether vir tual tours affect decisions about in-person visits. This finding would only indicate that these particular visitors didn’t have the oppor tunity to be influenced by vir tual tours when making their decision to visit. Choice C is incorrect because the geographic location of visitors wouldn’t address the impact of vir tual tours on people’s decisions to visit the museum in person. Whether visitors live in Florence or elsewhere would suggest nothing about whether vir tual tours influenced their choice. This information is irrelevant to the administrators’ claim about the relationship between vir tual tours and in-person visits. Choice D is incorrect because visitors’ intentions to view vir tual tours after their in-person visit wouldn’t address the initial concerns that vir tual tours might make in-person visits seem unnecessary. This finding indicates that some visitors plan to use vir tual tours as a way to remember their visit, but it provides no information about whether vir tual tours influenced their decision to visit in person in the first place, which is what the administrators’ claim addresses."
+  },
+  {
+    "id": 60,
+    "question": "“The Mountain” is a 1914 poem by Robert Frost. In the poem, the speaker visits a town next to a mountain. The speaker claims to feel protected by the mountain, saying ______ Which quotation from “The Mountain” most effectively illustrates the claim?",
+    "options": {
+      "A": "“A dry ravine emerged under boughs / Into the pasture.”",
+      "B": "“The mountain stood there to be pointed at.”",
+      "C": "“I felt it like a wall / Behind which I was sheltered from a wind.”",
+      "D": "“I crossed the river and swung round the mountain.”"
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses a quotation from \"The Mountain\" to illustrate the claim that the speaker feels protected by the mountain. In the quotation, the speaker recounts that the mountain felt like a wall that offers shelter from the wind. That the speaker felt sheltered by the mountain suggests that it offered the speaker a sense of being protected. Choice A is incorrect because this quotation doesn’t express the speaker’s feeling of being protected by the mountain. Instead, it notes that the speaker has seen a dry ravine and a pasture. Choice B is incorrect because this quotation doesn’t express the speaker’s feeling of being protected by the mountain. Instead, it simply states that there is a mountain, which is meant to be viewed. Choice D is incorrect because this quotation doesn’t express the speaker’s feeling of being protected by the mountain. Instead, it indicates that the speaker has gone around the mountain."
+  },
+  {
+    "id": 61,
+    "question": "<img src=\"COE_QB_EASY_images/q61_0014477f.png\" alt=\"Question 61\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "47.3 square miles.",
+      "B": "77.1 square miles.",
+      "C": "32.4 square miles.",
+      "D": "595.7 square miles."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the table to complete the comparison between Pueblo tribal nations. The student identifies that the total area of Taos Pueblo is 156.2 square miles and needs to complete the comparison with the total area of Nambé Pueblo. According to the table, Nambé Pueblo has a total area of 32.4 square miles. Choice A is incorrect because according to the table, 47.3 square miles is the area of Pueblo de San Ildefonso, not of Nambé Pueblo. Choice B is incorrect because according to the table, 77.1 square miles is the area of Santa Clara Pueblo, not of Nambé Pueblo. Choice D is incorrect because according to the table, 595.7 square miles is the area of Pueblo of Acoma, not of Nambé Pueblo."
+  },
+  {
+    "id": 62,
+    "question": "<img src=\"COE_QB_EASY_images/q62_5c73f0cc.png\" alt=\"Question 62\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "75%.",
+      "B": "10%.",
+      "C": "45%.",
+      "D": "20%."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses data from the graph to complete the statement. The graph shows test results for two new battery recycling processes used with two types of lithium-ion batteries, type A and type B. According to the graph, recycling process 2 recovered the highest percentage of lithium in the tests: recovering about 75% from lithium-ion battery type B. Choice B is incorrect because, according to the graph, the highest percentage of lithium recovered in the tests was 75%, not 10%. In fact, none of the tests recovered exactly 10% of lithium from a recycling process. Choice C is incorrect because, according to the graph, the highest percentage of lithium recovered in the tests was 75%, not 45%. In fact, none of the tests recovered exactly 45% of lithium from a recycling process. Choice D is incorrect because, according to the graph, the highest percentage of lithium recovered in the tests was 75%, not 20%. In fact, none of the tests recovered exactly 20% of lithium from a recycling process."
+  },
+  {
+    "id": 63,
+    "question": "<img src=\"COE_QB_EASY_images/q63_800771e5.png\" alt=\"Question 63\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "In 2016, the number of cellular and molecular biology topic submissions was the same as the number of animal science topic submissions.",
+      "B": "In 2019, there were more physics and space science topic submissions than there were medicine and health topic submissions.",
+      "C": "The lowest number of animal science topic submissions in a year was approximately 95 in 2016.",
+      "D": "The highest number of medicine and health topic submissions during the period shown is approximately 285 in 2019."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it effectively uses data from the graph to support the underlined claim that more medicine and health topics were submitted to a national science fair in 2019 than in any of the other years shown. This choice indicates that the approximately 285 medicine and health topics submitted in 2019 are more than the number of medicine and health submissions in any other year shown—a description that is supported by information in the graph, which shows that medicine and health topic submissions were below 250 in 2016, 2017, and 2018, but above 250 (approximately 285 submissions) in 2019. Choice A is incorrect because it doesn’t support the underlined claim or accurately reflect the information in the graph. This choice refers to 2016 and discusses cellular and molecular biology and animal science, whereas the underlined claim refers to 2019 and discusses medicine and health. Moreover, the claim that in 2016 there were equal numbers of submissions in the cellular and molecular biology category and in the animal science category is contradicted by the graph, which shows approximately 200 submissions and 50 submissions, respectively, for those categories in 2016. Choice B is incorrect because it doesn’t accurately reflect the information in the graph. This choice claims that in 2019 there were more physics and space submissions than there were medicine and health submissions, but the graph shows that there were approximately 100 space and science submissions that year and approximately 285 medicine and health submissions. Choice C is incorrect because it doesn’t accurately reflect the information in the graph or support the underlined claim about medicine and health research topics. This choice claims that there were approximately 95 submissions for the animal science category in 2016, but the graph shows that the number was closer to 50 in 2016."
+  },
+  {
+    "id": 64,
+    "question": "Happy House is a 1920 novel by Jane Abbott. The narrator presents a young woman as being unimpressed with the house she is visiting: ______ Which quotation from Happy House most effectively illustrates the claim?",
+    "options": {
+      "A": "“Her first feeling was of disappointment; in the square lines of the house there was little claim to beauty.”",
+      "B": "“Someone had opened one of the blinds so here there was more light.”",
+      "C": "“The door, built squarely in the middle of the house, opened almost directly upon a stone-flagged path that led in a straight line to the road.”",
+      "D": "“She tip-toed through the hall and opened the door on the right.”"
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most effectively uses a quotation from Happy House to illustrate the claim that the young woman is unimpressed with the house she is visiting. In the quotation, it says the young woman’s \"first feeling was of disappointment\" and that \"there was little claim to beauty\" when referring to the house. This disappointment and the overall lack of beauty in the house suggest that the young woman isn’t impressed by the house she is visiting. Choice B is incorrect because the quotation doesn’t describe what the young woman thinks about the house. Instead, it indicates that there is more light because window blinds have been opened. Choice C is incorrect because the quotation describes a door and a path outside of the house but doesn’t include anything to indicate the young woman’s feelings about the house. Choice D is incorrect because the quotation states what the young woman did in the house (\"tip-toed through the hall\" and \"opened the door\"), but it doesn’t show what she thinks about it."
+  },
+  {
+    "id": 65,
+    "question": "<img src=\"COE_QB_EASY_images/q65_0021d326.png\" alt=\"Question 65\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Researchers determine that olms don’t breed often.",
+      "B": "Researchers confirm that olms live in only a few cave systems.",
+      "C": "Researchers discover that ear thworms from surface soils are a major part of olms’ diet.",
+      "D": "Researchers learn that olms’ brains differ from other salamanders’ brains."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it presents a finding that, if true, would most strongly support Manenti and team’s claim that olms regularly come to the surface to find food. The text explains that scientists previously believed olms remained in their underwater caves throughout their lives, but Manenti’s team claims that olms actually surface regularly to perform important activities like finding food. Since ear thworms from surface soils would not be present in underwater caves, the finding that such ear thworms constitute a major part of olms’ diet would provide compelling evidence that olms regularly leave their underwater cave environment to obtain food from the surface, thus supporting the underlined claim. Choice A is incorrect because information about olms’ breeding frequency wouldn’t support the claim about their leaving their underwater habitats to obtain food. While breeding patterns might be relevant to understanding olm behavior in general, this finding doesn’t address whether olms surface to find food, which is the specific behavior that the underlined claim addresses. Choice B is incorrect because learning that olms live in only a few cave systems wouldn’t support the claim about their regular visits to the surface. This finding would provide information about the geographic distribution of olm habitats but wouldn’t address whether olms leave these caves to find food or perform other activities on the surface. Choice D is incorrect because the differences between olms’ brains and other salamanders’ brains have no clear connection to olms’ movement beyond their underwater habitats or to their feeding habits. A finding about the uniqueness of olms’ brains wouldn’t address whether olms leave their caves to find food or support Manenti and team’s claim about olms’ motivation for coming to the surface."
+  },
+  {
+    "id": 66,
+    "question": "<img src=\"COE_QB_EASY_images/q66_11c00ab9.png\" alt=\"Question 66\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "0.35.",
+      "B": "0.61.",
+      "C": "0.75.",
+      "D": "0.52."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it effectively uses data from the table to complete the example of the estimated impact of invasive mongooses on threatened mammals. The table shows the values for the estimated harmful impact of three invasive predator species (mongooses, dogs, and cats) on threatened birds, mammals, and reptiles. The text states that the values are on a scale from 0.25 (less impact) to 1.00 (greater impact). The table shows that the value for the estimated impact of invasive mongooses on threatened mammals is 0.75. Choice A is incorrect because the table shows that the value for the estimated impact of mongooses on threatened mammals is 0.75, not 0.35. The value 0.35 is not assigned to any of the categories in the table. Choice B is incorrect because the table shows that 0.61 is the value for the estimated impact of cats, not mongooses, on threatened mammals. Choice D is incorrect because the table shows that 0.52 is the value for the estimated impact of cats on threatened reptiles, not of mongooses on threatened mammals."
+  },
+  {
+    "id": 67,
+    "question": "<img src=\"COE_QB_EASY_images/q67_af125459.png\" alt=\"Question 67\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "5–6 meters below the surface.",
+      "B": "4–5 meters below the surface.",
+      "C": "3–4 meters below the surface.",
+      "D": "6–7 meters below the surface."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most effectively uses data from the table to complete the statement about the depth at which the highest number of tools made from clamshells that Neander thals collected from the beach was found. The table presents the depths at which Neander thal clamshell tools were found, and, for each depth, the number of those tools made from clamshells that washed up on the beach and the number made from clamshells harvested from the seafloor. The table indicates that the highest number made from clamshells collected from the beach was 99 and that these tools were found at a depth of 3–4 meters. Choice A is incorrect because the table indicates that 18 tools made from clamshells collected from the beach were found at a depth of 5–6 meters, which is fewer than the 99 tools found at a depth of 3–4 meters. Choice B is incorrect because the table indicates that 2 tools made from clamshells collected from the beach were found at a depth of 4–5 meters, which is fewer than the 99 tools found at a depth of 3–4 meters. Choice D is incorrect because the table indicates that 1 tool made from clamshells collected from the beach was found at a depth of 6–7 meters, which is fewer than the 99 tools found at a depth of 3–4 meters."
+  },
+  {
+    "id": 68,
+    "question": "“The Bet” is an 1889 short story by Anton Chekhov. In the story, a banker is described as being very upset about something: ______ Which quotation from “The Bet” most effectively illustrates the claim?",
+    "options": {
+      "A": "“Then the banker cautiously broke the seals off the door and put the key in the keyhole.”",
+      "B": "“It struck three o’clock, the banker listened; everyone was asleep in the house and nothing could be heard outside but the rustling of the chilled trees.”",
+      "C": "“The banker, spoilt and frivolous, with millions beyond his reckoning, was delighted at the bet.”",
+      "D": "“When [the banker] got home he lay on his bed, but his tears and emotion kept him for hours from sleeping.”"
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most effectively uses a quotation from \"The Bet\" to illustrate the claim that the banker was very upset about something. The quotation indicates that the banker shed tears, which suggests that he was likely unhappy about something, and that his emotions were so strong that they kept him from sleeping for hours. These details suggest that the banker was very upset. Choice A is incorrect because this quotation mainly describes the banker cautiously unlocking a door; it doesn’t suggest that he was particularly upset about anything. Choice B is incorrect because this quotation doesn’t mention whether the banker was experiencing any particularly strong negative feelings; instead, the quotation focuses on the quietness of the setting. Choice C is incorrect because this quotation states that the banker was feeling \"delighted, \" not that he was upset."
+  },
+  {
+    "id": 69,
+    "question": "<img src=\"COE_QB_EASY_images/q69_c088a9a9.png\" alt=\"Question 69\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Fewer than fifty children could speak Hawaiian when ‘Aha Pūnana Leo was founded, but now more than 2,000 students at ‘Aha Pūnana Leo speak it.",
+      "B": "Roughly 680,000 Native Hawaiian people lived in the United States in 2020, and a little less than half of them lived in Hawai‘i.",
+      "C": "Hawaiian is very similar to other languages that are spoken on the Polynesian Islands of the Pacific Ocean, including Tahitian, Samoan, and Māori.",
+      "D": "Besides Native Hawaiians, tens of thousands of people from other Pacific Islander communities live in Hawai‘i today, including over 37,000 Samoans."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents a statement that, if true, would most directly support the claim that the number of young people who speak Hawaiian has increased because of the ‘Aha Pūnana Leo school. The text explains that Native Hawaiian teachers founded the school to help preserve the Hawaiian language by teaching it to children at a time when an increasing number of Native Hawaiians were speaking English instead. If it is true that when ‘Aha Pūnana Leo was founded fewer than fifty children could speak Hawaiian and that now over 2,000 students at the school can speak it, that would directly demonstrate that the school’s efforts have led to a greater number of young people speaking Hawaiian. Choice B is incorrect because information about the total number and location of Native Hawaiian people in a single year wouldn’t reveal anything about the number of young speakers of Hawaiian (particularly since the text indicates that not all Native Hawaiians speak Hawaiian) or about the effect of the ‘Aha Pūnana Leo school on that number, so it wouldn’t have any bearing on the text’s claim. Choice C is incorrect because the fact that Hawaiian is similar to Tahitian, Samoan, Māori, and other languages of the Polynesian Islands wouldn’t reveal anything about the number of young speakers of Hawaiian or the effect of the ‘Aha Pūnana Leo school on that number, so it wouldn’t have any bearing on the text’s claim. Choice D is incorrect because information about non–Native Hawaiian people from Pacific Islander communities living in Hawai‘i today wouldn’t reveal anything about the number of young speakers of Hawaiian or the effect of the ‘Aha Pūnana Leo school on that number, so it wouldn’t have any bearing on the text’s claim."
+  },
+  {
+    "id": 70,
+    "question": "<img src=\"COE_QB_EASY_images/q70_ab94d40a.png\" alt=\"Question 70\" style=\"max-width:100%;height:auto;display:block;margin:10px 0;\">",
+    "options": {
+      "A": "Participants who were not provided with a ranking of the museums spent roughly equal amounts of time reading about each museum.",
+      "B": "Participants who were provided with a ranking of the museums spent disproportionately more time reading about the British museum.",
+      "C": "Participants who were provided with a ranking of the museums spent the least amount of time reading about the Natural History Museum.",
+      "D": "Participants who were not provided with a ranking of the museums spent the most time reading about the Victoria and Albert Museum."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. By looking at the top-ranked option, we can see that people provided with ranked lists spent more time reading about the British Museum than reading about other museums (36% of the time versus 21% for the second-ranked option). Choice A is incorrect. The claim is about people with ranked lists, and these data are about those with unranked lists. Choice C is incorrect. The claim is about people with ranked lists looking at the top-ranked option, and these data are about the third-ranked option. Choice D is incorrect. The claim is about people with ranked lists, and these data are about those with unranked lists."
+  },
+  {
+    "id": 71,
+    "question": "Scientists have long believed that giraffes are mostly silent and communicate only visually with one another. But biologist Angela Stöger and her team analyzed hundreds of hours of recordings of giraffes in three European zoos and found that giraffes make a very low-pitched humming sound. The researchers claim that the giraffes use these sounds to communicate when it’s not possible for them to signal one another visually. Which finding, if true, would most directly support Stöger and her team’s claim?",
+    "options": {
+      "A": "Giraffes have an excellent sense of vision and can see in color.",
+      "B": "The giraffes only produced the humming sounds at night when they couldn’t see one another.",
+      "C": "Wild giraffes have never been recorded making humming sounds.",
+      "D": "Researchers observed other animals in European zoos humming."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents a finding that, if true, would support Stöger and her team’s claim that giraffes use humming to communicate when they cannot signal to one another visually. The text indicates that scientists have long thought that giraffes produce little sound and exclusively rely on visual signals to communicate with one another. The text goes on to say, however, that Stöger and her team have recorded giraffes in three European zoos making a low-pitched humming sound, which the team claims the giraffes use to communicate when they cannot see each other. If the giraffes produced these sounds when visual communication was impossible and never produced them otherwise, that would support Stöger and her team’s claim about the circumstance in which giraffes make the sound. Choice A is incorrect because finding that giraffes have excellent vision and can see in color would have no bearing on Stöger and her team’s claim that giraffes produce a low-pitched humming noise to communicate when they cannot communicate visually. As presented in the text, Stöger and her team’s claim is restricted to circumstances in which giraffes cannot signal one another visually; if the giraffes are unable to signal visually, their sense of vision is irrelevant to their communication. Choice C is incorrect because finding that wild giraffes have never been recorded making humming noises would not support Stöger and her team’s claim about the function of the humming noise that the researchers recorded from the giraffes in European zoos. The text provides no information about whether researchers have even attempted to record low- pitched humming in wild giraffes, so nothing can be concluded about the implications of the lack of such recordings. Choice D is incorrect because finding that other animals in European zoos had been observed humming would not support Stöger and her team’s claim, since it would not indicate anything about why giraffes produce humming sounds. Different species could produce similar sounds for different purposes, so scientists could not conclude anything about the function of giraffe humming from a finding that some other animals in zoos also hum."
+  }
+];
+ 
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totalQuestions = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totalQuestions}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totalQuestions} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (answeredCount === totalQuestions) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totalQuestions} câu hỏi. Tổng điểm: ${currentScore}/${totalQuestions}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totalQuestions}`,
+            percentage: Math.round((currentScore / totalQuestions) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totalQuestions}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script src="quiz-pager.js" defer></script>
+</body>
+</html>
