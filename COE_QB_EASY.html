@@ -15,7 +15,8 @@
         
         .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; white-space: pre-line; }
         .options { list-style-type: none; padding: 0; }
-        .options li { margin-bottom: 10px; }
+        .options li { display: grid; grid-template-columns: minmax(0, 1fr) 2.75rem; align-items: center; gap: .5rem; margin-bottom: 10px; }
+        .answer-letter { color: inherit; }
         .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
         .options label:hover { background: #eef2f5; }
         .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
@@ -150,7 +151,7 @@
     <link rel="stylesheet" href="quiz-pager.css">
     <script src="quiz-state.js" defer></script>
 </head>
-<body>
+<body class="coe-legacy-quiz">
 
 <div class="container">
     <h1>COE: QUESTION BANK - EASY</h1>
@@ -1085,8 +1086,10 @@
                         <li>
                             <label id="label-${data.id}-${key}">
                                 <input type="radio" name="question${data.id}" value="${key}">
-                                <strong>${key}.</strong> ${value}
+                                <strong class="answer-letter" aria-hidden="true">${key}.</strong>
+                                <span class="answer-content">${value}</span>
                             </label>
+                            <button type="button" class="eliminate-option" aria-label="Gạch bỏ đáp án ${key}" aria-pressed="false" title="Gạch bỏ đáp án ${key}">×</button>
                         </li>
                     `;
                 }
@@ -1097,6 +1100,13 @@
                 <ul class="options">${optionsHtml}</ul>
                 <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
             `;
+            questionBlock.querySelectorAll('.eliminate-option').forEach(button => {
+                button.addEventListener('click', () => {
+                    const eliminated = button.getAttribute('aria-pressed') !== 'true';
+                    button.setAttribute('aria-pressed', String(eliminated));
+                    button.closest('li').classList.toggle('is-eliminated', eliminated);
+                });
+            });
             quizContainer.appendChild(questionBlock);
         });
         
@@ -1327,6 +1337,10 @@
             const block = document.getElementById(`question-${data.id}`);
             if (block) {
                 block.dataset.locked = "false";
+                block.querySelectorAll('.eliminate-option').forEach(button => {
+                    button.setAttribute('aria-pressed', 'false');
+                    button.closest('li').classList.remove('is-eliminated');
+                });
                 
                 const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
                 radios.forEach(radio => {

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COE_LITERARY</title>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <script src="quiz-state.js" defer></script>
+    <style>
+        .options { list-style: none; padding: 0; }
+        .options li {
+            display: grid;
+            grid-template-columns: 2rem minmax(0, 1fr);
+            align-items: center;
+            gap: .5rem;
+        }
+        .answer-letter { color: var(--sat-ink); text-align: center; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>COE_LITERARY</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn một hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> để xem kết quả nhé!</p>
+    <div id="quiz"></div>
+</div>
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp;
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+<script>
+const quizData = [
+    {
+        id: 1, group: "Actual", question: "The Underdogs is a 1915 novel by Mariano Azuela, originally written in Spanish. In the novel, a group of soldiers travel through a canyon, where their collective mood becomes strongly affected by the strenuous conditions of their journey.\n\nWhich quotation from a translation of The Underdogs most effectively illustrates the claim?",
+        options: {
+            A: "\"The sierra is clad in gala colors. Over its inaccessible peaks the opalescent fog settles like a snowy veil on the forehead of a bride.\"",
+            B: "\"All day long [the soldiers] rode through the canyon, up and down the steep, round hills, dirty and bald as a man's head, hill after hill in endless succession.\"",
+            C: "\"Then, hurriedly, [the soldiers] took the Juchipila canyon northward, without halting to rest until nightfall.\"",
+            D: "\"The sun, beating down upon [the soldiers], dulled their minds and bodies and presently they were silent.\""
+        }, correctAnswer: "D"
+    },
+    {
+        id: 2, group: "Actual", question: "Cane is a 1923 novel by Jean Toomer. In one portion of the novel, Toomer uses figurative language to connect the narrator's urban environment of Washington, DC, and the rural South of the narrator's past.\n\nWhich quotation from Cane most effectively illustrates the claim?",
+        options: {
+            A: "\"And when the wind is from the South, soil of my homeland falls like a fertile shower upon the lean streets of [Washington, DC].\"",
+            B: "\"The young trees had not outgrown their [planter] boxes then. V Street [in Washington, DC] was lined with them.\"",
+            C: "\"The Capitol dome looked like a gray ghost ship drifting in from sea.\"",
+            D: "\"The [train] engines of this valley have a whistle, the echoes of which sound like iterated gasps and sobs. I always think of them as crude music.\""
+        }, correctAnswer: "A"
+    },
+    {
+        id: 3, group: "Actual", question: "The Underdogs is a 1915 novel by Mariano Azuela, originally written in Spanish. In the novel, the town of Juchipila is depicted as a striking sight for a group of soldiers as they view it from afar.\n\nWhich quotation from a translation of The Underdogs most effectively illustrates the claim?",
+        options: {
+            A: "\"All day long [the soldiers] rode through the canyon, up and down the steep, round hills, dirty and bald as a man's head, hill after hill in endless succession.\"",
+            B: "\"[The soldiers] entered the streets of Juchipila as the church bells rang, loud and joyfully, with that peculiar tone that thrills every mountaineer.\"",
+            C: "\"Juchipila rose in the distance, white, bathed in sunlight, shining in the midst of a thick forest at the foot of a proud, lofty mountain.\"",
+            D: "\"The sierra is clad in gala colors. Over its inaccessible peaks the opalescent fog settles like a snowy veil on the forehead of a bride.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 4, group: "Actual", question: "Cane is a 1923 novel by Jean Toomer. In one portion of the novel, Toomer establishes a contrast between the narrator's attitude toward life and the attitude of the narrator's love interest, Avey.\n\nWhich quotation from Cane most effectively illustrates the claim?",
+        options: {
+            A: "\"Avey was as silent as those great trees whose tops we looked down upon. She has always been like that. At least, to me.\"",
+            B: "\"A band in one of the buildings a fair distance off was playing a march. I wished they would stop. Their playing was like a tin spoon in one's mouth.\"",
+            C: "\"[Avey would] smile appreciation, but it was an impersonal smile, never for me.\"",
+            D: "\"As time went on, [Avey's] indifference to things began to pique me; I was ambitious. I left [our small hometown] earlier than she did.\""
+        }, correctAnswer: "D"
+    },
+    {
+        id: 5, group: "Actual", question: "The Underdogs is a 1915 novel by Mariano Azuela, originally written in Spanish. In the novel, Azuela depicts a traveling group of soldiers as having a renewed sense of agency and authority as they set off on a new stage of their journey.\n\nWhich quotation from a translation of The Underdogs most effectively illustrates the claim?",
+        options: {
+            A: "\"The sonorous, joyful bells rang again. From within the church, the honeyed voices of a female chorus rose melancholy and grave.\"",
+            B: "\"All day long [the soldiers] rode through the canyon, up and down the steep, round hills, dirty and bald as a man's head, hill after hill in endless succession. At last, late in the afternoon, they descried several stone church towers in the heart of a bluish ridge, and, beyond, the white road with its curling spirals of dust and its gray telegraph poles.\"",
+            C: "\"The men threw out their chests as if to breathe the widening horizon, the immensity of the sky, the blue from the mountains and the fresh air, redolent with the various odors of the sierra. They spurred their horses to a gallop as if in that mad race they laid claims of possession to the earth.\"",
+            D: "\"Before Juchipila was lost from sight, Valderrama got off his horse, bent down, kneeled, and gravely kissed the ground.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 6, group: "Actual", question: "Memoirs of Elleanor Eldridge is an 1838 historical account by Elleanor Eldridge and Frances Harriet Whipple Green. In the book, the authors assert that people don't need to be famous to be worthy of memoirs.\n\nWhich quotation from Memoirs of Elleanor Eldridge most effectively illustrates the claim?",
+        options: {
+            A: "\"Then let no one turn with too much [fussiness] from the simple story of the humble Elleanor, though it may contain few, or none, of the thrilling charms of poetry and passion.\"",
+            B: "\"There is often a kind of [deceptive] light, playing around such [famous] names, calculated to dazzle and mislead, by their false lustre, until the eye can no longer receive the pure light of Truth, or the mind appreciate real excellence, or intrinsic worth.\"",
+            C: "\"It should not be considered essential to the interest and value of biography, that its subject be of exalted rank, or illustrious name.\"",
+            D: "\"How careful ought we to be to speak nothing but the truth, even in regard to the most trifling circumstances; and not only so, but to be well assured that what we suppose to be true, is truth, before we receive it as such.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 7, group: "Actual", question: "Memoirs of Elleanor Eldridge is an 1838 historical account by Elleanor Eldridge and Frances Harriet Whipple Green. In the book, the authors describe how restorative sleep can be for young people.\n\nWhich quotation from Memoirs of Elleanor Eldridge most effectively illustrates the claim?",
+        options: {
+            A: "\"Then let no one turn with too much [fussiness] from the simple story of the humble Elleanor, though it may contain few, or none, of the thrilling charms of poetry and passion.\"",
+            B: "\"Home is home, to the lowly as well as the great: and no rank, or color, destroys its sacred character, its power over the mind, and the affections.\"",
+            C: "\"Blessed are the slumbers of the innocent! They are kindlier than balm, and they refresh and gladden the spirit of childhood, like ministerings from a better world.\"",
+            D: "\"And now, dear reader, a word with you. What is done cannot be undone. We cannot unravel this web of iniquity, and extract justice from this mass of cruel wrongs.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 8, group: "Actual", question: "Cane is a 1923 novel by Jean Toomer. In one portion of the novel, Toomer establishes a contrast between the narrator's attitude toward life and the attitude of the narrator's love interest, Avey.\n\nWhich quotation from Cane most effectively illustrates the claim?",
+        options: {
+            A: "\"[Avey would] smile appreciation, but it was an impersonal smile, never for me.\"",
+            B: "\"As time went on, [Avey's] indifference to things began to pique me; I was ambitious. I left [our small hometown] earlier than she did.\"",
+            C: "\"I like to feel that something deep in me responded to the trees, the young trees that whinnied like colts impatient to be let free.\"",
+            D: "\"Avey was as silent as those great trees whose tops we looked down upon. She has always been like that. At least, to me.\""
+        }, correctAnswer: "B"
+    },
+    {
+        id: 9, group: "Actual", question: "The Underdogs is a 1915 novel by Mariano Azuela, originally written in Spanish. In the novel, Azuela depicts a traveling group of soldiers as having a renewed sense of agency and authority as they set off on a new stage of their journey.\n\nWhich quotation from a translation of The Underdogs most effectively illustrates the claim?",
+        options: {
+            A: "\"The men threw out their chests as if to breathe the widening horizon, the immensity of the sky, the blue from the mountains and the fresh air, redolent with the various odors of the sierra. They spurred their horses to a gallop as if in that mad race they laid claims of possession to the earth.\"",
+            B: "\"Some women, traveling with the soldiers, occupy two or three seats with baggage, dogs, cats, parrots.\"",
+            C: "\"Amid the stark rocks and dry branches, roses bloomed like a white offering to the sun as smoothly, suavely, it unraveled its golden threads, one by one, from rock to rock.\"",
+            D: "\"All day long [the soldiers] rode through the canyon, up and down the steep, round hills, dirty and bald as a man's head, hill after hill in endless succession. At last, late in the afternoon, they descried several stone church towers in the heart of a bluish ridge, and, beyond, the white road with its curling spirals of dust and its gray telegraph poles.\""
+        }, correctAnswer: "A"
+    },
+    {
+        id: 10, group: "Actual", question: "Cane is a 1923 novel by Jean Toomer. In the novel, Toomer mentions a road in rural Georgia called Dixie Pike and describes it as having a deep connection to a faraway place.\n\nWhich quotation from Cane most effectively illustrates the claim?",
+        options: {
+            A: "\"And when the wind is from the South, soil of my homeland falls like a fertile shower upon the lean streets of [Washington, DC].\"",
+            B: "\"[Fern and I] walked down the [Dixie] Pike with people on all the porches gaping at us.\"",
+            C: "\"The Dixie Pike has grown from a goat path in Africa.\"",
+            D: "\"[The wagon] bumps, and groans, and shakes as it crosses the railroad track.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 11, group: "Actual", question: "The Clouds is a 423 BCE play by Aristophanes, originally written in ancient Greek. At the time, professional intellectuals called sophists taught customers rhetorical techniques for public speaking and instructed them in other subjects. In the play, Aristophanes satirizes sophists as teaching students how to be persuasive without regard for what is morally good.\n\nWhich quotation from a translation of The Clouds most effectively illustrates the claim?",
+        options: {
+            A: "Socrates, a sophist, says that he studies astronomy while in a basket hanging a few feet off the ground because \"I should not have rightly discovered things celestial if I had not suspended the intellect, and mixed the thought in a subtle form with its kindred air.\"",
+            B: "Strepsiades encourages his son to learn to be a sophist, saying, \"Go, I entreat you, dearest of men, go and be taught.\"",
+            C: "Socrates, a sophist, says to a new customer, \"Come now; what do you now wish to learn first of those things in none of which you have ever been instructed?\"",
+            D: "Strepsiades hires a sophist to teach his son and says, \"But see that he learns those two [styles of argument]; the better, whatever it may be; and the worse, which, by maintaining what is unjust, overturns the better. If not both, at any rate the unjust one by all means.\""
+        }, correctAnswer: "D"
+    },
+    {
+        id: 12, group: "Actual", question: "Cane is a 1923 novel by Jean Toomer. In one portion of the novel, Toomer uses figurative language to connect the narrator's urban environment of Washington, DC, and the rural South of the narrator's past.\n\nWhich quotation from Cane most effectively illustrates the claim?",
+        options: {
+            A: "\"The [train] engines of this valley have a whistle, the echoes of which sound like iterated gasps and sobs. I always think of them as crude music.\"",
+            B: "\"And when the wind is from the South, soil of my homeland falls like a fertile shower upon the lean streets of [Washington, DC].\"",
+            C: "\"I sang, with a strange quiver in my voice, a promise-song.\"",
+            D: "\"The young trees had not outgrown their [planter] boxes then. V Street [in Washington, DC] was lined with them.\""
+        }, correctAnswer: "B"
+    },
+    {
+        id: 13, group: "Actual", question: "The Clouds is a 423 BCE play by Aristophanes, originally written in ancient Greek. In the play, Aristophanes satirizes sophists as teaching students how to be persuasive without regard for what is morally good.\n\nWhich quotation from a translation of The Clouds most effectively illustrates the claim?",
+        options: {
+            A: "Strepsiades encourages his son to learn to be a sophist, saying, \"Reform your habits as quickly as possible, and go and learn what I advise.\"",
+            B: "Socrates, a sophist, says that he studies astronomy while in a basket hanging a few feet off the ground because \"I should not have rightly discovered things celestial if I had not suspended the intellect, and mixed the thought in a subtle form with its kindred air.\"",
+            C: "Socrates, a sophist, says to a new customer, \"I have not seen any man so boorish, nor so impracticable, nor so stupid, nor so forgetful; who, while learning some little petty quibbles, forgets them before he has learned them.\"",
+            D: "Strepsiades hires a sophist to teach his son and says, \"But see that he learns those two [styles of argument]; the better, whatever it may be; and the worse, which, by maintaining what is unjust, overturns the better. If not both, at any rate the unjust one by all means.\""
+        }, correctAnswer: "D"
+    },
+    {
+        id: 14, group: "Actual", question: "The Clouds is a 423 BCE play by Aristophanes, originally written in ancient Greek. In the play, Aristophanes satirizes sophists as teaching people to speak dishonestly.\n\nWhich quotation from a translation of The Clouds most effectively illustrates the claim?",
+        options: {
+            A: "Strepsiades encourages his son to learn to be a sophist, saying, \"If you have any concern for your father's patrimony, become one of them.\"",
+            B: "Pheidippides says, after taking lessons from a sophist, \"How pleasant it is to be acquainted with new and clever things, and to be able to despise the established laws!\"",
+            C: "Strepsiades, taking lessons from a sophist, says he wants to become \"a fabricator of falsehoods, inventive of words, a practiced knave in lawsuits, ... a fox, a sharper, a slippery knave, a dissembler, a slippery fellow, an impostor.\"",
+            D: "Socrates, a sophist, says to a potential customer, \"I wish to briefly learn from you if you are possessed of a good memory.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 15, group: "Actual", question: "The Underdogs is a 1915 novel by Mariano Azuela, originally written in Spanish. In the novel, Azuela makes a comparison using natural imagery to convey the mental state of the protagonist, Demetrio.\n\nWhich quotation from a translation of The Underdogs most effectively illustrates the claim?",
+        options: {
+            A: "\"The river crept along, murmuring as the waters rose and fell in small cascades.\"",
+            B: "\"Demetrio suppressed a sigh. Memories crowded and buzzed through his brain like bees about a hive.\"",
+            C: "\"When he reached the summit, he glanced down to see the sun steeping the valley in a lake of gold.\"",
+            D: "\"Demetrio laid a hand on his hair which covered his ears, and stretching himself out for a long time, seemed to be lost in thought.\""
+        }, correctAnswer: "B"
+    },
+    {
+        id: 16, group: "Actual", question: "The Clouds is a 423 BCE play by Aristophanes, originally written in ancient Greek. Aristophanes satirizes sophists' practices and views as foolish.\n\nWhich quotation from a translation of The Clouds most effectively illustrates the claim?",
+        options: {
+            A: "Socrates, a sophist, explains why he studies astronomy while sitting in a basket hanging a few feet off the ground, saying, \"I should not have rightly discovered things celestial if I had not suspended the intellect, and mixed the thought in a subtle form with its kindred air.\"",
+            B: "Socrates, a sophist, says to a new customer, \"Come now; what do you now wish to learn first of those things in none of which you have ever been instructed?\"",
+            C: "Strepsiades, after taking lessons from a sophist, says to his son, \"Approach, that you may know more; and I will tell you a thing, by learning which you will be a man. But see that you do not teach this to any one.\"",
+            D: "Strepsiades encourages his son to learn to be a sophist, saying, \"Reform your habits as quickly as possible, and go and learn what I advise.\""
+        }, correctAnswer: "A"
+    },
+    {
+        id: 17, group: "Actual", question: "The Wonderful Wizard of Oz is a 1900 novel by L. Frank Baum. In the novel, the narrator describes a character's house as having become very faded in appearance over time.\n\nWhich quotation from The Wonderful Wizard of Oz most effectively illustrates the claim?",
+        options: {
+            A: "\"Once more [Dorothy and her companions] could see fences built beside the road; but these were painted green, and when they came to a small house, in which a farmer evidently lived, that also was painted green.\"",
+            B: "\"Then [Dorothy] went back to the house, and having helped herself and Toto to a good drink of the cool, clear water, she set about making ready for the journey to the City of Emeralds.\"",
+            C: "\"Once the house had been painted, but the sun blistered the paint and the rains washed it away, and now the house was as dull and gray as everything else.\"",
+            D: "\"When Dorothy stood in the doorway and looked around, she could see nothing but the great gray prairie on every side. Not a tree nor a house broke the broad sweep of flat country.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 18, group: "Actual", question: "Uncle Vanya: Scenes from Country Life in Four Acts is an 1898 play by Anton Chekhov, originally written in Russian. Professor Serebrakoff and his wife Helena have come to stay at their country estate, which Vanya manages with the help of Sonia, the professor's daughter from a previous marriage. Chekhov portrays the relationship between Vanya and Professor Serebrakoff as much more strained than it once was.\n\nWhich quotation from a translation of Uncle Vanya most effectively illustrates the claim?",
+        options: {
+            A: "Professor Serebrakoff asks Vanya to leave the room, saying, \"For the sake of our former friendship do not protest against going. We will talk some other time.\"",
+            B: "Vanya says to Professor Serebrakoff, \"For twenty-five years I have managed [the country estate], and have sent you the returns from it like the most honest of servants, and you have never given me one single word of thanks for my work, not one—neither in my youth nor now.\"",
+            C: "Vanya says of Professor Serebrakoff, \"He is everlastingly whining about his hard lot, though, as a matter of fact, he is extraordinarily lucky.\"",
+            D: "Professor Serebrakoff says to Helena, \"It is funny that everybody listens to [Vanya] and his old idiot of a mother, but the moment I open my lips you all begin to feel ill-treated.\""
+        }, correctAnswer: "A"
+    },
+    {
+        id: 19, group: "Actual", question: "Poems is an 1895 collection by Frances E.W. Harper. In one of Harper's poems, the speaker suggests that those who mistreat people with less privilege will eventually receive divine judgment.\n\nWhich quotation from Poems most effectively illustrates the claim?",
+        options: {
+            A: "\"Men may tread down the poor and lowly, / May crush them in anger and hate, / But surely the mills of God's justice / Will grind out the grist of their fate.\" (from \"An Appeal to My Countrywomen\")",
+            B: "\"When ye plead for the wrecked and fallen, / The exile from far-distant shores, / Remember that men are still wasting / Life's crimson around your own doors.\" (from \"An Appeal to My Countrywomen\")",
+            C: "\"Say not the age is hard and cold— / I think it brave and grand; / When men of diverse sects and creeds / Are clasping hand in hand.\" (from \"The Present Age\")",
+            D: "\"God help our native land, / Bring surcease to her strife, / And shower from thy hand / A more abundant life.\" (from \"God Bless Our Native Land\")"
+        }, correctAnswer: "A"
+    },
+    {
+        id: 20, group: "Actual", question: "\"Aunt Sue's Stories\" is a 1926 poem by Langston Hughes. In the poem, the speaker indicates that the stories Aunt Sue tells are based on Aunt Sue's personal experiences.\n\nWhich quotation from \"Aunt Sue's Stories\" most effectively illustrates the claim?",
+        options: {
+            A: "A listening child \"knows that Aunt Sue / Never got her stories out of any book at all, / But that they came / Right out of her own life.\"",
+            B: "The people in the stories \"Mingle themselves softly / In the flow of old Aunt Sue's voice, / Mingle themselves softly.\"",
+            C: "Dark shadows \"cross and recross / Aunt Sue's stories.\"",
+            D: "The stories are told during \"Summer nights on the front porch.\""
+        }, correctAnswer: "A"
+    },
+    {
+        id: 21, group: "Actual", question: "The Wonderful Wizard of Oz is a 1900 novel by L. Frank Baum. In the novel, the narrator describes a character's house as having become very faded in appearance over time.\n\nWhich quotation from The Wonderful Wizard of Oz most effectively illustrates the claim?",
+        options: {
+            A: "\"Before [Dorothy and her companions] was a great stretch of country having a floor as smooth and shining and white as the bottom of a big platter. Scattered around were many houses made entirely of china and painted in the brightest colors.\"",
+            B: "\"There were four walls, a floor and a roof, which made one room; and this room contained a rusty-looking cookstove, a cupboard for the dishes, a table, three or four chairs, and the beds.\"",
+            C: "\"When Dorothy stood in the doorway and looked around, she could see nothing but the great gray prairie on every side. Not a tree nor a house broke the broad sweep of flat country.\"",
+            D: "\"Once the house had been painted, but the sun blistered the paint and the rains washed it away, and now the house was as dull and gray as everything else.\""
+        }, correctAnswer: "D"
+    },
+    {
+        id: 22, group: "Actual", question: "Life Among the Paiutes is an 1882 autobiographical narrative by Sarah Winnemucca Hopkins, a Northern Paiute author, educator, and activist. In the work, Winnemucca directly addresses the reader to explain certain customs.\n\nWhich quotation from Life Among the Paiutes most effectively illustrates the claim?",
+        options: {
+            A: "\"We would all go in company to see if the flowers we were named for were yet in bloom, for almost all the girls are named for flowers.\"",
+            B: "\"Nothing happened during the day, and after a while mother told us not to say a word about why we left, for grandpa might get mad with us.\"",
+            C: "\"Now, my dear reader, there is no word so endearing as the word father and that is why [my people] call all good people father or mother.\"",
+            D: "\"But how can I describe the scene that followed? Some of you, dear readers, can imagine.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 23, group: "Actual", question: "\"The Monster\" is an 1898 story by Stephen Crane. Whenever Jimmie, a young boy, has been scolded by his father for misbehavior, he seeks comfort from Henry Johnson, who cares for Jimmie's father's horses. However, Henry does not always provide such comfort.\n\nWhich quotation from \"The Monster\" most effectively illustrates the claim?",
+        options: {
+            A: "\"For one thing, Jimmie was invariably overcome with reverence when he was told how beautifully a harness was polished or a horse groomed.\"",
+            B: "\"Henry... could usually provide a sin to place himself on a footing with the disgraced one. Perhaps he would remember that he had forgotten to put the hitching-strap in the back of the buggy on some recent occasion, and had been reprimanded by [Jimmie's father].\"",
+            C: "\"Henry would sometimes choose to absolutely repudiate [Jimmie's behavior], and when Jimmie appeared in his shame would bully him most virtuously, preaching with assurance the precepts of [Jimmie's father's] creed, and pointing out to Jimmie all of his abominations.\"",
+            D: "\"Whenever Henry dwelt for a time in sackcloth [a symbol of guilt over wrongdoing], Jimmie did not patronize him at all.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 24, group: "Actual", question: "Memoirs of Elleanor Eldridge is an 1838 historical account by Elleanor Eldridge and Frances Harriet Whipple Green. In the book, the authors assert that all people naturally have an emotional attachment to where they live.\n\nWhich quotation from Memoirs of Elleanor Eldridge most effectively illustrates the claim?",
+        options: {
+            A: "\"This little book is published for the express purpose of giving a helping hand to suffering and persecuted merit.\"",
+            B: "\"To give some idea of the high esteem in which the subject of the following narrative is held, and the strong interest her misfortunes have excited, a few, from the great number of recommendations in her possession, are selected.\"",
+            C: "\"Blessed are the slumbers of the innocent! They are kindlier than balm, and they refresh and gladden the spirit of childhood, like ministerings from a better world.\"",
+            D: "\"Home is home, to the lowly as well as the great: and no rank, or color, destroys its sacred character, its power over the mind, and the affections.\""
+        }, correctAnswer: "D"
+    },
+    {
+        id: 25, group: "Actual", question: "The Clouds is a 423 BCE play by Aristophanes, originally written in ancient Greek. In the play, Aristophanes satirizes sophists as having an exaggerated sense of their own wisdom.\n\nWhich quotation from a translation of The Clouds most effectively illustrates the claim?",
+        options: {
+            A: "Socrates, a sophist, says to a customer, \"You talk nonsense. Begone; I can't teach you any longer.\"",
+            B: "Strepsiades says of a sophist business, \"There dwell men who in speaking of the heavens persuade people that it is an oven, and that it encompasses us, and that we are the embers. These men teach, if one give them money, to conquer in speaking, right or wrong.\"",
+            C: "Strepsiades encourages his son to learn to be a sophist, saying, \"Go, I entreat you, dearest of men, go and be taught.\"",
+            D: "Socrates, a sophist, says to a new customer, \"Come, then, take care that, whenever I propound any clever dogma about abstruse matters, you [seize] immediately.\""
+        }, correctAnswer: "D"
+    },
+    {
+        id: 26, group: "Extra", label: "E1", question: "Les Misérables is a French novel by Victor Hugo, first published in 1862. The novel tells the story of ex-convict Jean Valjean, who breaks his parole and begins a new life. Before he does so, Bishop Myriel invites him to dine and stay, inadvertently prompting Valjean to covet the valuable silverware and utensils. The novel suggests that Valjean's labor during his incarceration did not earn him much.\n\nWhich quotation from Les Misérables most effectively illustrates the claim?",
+        options: {
+            A: "\"From the ladle one could get at least two hundred francs. Double what he had earned in nineteen years.\"",
+            B: "\"...with the mechanical persistence of revery, of a convict named Brevet, whom he had known in the galleys, and whose trousers had been upheld by a single suspender of knitted cotton.\"",
+            C: "\"Those six sets of silver haunted him. They were there. A few paces distant.\"",
+            D: "\"His mind wavered for a whole hour in fluctuations with which there was certainly mingled some struggle.\""
+        }, correctAnswer: "A"
+    },
+    {
+        id: 27, group: "Extra", label: "E2", question: "The Moonlit Road is a 1907 short story by Ambrose Bierce. The story recounts the murder of Julia Hetman. The narrator implies that, as a boy, he did not fully recognize how badly he would suffer from his mother's death.\n\nWhich quotation from The Moonlit Road most effectively illustrates the claim?",
+        options: {
+            A: "\"In the stress of privation and the need of effort I might sometimes forget the sombre secret ever baffling the conjecture that it compels.\"",
+            B: "\"Ah, that I might again dwell in that enchanted land! Unacquainted with grief, I knew not how to appraise my bereavement.\"",
+            C: "\"...with many other advantages usually valued by those having them and coveted by those who have them not, I sometimes think that I should be less unhappy if they had been denied me.\"",
+            D: "\"I gave up my studies and remained with my father, who, naturally, was greatly changed. Always of a sedate, taciturn disposition, he now fell into so deep a dejection that nothing could hold his attention.\""
+        }, correctAnswer: "B"
+    },
+    {
+        id: 28, group: "Extra", label: "E3", question: "\"The Going\" is an early-1900s poem by Thomas Hardy in which he refers to his recently departed wife. In the poem, the speaker describes the feeling of being able to briefly detect her presence.\n\nWhich quotation from the poem best illustrates the claim?",
+        options: {
+            A: "\"Why did you give no hint that night / That quickly after the morrow's dawn, / And calmly as if indifferent quite / You would close your term here, up and be gone?\"",
+            B: "\"Never to bid good-bye / Or lip me the softest call, / Or utter a wish for a word, while I / Saw morning harden upon the wall.\"",
+            C: "\"Why do you make me leave the house / And think for a breath it is you I see / At the end of the alley of bending boughs / Where so often at dusk you used to be?\"",
+            D: "\"Well, well! All's past amend, / Unchangeable. It must go. / I seem but a dead man held on end.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 29, group: "Extra", label: "E4", question: "A Man Called Ove is a novel by Fredrik Backman. In the novel, the author implies that the narrator was raised in a rural environment.\n\nWhich quotation from A Man Called Ove most effectively illustrates the claim?",
+        options: {
+            A: "\"My aunt and my Uncle Victor lived in Peterborough, halfway to Winnipeg. Peterborough had a town square with several steeples and a number of huge brick buildings that stood like giants, bigger than silos.\"",
+            B: "\"We parked and walked past the storefronts, my mother and I. Though I knew the answer, I asked for a leather baseball glove in the window of the toy shop.\"",
+            C: "\"She eyed the glove in the interior of the hardware store. She leaned close enough to the window to tip her hat. It was her only hat, made of light straw, with two large purple plastic orchids. She typically wore it at Easter.\"",
+            D: "\"She was pretty and looked much younger than Mother. She indeed wore white gloves, as Mother predicted. She stroked my cheek, and she offered me chocolates from a glass bowl.\""
+        }, correctAnswer: "A"
+    },
+    {
+        id: 30, group: "Extra", label: "E5", question: "\"A Respectable Woman\" is a short story by Kate Chopin, written in 1894. The author portrays Gouvernail, a close friend of Mr. Baroda, as polite and cordial toward Mrs. Baroda but making no effort to impress her or get her attention.\n\nWhich quotation from A Respectable Woman most effectively illustrates the claim?",
+        options: {
+            A: "\"She had unconsciously formed an image of him in her mind. She pictured him tall, slim, cynical; with eye-glasses, and his hands in his pockets, and she did not like him.\"",
+            B: "\"She could discover in him none of those brilliant and promising traits which Gaston, her husband, had often assured her that he possessed.\"",
+            C: "\"His manner was as courteous toward her as the most exacting woman could require; but he made no direct appeal to her approval or even esteem.\"",
+            D: "\"Once settled at the plantation he seemed to like to sit upon the wide portico in the shade of one of the big Corinthian pillars, smoking his cigar lazily and listening attentively to Gaston's experience as a sugar planter.\""
+        }, correctAnswer: "C"
+    },
+    {
+        id: 31, group: "Extra", label: "E6", question: "The following text is excerpted from a novel describing the author's memory of a childhood experience. He remembers reacting to a fearful situation as a student in the New York City public school system during the late 1930s. A taller classmate named McCarthy gives the author an Indian club, a wooden club used in exercise and juggling, because the author is not tall enough to reach the club.\n\nWhich quotation from the text most effectively illustrates the claim?",
+        options: {
+            A: "\"I remember thinking that if McCarthy were to use one of those clubs to attack me, I would be entirely at his mercy. I was certain I had only one hope: to attack him first.\"",
+            B: "\"I made a grab for a club, but, as I was so much smaller than the other boys, the clubs were out of reach.\"",
+            C: "\"With fear trumping prudence, I swung the club as high as I could to hit McCarthy in the back of the head.\"",
+            D: "\"I don't know what he saw as he looked at me, but his eyes became quizzical as if he couldn't believe that I really existed. His stare softened and his mouth did something of which I had never imagined it was capable.\""
+        }, correctAnswer: "B"
+    }
+];
+
+const quizElement = document.getElementById("quiz");
+const navGrid = document.getElementById("navGrid");
+const selectedAnswers = new Map();
+const studentId = sessionStorage.getItem("studentId") || sessionStorage.getItem("studentName") || "guest";
+const storageKey = `quiz_draft_${studentId}_${document.title}`;
+const totalQuestions = quizData.length;
+const startTime = new Date();
+let currentScore = 0;
+let answeredCount = 0;
+
+quizData.forEach((question, index) => {
+    const block = document.createElement("section");
+    block.className = "question-block";
+    block.id = `question-${question.id}`;
+    block.dataset.locked = "false";
+    block.style.scrollMarginTop = "100px";
+
+    const heading = document.createElement("h2");
+    heading.textContent = question.group === "Extra" ? `Extra Question ${question.label.slice(1)}` : `Question ${question.id}`;
+    const prompt = document.createElement("div");
+    prompt.className = "question-text";
+    const extraLabel = question.group === "Extra" ? `[Extra Question ${question.label.slice(1)}] ` : "";
+    prompt.textContent = `Câu ${question.id}: ${extraLabel}${question.question}`;
+    const options = document.createElement("ul");
+    options.className = "options";
+    const navButton = document.createElement("button");
+    navButton.type = "button";
+    navButton.id = `nav_btn_${question.id}`;
+    navButton.className = "nav-grid-btn";
+    navButton.textContent = question.label || String(question.id);
+    navButton.setAttribute("aria-label", heading.textContent);
+    navButton.addEventListener("click", () => block.scrollIntoView({ behavior: "smooth" }));
+    navGrid.append(navButton);
+
+    Object.entries(question.options).forEach(([key, value]) => {
+        const item = document.createElement("li");
+        const label = document.createElement("label");
+        label.htmlFor = `q${question.id}-${key}`;
+        label.id = `label-${question.id}-${key}`;
+        const letter = document.createElement("strong");
+        letter.className = "answer-letter";
+        letter.textContent = `${key}.`;
+        letter.setAttribute("aria-hidden", "true");
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = `question${question.id}`;
+        input.id = `q${question.id}-${key}`;
+        input.value = key;
+        input.setAttribute("aria-label", `${key}. ${value}`);
+        input.addEventListener("change", () => {
+            selectedAnswers.set(question.id, key);
+            navButton.classList.add("answered");
+            saveProgress();
+        });
+        const text = document.createElement("span");
+        text.textContent = value;
+        label.append(input, text);
+        item.append(letter, label);
+        options.append(item);
+    });
+
+    const explanation = document.createElement("div");
+    explanation.className = "explanation";
+    explanation.id = `explanation-${question.id}`;
+    block.append(prompt, options, explanation);
+    quizElement.append(block);
+});
+
+localStorage.setItem(`${storageKey}_total`, String(totalQuestions));
+
+function saveProgress() {
+    const answers = {};
+    quizData.forEach(question => {
+        const selected = document.querySelector(`input[name="question${question.id}"]:checked`);
+        if (selected) answers[question.id] = selected.value;
+    });
+    localStorage.setItem(storageKey, JSON.stringify(answers));
+    updateProgress();
+}
+
+function updateProgress() {
+    document.getElementById("progressText").textContent = `${selectedAnswers.size}/${totalQuestions}`;
+}
+updateProgress();
+
+const savedDraft = localStorage.getItem(storageKey);
+if (savedDraft) {
+    const answers = JSON.parse(savedDraft);
+    const answerCount = Object.keys(answers).length;
+    if (answerCount && window.confirm(`Em đang làm dở ${answerCount}/${totalQuestions} câu. Bấm OK để làm tiếp, hoặc Cancel để làm lại.`)) {
+        Object.entries(answers).forEach(([questionId, answer]) => {
+            const input = document.querySelector(`input[name="question${questionId}"][value="${answer}"]`);
+            if (!input) return;
+            input.checked = true;
+            selectedAnswers.set(Number(questionId), answer);
+            document.getElementById(`nav_btn_${questionId}`)?.classList.add("answered");
+        });
+        updateProgress();
+    } else {
+        localStorage.removeItem(storageKey);
+    }
+}
+
+function saveResult() {
+    const endTime = new Date();
+    const durationSeconds = Math.max(0, Math.round((endTime - startTime) / 1000));
+    const answers = {};
+    quizData.forEach(question => {
+        const selected = selectedAnswers.get(question.id);
+        const label = question.group === "Extra" ? `Extra ${question.label.slice(1)}` : `Câu ${question.id}`;
+        answers[label] = selected || "Bỏ trống";
+    });
+    const history = JSON.parse(localStorage.getItem("sat_results") || "[]");
+    const result = {
+        id: Date.now(),
+        studentName: studentId,
+        quizTitle: document.title,
+        attempt: history.filter(item => item.studentName === studentId && item.quizTitle === document.title).length + 1,
+        score: `${currentScore}/${totalQuestions}`,
+        percentage: `${Math.round((currentScore / totalQuestions) * 100)}%`,
+        answers,
+        startTime: startTime.toLocaleTimeString("vi-VN") + " " + startTime.toLocaleDateString("vi-VN"),
+        endTime: endTime.toLocaleTimeString("vi-VN") + " " + endTime.toLocaleDateString("vi-VN"),
+        duration: `${(durationSeconds / 60).toFixed(1)} phút (${durationSeconds}s)`
+    };
+    history.push(result);
+    localStorage.setItem("sat_results", JSON.stringify(history));
+    if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "SAT_SUBMIT_RESULT", data: result }, "*");
+    }
+}
+
+document.getElementById("checkBtn").addEventListener("click", () => {
+    let checkedAny = false;
+    quizData.forEach(question => {
+        const block = document.getElementById(`question-${question.id}`);
+        if (block.dataset.locked === "true") return;
+        const chosen = selectedAnswers.get(question.id);
+        if (!chosen) return;
+        checkedAny = true;
+        answeredCount++;
+        const explanation = document.getElementById(`explanation-${question.id}`);
+        explanation.style.display = "block";
+        explanation.textContent = `Correct answer: ${question.correctAnswer}.`;
+        document.querySelectorAll(`input[name="question${question.id}"]`).forEach(input => {
+            const label = input.closest("label");
+            if (input.value === question.correctAnswer) label.classList.add("correct-answer-label");
+            if (input.checked && input.value !== question.correctAnswer) label.classList.add("wrong-answer-label");
+            input.disabled = true;
+        });
+        if (chosen === question.correctAnswer) currentScore++;
+        block.dataset.locked = "true";
+    });
+    if (!checkedAny) {
+        window.alert("Bạn chưa chọn đáp án nào để kiểm tra!");
+        return;
+    }
+    document.getElementById("scoreText").textContent = String(currentScore);
+    saveProgress();
+    saveResult();
+    if (answeredCount === totalQuestions) localStorage.removeItem(storageKey);
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+    if (!window.confirm("Bạn có muốn làm lại từ đầu không?")) return;
+    selectedAnswers.clear();
+    currentScore = 0;
+    answeredCount = 0;
+    localStorage.removeItem(storageKey);
+    document.querySelectorAll("#quiz input[type=radio]").forEach(input => {
+        input.checked = false;
+        input.disabled = false;
+        input.closest("label").classList.remove("correct-answer-label", "wrong-answer-label");
+    });
+    document.querySelectorAll(".explanation").forEach(element => {
+        element.style.display = "none";
+        element.textContent = "";
+    });
+    document.querySelectorAll(".question-block").forEach(block => { block.dataset.locked = "false"; });
+    document.querySelectorAll(".nav-grid button").forEach(button => button.classList.remove("answered"));
+    document.getElementById("scoreText").textContent = "0";
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+</script>
+<script src="quiz-pager.js" defer></script>
+</body>
+</html>
