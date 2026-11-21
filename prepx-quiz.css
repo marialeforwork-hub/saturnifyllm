@@ -1,0 +1,125 @@
+.prepx-figure {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.prepx-figure img {
+    display: block;
+    width: auto;
+    max-width: min(100%, 34rem);
+    max-height: 48vh;
+    object-fit: contain;
+    border: 1px solid #e6dce4;
+    border-radius: .65rem;
+    background: #fff;
+}
+
+.prepx-table-wrap {
+    max-width: 100%;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.prepx-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: .95em;
+}
+
+.prepx-table th,
+.prepx-table td {
+    min-width: 3rem;
+    padding: .45rem .6rem;
+    border: 1px solid #d5d5e0;
+}
+
+.prepx-table thead th,
+.prepx-table tbody th {
+    background: #f0f0f8;
+    font-weight: 700;
+}
+
+.question-block .options {
+    list-style: none;
+    padding: 0;
+}
+
+.question-block .options li {
+    margin: .55rem 0;
+}
+
+.question-block .options label {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    padding: .75rem .85rem;
+    border: 1px solid #ddd;
+    border-radius: .55rem;
+    background: #f9f9f9;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.question-block .options input[type="radio"] {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    margin: .25rem 0 0;
+    accent-color: #4d53a2;
+}
+
+.answer-letter {
+    flex: 0 0 auto;
+    font-weight: 700;
+}
+
+.answer-content {
+    min-width: 0;
+}
+
+.answer-entry {
+    margin: 1rem 0;
+}
+
+.fill-input {
+    width: min(100%, 20rem);
+    min-height: 2.8rem;
+    padding: .7rem .8rem;
+    border: 1px solid #aeb3cc;
+    border-radius: .55rem;
+    background: #fff;
+    font: inherit;
+}
+
+.fill-input:focus,
+.options input:focus-visible {
+    outline: 3px solid rgba(88, 188, 216, .5);
+    outline-offset: 2px;
+}
+
+.answer-feedback {
+    min-height: 1.5em;
+    margin-top: .5rem;
+    font-size: .95rem;
+    font-weight: 700;
+}
+
+.answer-feedback.is-correct { color: #176b36; }
+.answer-feedback.is-wrong { color: #a32032; }
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.prepx-hidden-controls {
+    display: none;
+}

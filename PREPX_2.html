@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PREPX 2 SAT Math</title>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true
+            },
+            options: { ignoreHtmlClass: 'tex2jax_ignore', processHtmlClass: 'tex2jax_process' }
+        };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <link rel="stylesheet" href="prepx-quiz.css">
+    <script src="quiz-state.js" defer></script>
+    <script src="prepx-quiz.js" defer></script>
+    <script src="quiz-pager.js" defer></script>
+</head>
+<body data-prepx-quiz="2">
+    <div class="container">
+        <h1>PREPX 2 · SAT Math</h1>
+        <p>35 questions · Multiple choice and student-produced responses</p>
+        <p class="prepx-attribution">Source: Shukrullo Turdaliyev / <a href="https://www.instagram.com/cookingSATMath/" target="_blank" rel="noopener noreferrer">@cookingSATMath</a></p>
+        <div id="quiz"></div>
+    </div>
+    <div class="sticky-footer">
+        <div class="stats">Answered: <b id="progressText">0/35</b> &nbsp;|&nbsp; Score: <span id="scoreText">0/35</span></div>
+        <div class="prepx-hidden-controls">
+            <button type="button" id="resetBtn">Reset quiz</button>
+            <button type="button" id="checkBtn">Check answers</button>
+        </div>
+    </div>
+</body>
+</html>
