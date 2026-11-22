@@ -15,6 +15,7 @@
         '11/2026_US/ORG_1': new Set([87]),
         '11/2026_US/ORG_2': new Set([87, 128])
     };
+    const WORD_CHOICE_GAP_PROMPT = 'Which choice completes the text with the most logical and precise word or phrase?';
     const MATHML_NS = 'http://www.w3.org/1998/Math/MathML';
     const MATH_OPERATORS = new Set(['=', '<', '>', '≤', '≥', '+', '-', '−', '×', '÷']);
     const MATH_FUNCTION_PATTERN = /^(?:sin|cos|tan|log|ln)/;
@@ -660,9 +661,10 @@
 
         stem = stem.replace(/^\s*\d+\.\s*/, '').trim();
         const [prompt = '', ...contextLines] = stem.split(/\r?\n/);
+        const preserveGap = text.includes(WORD_CHOICE_GAP_PROMPT);
         return {
-            prompt: cleanOcrText(prompt),
-            contextBlocks: buildContextBlocks(contextLines),
+            prompt: cleanOcrText(prompt, preserveGap),
+            contextBlocks: buildContextBlocks(contextLines, preserveGap),
             options: options.map(option => ({ ...option, text: cleanOcrText(option.text) }))
         };
     }
@@ -951,10 +953,10 @@
     }
 
     // Bullets get their own line; a bullet that did not end its sentence continues on the next wrapped line.
-    function buildContextBlocks(lines) {
+    function buildContextBlocks(lines, preserveGap = false) {
         const blocks = [];
         const addText = (text, startsBullet) => {
-            const cleaned = cleanOcrText(text);
+            const cleaned = cleanOcrText(text, preserveGap);
             if (!cleaned) return;
             const last = blocks[blocks.length - 1];
             if (startsBullet) {
@@ -975,9 +977,9 @@
         return blocks;
     }
 
-    function cleanOcrText(text) {
+    function cleanOcrText(text, preserveGap = false) {
         return String(text)
-            .replace(/_+/g, '')
+            .replace(/_+/g, match => preserveGap ? '_' : '')
             .replace(/[ \t]*\r?\n[ \t]*/g, ' ')
             .replace(/[ \t]{2,}/g, ' ')
             .trim();

@@ -22,7 +22,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_6_questions/s01-q002.jpg",
-          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nThe minor planet 1250 Galanthus was named after the plant genus that includes snowdrops. But most\nminor planets are given only an number, largely due to there being over 500,000 such bodies known\n_ when few had\nat present. So while the task of finding a unique name for each minor planet was _\nbeen discovered, so many minor planets have since been discovered that the task has become nearly impossible.\nA. substantial\nB. ambiguous\nC. insurmountable\n\nD. feasible"
+          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nThe minor planet 1250 Galanthus was named after the plant genus that includes snowdrops. But most minor planets are given only an number, largely due to there being over 500,000 such bodies known at present. So while the task of finding a unique name for each minor planet was _ when few had been discovered, so many minor planets have since been discovered that the task has become nearly impossible.\nA. substantial\nB. ambiguous\nC. insurmountable\n\nD. feasible"
         },
         {
           "id": 3,
@@ -32,7 +32,7 @@ window.BLUEBOOK_QUIZ = {
             "C"
           ],
           "image": "ORG_6_questions/s01-q003.jpg",
-          "text": ".\n\n3. Which choice completes the text with the most logical and precise word or phrase?\nHaving observed microorganisms possessing characteristics unaligned with the two then-known domains of life, Carl\nWoese proposed a new domain, Archaea, in the 1970s. He first noted Archaea's traits in methanogens, microbes\nsuch as Methanoregula formicica that cannot _\nin an oxygenated environment but flourish in\noxygen-free environments by metabolizing hydrogen and carbon dioxide.\nA. mediate\nB. attenuate\nC. proliferate\nD. dissipate"
+          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nHaving observed microorganisms possessing characteristics unaligned with the two then-known domains of life, Carl\nWoese proposed a new domain, Archaea, in the 1970s. He first noted Archaea's traits in methanogens, microbes\nsuch as Methanoregula formicica that cannot _\nin an oxygenated environment but flourish in\noxygen-free environments by metabolizing hydrogen and carbon dioxide.\nA. mediate\nB. attenuate\nC. proliferate\nD. dissipate"
         },
         {
           "id": 4,
@@ -42,7 +42,7 @@ window.BLUEBOOK_QUIZ = {
             "C"
           ],
           "image": "ORG_6_questions/s01-q004.jpg",
-          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nScholar Oli Mould argues that most modern urban architecture is designed to be__. The Preston Bus Station and other\nBrutalist masterpieces—characterized by imposing size and the overwhelming use of rough-hewn\nconcrete-seem, by contrast, to be deliberately confrontational: provoking visceral and often contradictory responses,\nthey demand the observer's full engagement.\nA. redundant\nB. expedient\nC. unobtrusive\nD. contentious"
+          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nScholar Oli Mould argues that most modern urban architecture is designed to be _. The Preston Bus Station and other\nBrutalist masterpieces—characterized by imposing size and the overwhelming use of rough-hewn\nconcrete-seem, by contrast, to be deliberately confrontational: provoking visceral and often contradictory responses,\nthey demand the observer's full engagement.\nA. redundant\nB. expedient\nC. unobtrusive\nD. contentious"
         },
         {
           "id": 5,

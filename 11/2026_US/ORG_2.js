@@ -22,7 +22,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_2_questions/s01-q002.jpg",
-          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nWhen researchers used a robot shaped like Caudiptery—a flightless, dinosaur with minuscule wings—to\nimitate flush-pursue foraging (a hunting strategy in which a predator flashes its wings), most nearby grasshoppers\nemerged from hiding. The researchers therefore hypothesized that very small wings without obvious\nutility may have _\n_ some early dinosaurs' ability to capture prey.\nA. deferred\nB. encompassed\nC. revitalized\nD. enhanced"
+          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nWhen researchers used a robot shaped like Caudiptery—a flightless, dinosaur with minuscule wings—to\nimitate flush-pursue foraging (a hunting strategy in which a predator flashes its wings), most nearby grasshoppers\nemerged from hiding. The researchers therefore hypothesized that very small wings without obvious\nutility may have _ some early dinosaurs' ability to capture prey.\nA. deferred\nB. encompassed\nC. revitalized\nD. enhanced"
         },
         {
           "id": 3,
@@ -32,7 +32,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_2_questions/s01-q003.jpg",
-          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nThe minor planet 1227 Geranium was named after the plant genus that includes cranesbills. But most\nminor planets are given only an identification number, largely due to there being over 500,000 such bodies known\n_when few had\nat present. So while the task of finding a unique name for each minor planet was _\nbeen discovered, so many minor have since been discovered that the task has become nearly\nimpossible.\nA. insurmountable\nB. ambiguous\nC. substantial\nD. feasible"
+          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nThe minor planet 1227 Geranium was named after the plant genus that includes cranesbills. But most minor planets are given only an identification number, largely due to there being over 500,000 such bodies known at present. So while the task of finding a unique name for each minor planet was _ when few had been discovered, so many minor planets have since been discovered that the task has become nearly impossible.\nA. insurmountable\nB. ambiguous\nC. substantial\nD. feasible"
         },
         {
           "id": 4,
@@ -42,7 +42,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_2_questions/s01-q004.jpg",
-          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nMerging traditional Balinese dance and the retelling of the ancient epic poem Ramayana, the Balinese kecak dance (fire\n_ of the dance's distinct artistic elements produces performances\ndance) was first performed in the 1930s. The .\nthat have captivated audiences worldwide.\nA. resurgence\nB. pretense\nC. disruption\nD. synthesis"
+          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nMerging traditional Balinese dance and the retelling of the ancient epic poem Ramayana, the Balinese kecak dance (fire dance) was first performed in the 1930s. The _ of the dance's distinct artistic elements produces performances that have captivated audiences worldwide.\nA. resurgence\nB. pretense\nC. disruption\nD. synthesis"
         },
         {
           "id": 5,
@@ -297,7 +297,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_2_questions/s02-q002.jpg",
-          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nA group of animal behavior researchers from the United States is investigating potential similarities in how\nthe southern sea otter and the spade-toothed whale vocalize to locate food. To do so, the researchers recently\ntraveled to the coast of New Zealand, hoping to determine whether vocalizations from the spade-toothed\n_ those of the southern sea otter near the United States.\nwhale there\nA. influence\nB. predict\nC. answer\nD. resemble"
+          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nA group of animal behavior researchers from the United States is investigating potential similarities in how the southern sea otter and the spade-toothed whale vocalize to locate food. To do so, the researchers recently traveled to the coast of New Zealand, hoping to determine whether vocalizations from the spade-toothed whale there _ those of the southern sea otter near the United States.\nA. influence\nB. predict\nC. answer\nD. resemble"
         },
         {
           "id": 30,
@@ -317,7 +317,7 @@ window.BLUEBOOK_QUIZ = {
             "A"
           ],
           "image": "ORG_2_questions/s02-q004.jpg",
-          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nEdmund Morris's biography of Thomas Edison exhaustively recounts episodes such as Edison's childhood, his\nestablishment of a research laboratory, and his codevelopment of a motion picture camera. Strangely,\n—approach that one reviewer\nhowever, it relates those events in reverse chronological order, a notably —\ndescribed as reducing comprehension and gaining nothing in return.\nA. unconventional\nB. comprehensive\nC. ideal\nD. traditional"
+          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nEdmund Morris's biography of Thomas Edison exhaustively recounts episodes such as Edison's childhood, his establishment of a research laboratory, and his codevelopment of a motion picture camera. Strangely, however, it relates those events in reverse chronological order, a notably _ approach that one reviewer described as reducing comprehension and gaining nothing in return.\nA. unconventional\nB. comprehensive\nC. ideal\nD. traditional"
         },
         {
           "id": 32,
@@ -562,7 +562,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_2_questions/s03-q001.jpg",
-          "text": "1. Which choice completes the text with the most logical and precise word or phrase?\nThe use of electronic automotive diagnostic scanners has become widespread because they provide mechanics with\nimmediate access to fault codes and system data, but these tools are not without limitations. Thus, most [\ntheir use of these scanners with traditional hands-on inspection methods.\n] mechanics\nA. exchange\nB. confuse\nC. contradict\nD. supplement"
+          "text": "1. Which choice completes the text with the most logical and precise word or phrase?\nThe use of electronic automotive diagnostic scanners has become widespread because they provide mechanics with\nimmediate access to fault codes and system data, but these tools are not without limitations. Thus, most mechanics _ their use of these scanners with traditional hands-on inspection methods.\nA. exchange\nB. confuse\nC. contradict\nD. supplement"
         },
         {
           "id": 56,
@@ -602,7 +602,7 @@ window.BLUEBOOK_QUIZ = {
             "B"
           ],
           "image": "ORG_2_questions/s03-q005.jpg",
-          "text": "5. Which choice completes the text with the most logical and precise word or phrase?\nDifficulties of documenting nocturnal pollinator visits and a general focus on diurnal invertebrate pollinators, such as\nAndrena dorsata, have resulted in —\n_ of information on nocturnal moth pollination of plants such as Rubus\nfruticosus L. aggregate, but Max Anderson et al. have addressed this by utilizing infrared technology.\nA. an aggregation\nB. a dearth\nC. a dissonance\nD. an abatement"
+          "text": "5. Which choice completes the text with the most logical and precise word or phrase?\nDifficulties of documenting nocturnal pollinator visits and a general focus on diurnal invertebrate pollinators, such as Andrena dorsata, have resulted in _ of information on nocturnal moth pollination of plants such as Rubus fruticosus L. aggregate, but Max Anderson et al. have addressed this by utilizing infrared technology.\nA. an aggregation\nB. a dearth\nC. a dissonance\nD. an abatement"
         },
         {
           "id": 60,

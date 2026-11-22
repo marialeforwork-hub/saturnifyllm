@@ -12,7 +12,7 @@ window.BLUEBOOK_QUIZ = {
             "A"
           ],
           "image": "ORG_7_questions/s01-q001.jpg",
-          "text": "1. Which choice completes the text with the most logical and precise word or phrase?\nPossessing an outstanding collection of public art, Chicago has everything from monumental sculptures like Pablo\nPicasso's Chicago Picasso at sites like Daley Plaza to innovative street art like Justus Roe's mural Standing Wave\nlocated on South State Street. The —\n_ public art on display in the city can thus satisfy any art lover.\nA. breadth of\nB. controversy over\nC. confusion about\nD. apathy toward"
+          "text": "1. Which choice completes the text with the most logical and precise word or phrase?\nPossessing an outstanding collection of public art, Chicago has everything from monumental sculptures like Pablo\nPicasso's Chicago Picasso at sites like Daley Plaza to innovative street art like Justus Roe's mural Standing Wave\nlocated on South State Street. The _ public art on display in the city can thus satisfy any art lover.\nA. breadth of\nB. controversy over\nC. confusion about\nD. apathy toward"
         },
         {
           "id": 2,
@@ -32,7 +32,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_7_questions/s01-q003.jpg",
-          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nNew and interesting research conducted by Suleiman A. Al-Sweedan and Moath Alhaj is inspired by their\nobservation that though studies of the effect of high altitude on blood chemistry are —, the effect on blood chemistry\nof living in locations below sea level, such as the California towns of Salton Sea Beach and Indio, has received\ncomparatively little notice.\nA. preliminary\nB. sporadic\nC. equivocal\nD. copious"
+          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nNew and interesting research conducted by Suleiman A. Al-Sweedan and Moath Alhaj is inspired by their\nobservation that though studies of the effect of high altitude on blood chemistry are _, the effect on blood chemistry\nof living in locations below sea level, such as the California towns of Salton Sea Beach and Indio, has received\ncomparatively little notice.\nA. preliminary\nB. sporadic\nC. equivocal\nD. copious"
         },
         {
           "id": 4,
@@ -42,7 +42,7 @@ window.BLUEBOOK_QUIZ = {
             "B"
           ],
           "image": "ORG_7_questions/s01-q004.jpg",
-          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nIn the architectural process called modular construction, a building is manufactured in modules under controlled\nconditions and then assembled at its intended location. _\n_ of this approach cite a faster return on investment\nand a greater potential for reuse and recycling.\nA. Epitomes\nB. Proponents\nC. Safeguards\nD. Components"
+          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nIn the architectural process called modular construction, a building is manufactured in modules under controlled\nconditions and then assembled at its intended location. _ of this approach cite a faster return on investment\nand a greater potential for reuse and recycling.\nA. Epitomes\nB. Proponents\nC. Safeguards\nD. Components"
         },
         {
           "id": 5,

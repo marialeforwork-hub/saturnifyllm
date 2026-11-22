@@ -22,7 +22,7 @@ window.BLUEBOOK_QUIZ = {
             "A"
           ],
           "image": "ORG_5_questions/s01-q002.jpg",
-          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nNoah Fierer and colleagues tested whether soil microorganisms from ecologically different settings— ,\nirrigated pasture, and so on—affect plants' flavor chemistry. Although they found associations between\nplants' glucosinolates (compounds that produce spicy and bitter flavors) and plants' growth conditions, variations\nin glucosinolates could not be l\n_soil microbes specifically.\nA. attributed to\nB. forestalled by\nC. subverted by\n\nD. excluded from"
+          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nNoah Fierer and colleagues tested whether soil microorganisms from ecologically different settings— ,\nirrigated pasture, and so on—affect plants' flavor chemistry. Although they found associations between\nplants' glucosinolates (compounds that produce spicy and bitter flavors) and plants' growth conditions, variations\nin glucosinolates could not be _ soil microbes specifically.\nA. attributed to\nB. forestalled by\nC. subverted by\n\nD. excluded from"
         },
         {
           "id": 3,
@@ -32,7 +32,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_5_questions/s01-q003.jpg",
-          "text": ".\n\n3. Which choice completes the text with the most logical and precise word or phrase?\nBeavers build dams across small streams. A dam holds back the water so it cannot flow away. The water then\nspreads out and\nthe low ground nearby. Soon, this flooded land becomes a wetland.\nA. sends\nB. watches\nC. counts\nD. covers"
+          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nBeavers build dams across small streams. A dam holds back the water so it cannot flow away. The water then\nspreads out and _ the low ground nearby. Soon, this flooded land becomes a wetland.\nA. sends\nB. watches\nC. counts\nD. covers"
         },
         {
           "id": 4,
@@ -42,7 +42,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_5_questions/s01-q004.jpg",
-          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\n_: it is a constantly evolving network of channels and strips of\nAs with other river deltas, the Kolyma River delta is _\nland that change in size and shape as the river deposits new sedimentary particles where the river meets the\nwaters of the East Siberian Sea.\nA. immutable\nB. unrivaled\nC. sustainable\nD. dynamic"
+          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nAs with other river deltas, the Kolyma River delta is _: it is a constantly evolving network of channels and strips of land that change in size and shape as the river deposits new sedimentary particles where the river meets the waters of the East Siberian Sea.\nA. immutable\nB. unrivaled\nC. sustainable\nD. dynamic"
         },
         {
           "id": 5,

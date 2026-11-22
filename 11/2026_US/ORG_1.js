@@ -22,7 +22,7 @@ window.BLUEBOOK_QUIZ = {
             "C"
           ],
           "image": "ORG_1_questions/s01-q002.jpg",
-          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nWhen researchers used a robot shaped like Caudiptery-a flightless, omnivorous dinosaur with minuscule wings—to\nimitate flush-pursue foraging (a hunting strategy in which a predator flashes its wings), nearby\ngrasshoppers emerged from hiding. The researchers therefore hypothesized that very small wings without\nobvious utility may have —\n_some early dinosaurs' ability to capture prey.\nA. deferred\nB. revitalized\nC. enhanced\nD. encompassed"
+          "text": "2. Which choice completes the text with the most logical and precise word or phrase?\nWhen researchers used a robot shaped like Caudiptery-a flightless, omnivorous dinosaur with minuscule wings—to\nimitate flush-pursue foraging (a hunting strategy in which a predator flashes its wings), nearby\ngrasshoppers emerged from hiding. The researchers therefore hypothesized that very small wings without\nobvious utility may have _ some early dinosaurs' ability to capture prey.\nA. deferred\nB. revitalized\nC. enhanced\nD. encompassed"
         },
         {
           "id": 3,
@@ -32,7 +32,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_1_questions/s01-q003.jpg",
-          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\n_ offering such\nTechnical documentation for installing complex heating and cooling systems is sometimes frustratingly\ncomplicated and excessively detailed guidance that even seasoned professionals can make little sense of it.\nThat such systems get successfully set up is a testament to the installers expertise.\nA. vague\nB. condensed\nC. simplistic\nD. convoluted"
+          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nTechnical documentation for installing complex heating and cooling systems is sometimes frustratingly _, offering such complicated and excessively detailed guidance that even seasoned professionals can make little sense of it.\nThat such systems get successfully set up is a testament to the installers expertise.\nA. vague\nB. condensed\nC. simplistic\nD. convoluted"
         },
         {
           "id": 4,
@@ -42,7 +42,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_1_questions/s01-q004.jpg",
-          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nIt has plausibly been suggested that the widespread replacement of plants utilizing C3 carbon fixation by plants utilizing C4\n_, however, that the shift occurred\ncarbon fixation 2.6 million years ago was due to increasing global aridity. It is also\nbecause C4 carbon fixation was better suited to the decline in atmospheric carbon dioxide levels that occurred at the\ntime.\nA. dubious\nB. advantageous\nC. incontrovertible\nD. credible"
+          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nIt has plausibly been suggested that the widespread replacement of plants utilizing C3 carbon fixation by plants utilizing C4 carbon fixation 2.6 million years ago was due to increasing global aridity. It is also _, however, that the shift occurred because C4 carbon fixation was better suited to the decline in atmospheric carbon dioxide levels that occurred at the time.\nA. dubious\nB. advantageous\nC. incontrovertible\nD. credible"
         },
         {
           "id": 5,
@@ -317,7 +317,7 @@ window.BLUEBOOK_QUIZ = {
             "D"
           ],
           "image": "ORG_1_questions/s02-q004.jpg",
-          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nEdmund Morris's biography of Thomas Edison exhaustively recounts episodes such as Edison's first patent, his creation\nof a carbon-filament electric light bulb, and his codevelopment of a motion picture camera. Strangely, however, [\n_ approach that one reviewer described\nit relates those events in reverse chronological order, a notably _\nas reducing comprehension and gaining nothing in return.\nA. comprehensive\nB. ideal\nC. traditional\nD. unconventional"
+          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nEdmund Morris's biography of Thomas Edison exhaustively recounts episodes such as Edison's first patent, his creation of a carbon-filament electric light bulb, and his codevelopment of a motion picture camera. Strangely, however, it relates those events in reverse chronological order, a notably _ approach that one reviewer described as reducing comprehension and gaining nothing in return.\nA. comprehensive\nB. ideal\nC. traditional\nD. unconventional"
         },
         {
           "id": 32,
@@ -562,7 +562,7 @@ window.BLUEBOOK_QUIZ = {
             "B"
           ],
           "image": "ORG_1_questions/s03-q001.jpg",
-          "text": "1. Which choice completes the text with the most logical and precise word or phrase?\nThe use of electronic automotive diagnostic scanners has become widespread because they provide mechanics with\nimmediate access to fault codes and system data, but these tools are not without limitations. Thus, most\nmechanics their use of these scanners with traditional hands-on inspection methods.\nA. contradict\nB. supplement\nC. confuse\nD. exchange"
+          "text": "1. Which choice completes the text with the most logical and precise word or phrase?\nThe use of electronic automotive diagnostic scanners has become widespread because they provide mechanics with\nimmediate access to fault codes and system data, but these tools are not without limitations. Thus, most\nmechanics _ their use of these scanners with traditional hands-on inspection methods.\nA. contradict\nB. supplement\nC. confuse\nD. exchange"
         },
         {
           "id": 56,
@@ -582,7 +582,7 @@ window.BLUEBOOK_QUIZ = {
             "B"
           ],
           "image": "ORG_1_questions/s03-q003.jpg",
-          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nIn the 2010s, the price of vintage empty soda cans rose dramatically, which had the counterintuitive effect of\ndemand: buyers who hadn't previously wanted to purchase old soda cans suddenly thronged the market, believing\nprices would continue to rise and the cans could be resold later at a profit.\nA. exploiting\nB. precipitating\nc. stabilizing\nD. monetizing"
+          "text": "3. Which choice completes the text with the most logical and precise word or phrase?\nIn the 2010s, the price of vintage empty soda cans rose dramatically, which had the counterintuitive effect of _ demand: buyers who hadn't previously wanted to purchase old soda cans suddenly thronged the market, believing\nprices would continue to rise and the cans could be resold later at a profit.\nA. exploiting\nB. precipitating\nc. stabilizing\nD. monetizing"
         },
         {
           "id": 58,
@@ -592,7 +592,7 @@ window.BLUEBOOK_QUIZ = {
             "B"
           ],
           "image": "ORG_1_questions/s03-q004.jpg",
-          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nStudying sales and price data for 325 brands of cooking sauces, cat food, bath additives, and other\nbrand success, made a\nconsumer packaged goods, Koushyar Rajavi and colleagues found that pricing, though hardly\nmuch less pronounced contribution to brand success than retail distribution breadth did.\nA. uncharacteristic of\nB. immaterial to\nC. determinative of\nD. contingent on"
+          "text": "4. Which choice completes the text with the most logical and precise word or phrase?\nStudying sales and price data for 325 brands of cooking sauces, cat food, bath additives, and other consumer packaged goods, Koushyar Rajavi and colleagues found that pricing, though hardly _ brand success, made a much less pronounced contribution to brand success than retail distribution breadth did.\nA. uncharacteristic of\nB. immaterial to\nC. determinative of\nD. contingent on"
         },
         {
           "id": 59,
