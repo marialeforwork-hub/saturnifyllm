@@ -191,10 +191,33 @@
                 figure.appendChild(image);
                 questionText.appendChild(figure);
             }
-            if (parts.context) {
+            if (parts.contextBlocks.length) {
                 const context = document.createElement('div');
                 context.className = 'question-context';
-                setFormattedText(context, parts.context, isMathSection);
+                if (parts.contextBlocks.length === 1 && parts.contextBlocks[0].type === 'paragraph') {
+                    setFormattedText(context, parts.contextBlocks[0].text, isMathSection);
+                } else {
+                    let bulletList = null;
+                    parts.contextBlocks.forEach(block => {
+                        if (block.type === 'bullet') {
+                            if (!bulletList) {
+                                bulletList = document.createElement('ul');
+                                bulletList.className = 'research-note-list';
+                                context.appendChild(bulletList);
+                            }
+                            const item = document.createElement('li');
+                            setFormattedText(item, block.text, isMathSection);
+                            bulletList.appendChild(item);
+                            return;
+                        }
+
+                        bulletList = null;
+                        const line = document.createElement('div');
+                        line.className = 'question-context-line';
+                        setFormattedText(line, block.text, isMathSection);
+                        context.appendChild(line);
+                    });
+                }
                 questionText.appendChild(context);
             }
             questionPane.appendChild(questionText);
@@ -332,6 +355,7 @@
     restoreProgress();
     updateProgress();
     window.__saturnifyQuestionCount = totalQuestions;
+    window.__saturnifyManualQuestionTiming = true;
     window.__saturnifyOnQuizReset = resetAnswers;
 
     function startFull() {
@@ -427,10 +451,24 @@
             number: Number(question.id),
             label: `${displaySectionTitles[activeSectionIndex]} · Câu ${question.number}/${section.questions.length}`
         };
-        const flatIndex = quiz.sections.flatMap(item => item.questions).findIndex(item => item.id === question.id);
-        window.__saturnifyActivateQuestion?.(flatIndex);
+        syncQuestionTiming();
         window.parent.postMessage({ type: 'SAT_PROGRESS_UPDATE' }, '*');
     }
+
+    // Time only counts while a student is on an open question: not on setup/result screens,
+    // while reviewing a checked section, or while the tab is in the background.
+    function syncQuestionTiming() {
+        const section = quiz.sections[activeSectionIndex];
+        const question = section?.questions[activeQuestionIndex];
+        if (!question || runner.hidden || sectionChecked || document.hidden) {
+            window.__saturnifyPauseQuestionTime?.();
+            return;
+        }
+        const flatIndex = quiz.sections.flatMap(item => item.questions).findIndex(item => item.id === question.id);
+        window.__saturnifyActivateQuestion?.(flatIndex);
+    }
+
+    document.addEventListener('visibilitychange', syncQuestionTiming);
 
     function moveQuestion(offset) {
         const section = quiz.sections[activeSectionIndex];
@@ -468,6 +506,7 @@
         showNotice(`Kết quả phần này: ${score}/${section.questions.length}`);
         checkButton.hidden = true;
         checkHeaderButton.hidden = true;
+        syncQuestionTiming();
         if (mode === 'full' && activeSectionIndex < quiz.sections.length - 1) {
             continueButton.textContent = 'Sang phần tiếp theo';
             continueButton.hidden = false;
@@ -623,7 +662,7 @@
         const [prompt = '', ...contextLines] = stem.split(/\r?\n/);
         return {
             prompt: cleanOcrText(prompt),
-            context: cleanOcrText(contextLines.join('\n')),
+            contextBlocks: buildContextBlocks(contextLines),
             options: options.map(option => ({ ...option, text: cleanOcrText(option.text) }))
         };
     }
@@ -907,6 +946,35 @@
         return items;
     }
 
+    function endsSentence(text) {
+        return /[.?!:"”)]$/.test(text) && !/(?:\.\.\.|…)$/.test(text);
+    }
+
+    // Bullets get their own line; a bullet that did not end its sentence continues on the next wrapped line.
+    function buildContextBlocks(lines) {
+        const blocks = [];
+        const addText = (text, startsBullet) => {
+            const cleaned = cleanOcrText(text);
+            if (!cleaned) return;
+            const last = blocks[blocks.length - 1];
+            if (startsBullet) {
+                blocks.push({ type: 'bullet', text: cleaned });
+            } else if (last?.type === 'paragraph') {
+                last.text += ` ${cleaned}`;
+            } else if (last?.type === 'bullet' && !endsSentence(last.text) && (!/^[A-Z]/.test(cleaned) || cleaned.length <= 70)) {
+                last.text += ` ${cleaned}`;
+            } else {
+                blocks.push({ type: 'paragraph', text: cleaned });
+            }
+        };
+        lines.forEach(line => {
+            const pieces = line.split('•');
+            addText(pieces[0], false);
+            pieces.slice(1).forEach(piece => addText(piece, true));
+        });
+        return blocks;
+    }
+
     function cleanOcrText(text) {
         return String(text)
             .replace(/_+/g, '')
@@ -954,6 +1022,7 @@
     }
 
     function closeLegacyPresentation() {
+        window.__saturnifyPauseQuestionTime?.();
         root.classList.remove('is-running');
         document.body.classList.remove('quiz-paged');
         legacyHeader.hidden = true;

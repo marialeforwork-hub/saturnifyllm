@@ -122,6 +122,9 @@ button { cursor: pointer; }
     math-style: normal;
 }
 .question-context { white-space: normal; }
+.question-context-line { margin: 0 0 .6rem; }
+.question-context .research-note-list { margin: 8px 0 12px; padding-left: 1.5rem; font-weight: normal; }
+.question-context .research-note-list li { margin: 4px 0; }
 .question-chart-figure { margin: 1rem 0; }
 .question-chart {
     display: block;

@@ -1235,6 +1235,22 @@
         }
     }
 
+    function getQuestionSeconds(questionTimes, questionNumber) {
+        if (!questionTimes || typeof questionTimes !== 'object') return 0;
+        const value = Array.isArray(questionTimes)
+            ? questionTimes[questionNumber - 1]
+            : [questionNumber, `q${questionNumber}`, `question_${questionNumber}`, `question${questionNumber}`, `Câu ${questionNumber}`]
+                .map(key => questionTimes[key]).find(candidate => candidate !== undefined);
+        const seconds = Number(typeof value === 'object' && value !== null ? value.seconds : value);
+        return Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+    }
+
+    function formatQuestionTotal(questionTimes, questionNumbers) {
+        const total = Math.round(questionNumbers.reduce((sum, number) => sum + getQuestionSeconds(questionTimes, number), 0));
+        if (!total) return 'Chưa có dữ liệu';
+        return total < 60 ? `${total}s` : `${Math.floor(total / 60)}m ${total % 60}s`;
+    }
+
     function getQuestionDuration(questionTimes, questionNumber, questionData) {
         const keys = [
             questionNumber,
@@ -1298,6 +1314,7 @@
         let unansweredCount = 0;
         let htmlContent = '';
         let navHtml = '';
+        const timedQuestionNumbers = [];
 
         // Chuẩn hóa dữ liệu về Dạng Mảng (Array)
         let qList = [];
@@ -1326,6 +1343,7 @@
             const questionKey = typeof q === 'object' && q !== null ? q.__questionKey || '' : '';
             const questionNumber = Number(String(questionKey).match(/\d+/)?.[0]) || idx + 1;
             const questionDuration = getQuestionDuration(questionTimes, questionNumber, q);
+            timedQuestionNumbers.push(questionNumber);
 
             // 1. Trích xuất đáp án học sinh chọn
             let userChoice = '';
@@ -1425,7 +1443,8 @@
             📊 Thống kê câu hỏi: 
             <span class="badge badge-success">Đúng: ${correctCount}</span> 
             <span class="badge badge-danger">Sai: ${incorrectCount}</span> 
-            <span class="badge badge-warning">Chưa làm: ${unansweredCount}</span>
+            <span class="badge badge-warning">Chưa làm: ${unansweredCount}</span><br>
+            ⏱ Tổng thời gian các câu: <strong>${formatQuestionTotal(questionTimes, timedQuestionNumbers)}</strong>
         `;
 
         navGrid.innerHTML = navHtml;
@@ -1525,7 +1544,8 @@
         const pct = totalQ > 0 ? Math.round((answeredCount / totalQ) * 100) : 0;
         document.getElementById('modalSubInfo').innerHTML = `
             📘 Bài tập: <strong>${draft.quizTitle || draft.storageKey || 'Bài dở'}</strong><br>
-            📊 Tiến độ hiện tại: <strong>${answeredCount} / ${totalQ} câu</strong> (${pct}%)
+            📊 Tiến độ hiện tại: <strong>${answeredCount} / ${totalQ} câu</strong> (${pct}%)<br>
+            ⏱ Tổng thời gian các câu: <strong>${formatQuestionTotal(questionTimes, Array.from({ length: totalQ }, (_, index) => index + 1))}</strong>
         `;
 
         navGrid.innerHTML = navHtml;

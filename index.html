@@ -2605,6 +2605,7 @@
                     label.classList.add('answer-option-label');
                     const row = label.closest('li') || label.parentElement;
                     row.classList.add('question-option-row');
+                    row.querySelectorAll('.eliminate-option').forEach(ownButton => ownButton.remove());
                     const eliminateButton = document.createElement('button');
                     eliminateButton.className = 'btn-eliminate-option';
                     eliminateButton.type = 'button';

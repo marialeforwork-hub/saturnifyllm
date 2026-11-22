@@ -1396,6 +1396,11 @@
             }, '*');
         };
         window.__saturnifyActivateQuestion = activateQuestion;
+        window.__saturnifyPauseQuestionTime = () => {
+            commitQuestionTime();
+            activeQuestionIndex = -1;
+            activeQuestionStartedAt = 0;
+        };
 
         const observer = new IntersectionObserver(entries => {
             if (document.body.classList.contains('quiz-paged')) return;
@@ -1408,10 +1413,12 @@
         }, { threshold: [0.5, 0.75] });
 
         blocks.forEach(block => observer.observe(block));
-        activeQuestionIndex = 0;
-        activeQuestionStartedAt = Date.now();
-        setCurrentNavigatorQuestion(activeQuestionIndex);
-        updateQuestionTimerReadout();
+        if (!window.__saturnifyManualQuestionTiming) {
+            activeQuestionIndex = 0;
+            activeQuestionStartedAt = Date.now();
+            setCurrentNavigatorQuestion(activeQuestionIndex);
+            updateQuestionTimerReadout();
+        }
         window.setInterval(updateQuestionTimerReadout, 1000);
         window.addEventListener('beforeunload', commitQuestionTime, { once: true });
     }
