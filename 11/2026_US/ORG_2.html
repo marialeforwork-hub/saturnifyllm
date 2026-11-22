@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>11/2026_US/ORG_2</title>
+    <link rel="stylesheet" href="../../quiz-theme.css">
+    <link rel="stylesheet" href="../../quiz-pager.css">
+    <link rel="stylesheet" href="bluebook-quiz.css">
+    <script src="ORG_2.js" defer></script>
+    <script src="bluebook-quiz.js" defer></script>
+    <script src="../../quiz-state.js" defer></script>
+</head>
+<body>
+<main id="bluebookQuiz" class="container">
+    <header class="quiz-intro">
+        <div class="quiz-heading-copy">
+            <p class="quiz-kicker">SATurnify · Bluebook practice</p>
+            <h1 id="quizTitle"></h1>
+            <p class="quiz-subtitle"><span id="questionTotal"></span> · Câu hỏi và đáp án được giữ theo tài liệu nguồn.</p>
+        </div>
+        <label class="quiz-font-size">
+            <span aria-hidden="true">A</span>
+            <input id="questionFontSize" type="range" min="0.85" max="1.9" step="0.05" value="1.05" aria-label="Cỡ chữ câu hỏi và đáp án">
+            <span class="quiz-font-size-large" aria-hidden="true">A</span>
+        </label>
+    </header>
+    <div class="progress-summary"><span id="progressText">0/0 câu đã trả lời</span><div class="progress-track"><div id="progressBar" class="progress-fill"></div></div></div>
+    <div id="quizSetup">
+        <p>Chọn cách làm bài:</p>
+        <div id="modeButtons" class="mode-buttons">
+            <button id="startFullButton" class="global-check-btn mode-button" type="button">Làm full<span>Làm lần lượt từng phần</span></button>
+            <button id="chooseSectionButton" class="global-check-btn mode-button" type="button">Làm từng phần<span>Chọn phần muốn luyện</span></button>
+        </div>
+        <button id="singleSectionButton" class="global-check-btn" type="button" hidden>Bắt đầu làm bài</button>
+    </div>
+    <section id="sectionPicker" hidden>
+        <h2>Chọn phần muốn làm</h2>
+        <div id="sectionButtons" class="section-buttons"></div>
+        <div class="quiz-actions"><button id="backToModesButton" class="secondary-button" type="button">Quay lại</button></div>
+    </section>
+    <section id="quizRunner" hidden>
+        <h2 id="sectionTitle" class="section-title"></h2>
+        <p id="questionCounter" class="question-counter"></p>
+        <div id="quiz"><div id="questionBank"></div></div>
+        <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+        <div class="quiz-actions sticky-footer">
+            <div class="stats"></div>
+            <div class="quiz-nav-actions">
+                <button id="previousButton" class="secondary-button" type="button">Câu trước</button>
+                <button id="nextButton" class="global-check-btn" type="button">Câu tiếp</button>
+                <button id="checkButton" class="global-check-btn" type="button">Kiểm tra phần</button>
+                <button id="continueButton" class="global-check-btn" type="button" hidden></button>
+            </div>
+        </div>
+    </section>
+    <section id="quizCompletion" hidden>
+        <h2 id="resultTitle"></h2>
+        <p id="resultScore" class="result-score"></p>
+        <p>Đã lưu kết quả và tiến độ bài làm.</p>
+        <div id="resultActions" class="result-actions"></div>
+    </section>
+</main>
+</body>
+</html>

@@ -1434,6 +1434,81 @@
                 </li>
             </ul>
         </div>
+
+        <div id="catBluebook" class="quiz-category hidden">
+            <div class="category-title">
+                <span>📘 11/2026_US</span>
+                <button class="category-toggle" type="button" aria-expanded="true" aria-controls="bluebookQuizList" onclick="toggleQuizCategory('catBluebook', this)" title="Thu gọn Bluebook">Thu gọn</button>
+            </div>
+            <ul id="bluebookQuizList" class="quiz-list">
+                <li class="quiz-item" data-title="11/2026_US/ORG_1" data-storage-key="11/2026_US/ORG_1" data-total="147">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 11/2026_US/ORG_1</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('11/2026_US/ORG_1.html', '11/2026_US/ORG_1', '11/2026_US/ORG_1')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('11/2026_US/ORG_1')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="11/2026_US/ORG_2" data-storage-key="11/2026_US/ORG_2" data-total="147">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 11/2026_US/ORG_2</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('11/2026_US/ORG_2.html', '11/2026_US/ORG_2', '11/2026_US/ORG_2')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('11/2026_US/ORG_2')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="11/2026_US/ORG_4" data-storage-key="11/2026_US/ORG_4" data-total="26">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 11/2026_US/ORG_4</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('11/2026_US/ORG_4.html', '11/2026_US/ORG_4', '11/2026_US/ORG_4')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('11/2026_US/ORG_4')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="11/2026_US/ORG_5" data-storage-key="11/2026_US/ORG_5" data-total="27">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 11/2026_US/ORG_5</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('11/2026_US/ORG_5.html', '11/2026_US/ORG_5', '11/2026_US/ORG_5')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('11/2026_US/ORG_5')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="11/2026_US/ORG_6" data-storage-key="11/2026_US/ORG_6" data-total="27">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 11/2026_US/ORG_6</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('11/2026_US/ORG_6.html', '11/2026_US/ORG_6', '11/2026_US/ORG_6')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('11/2026_US/ORG_6')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+                <li class="quiz-item" data-title="11/2026_US/ORG_7" data-storage-key="11/2026_US/ORG_7" data-total="26">
+                    <div class="quiz-item-header">
+                        <span class="quiz-title">📝 11/2026_US/ORG_7</span>
+                        <div class="action-btns">
+                            <button class="btn-start" onclick="openTimerModal('11/2026_US/ORG_7.html', '11/2026_US/ORG_7', '11/2026_US/ORG_7')">Làm bài</button>
+                            <button class="btn-reset" onclick="resetQuizProgress('11/2026_US/ORG_7')">🔄 Làm lại</button>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar"></div></div>
+                    <div class="progress-text">Chưa bắt đầu</div>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -1694,12 +1769,15 @@
             document.getElementById('adminLink').classList.remove('hidden');
             document.getElementById('catMath').classList.remove('hidden');
             document.getElementById('catEng').classList.remove('hidden');
+            document.getElementById('catBluebook').classList.remove('hidden');
         } else if (role === 'math_only') {
             document.getElementById('catMath').classList.remove('hidden');
             document.getElementById('catEng').classList.add('hidden');
+            document.getElementById('catBluebook').classList.add('hidden');
         } else if (role === 'full_student') {
             document.getElementById('catMath').classList.remove('hidden');
             document.getElementById('catEng').classList.remove('hidden');
+            document.getElementById('catBluebook').classList.remove('hidden');
         }
 
         updateAllProgressBars();
