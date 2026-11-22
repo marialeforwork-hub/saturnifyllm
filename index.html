@@ -3070,8 +3070,11 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Storage keys such as "11/2026_US/ORG_1" contain "/", which Firestore would read as a nested path.
+    const getDraftDocId = (studentId, storageKey) => `${studentId}_${storageKey}`.replace(/\//g, '__');
+
     window.loadDraftFromFirebase = async function(studentId, storageKey) {
-        const draftRef = doc(db, "drafts", `${studentId}_${storageKey}`);
+        const draftRef = doc(db, "drafts", getDraftDocId(studentId, storageKey));
         const draftSnapshot = await getDoc(draftRef);
         return draftSnapshot.exists() ? draftSnapshot.data() : null;
     };
@@ -3079,7 +3082,7 @@
 
     window.syncDraftToFirebase = async function(draftData) {
         try {
-            const docId = `${draftData.studentId}_${draftData.storageKey}`;
+            const docId = getDraftDocId(draftData.studentId, draftData.storageKey);
             const draftRef = doc(db, "drafts", docId);
             
             await setDoc(draftRef, {
