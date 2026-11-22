@@ -865,6 +865,13 @@
         renderOnlineTracking();
     });
 
+    // Online status depends on elapsed time, so refresh it even when Firestore sends no new snapshot.
+    setInterval(() => {
+        updateStudentStats();
+        renderFilteredData();
+        renderOnlineTracking();
+    }, 30000);
+
     // 3. DROPDOWN FILTER
     function updateQuizDropdownOptions() {
         const select = document.getElementById('quizFilter');
@@ -977,6 +984,7 @@
     }
 
     function getLastQuestionNumber(draft) {
+        if (Number(draft.currentQuestionNumber) > 0) return Number(draft.currentQuestionNumber);
         const answers = draft.answers || {};
         const lastAnsweredQuestion = Object.keys(answers).reduce((last, key) => {
             const match = String(key).match(/(?:câu|question)(?:_|\s*)?(\d+)/i);
@@ -1080,7 +1088,7 @@
             row.innerHTML = `
                 <td><strong>${escapeTrackingText(draft.studentName || 'Học sinh')}</strong><br><small>${escapeTrackingText(draft.studentId || 'N/A')}</small></td>
                 <td><strong>${escapeTrackingText(draft.quizTitle || draft.storageKey || 'Bài đang làm')}</strong></td>
-                <td>${currentQuestion ? `<strong>Câu ${currentQuestion}</strong>` : 'Chưa bắt đầu'}</td>
+                <td>${currentQuestion ? `<strong>Câu ${currentQuestion}</strong>` : 'Chưa bắt đầu'}${draft.currentLocation ? `<br><small>${escapeTrackingText(draft.currentLocation)}</small>` : ''}</td>
                 <td class="tracking-progress">
                     <div class="progress-container"><div class="progress-bar" style="width:${Math.min(100, percentage)}%;"></div></div>
                     <small>${answered}/${total} câu (${percentage}%)</small>
@@ -1175,7 +1183,7 @@
                 const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
                 const updatedTime = draft.updatedAt ? new Date(draft.updatedAt.toDate()).toLocaleTimeString('vi-VN') : 'Đang làm...';
                 const online = isDraftOnline(draft);
-                const currentQuestion = Number(draft.lastQuestionNumber) || 0;
+                const currentQuestion = Number(draft.currentQuestionNumber) || Number(draft.lastQuestionNumber) || 0;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `

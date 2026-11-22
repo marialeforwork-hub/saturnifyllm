@@ -2321,6 +2321,7 @@
                 isRestoringDraft = false;
                 iframe.style.visibility = '';
                 updateAllProgressBars();
+                captureAndSaveDraftFromIframe(false);
             }
         };
 
@@ -2440,6 +2441,7 @@
             });
 
             const totalQ = questionBlocks.length;
+            const currentQuestion = document.getElementById('quizIframe').contentWindow.__saturnifyCurrentQuestion || null;
             const draftKey = `quiz_draft_${studentId}_${selectedQuizStorageKey}`;
             const questionTimes = iframeWindowQuestionTimes();
             
@@ -2457,7 +2459,9 @@
                     answers: answersMap,
                     answeredCount: Object.keys(answersMap).length,
                     totalQuestions: totalQ,
-                    lastQuestionNumber: trackedQuestionNumber || getCurrentQuestionNumber(questionBlocks) || (answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0),
+                    lastQuestionNumber: currentQuestion?.number || trackedQuestionNumber || getCurrentQuestionNumber(questionBlocks) || (answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0),
+                    currentQuestionNumber: currentQuestion?.number || 0,
+                    currentLocation: currentQuestion?.label || '',
                     questionTimes
                 });
             }

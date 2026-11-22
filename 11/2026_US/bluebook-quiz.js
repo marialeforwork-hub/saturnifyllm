@@ -419,6 +419,17 @@
         }
         updateQuestionNavigator(section);
         updateProgress();
+        publishCurrentQuestion(section, question);
+    }
+
+    function publishCurrentQuestion(section, question) {
+        window.__saturnifyCurrentQuestion = {
+            number: Number(question.id),
+            label: `${displaySectionTitles[activeSectionIndex]} · Câu ${question.number}/${section.questions.length}`
+        };
+        const flatIndex = quiz.sections.flatMap(item => item.questions).findIndex(item => item.id === question.id);
+        window.__saturnifyActivateQuestion?.(flatIndex);
+        window.parent.postMessage({ type: 'SAT_PROGRESS_UPDATE' }, '*');
     }
 
     function moveQuestion(offset) {
