@@ -612,7 +612,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, query, orderBy, writeBatch, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+    import { getFirestore, collection, collectionGroup, onSnapshot, query, orderBy, writeBatch, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
@@ -849,20 +849,51 @@
     });
 
     // 2. LẮNG NGHE DRAFTS REALTIME
-    onSnapshot(collection(db, "drafts"), (snapshot) => {
-        rawDraftsData = [];
+    // Drafts saved by older index.html builds used keys like "11/2026_US/ORG_1" as document IDs, which
+    // Firestore stored as drafts/{student}_11/2026_US/ORG_1. Read those too until every client is updated.
+    const LEGACY_NESTED_DRAFT_GROUPS = ['2026_US'];
+    let currentDrafts = [];
+    let legacyNestedDrafts = {};
 
-        snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            data._docId = docSnap.id;
-            rawDraftsData.push(data);
+    function draftUpdatedTime(draft) {
+        if (!draft.updatedAt) return Infinity;
+        const date = typeof draft.updatedAt.toDate === 'function' ? draft.updatedAt.toDate() : new Date(draft.updatedAt);
+        return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+    }
+
+    function rebuildDrafts() {
+        const latest = new Map();
+        [...currentDrafts, ...Object.values(legacyNestedDrafts).flat()].forEach(draft => {
+            const key = `${draft.studentId}_${draft.storageKey || draft.quizTitle}`;
+            const existing = latest.get(key);
+            if (!existing || draftUpdatedTime(draft) >= draftUpdatedTime(existing)) latest.set(key, draft);
         });
+        rawDraftsData = [...latest.values()];
 
         updateStudentStats();
         updateStudentProgressOptions();
         renderFilteredData();
         renderStudentProgress();
         renderOnlineTracking();
+    }
+
+    onSnapshot(collection(db, "drafts"), (snapshot) => {
+        currentDrafts = [];
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            data._docId = docSnap.id;
+            currentDrafts.push(data);
+        });
+        rebuildDrafts();
+    });
+
+    LEGACY_NESTED_DRAFT_GROUPS.forEach(groupId => {
+        onSnapshot(collectionGroup(db, groupId), (snapshot) => {
+            legacyNestedDrafts[groupId] = snapshot.docs
+                .filter(docSnap => docSnap.ref.path.startsWith('drafts/'))
+                .map(docSnap => ({ ...docSnap.data(), _docId: docSnap.ref.path.slice('drafts/'.length) }));
+            rebuildDrafts();
+        }, error => console.warn('Không đọc được bản nháp kiểu cũ:', error));
     });
 
     // Online status depends on elapsed time, so refresh it even when Firestore sends no new snapshot.
