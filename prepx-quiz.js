@@ -101,6 +101,8 @@
     const quizTitle = `PREPX ${quizId} SAT Math`;
     const studentId = sessionStorage.getItem('studentId') || 'guest';
     const storageKey = `quiz_draft_${studentId}_${quizTitle}`;
+    let startTime = new Date();
+    let resultSent = false;
     const questionMarkup = questions.map((question, index) => {
         const id = `prepx-${quizId}-q${index + 1}`;
         const response = question.options
@@ -202,9 +204,46 @@
         if (progress) progress.textContent = `${answered}/${questions.length}`;
         if (score) score.textContent = `${correctCount}/${questions.length}`;
         saveDraft();
+        if (answered === questions.length && !resultSent) {
+            const endTime = new Date();
+            const answers = {};
+            questions.forEach((question, index) => {
+                const id = `prepx-${quizId}-q${index + 1}`;
+                const value = question.options
+                    ? (mount.querySelector(`input[name="${id}"]:checked`)?.value || '')
+                    : (document.getElementById(`${id}-answer`).value || '').trim();
+                answers[`Câu ${index + 1}`] = value || 'Bỏ trống';
+            });
+            const history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+            const result = {
+                id: Date.now(),
+                studentName: sessionStorage.getItem('studentName') || 'Học sinh ẩn danh',
+                studentId,
+                quizTitle: document.title || quizTitle,
+                attempt: history.filter(item =>
+                    item.studentId === studentId && item.quizTitle === document.title
+                ).length + 1,
+                score: `${correctCount}/${questions.length}`,
+                total: questions.length,
+                percentage: `${Math.round(correctCount / questions.length * 100)}%`,
+                answers,
+                startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+                endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+                duration: `${Math.max(0, Math.round((endTime - startTime) / 1000))} giây`
+            };
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: result }, '*');
+            } else {
+                history.push(result);
+                localStorage.setItem('sat_results', JSON.stringify(history));
+            }
+            resultSent = true;
+        }
     }
 
     function resetQuiz() {
+        startTime = new Date();
+        resultSent = false;
         mount.querySelectorAll('input[type="radio"]').forEach(input => { input.checked = false; });
         mount.querySelectorAll('input[type="text"]').forEach(input => { input.value = ''; });
         clearMarks();

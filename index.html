@@ -1631,13 +1631,66 @@
 </div>
 
 <script>
-    window.syncDraftToFirebase = window.syncDraftToFirebase || function() {};
-    window.sendResultToFirebase = window.sendResultToFirebase || function() {};
     let resolveDraftApiReady;
     window.saturnifyDraftApiReady = new Promise(resolve => {
         resolveDraftApiReady = resolve;
     });
     window.resolveSaturnifyDraftApiReady = () => resolveDraftApiReady();
+
+    let draftApiWaitPromise;
+    function waitForDraftApi() {
+        if (typeof window.syncDraftToFirebase === 'function' &&
+            window.syncDraftToFirebase !== syncDraftWhenReady &&
+            typeof window.deleteDraftFromFirebase === 'function' &&
+            window.deleteDraftFromFirebase !== deleteDraftWhenReady) {
+            return Promise.resolve();
+        }
+        if (!draftApiWaitPromise) {
+            draftApiWaitPromise = new Promise((resolve, reject) => {
+                const timeoutId = setTimeout(() => {
+                    draftApiWaitPromise = null;
+                    reject(new Error('Dịch vụ đồng bộ tiến độ Cloud chưa sẵn sàng.'));
+                }, 10000);
+                window.saturnifyDraftApiReady.then(() => {
+                    clearTimeout(timeoutId);
+                    draftApiWaitPromise = null;
+                    resolve();
+                }, error => {
+                    clearTimeout(timeoutId);
+                    draftApiWaitPromise = null;
+                    reject(error);
+                });
+            });
+        }
+        return draftApiWaitPromise;
+    }
+
+    const syncDraftWhenReady = async draftData => {
+        await waitForDraftApi();
+        if (window.syncDraftToFirebase === syncDraftWhenReady) {
+            throw new Error('Dịch vụ đồng bộ tiến độ Cloud chưa sẵn sàng.');
+        }
+        return window.syncDraftToFirebase(draftData);
+    };
+    window.syncDraftToFirebase = syncDraftWhenReady;
+
+    const deleteDraftWhenReady = async (studentId, storageKey) => {
+        await waitForDraftApi();
+        if (window.deleteDraftFromFirebase === deleteDraftWhenReady) {
+            throw new Error('Dịch vụ xóa tiến độ Cloud chưa sẵn sàng.');
+        }
+        return window.deleteDraftFromFirebase(studentId, storageKey);
+    };
+    window.deleteDraftFromFirebase = deleteDraftWhenReady;
+
+    const sendResultWhenReady = async data => {
+        await waitForDraftApi();
+        if (window.sendResultToFirebase === sendResultWhenReady) {
+            throw new Error('Dịch vụ lưu kết quả Cloud chưa sẵn sàng.');
+        }
+        return window.sendResultToFirebase(data);
+    };
+    window.sendResultToFirebase = sendResultWhenReady;
 
     const STUDENT_PASSCODES = {
         "THUVINH":  { name: "Thu Vinh", role: "full_student" },
@@ -1663,6 +1716,9 @@
     let bypassInterceptor = false;
     let trackedQuestionNumber = 0;
     let isRestoringDraft = false;
+    let draftSyncErrorShown = false;
+    let previousCapturedAnswers = {};
+    let previousCapturedDraftKey = '';
 
     function showToast(msg) {
         const toast = document.getElementById('toastMessage');
@@ -2212,7 +2268,7 @@
         }
     }
 
-    function clearQuizProgressStorage(studentId, storageKey, documentTitle = '') {
+    function clearQuizProgressStorage(studentId, storageKey, documentTitle = '', clearCloud = true) {
         const quizKeys = new Set([storageKey, documentTitle].filter(Boolean));
         quizKeys.forEach(key => {
             const draftKey = `quiz_draft_${studentId}_${key}`;
@@ -2221,6 +2277,12 @@
             localStorage.removeItem(`${draftKey}_times`);
             localStorage.removeItem(`quiz_pager_${studentId}_${key}`);
             sessionStorage.removeItem(`timer_end_${studentId}_${key}`);
+            if (clearCloud) {
+                window.deleteDraftFromFirebase(studentId, key).catch(error => {
+                    console.error('Không thể xóa tiến độ Cloud:', error);
+                    showToast('⚠️ Chưa xóa được tiến độ trên Cloud. Vui lòng thử lại.');
+                });
+            }
         });
     }
 
@@ -2250,6 +2312,8 @@
         trackedQuestionNumber = 0;
         clearInterval(timerInterval);
         clearInterval(autoSaveInterval);
+        previousCapturedAnswers = {};
+        previousCapturedDraftKey = '';
 
         const studentId = sessionStorage.getItem('studentId') || 'guest';
         const timerStorageKey = `timer_end_${studentId}_${selectedQuizStorageKey}`;
@@ -2366,10 +2430,10 @@
             }
             const cloudDraft = await window.loadDraftFromFirebase(studentId, selectedQuizStorageKey);
             if (cloudDraft?.answers && typeof cloudDraft.answers === 'object' && !Array.isArray(cloudDraft.answers)) {
-                savedAnswers = cloudDraft.answers;
-                questionTimes = cloudDraft.questionTimes && typeof cloudDraft.questionTimes === 'object'
-                    ? cloudDraft.questionTimes
-                    : {};
+                savedAnswers = { ...savedAnswers, ...cloudDraft.answers };
+            }
+            if (cloudDraft?.questionTimes && typeof cloudDraft.questionTimes === 'object' && !Array.isArray(cloudDraft.questionTimes)) {
+                questionTimes = { ...questionTimes, ...cloudDraft.questionTimes };
             }
         } catch (error) {
             console.error('Không thể tải tiến độ làm bài từ Cloud:', error);
@@ -2442,33 +2506,50 @@
 
             const totalQ = questionBlocks.length;
             const currentQuestion = document.getElementById('quizIframe').contentWindow.__saturnifyCurrentQuestion || null;
-            const draftKey = `quiz_draft_${studentId}_${selectedQuizStorageKey}`;
+            const storageKey = selectedQuizStorageKey;
+            const draftKey = `quiz_draft_${studentId}_${storageKey}`;
             const questionTimes = iframeWindowQuestionTimes();
-            
-            localStorage.setItem(draftKey, JSON.stringify(answersMap));
-            localStorage.setItem(draftKey + '_times', JSON.stringify(questionTimes));
-            if (totalQ > 0) localStorage.setItem(draftKey + '_total', totalQ);
+            const removedAnswerKeys = previousCapturedDraftKey === draftKey
+                ? Object.keys(previousCapturedAnswers).filter(key => !(key in answersMap))
+                : [];
+            try {
+                localStorage.setItem(draftKey, JSON.stringify(answersMap));
+                localStorage.setItem(draftKey + '_times', JSON.stringify(questionTimes));
+                if (totalQ > 0) localStorage.setItem(draftKey + '_total', totalQ);
+            } catch (error) {
+                console.warn('Không thể lưu tiến độ trên thiết bị này:', error);
+            }
 
             updateAllProgressBars();
 
-            if (typeof window.syncDraftToFirebase === 'function') {
-                window.syncDraftToFirebase({
-                    studentId, studentName,
-                    quizTitle: selectedQuizTitle,
-                    storageKey: selectedQuizStorageKey,
-                    answers: answersMap,
-                    answeredCount: Object.keys(answersMap).length,
-                    totalQuestions: totalQ,
-                    lastQuestionNumber: currentQuestion?.number || trackedQuestionNumber || getCurrentQuestionNumber(questionBlocks) || (answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0),
-                    currentQuestionNumber: currentQuestion?.number || 0,
-                    currentLocation: currentQuestion?.label || '',
-                    questionTimes
-                });
-            }
+            window.syncDraftToFirebase({
+                studentId, studentName,
+                quizTitle: selectedQuizTitle,
+                storageKey,
+                answers: answersMap,
+                removedAnswerKeys,
+                answeredCount: Object.keys(answersMap).length,
+                totalQuestions: totalQ,
+                lastQuestionNumber: currentQuestion?.number || trackedQuestionNumber || getCurrentQuestionNumber(questionBlocks) || (answeredQuestionNumbers.length ? Math.max(...answeredQuestionNumbers) : 0),
+                currentQuestionNumber: currentQuestion?.number || 0,
+                currentLocation: currentQuestion?.label || '',
+                questionTimes
+            }).then(() => {
+                if (sessionStorage.getItem('studentId') === studentId &&
+                    selectedQuizStorageKey === storageKey) {
+                    previousCapturedAnswers = { ...answersMap };
+                    previousCapturedDraftKey = draftKey;
+                }
+                draftSyncErrorShown = false;
+                if (showNotification) showToast("💾 Đã đồng bộ tiến độ lên Cloud!");
+            }).catch(error => {
+                console.error('Không thể đồng bộ tiến độ làm bài lên Cloud:', error);
+                if (!draftSyncErrorShown) {
+                    showToast('⚠️ Chưa đồng bộ được tiến độ lên Cloud. Kiểm tra kết nối mạng.');
+                    draftSyncErrorShown = true;
+                }
+            });
 
-            if (showNotification) {
-                showToast("💾 Đã lưu tiến độ làm bài!");
-            }
         } catch (e) { console.log("Lỗi khi lưu tiến độ:", e); }
     }
 
@@ -2977,7 +3058,7 @@
         }
 
         if (event.data.type === 'SAT_SUBMIT_RESULT') {
-            clearInterval(autoSaveInterval);
+            captureAndSaveDraftFromIframe(false);
             const resultData = event.data.data || {};
             const localResultId = resultData.id;
             resultData.questionTimes = {
@@ -3031,20 +3112,20 @@
             else history.push(resultData);
             saveLocalResultHistory(history);
 
-            const keyToClean = selectedQuizStorageKey || resultData.quizTitle;
-            if (loggedId && keyToClean) {
-                const draftKey = `quiz_draft_${loggedId}_${keyToClean}`;
-                localStorage.removeItem(draftKey);
-                localStorage.removeItem(draftKey + '_total');
-                localStorage.removeItem(draftKey + '_times');
-                sessionStorage.removeItem(`timer_end_${loggedId}_${keyToClean}`);
-            }
-
             updateAllProgressBars();
             renderStudentHistory();
 
             if (typeof window.sendResultToFirebase === 'function') {
-                window.sendResultToFirebase(resultData);
+                Promise.resolve(window.sendResultToFirebase(resultData)).then(savedToCloud => {
+                    if (savedToCloud) {
+                        showToast('✅ Đã lưu kết quả và giữ lại bài làm trên Cloud.');
+                    } else {
+                        showToast('⚠️ Chưa lưu được kết quả lên Cloud; bài làm vẫn được giữ.');
+                    }
+                }).catch(error => {
+                    console.error('Không thể lưu kết quả lên Cloud:', error);
+                    showToast('⚠️ Chưa lưu được kết quả lên Cloud; bài làm vẫn được giữ.');
+                });
             }
         }
 
@@ -3060,7 +3141,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, deleteDoc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
@@ -3074,9 +3155,20 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const draftWriteQueues = new Map();
 
     // Storage keys such as "11/2026_US/ORG_1" contain "/", which Firestore would read as a nested path.
     const getDraftDocId = (studentId, storageKey) => `${studentId}_${storageKey}`.replace(/\//g, '__');
+    const queueDraftOperation = (docId, operation) => {
+        const previous = draftWriteQueues.get(docId) || Promise.resolve();
+        const current = previous.catch(() => {}).then(operation);
+        draftWriteQueues.set(docId, current);
+        const clearQueue = () => {
+            if (draftWriteQueues.get(docId) === current) draftWriteQueues.delete(docId);
+        };
+        current.then(clearQueue, clearQueue);
+        return current;
+    };
 
     window.loadDraftFromFirebase = async function(studentId, storageKey) {
         const draftRef = doc(db, "drafts", getDraftDocId(studentId, storageKey));
@@ -3086,22 +3178,49 @@
     window.resolveSaturnifyDraftApiReady?.();
 
     window.syncDraftToFirebase = async function(draftData) {
-        try {
-            const docId = getDraftDocId(draftData.studentId, draftData.storageKey);
+        const docId = getDraftDocId(draftData.studentId, draftData.storageKey);
+        return queueDraftOperation(docId, async () => {
             const draftRef = doc(db, "drafts", docId);
-            
-            await setDoc(draftRef, {
-                ...draftData,
-                updatedAt: serverTimestamp()
-            }, { merge: true });
-            
+            await runTransaction(db, async transaction => {
+                const draftSnapshot = await transaction.get(draftRef);
+                const existingDraft = draftSnapshot.exists() ? draftSnapshot.data() : {};
+                const existingAnswers = existingDraft.answers && typeof existingDraft.answers === 'object' && !Array.isArray(existingDraft.answers)
+                    ? existingDraft.answers
+                    : {};
+                const incomingAnswers = draftData.answers && typeof draftData.answers === 'object' && !Array.isArray(draftData.answers)
+                    ? draftData.answers
+                    : {};
+                const answers = { ...existingAnswers, ...incomingAnswers };
+                (draftData.removedAnswerKeys || []).forEach(key => delete answers[key]);
+                const existingQuestionTimes = existingDraft.questionTimes && typeof existingDraft.questionTimes === 'object' && !Array.isArray(existingDraft.questionTimes)
+                    ? existingDraft.questionTimes
+                    : {};
+                const incomingQuestionTimes = draftData.questionTimes && typeof draftData.questionTimes === 'object' && !Array.isArray(draftData.questionTimes)
+                    ? draftData.questionTimes
+                    : {};
+                const persistedDraft = { ...draftData };
+                delete persistedDraft.removedAnswerKeys;
+                transaction.set(draftRef, {
+                    ...existingDraft,
+                    ...persistedDraft,
+                    answers,
+                    answeredCount: Object.keys(answers).length,
+                    questionTimes: { ...existingQuestionTimes, ...incomingQuestionTimes },
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+            });
             console.log("☁️ [Firebase Draft] Đã đồng bộ tiến độ dở lên Cloud!");
-        } catch (err) { console.error("Lỗi đồng bộ nháp Cloud:", err); }
+        });
+    };
+
+    window.deleteDraftFromFirebase = async function(studentId, storageKey) {
+        const docId = getDraftDocId(studentId, storageKey);
+        return queueDraftOperation(docId, () => deleteDoc(doc(db, "drafts", docId)));
     };
 
     window.sendResultToFirebase = async function(data) {
         try {
-            if (!data || data.submissionType !== 'checked') return;
+            if (!data || data.submissionType !== 'checked') return false;
 
             const { score: scoreNum, total: totalNum } = normalizeQuizScore(data);
             
@@ -3126,7 +3245,11 @@
 
             await addDoc(collection(db, "results"), payload);
             console.log("🚀 [Firebase Results] Đã đẩy kết quả bài làm lên Admin:", payload.name, `${scoreNum}/${totalNum}`);
-        } catch (error) { console.error("❌ [Firebase Error] Không thể nộp bài lên Firestore:", error); }
+            return true;
+        } catch (error) {
+            console.error("❌ [Firebase Error] Không thể nộp bài lên Firestore:", error);
+            return false;
+        }
     };
 </script>
 
