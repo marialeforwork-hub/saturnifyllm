@@ -2061,14 +2061,22 @@
         updateQuizGroupProgress();
     }
 
-    function renderStudentHistory() {
+    let studentHistoryRefreshInFlight = false;
+
+    function renderStudentHistory(skipCloudRefresh = false) {
         const currentName = sessionStorage.getItem('studentName');
-        const history = JSON.parse(localStorage.getItem('sat_results') || '[]');
-        const studentHistory = history.filter(h => h.studentName === currentName || h.name === currentName);
+        const currentId = sessionStorage.getItem('studentId');
+        const history = readLocalResultHistory();
+        const studentHistory = history.filter(h =>
+            h.studentName === currentName || h.name === currentName ||
+            h.id === currentId || h.studentId === currentId
+        );
         
         const tbody = document.getElementById('historyTableBody');
         if (!tbody) return;
         tbody.innerHTML = '';
+
+        if (!skipCloudRefresh) refreshStudentHistoryFromCloud();
 
         if (studentHistory.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="color: #7f8c8d; padding: 20px;">Bạn chưa nộp bài tập nào.</td></tr>';
@@ -2105,6 +2113,78 @@
             tbody.appendChild(tr);
         });
     }
+
+    function refreshStudentHistoryFromCloud() {
+        const studentId = sessionStorage.getItem('studentId');
+        if (!studentId || typeof window.loadStudentResultsFromFirebase !== 'function' || studentHistoryRefreshInFlight) return;
+
+        studentHistoryRefreshInFlight = true;
+        window.loadStudentResultsFromFirebase(studentId).then(cloudResults => {
+            if (sessionStorage.getItem('studentId') !== studentId) return;
+
+            const history = readLocalResultHistory();
+            const cloudHistory = [...cloudResults].sort((a, b) => getHistoryTimestamp(a) - getHistoryTimestamp(b));
+            const quizAttempts = new Map();
+            let changed = false;
+
+            cloudHistory.forEach(result => {
+                const quizTitle = result.quizTitle || result.title || 'Bài làm';
+                const attempt = (quizAttempts.get(quizTitle) || 0) + 1;
+                quizAttempts.set(quizTitle, attempt);
+
+                const cloudResult = {
+                    ...result,
+                    studentName: result.studentName || result.name,
+                    name: result.name || result.studentName,
+                    attempt: Number(result.attempt) || attempt
+                };
+                const existingIndex = history.findIndex(item =>
+                    item.firestoreResultId === cloudResult.firestoreResultId ||
+                    resultHistoryFingerprint(item) === resultHistoryFingerprint(cloudResult)
+                );
+
+                if (existingIndex < 0) {
+                    history.push(cloudResult);
+                    changed = true;
+                } else if (history[existingIndex].firestoreResultId !== cloudResult.firestoreResultId) {
+                    history[existingIndex] = {
+                        ...history[existingIndex],
+                        ...cloudResult,
+                        attempt: Number(history[existingIndex].attempt) || cloudResult.attempt,
+                        localResultId: history[existingIndex].localResultId
+                    };
+                    changed = true;
+                }
+            });
+
+            if (changed && saveLocalResultHistory(history)) renderStudentHistory(true);
+        }).catch(error => {
+            console.error('Không thể tải lịch sử bài làm từ Cloud:', error);
+            showToast('⚠️ Không tải được lịch sử bài làm từ Cloud.');
+        }).finally(() => {
+            studentHistoryRefreshInFlight = false;
+        });
+    }
+
+    function getHistoryTimestamp(item) {
+        const timestamp = item.timestamp;
+        if (typeof timestamp === 'string') return Date.parse(timestamp) || 0;
+        if (timestamp && typeof timestamp.seconds === 'number') return timestamp.seconds * 1000;
+        return Date.parse(item.endTime || '') || 0;
+    }
+
+    function resultHistoryFingerprint(item) {
+        const { score, total } = normalizeQuizScore(item);
+        return JSON.stringify([
+            item.quizTitle || item.title || '',
+            score,
+            total,
+            item.startTime || '',
+            item.endTime || item.displayTime || item.timestamp || ''
+        ]);
+    }
+
+    window.refreshStudentHistoryFromCloud = refreshStudentHistoryFromCloud;
 
     function normalizeQuizScore(item) {
         const scoreText = String(item?.score ?? '').trim();
@@ -3141,7 +3221,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, deleteDoc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, getDocs, deleteDoc, query, where, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
@@ -3175,7 +3255,22 @@
         const draftSnapshot = await getDoc(draftRef);
         return draftSnapshot.exists() ? draftSnapshot.data() : null;
     };
+
+    window.loadStudentResultsFromFirebase = async function(studentId) {
+        const resultsQuery = query(collection(db, "results"), where("id", "==", studentId));
+        const resultsSnapshot = await getDocs(resultsQuery);
+        return resultsSnapshot.docs.map(resultDoc => {
+            const data = resultDoc.data();
+            return {
+                ...data,
+                timestamp: data.timestamp?.toDate?.().toISOString() || data.timestamp || '',
+                firestoreResultId: resultDoc.id
+            };
+        });
+    };
+
     window.resolveSaturnifyDraftApiReady?.();
+    window.refreshStudentHistoryFromCloud?.();
 
     window.syncDraftToFirebase = async function(draftData) {
         const docId = getDraftDocId(draftData.studentId, draftData.storageKey);
