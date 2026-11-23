@@ -2443,6 +2443,7 @@
         const joinChar = selectedQuizUrl.includes('?') ? '&' : '?';
         const questionTimerParam = questionTimingEnabled ? '1' : '0';
 
+        let draftRestoreCompleted = false;
         isRestoringDraft = true;
         iframe.style.visibility = 'hidden';
         iframe.onload = async function() {
@@ -2456,7 +2457,7 @@
                 setupIframeSubmitInterceptor();
                 setupBookmarkAndNavigation();
                 setupCurrentQuestionTracking();
-                await restoreDraftToIframe();
+                draftRestoreCompleted = await restoreDraftToIframe();
                 restoreSavedAnnotationsToIframe();
             } catch (error) {
                 console.error('Không thể khởi tạo bài quiz:', error);
@@ -2465,7 +2466,7 @@
                 isRestoringDraft = false;
                 iframe.style.visibility = '';
                 updateAllProgressBars();
-                captureAndSaveDraftFromIframe(false);
+                if (draftRestoreCompleted) captureAndSaveDraftFromIframe(false);
             }
         };
 
@@ -2475,7 +2476,7 @@
 
     async function restoreDraftToIframe() {
         const studentId = sessionStorage.getItem('studentId');
-        if (!studentId || !selectedQuizStorageKey) return;
+        if (!studentId || !selectedQuizStorageKey) return false;
 
         const draftKey = `quiz_draft_${studentId}_${selectedQuizStorageKey}`;
         let savedAnswers = {};
@@ -2500,6 +2501,8 @@
             console.warn('Không thể đọc tiến độ đã lưu trên thiết bị này:', error);
         }
 
+        const hasLocalDraft = Object.keys(savedAnswers).length > 0;
+        let cloudDraftLoaded = false;
         try {
             await Promise.race([
                 window.saturnifyDraftApiReady,
@@ -2509,6 +2512,7 @@
                 throw new Error('Dịch vụ tải tiến độ Cloud chưa sẵn sàng.');
             }
             const cloudDraft = await window.loadDraftFromFirebase(studentId, selectedQuizStorageKey);
+            cloudDraftLoaded = true;
             if (cloudDraft?.answers && typeof cloudDraft.answers === 'object' && !Array.isArray(cloudDraft.answers)) {
                 savedAnswers = { ...savedAnswers, ...cloudDraft.answers };
             }
@@ -2522,6 +2526,7 @@
 
         try {
             const iframeDoc = document.getElementById('quizIframe').contentWindow.document;
+            let restoredAnswerCount = 0;
             iframeDoc.querySelectorAll('input[type="radio"]').forEach(input => { input.checked = false; });
             iframeDoc.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => { input.value = ''; });
 
@@ -2531,15 +2536,25 @@
                 if (radio) {
                     radio.checked = true;
                     radio.dispatchEvent(new Event('change', { bubbles: true }));
+                    restoredAnswerCount++;
                 } else {
                     const textInput = [...iframeDoc.querySelectorAll('input[name]')]
                         .find(input => input.name === qName && input.type !== 'radio');
                     if (textInput) {
                         textInput.value = String(val);
                         textInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        restoredAnswerCount++;
                     }
                 }
             });
+            if (restoredAnswerCount !== Object.keys(savedAnswers).length) {
+                console.error('Không thể khôi phục đầy đủ câu trả lời đã lưu:', {
+                    expected: Object.keys(savedAnswers).length,
+                    restored: restoredAnswerCount
+                });
+                showToast('⚠️ Có câu trả lời chưa khôi phục được; tạm dừng tự lưu để tránh ghi đè nháp.');
+                return false;
+            }
             try {
                 localStorage.setItem(draftKey, JSON.stringify(savedAnswers));
                 localStorage.setItem(draftKey + '_times', JSON.stringify(questionTimes));
@@ -2552,9 +2567,11 @@
             if (Object.keys(savedAnswers).length) {
                 console.log('🔄 [Restore] Đã khôi phục tiến độ làm bài!');
             }
+            return cloudDraftLoaded || hasLocalDraft;
         } catch (error) {
             console.error('Không thể khôi phục tiến độ vào bài quiz:', error);
             showToast('⚠️ Không thể khôi phục tiến độ bài làm.');
+            return false;
         }
     }
 
