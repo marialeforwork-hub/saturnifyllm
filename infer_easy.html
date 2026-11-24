@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFERENCE - EASY - QUESTIONBANK</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; margin: 0; padding-bottom: 100px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        /* Căn chỉnh hiển thị cho đoạn văn Passage */
+        .question-passage { margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #f39c12; font-style: italic; border-radius: 0 5px 5px 0; color: #444; }
+        
+        .question-text { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; white-space: pre-line; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 10px; }
+        .options label { display: block; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .options label:hover { background: #eef2f5; }
+        .options input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px; font-size: 0.95em; white-space: pre-line; }
+        .correct-answer-label { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
+        .wrong-answer-label { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        
+        /* Khung chứa danh sách câu hỏi */
+        .question-list-panel {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        .question-list-panel.collapsed {
+            transform: translate(calc(100% + 20px), -50%);
+        }
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .nav-grid-btn {
+            padding: 6px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .nav-grid-btn.answered { background: #e2e6ea; font-weight: bold; }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-top: 3px solid #3498db;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .toggle-nav-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .toggle-nav-btn:active { transform: translateY(0); }
+        .stats { font-size: 1.1em; color: #2c3e50; }
+        .stats span { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-left: 5px; }
+        .stats b { color: #2980b9; margin-left: 5px; font-size: 1.1em; }
+        
+        .global-check-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+        .global-check-btn:hover { background-color: #27ae60; transform: translateY(-1px); }
+        .global-check-btn:active { transform: translateY(1px); }
+        .reset-btn {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        .reset-btn:hover { background-color: #c0392b; transform: translateY(-1px); }
+        .reset-btn:active { transform: translateY(1px); }
+        
+        @media (max-width: 600px) {
+            .sticky-footer { flex-direction: column; gap: 10px; padding: 10px; }
+            .global-check-btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="quiz-theme.css">
+    <link rel="stylesheet" href="quiz-pager.css">
+    <script src="quiz-state.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>INFERENCE: EASY (QUESTION BANK)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Bạn có thể chọn 1 hoặc nhiều câu, sau đó bấm <strong>"Kiểm tra"</strong> ở thanh dưới cùng để xem kết quả ngay nhé!</p>
+    <div id="quiz"></div>
+</div>
+
+<div class="question-list-panel" id="questionListPanel">
+    <button class="toggle-sidebar-btn" id="toggleSidebarBtn">📌</button>
+    <div style="background: white; border: 2px solid #3498db; border-radius: 15px; padding: 15px;">
+        <h3 style="text-align: center; margin-top: 0;">📌 Danh Sách Câu Hỏi</h3>
+        <div class="nav-grid" id="navGrid"></div>
+    </div>
+</div>
+
+<button class="toggle-nav-btn" id="toggleNavBtn">
+    <span id="toggleIcon">👁️</span> <span id="toggleText">Ẩn thanh công cụ</span>
+</button>
+
+<div class="sticky-footer" id="stickyFooter">
+    <div class="stats">
+        Tiến độ:<b id="progressText">0/0</b> &nbsp;&nbsp;|&nbsp;&nbsp; 
+        Điểm số:<span id="scoreText">0</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="reset-btn" id="resetBtn">🔄 Làm lại từ đầu</button>
+        <button class="global-check-btn" id="checkBtn">✅ Kiểm tra các câu đã chọn</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAaxOqQHJQTFjp2hxkWwDCSvagb6KvSg",
+        authDomain: "saturnifyllm.firebaseapp.com",
+        projectId: "saturnifyllm",
+        storageBucket: "saturnifyllm.firebasestorage.app",
+        messagingSenderId: "679587062435",
+        appId: "1:679587062435:web:f10555b0cbbdb9fb89d516",
+        measurementId: "G-YV0NEJKNNH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const quizData = [
+  {
+    "id": 1,
+    "question": " Archaeologists have traditionally thought that many cities in ancient Mesopotamia, including Uruk and Ur, lay on the extremely dry banks of the Tigris and Euphrates rivers. Jennifer Pournelle and her team found evidence that the land these ancient cities sat on consisted of marshy wetlands. This finding suggests that ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "the land many ancient Mesopotamian cities sat on wasn’t as dry as previously believed.",
+      "B": "people in Ur engaged in trade with people from many parts of ancient Mesopotamia.",
+      "C": "far fewer fish species are found in rivers today than in ancient times.",
+      "D": "Uruk was founded at an earlier time than Ur was."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’s discussion of the land that ancient Mesopotamian cities sat on. The text indicates that archaeologists “traditionally thought” the cities of ancient Mesopotamia “lay on the extremely dry banks of the Tigris and Euphrates rivers.” However, the text states that evidence gathered by Jennifer Pournelle and her team suggests that the cities sat on “marshy wetlands” instead of dry land. Therefore, the team’s finding suggests that the land many ancient Mesopotamian cities sat on wasn’t as dry as previously believed. Choice B is incorrect because the text doesn’t mention trade among ancient Mesopotamian people or cities. It therefore wouldn’t be logical to conclude from the team’s findings that people from Ur engaged in trade with people from many parts of ancient Mesopotamia. Choice C is incorrect because fish aren’t mentioned in the text. It therefore wouldn’t be logical to conclude that the team’s finding suggests that fewer fish species are found in rivers today than in ancient times. Choice D is incorrect because the text doesn’t address when the ancient Mesopotamian cities of Uruk and Ur were founded. It therefore wouldn’t be logical to conclude that the researchers’ finding suggests that Uruk was founded at an earlier time than Ur was."
+  },
+  {
+    "id": 2,
+    "question": " Arthur Conan Doyle’s stories about detective Sherlock Holmes were published between 1887 and 1927. They have inspired countless successful adaptations, including comic strips, movies, and a television series Sherlock Hound, directed by Hayao Miyazaki, who is celebrated for his animated movies. Until 2014, these stories were copyrighted. The right to adapt was only available to those who could afford the copyright fee and gain approval from the strict copyright holders of Doyle’s estate. Some journalists predict that the number of Sherlock Holmes adaptations is likely to increase since the end of copyright means that ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "Doyle’s original stories will become hard to find.",
+      "B": "people will become more interested in detective stories than they were in the 1800s.",
+      "C": "producing adaptations will become easier and less expensive.",
+      "D": "the former copyright holders of Doyle’s estate will return fees they collected."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The text tells us that because of the copyright, adapting Sherlock Holmes stories used to be expensive and difficult. This suggests that after the copyright ends, it will be less expensive and less difficult to adapt these stories. Choice A is incorrect. This inference isn’t supported. The text never suggests that the copyright ending will make Sherlock Holmes stories harder to find. Instead, it suggests that adaptations of these stories will be easier and less expensive to make. Choice B is incorrect. This inference isn’t supported. The text never discusses people’s interest in detective stories, so there is no basis to make this inference. Choice D is incorrect. This inference isn’t supported. The text never suggests that copyright fees from the past are returned after a copyright ends, so there is no basis to make this inference."
+  },
+  {
+    "id": 3,
+    "question": " One aspect of in-person shopping that online shopping can’t replicate is the opportunity to touch a product before buying it. Does this difference matter? In an experiment, researchers asked one group of participants to touch a mug and a toy, while another group was prohibited from touching the two items. The participants were then asked how much money they’d pay for the items. People who got to touch the items were willing to pay much more money for them than were people who weren’t allowed to touch the items. This finding suggests that ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "people who mainly shop online probably spend more money every month than people who mainly shop in person do.",
+      "B": "in-person shopping may make products seem more valuable than they seem if only viewed online.",
+      "C": "retailers with in-person and online stores should charge the same price for a given product in both places.",
+      "D": "online retailers may be able to raise the prices they charge for products that are only available online."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The text tells us that “people who got to touch the items were willing to pay much more money for them than people who weren’t allowed to touch” them. This suggests that being able to interact with a product in person may make it seem more valuable to a shopper. Choice A is incorrect. The text doesn’t discuss how much people spend each month, so there’s not much basis for this claim. Furthermore, since being able to touch a product tends to make people “willing to pay much more money” for it, we might predict that an online shopper would be willing to spend less on the same purchases as an in-person shopper. Choice C is incorrect. The text doesn’t discuss what retailers “should charge,” so there’s not much basis for this claim. Furthermore, the study in the text suggests that in-person stores may actually be able to charge more for a given product, since shoppers can touch it. Choice D is incorrect. The text doesn’t discuss products that are only available online, so there’s not much basis for this claim. Furthermore, products only available online would still have the problem of shoppers not being able to touch them, and the study suggests that this lowers the prices shoppers are willing to pay."
+  },
+  {
+    "id": 4,
+    "question": " In Switzerland, the white fuzzy mountain flowers known as edelweiss are widely treated as a symbol of strength and courage. Although edelweiss can thrive in extreme conditions, they aren’t notably tougher or harder to reach than other mountain flowers growing in the Swiss Alps. Historian Tobias Scheidegger has shown that the popular view of the flowers originated in the mid-1800s when mountain climbing became popular in Switzerland. Mountain climbers spread the idea that the flowers grew only in steep, icy terrains that were dangerous to climb to. Scheidegger says that these claims were self-interested. He suggests that mountain climbers presented edelweiss in this way in order to ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "make themselves appear brave and strong for being able to climb to difficult places where edelweiss supposedly grew.",
+      "B": "encourage more flower enthusiasts to explore the Swiss Alps.",
+      "C": "share their observations about the unusual characteristics of edelweiss with scientists.",
+      "D": "prove that edelweiss were more common in the Swiss Alps than in other mountain regions in Europe."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’s discussion of mountain climbers’ motivations for exaggerating the difficulty of reaching edelweiss. The text establishes that edelweiss became symbols of strength and courage in Switzerland in the mid-1800s. The text goes on to state that mountain climbing became popular around the same time and that climbers spread the false idea that the flowers grew only in dangerous, hard-to-reach locations. According to the text, historian Tobias Scheidegger argues that these claims were “selfinterested,” meaning they served the climbers’ own purposes. The text therefore implies that by claiming that edelweiss could be found only in perilous locations, mountain climbers could enhance their own reputations: climbers who encountered edelweiss would appear to have undertaken a dangerous journey, thereby making themselves seem brave and strong. Choice B is incorrect because making edelweiss seem more dangerous to reach than other mountain flowers are would likely discourage flower enthusiasts from trying to reach edelweiss rather than encourage them to explore the Swiss Alps. The text suggests that climbers’ self-interested motivation for exaggerating the difficulty of climbing to areas where edelweiss grew was to enhance their own reputations for being especially brave, not to promote tourism in the Swiss Alps. Choice C is incorrect because the text states that according to Scheidegger, mountain climbers exaggerated the difficulty of reaching edelweiss for self-interested reasons, not because they wanted to report genuine scientific observations about the flower’s unique characteristics. The text provides no indication that the climbers sincerely believed that their claims about the especially challenging terrain in which edelweiss grew were accurate, much less that they wanted to share this information with scientists. Choice D is incorrect because the text doesn’t suggest that mountain climbers were trying to prove that edelweiss were more common in Switzerland than elsewhere. The text’s focus is on the supposed difficulty and danger of reaching the flowers, not on their relative abundance in the Swiss Alps compared to other regions. In fact, the text implies that mountain climbers exaggerated how difficult edelweiss were to reach; it therefore wouldn’t make sense to say that they exaggerated this difficulty to demonstrate that edelweiss were relatively common."
+  },
+  {
+    "id": 5,
+    "question": " Off-off-Broadway theaters emerged in the late 1950s as a rebellion against mainstream Broadway theaters in New York, freeing artists to create productions that were more experimental than typical Broadway shows. One such artist was playwright María Irene Fornés. Working with off-off Broadway theaters enabled Fornés not only to direct her own plays but also to direct them exactly as she intended them to be staged, regardless of how strange the results might have seemed to audiences accustomed to Broadway shows. In this way, Fornés ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "wrote plays that would have been too expensive to produce if someone else had directed the production.",
+      "B": "recognized that staging an off-off-Broadway play was more complicated than staging a Broadway play.",
+      "C": "would have been more famous if she had created plays that were mainstream instead of experimental.",
+      "D": "illustrates the artistic opportunity offered by off-off Broadway theaters."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer. The text says that off-off-Broadway theaters allowed artists to create more experimental shows, and then discusses how Fornés was free to direct her own “strange” plays however she wanted. This suggests that Fornés exemplifies the artistic freedom of off-off Broadway theaters. Choice A is incorrect. This inference isn’t supported. The text never discusses the costs of production, so we can’t logically make this claim. Choice B is incorrect. This inference isn’t supported. The text never discusses the complexity of staging plays either on Broadway or off-off Broadway, so there’s no basis to make this inference. Choice C is incorrect. This inference isn’t supported. The text never discusses fame at all, so there’s no basis to make this inference."
+  },
+  {
+    "id": 6,
+    "question": " North American gray wolves usually have mixed gray and white fur, but some members of the species have a version of a gene, or gene variant, that gives them a mostly black coat instead. Sarah Cubaynes and her team studied twelve populations of North American gray wolves. They found that the black-furred wolves are more common in areas where outbreaks of distemper virus happen regularly. The team also discovered that the black-furred wolves are more likely to be immune to distemper than the gray-furred wolves are. Taken together, these findings suggest that ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "North American gray wolves experience more outbreaks of distemper virus than other wolf species do.",
+      "B": "the gene variant that results in black fur may be linked to immunity to the distemper virus.",
+      "C": "the average life span of gray wolves is likely to increase over time because of a particular gene variant.",
+      "D": "gray-furred wolves will soon replace black-furred wolves across North America."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer. The text tells us that the black-furred wolves are more common in areas with regular outbreaks of distemper virus and are more likely to be immune to distemper than the gray-furred wolves. This suggests that the gene variant that results in black fur may be linked to immunity to the distemper virus. Choice A is incorrect. The text never compares North American gray wolves to other wolf species—in fact, it never discusses other wolf species at all, so there’s no basis for this inference. Choice C is incorrect. The life span of gray wolves is never mentioned in this text, so we have no basis for this inference. Choice D is incorrect. This is too extreme. The text says that \"black-furred wolves are more likely to be immune to distemper than the gray-furred wolves,\" but that alone doesn’t mean that black-furred wolves will replace gray-furred wolves across North America."
+  },
+  {
+    "id": 7,
+    "question": " In the 1950s and ’60s, plant breeders created shorter varieties of wheat and rice plants with improved yields. Kelly Gillespie, Rex Bernardo, and other plant specialists are building on that work by exploring the development of shorter corn varieties. Greater height can allow individual plants to produce more ears of corn. However, greater height also makes the stalks more likely to snap or be uprooted in strong winds before the corn can be harvested. Because of this trade-off, some plant specialists suggest that shorter corn varieties will actually ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "help improve yields of harvested corn by being more likely to survive in severe winds.",
+      "B": "be more likely to be uprooted due to the weight of the corn on the stalks.",
+      "C": "require more land for planting than short varieties of wheat and rice typically do.",
+      "D": "begin developing more ears of corn on each plant than the tallest variety of corn currently does."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it presents the conclusion that most logically completes the text’s discussion about a trade-off in growing shorter varieties of corn. The text explains that plant specialists are working to develop shorter corn varieties in an effort to improve yields. The text points out that although greater height in corn plants can lead to more ears of corn per plant, it also makes the stalks more likely to be damaged by strong winds before there is a chance to harvest the corn. This presents a clear trade-off between potential yield (taller plants producing more ears per plant) and harvest reliability (shorter plants surviving until harvest time). Given this information, it is reasonable to infer that shorter corn varieties, while possibly producing fewer ears per plant, would be more likely to survive until harvest time. This survival advantage would result in improved yields of harvested corn because more plants would remain intact, thus offsetting the potential reduction in ears per shorter plant. Choice B is incorrect. According to the text, greater height makes cornstalks vulnerable to snapping or being uprooted in strong winds, implying that taller plants—not shorter ones—have greater stability problems. The text provides no basis for inferring that shorter corn varieties would be more likely to be uprooted due to corn weight; in fact, the text suggests the opposite relationship between height and stability. Choice C is incorrect because the text doesn’t provide information about the land requirements of either shorter corn varieties or shorter wheat and rice varieties, much less make any comparisons. The text mentions that plant breeders in the 1950s and ’60s created shorter varieties of wheat and rice with improved yields and that researchers are now exploring shorter corn varieties, but it doesn’t compare land-use requirements of these crops. Choice D is incorrect because the idea that shorter cornstalks would yield more ears of corn would contradict the relationship between height and corn production described in the text. The text explicitly states that greater height allows individual plants to produce more ears of corn, which suggests that shorter varieties would produce fewer ears per plant, not more. The text therefore provides no basis for concluding that shorter varieties would begin developing more ears than the taller varieties currently do."
+  },
+  {
+    "id": 8,
+    "question": " Archaeologist Christiana Kohler and her team excavated the Egyptian tomb of Queen Merneith, the wife of a First Dynasty pharaoh. Some scholars claim that she also ruled Egypt on her own and was actually the first female pharaoh. The team found a tablet in Merneith’s tomb with writing suggesting that she was in charge of the country’s treasury and other central offices. Whether Merneith was a pharaoh or not, this discovery supports the idea that Merneith likely ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "had an important role in Egypt’s government.",
+      "B": "lived after rather than before the First Dynasty of Egypt.",
+      "C": "traveled beyond Egypt’s borders often.",
+      "D": "created a new form of writing in Egypt."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’s discussion of the evidence found in Queen Merneith’s tomb. The text begins by mentioning archaeologists’ efforts to excavate the tomb of Queen Merneith, the wife of a pharaoh who some scholars think was actually the first female pharaoh. The text states that a tablet discovered in her tomb suggests she \"was in charge of the country’s treasury and other central offices,\" which supports the idea that she had an important role in Egypt’s government. Choice B is incorrect because since the text explicitly states that Merneith’s husband was a First Dynasty pharaoh, it can be inferred that she lived during the First Dynasty, not after it. Choice C is incorrect because the text does not provide any evidence that Merneith traveled beyond Egypt’s borders often. The text is focused on the archaeological discovery in her tomb and the implications about her potential role as a ruler in Egypt but does not mention anything about her traveling habits. Choice D is incorrect because the text does not mention anything about Merneith creating a new form of writing in Egypt. The text discusses the discovery of a tablet with writing suggesting her governmental role but does not imply that this writing represented a new form created by Merneith."
+  },
+  {
+    "id": 9,
+    "question": " The Nacional tree is a rare variety of cacao. Nacionals were thought to have gone extinct by the twentieth century due to a fungus. This fungus can spread from tree to nearby tree through the air and causes disease. But around 2013, cacao expert Servio Pachard located some of these Nacional trees. The trees were in the Piedra de Plata coastal forest, within a hard-to-reach valley in Ecuador. Conservationists inferred that the Nacional trees in Piedra de Plata might have avoided the diseases that wiped out the other Nacionals because ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "early twentieth-century scientists did not know why so many Nacionals were becoming infected.",
+      "B": "the ability of the fungus to travel through the air was only recently discovered.",
+      "C": "they were too far from the other Nacional trees infected by the fungus to become infected themselves.",
+      "D": "the chocolate made from their pods was highly valued."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’s discussion of the Nacional trees’ survival in Piedra de Plata. The text states that the fungus that caused Nacional trees elsewhere to become diseased spreads from tree to nearby tree through the air. The text also mentions that the surviving Nacional trees were found in a hard-to-reach valley in Ecuador. Given this information, it’s logical to conclude that these trees might have avoided infection because they were geographically isolated from infected Nacional trees, which prevented the airborne fungus from reaching them. Choice A is incorrect because early twentieth-century scientists’ lack of knowledge about the infection that affected many Nacionals doesn’t explain how the trees in the Piedra de Plata coastal forest survived. The text is concerned with the physical factors that allowed certain trees to avoid infection, not with scientists’ understanding of the disease. Choice B is incorrect. Although the text mentions that the fungus spreads through the air, it doesn’t indicate when this ability was discovered. Moreover, even if the ability to move through the air was recently discovered, that wouldn’t explain how the trees in Piedra de Plata avoided infection in the past. Choice D is incorrect because the value of the chocolate made from Nacional pods doesn’t explain how the trees in the Piedra de Plata coastal forest avoided disease. The text focuses on the physical spread of the fungus that caused most Nacionals to become diseased, not on economic factors related to the trees’ products."
+  },
+  {
+    "id": 10,
+    "question": " Researchers Eugeni Vidal-Tortosa and Robin Lovelace looked at the relationship between street lighting in a city and people’s willingness to ride a bicycle. Their results suggest that poor street lighting can deter new or inexperienced cyclists from riding in a city but has little effect on experienced cyclists. Therefore, increasing the number of streetlights in a city could potentially ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "decrease the number of new or inexperienced cyclists riding in the city.",
+      "B": "increase the number of experienced cyclists riding in the city.",
+      "C": "decrease the number of experienced cyclists riding in the city.",
+      "D": "increase the number of new or inexperienced cyclists riding in the city."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’s discussion of the relationship between street lighting and people’s cycling behavior. According to the text, Eugeni Vidal-Tortosa and Robin Lovelace found that poor street lighting deters new or inexperienced cyclists from riding their bikes in a city but has little effect on experienced cyclists. This finding establishes a causal relationship between street lighting and the willingness of new or inexperienced cyclists to ride a bicycle in the city: if poor lighting discourages new or inexperienced cyclists from riding, then improving lighting conditions by increasing the number of streetlights would logically remove this deterrent, potentially leading to an increase in the number of new or inexperienced cyclists willing to ride in the city. Choice A is incorrect because it contradicts the logical relationship established in the text. If poor street lighting deters new or inexperienced cyclists from riding in the city, then increasing the number of streetlights (improving lighting conditions) would be expected to encourage more of these cyclists to ride, not decrease their numbers. Choice B is incorrect because the text explicitly states that street lighting didn’t have an effect on experienced cyclists. If lighting conditions don’t significantly influence experienced cyclists’ decisions to ride, then increasing the number of streetlights wouldn’t necessarily increase the number of experienced cyclists riding in the city. Choice C is incorrect. The text indicates that street lighting didn’t affect experienced cyclists, so increasing the number of streetlights wouldn’t decrease the participation of these cyclists. Instead, their numbers would be expected to remain about the same."
+  },
+  {
+    "id": 11,
+    "question": " Individuals with visual impairments who want to experience a solar eclipse may be able to make use of a device that converts light into sound. The device is made up of a microcontroller board and a light sensor that measures the brightness of light shining onto the device. It also has a component called a MIDI, which allows the device to play different sounds. The device plays a high-pitched flute sound in bright light, a neutralpitched clarinet sound in mid-range light, and a soft clicking sound in low light. After a solar eclipse starts, the sun becomes more covered and the amount of light slowly reduces. Therefore, during a solar eclipse the device will ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "play a flute sound, then a clarinet sound, and then a clicking sound.",
+      "B": "play a clicking sound, then a flute sound, and then a clarinet sound.",
+      "C": "start with fast clarinet sounds that become steadily slower.",
+      "D": "start with a soft flute sound that becomes steadily louder."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’s discussion of a device that converts light into sound during a solar eclipse. The text states that the device plays different sounds based on the amount of light shining on it, producing a high-pitched flute sound in bright light, a neutral-pitched clarinet sound in mid-range light, and a soft clicking sound in low light. The text also indicates that during a solar eclipse, the sun becomes more covered and the amount of light slowly reduces from full brightness. Thus, because the eclipse begins with full sunlight that progressively decreases, the device would first play a flute sound (bright light), then a clarinet sound (mid-range light), and then a clicking sound (low light). Choice B is incorrect. Based on the text’s description of the sounds the device makes, if the device played clicking sounds, then a flute sound, and then a clarinet sound, the light would have to be going from low to bright to mid-range. But the text indicates that when a solar eclipse starts, the light is bright and then slowly reduces, meaning it would go from bright to mid-range light and then to low light. And even as the sun begins to be less covered again, which isn’t discussed in the text, there’s no reason to think the light would jump from low to bright and then back to midrange. Choice C is incorrect because the text indicates only that the device plays a distinct sound (flute, clarinet, or clicking) for each of the three levels of brightness, not that it varies the speed of any of those sounds. Choice D is incorrect because the text indicates only that the device plays a distinct sound (flute, clarinet, or clicking) for each of the three levels of brightness, not that it varies the volume of any of those sounds."
+  },
+  {
+    "id": 12,
+    "question": " In many cultures, a handshake can create trust between people. Engineer João Avelino and his team are designing a robot to shake hands with a human in order to improve human-robot interactions. The robot hand adjusts its movements and pressure to better imitate the feel of a human hand. The researchers want the robot’s handshake to feel realistic because ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "lifelike handshakes may make people more comfortable interacting with robots.",
+      "B": "it’s easier to program a robot to perform handshakes than it is to program a robot to perform some other types of greetings.",
+      "C": "people are less likely to interact with robots that don’t look like humans.",
+      "D": "the robot in the researchers’ study may have uses other than interacting with humans."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer. The text says that handshakes create trust, and that the engineers’ goal is to “improve human-robot interactions.” This suggests that they want the robot’s handshake to feel real because they want humans to trust the robot. Choice B is incorrect. This inference isn’t supported. The text never discusses any other types of greetings, so there is no basis to make this inference. Choice C is incorrect. This inference isn’t supported. The text never discusses the appearance of this robot or any other robots, so there is no basis to make this inference. Choice D is incorrect. This inference isn’t supported. The text never discusses any uses for the robot other than interacting with humans, so there is no basis to make this inference."
+  },
+  {
+    "id": 13,
+    "question": " In the South Pacific, New Caledonian crows use two different kinds of stick tools. One tool is complex. The crows shape a stick from a rare plant into a hook. The other tool is basic. The crows find a stick without a hook on the ground. The hooked tool is harder to get but is much better than the basic tool at removing prey from holes. When studying New Caledonian crows, ecologist Barbara Klump found that they hold the hooked tools in their claws when not using them, or they carefully put them in a safe place. The crows don’t do the same with the basic tools. This suggests to Klump that the ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "hooked stick tools are more valuable to the crows than the stick tools without hooks.",
+      "B": "hooked stick tools are easier for most of the crows to hold than the stick tools without hooks.",
+      "C": "crows prefer to share their hooked stick tools but don’t share the stick tools without hooks.",
+      "D": "crows realize that both kinds of stick tools are less effective than their claws are at removing prey from holes."
+    },
+    "correctAnswer": "A",
+    "explanation": "Choice A is the best answer because it most logically completes the text’s discussion of the two types of stick tools used by New Caledonian crows. The text indicates that the more effective type of tool has a hook that the crows make themselves, while the other type of tool is simply a stick without a hook that the crows find and don’t shape in any way. According to the text, Klump found that the crows keep hooked tools—but not the tools without hooks—in their grasp or in safe places when they aren’t using the tools. If the hooked tools are more effective than the tools without hooks are and the crows are more protective of the hooked tools than they are of the tools without hooks, it’s reasonable to conclude that the hooked tools are more valuable to the crows than the tools without hooks are. Choice B is incorrect because the text gives no indication of how easy it is for the crows to hold either the hooked tools or the tools without hooks. The text does state that crows hold the hooked tools and not the tools without hooks when the tools aren’t in use. However, the text also indicates that the hooked tools require work from the crows to make and are more useful for helping the crows catch prey than the tools without hooks are. This context suggests that the crows hold the hooked tools because they’re more valuable to the crows than the tools without hooks are, not because the hooked tools are easier to hold. Choice C is incorrect because the text makes no mention of the crows sharing tools. Additionally, the text indicates that when the crows aren’t using the hooked tools, they either grasp the tools or store them safely, which suggests that the crows try to maintain possession of the hooked tools, not that crows prefer to share those tools. Choice D is incorrect because the text says nothing about the crows using their claws to remove prey from holes, so there’s no evidence that the crows perceive the stick tools to be less effective than their claws are."
+  },
+  {
+    "id": 14,
+    "question": " Georgia Douglas Johnson wrote many plays in the 1920s and 1930s. At the time, professional theater companies rarely put on plays by Black women, so few of Johnson’s plays made it to the stage. Only a small number of her plays were published in her lifetime. But that doesn’t mean that Johnson never learned what other people thought of her plays. Johnson hosted weekly get-togethers for fellow Black writers and artists in her Washington, DC, home. Attendees would read and discuss one another’s work, including Johnson’s own. These gatherings could therefore serve as ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "an occasion for professional theater companies to put on plays.",
+      "B": "an opportunity for Johnson to get feedback on her plays.",
+      "C": "a way for Johnson to learn about plays that were produced in other cities.",
+      "D": "subject matter for future plays by Johnson."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’s discussion of Georgia Douglas Johnson. The text explains that Johnson wrote many plays, but few of her plays were staged or published. Although this may suggest that Johnson was therefore prevented from learning what others thought of her work, the text goes on to explain that she regularly met with other Black writers and artists to discuss their work, including her own. Thus, these get-togethers could have served as a chance for Johnson to get feedback on her work. Choice A is incorrect because the text doesn’t indicate that professional theater companies put on plays at Johnson’s get-togethers. Instead, the text explains that the gatherings were an opportunity for Black writers and artists to discuss their own work at Johnson’s home. In addition, the text indicates that during the 1920s and 1930s, professional theater companies rarely put on plays by Black women. Choice C is incorrect because the text doesn’t mention plays produced in other cities and instead only states that the writers and artists attending her get-togethers were meeting in Washington, DC, to discuss their own work. The text doesn’t indicate what kinds of work the attendees were sharing or where those works had been produced. Choice D is incorrect. Although some of the discussions held during the gatherings at Johnson’s home may have inspired her writing, there’s nothing in the text to support that this occurred. Instead, the text characterizes the gatherings as an opportunity to read and discuss one another’s work, which would have given Johnson the chance to get feedback on her plays."
+  },
+  {
+    "id": 15,
+    "question": " If an animal has been extinct for a long time, how can scientists learn what color it was? One group of scientists came up with a possible answer. When the scientists examined the fossilized feather of an extinct bird, they found melanosomes in it. Melanosomes produce pigment, or grains of color, inside cells. Because melanosomes are shaped differently depending on which colors they produce, the scientists hypothesized that they could ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "show how melanosomes can be found in fossils belonging to animals from other extinct species.",
+      "B": "determine the colors of the bird based on the appearance of the melanosomes in the feather.",
+      "C": "explain why the melanosomes in the feather were so well preserved.",
+      "D": "identify the colors of extinct animals whose fossils lack melanosomes."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’s discussion of a hypothesis by one group of scientists about how to determine the colors of a long-extinct animal. The text explains that the scientists found melanosomes in the fossilized feather of an extinct bird and that melanosomes are responsible for producing color inside cells. The text also explains that melanosomes have different shapes depending on the colors they produce. Given this information, it follows that the scientists hypothesized that they could determine the colors of the extinct bird by examining the shapes of the melanosomes in the feather. Choice A is incorrect because the text never suggests that the scientists were seeking to show how melanosomes can be found in fossils belonging to animals from other extinct species. Rather, the text indicates that the scientists were seeking to identify an extinct bird’s colors, and the text strongly suggests that the scientists hypothesized that they could achieve their goal by examining the shapes of the melanosomes in the bird’s fossilized feather. Choice C is incorrect because the text never suggests that the scientists were seeking to explain why the melanosomes in the feather were so well preserved. Rather, the text indicates that the scientists were seeking to identify an extinct bird’s colors, and the text strongly suggests that the scientists hypothesized that they could achieve their goal by examining the shapes of the melanosomes in the bird’s fossilized feather. Choice D is incorrect because the text suggests only one method of identifying the colors of extinct animals: by examining the shapes of melanosomes found in fossils. The text doesn’t discuss other methods for learning the colors of extinct animals and therefore provides no support for the idea that the scientists could identify the colors of extinct animals whose fossils lack melanosomes."
+  },
+  {
+    "id": 16,
+    "question": " A typical string quartet consists of two violin players, a viola player, and a cello player. When a string quartet performs, one violinist and the cellist usually sit facing the audience. The violist and the other violinist usually sit facing each other. This seating arrangement causes the viola’s carved sound openings, or f-holes, to be angled away from the audience. Therefore, if the viola player has a musical solo and wants to make sure that the audience can hear it clearly, the violist typically ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "instructs the other members of the quartet to play louder.",
+      "B": "plays at the same volume as the cellist.",
+      "C": "shifts position in order to face outwards toward the audience.",
+      "D": "looks at the sheet music instead of looking at the audience."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer because it most logically completes the text’s discussion of how a violist in a string quartet might behave to ensure their instrument can be heard clearly by the audience during a solo. According to the text, such quartets consist of two violins, a viola, and a cello, configured as follows: the cellist and one of the violinists both face the audience, while the other violinist and the violist face each other. In other words, the viola and its f-holes, or sound openings, are “angled away from the audience,” just as the musician playing the instrument is. As the text implies, the f-holes are crucial for projecting sound, so this positioning reduces the volume of the viola as perceived by the audience and in turn presents a dilemma during a solo, in which the viola should be heard clearly above the other instruments in the quartet. Therefore, during a viola solo, the violist would most logically adjust their position and face the audience directly, thereby projecting the sound emerging from the instrument’s f-holes toward listeners. This adjustment would maximize the viola’s sound for the benefit of the audience for the duration of the solo. Choice A is incorrect because the text’s discussion is about how a violist in a string quartet behaves to ensure that their instrument can be heard clearly by the audience during a solo, given the orientation of this instrument in a typical string quartet configuration, and a soloist would want the viola to be more prominent relative to the other instruments in this context, not less prominent. Therefore, it wouldn’t be sensible for the violist to instruct the other members of the quartet to play louder during the solo. Choice B is incorrect because the text’s discussion is about how a violist behaves to ensure that their instrument can be heard clearly by the audience during a solo, given the orientation of this instrument in a typical string quartet configuration, and a violist would want the viola to be more prominent and therefore louder relative to all the other instruments. Therefore, it wouldn’t be sensible for the violist to play at the same volume as the cellist during a solo. Choice D is incorrect. While a violist might very well look at the sheet music during a solo to ensure they are playing the piece correctly, the direction that a musician looks in doesn’t determine how effectively the sound of their instrument is projected to the audience. If, as the text stipulates, a violist wants to ensure that their instrument can be heard clearly, given the orientation of the viola in the typical seating configuration of a string quartet, then the violist would likely change their physical orientation, facing toward the audience and therefore angling the viola’s f-holes in that direction during the solo."
+  },
+  {
+    "id": 17,
+    "question": " To create the poems in her 2017 collection One Last Word, poet Nikki Grimes used a writing method called the golden shovel. This method often involves choosing a line from an existing poem and then using each word from that line as the last word of each line in a new poem. Grimes wanted the poems in One Last Word to honor important Black poets of the past, so she chose lines by poets such as Langston Hughes and Georgia Douglas Johnson. Writing in this way can be challenging and might seem as though it would produce awkward poems. However, reviewers praised One Last Word as a beautiful and powerful tribute to the poets who inspired it. This reaction suggests that ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "most reviewers didn’t understand Grimes’s goal for One Last Word.",
+      "B": "Grimes successfully used the golden shovel method to achieve her goal for One Last Word.",
+      "C": "Langston Hughes and Georgia Douglas Johnson are two of Grimes’s favorite poets.",
+      "D": "Grimes inspired many other writers to create poems using the golden shovel method."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it most logically completes the text’s discussion of Nikki Grimes’s poetry collection One Last Word. The text explains that Grimes used a writing method called the golden shovel to create the poems in her book. According to the text, the method involves basing a new poem on a line from an existing poem. The text then mentions Langston Hughes and Georgia Douglas Johnson as examples of important Black poets whose lines of poetry form the basis of Grimes’s poems. The text goes on to say that this writing method is difficult and that the resulting poems can be awkward, but reviewers have positively reviewed Grimes’s book. If the reviewers of One Last Word specifically note that the work is a “beautiful and powerful tribute to the poets who inspired it,” then they must have appreciated how Grimes used the golden shovel method to pay tribute to other poets. This suggests that Grimes was successful in using the golden shovel method to achieve her goal of honoring Black poets in her book. Choice A is incorrect because the reaction suggests that most reviewers did understand Grimes’s goal for her book. According to the text, the reviewers noted that the poems in her book were a “beautiful and powerful tribute to the poets who inspired it.” Earlier, the text claims that Grimes intended the poems “to honor important Black poets of the past,” so in their praise of her book, the reviewers clearly indicated that they understood Grimes’s goal. Choice C is incorrect. Although it’s likely that Grimes sought to honor Hughes and Johnson in her book of poetry because they’re among her favorite poets, this fact isn’t suggested by the reviewers’ positive reaction to her book. Instead, the reaction suggests that Grimes was successful in her use of the golden shovel method. Choice D is incorrect because the text doesn’t discuss whether other writers were inspired by Grimes to use the golden shovel method in their poetry. The text mentions the poets Hughes and Johnson as examples of poets honored in Grimes’s book and describes reviewers’ positive reception of her book, but it doesn’t detail Grimes’s impact on other writers."
+  },
+  {
+    "id": 18,
+    "question": " Researchers wanted to study how consumers’ reactions to an ad may be affected by other ads. The researchers began by showing study participants an ad for a product, with some seeing a less detailed ad and others seeing a more detailed one. Then, all participants viewed the same second ad for a store and shared their opinion of the store based on this second ad. Participants who had first seen an ad less detailed than the second ad had a higher opinion of the store than the participants who had first seen a more detailed ad. The researchers concluded that reactions to an ad may be affected by ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "the number of people who viewed the ad.",
+      "B": "the length of time viewing previous ads.",
+      "C": "the amount of detail viewed in previous ads.",
+      "D": "the time of day that the ad is viewed."
+    },
+    "correctAnswer": "C",
+    "explanation": "Choice C is the best answer. The passage tells us that participants who had seen a less detailed ad for a product beforehand had a higher opinion of the store than those who had seen a more detailed ad. This suggests that reactions to an ad may be affected by the amount of detail viewed in previous ads. Choice A is incorrect. The passage doesn’t mention the number of people who viewed the ad, so there’s no basis for this inference. Choice B is incorrect. The passage doesn’t mention the length of time viewing previous ads, so there’s no basis for this inference. Choice D is incorrect. The passage doesn’t mention the time of day that the ad is viewed, so there’s no basis for this inference."
+  },
+  {
+    "id": 19,
+    "question": " The musical Hadestown was produced off-Broadway in New York in 2016. A revised version of the musical premiered on Broadway in 2019, in a larger production. In a review of the Broadway production, theater critic Jesse Green enthusiastically praised the musical’s storytelling. However, Green also explained that he had seen the earlier version of Hadestown in 2016 and had found the storytelling to be very confusing. This suggests that in Green’s view, ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "the 2016 version of Hadestown had fewer storytelling problems than the 2019 version did.",
+      "B": "Hadestown should have had a larger production in 2019 than it actually did.",
+      "C": "the 2019 version of Hadestown was less enjoyable than the 2016 version.",
+      "D": "Hadestown improved greatly between 2016 and its premiere on Broadway."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it most logically completes the text’s discussion of critic Jesse Green’s review of the 2016 and 2019 productions of Hadestown. The text states that Green found the storytelling in the 2016 off-Broadway version to be \"very confusing\" but that he \"enthusiastically praised\" the storytelling in the revised 2019 Broadway version. This stark contrast in Green’s opinions suggests that he believed the musical had significantly improved between 2016 and its 2019 Broadway premiere. Choice A is incorrect because it contradicts the information in the text. The text indicates that Green found the storytelling in the 2016 version to be \"very confusing,\" while he \"enthusiastically praised\" the storytelling in the 2019 version. This suggests that the 2019 version had fewer, not more, storytelling problems. Choice B is incorrect because the text doesn’t provide any information about Green’s opinion on the size of the 2019 Broadway production. While it mentions that the 2019 production was larger than the 2016 production, there’s no indication in the text that Green thought the 2019 production should have been even larger than it was. Choice C is incorrect because it contradicts the information in the text. The text’s description of Green’s enthusiastic praise for the 2019 production suggests that he found this version more enjoyable, not less enjoyable, than the 2016 version, which he described as \"very confusing.\""
+  },
+  {
+    "id": 20,
+    "question": " Over 600 languages are spoken in New York City in addition to English—one can find Amharic spoken in the neighborhood of Norwood, or Ilocano in Woodside. Most speakers of Chinese languages reside in the neighborhood of Flushing (part of New York City’s borough of Queens) and in Chinatown, in the borough of Manhattan. New immigrants from north China, where Mandarin is the primary first language, tend to settle in Queens, while new immigrants from south China, where many people speak Cantonese or Fuzhounese as a first language, tend to settle in Manhattan. It can therefore be inferred that ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "languages tend to change more rapidly in areas where many languages are spoken than in areas where few languages are spoken.",
+      "B": "languages spoken by immigrant peoples can differ significantly in vocabulary and pronunciation from those same languages in their country of origin.",
+      "C": "there is a positive correlation between the physical size of a country and the number of languages spoken in that country.",
+      "D": "correlations in a country between languages and regions where they are spoken can replicate themselves in a new country to which the original country’s citizens emigrate."
+    },
+    "correctAnswer": "D",
+    "explanation": "Choice D is the best answer because it logically completes the text’s discussion of patterns of linguistic distribution in New York City. The text explains how Chinese immigrants in New York City tend to settle in different boroughs based on their region of origin in China: those from north China (Mandarin speakers) typically settle in Queens, while those from south China (Cantonese or Fuzhounese speakers) typically settle in Manhattan. This pattern demonstrates that the regional language distribution in China (north versus south) has reproduced itself in New York City (Queens versus Manhattan). Therefore, it can be reasonably inferred that correlations between languages and regions in one country can replicate themselves when citizens of that country emigrate to a new country. Choice A is incorrect because the text doesn’t discuss rates of language change. The text indicates that many languages are spoken in New York City, but it doesn’t provide any information about how quickly these languages might be changing, either in relation to each other or compared to areas where fewer languages are spoken. Choice B is incorrect because the text provides no information about changes in vocabulary or pronunciation of immigrant languages compared to their original forms. The text only discusses where different groups of language speakers tend to settle, not how their languages might have evolved after immigration. Choice C is incorrect because the text doesn’t provide any information about a relationship between a country’s physical size and the number of languages spoken there. While the text mentions that over 600 languages are spoken in New York City, it doesn’t relate this to the physical size of New York or the United States, nor does it suggest that large countries like China have more languages than geographically smaller countries."
+  },
+  {
+    "id": 21,
+    "question": " A main goal of the Association for the Advancement of Creative Musicians (AACM), an arts organization founded in 1965, is to advance new works by Black musicians. The AACM achieves this goal in part by focusing on young artists. By having established musicians and composers serve as mentors, the AACM gives young artists the benefits of expert technical training and creative guidance. Numerous organizations offer similar kinds of support to new generations of painters, writers, and other artists, suggesting that ______ Which choice most logically completes the text?",
+    "options": {
+      "A": "artists of all ages benefit more from technical training than from creative guidance.",
+      "B": "many arts organizations recognize the importance of providing opportunities for young artists to learn from experienced mentors.",
+      "C": "most established artists could become even better artists by serving as mentors.",
+      "D": "finding a mentor is more important for musicians than it is for painters, writers, and other types of artists."
+    },
+    "correctAnswer": "B",
+    "explanation": "Choice B is the best answer because it presents the conclusion that most logically follows from the text’s discussion of the relationship between the AACM’s use of mentors to support young Black musicians and similar support that other organizations offer their young artists. According to the text, in service of AACM’s goal to support new works by Black musicians, AACM mentors provide beneficial training and guidance to young artists. The text goes on to say that many other art organizations support new artists in similar ways, suggesting that these organizations recognize the importance of providing opportunities for young artists to learn from mentors who are established in their field. Choice A is incorrect because the text gives no indication that technical training is more beneficial than creative guidance. The text states that AACM mentors offer both technical training and creative guidance to young artists and that other arts organizations offer similar kinds of support; however, nothing in the text suggests that young artists, or artists of any age, benefit more from technical training. Choice C is incorrect because the text is mainly concerned with the fact that established artists are mentoring young artists through AACM and other arts organizations. The text states that young musicians benefit from AACM mentors but does not address what mentors gain from the relationship, so there is no reason to conclude that most established artists could improve as artists by serving as mentors. Choice D is incorrect. Although the text indicates that mentors are beneficial to young musicians and that young people pursuing other kinds of art (including painting and writing) can also find mentors through arts organizations, the text gives no indication that mentors are more important for musicians than for other types of artists."
+  }
+];
+ 
+    const quizContainer = document.getElementById('quiz');
+    let currentScore = 0;
+    let answeredCount = 0;
+    const totals = quizData.length;
+
+    const STUDENT_ID = sessionStorage.getItem('studentId') || sessionStorage.getItem('studentName') || 'guest';
+    const QUIZ_STORAGE_KEY = `quiz_draft_${STUDENT_ID}_${document.title}`;
+
+    function renderMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise();
+        }
+    }
+
+    function buildQuiz() {
+        localStorage.setItem(QUIZ_STORAGE_KEY + '_total', quizData.length);
+        quizContainer.innerHTML = '';
+        createNavigatorBox(); 
+
+        quizData.forEach((data, index) => {
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${data.id}`;
+            questionBlock.dataset.locked = "false";
+            questionBlock.style.scrollMarginTop = "100px";
+
+            let optionsHtml = '';
+            if (data.options && Object.keys(data.options).length > 0) {
+                for (const [key, value] of Object.entries(data.options)) {
+                    optionsHtml += `
+                        <li>
+                            <label id="label-${data.id}-${key}">
+                                <input type="radio" name="question${data.id}" value="${key}">
+                                <strong>${key}.</strong> ${value}
+                            </label>
+                        </li>
+                    `;
+                }
+            }
+
+            questionBlock.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.question}</div>
+                <ul class="options">${optionsHtml}</ul>
+                <div class="explanation" id="explanation-${data.id}">${data.explanation || ''}</div>
+            `;
+            quizContainer.appendChild(questionBlock);
+        });
+        
+        quizContainer.addEventListener('change', () => { saveProgress(); updateNavigatorState(); });
+        quizContainer.addEventListener('input', () => { saveProgress(); updateNavigatorState(); });
+        
+        const progressEl = document.getElementById('progressText');
+        if (progressEl) progressEl.innerText = `0/${totals}`;
+
+        renderMath();
+    }
+
+    function createNavigatorBox() {
+        const grid = document.getElementById('navGrid');
+        if(!grid) return;
+        grid.innerHTML = ''; 
+
+        quizData.forEach((data, index) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = `nav_btn_${data.id}`;
+            btn.className = 'nav-grid-btn';
+            btn.innerText = index + 1;
+
+            btn.onclick = () => {
+                const targetBlock = document.getElementById(`question-${data.id}`);
+                if (targetBlock) targetBlock.scrollIntoView({ behavior: 'smooth' });
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const questionListPanel = document.getElementById('questionListPanel');
+    
+    if (toggleSidebarBtn && questionListPanel) {
+        toggleSidebarBtn.addEventListener('click', () => {
+            questionListPanel.classList.toggle('collapsed');
+        });
+    }
+
+    const toggleNavBtn = document.getElementById('toggleNavBtn');
+    const stickyFooter = document.getElementById('stickyFooter');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    toggleNavBtn.addEventListener('click', () => {
+        if (stickyFooter.classList.contains('hidden')) {
+            stickyFooter.classList.remove('hidden');
+            toggleIcon.innerText = '👁️';
+            toggleText.innerText = 'Ẩn thanh công cụ';
+        } else {
+            stickyFooter.classList.add('hidden');
+            toggleIcon.innerText = '👀';
+            toggleText.innerText = 'Hiện thanh công cụ';
+        }
+    });
+
+    function updateNavigatorState() {
+        quizData.forEach((data) => {
+            let hasAnswered = false;
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selected) hasAnswered = true;
+
+            const btn = document.getElementById(`nav_btn_${data.id}`);
+            if (btn) {
+                if (hasAnswered) {
+                    btn.style.background = '#2ecc71'; 
+                    btn.style.color = '#ffffff'; 
+                    btn.style.borderColor = '#27ae60';
+                } else if (document.getElementById(`question-${data.id}`).dataset.locked !== "true") {
+                    btn.style.background = '#f8f9fa'; 
+                    btn.style.color = '#2c3e50'; 
+                    btn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+    }
+
+    function saveProgress() {
+        let userAnswers = {};
+        quizData.forEach(data => {
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            if (selectedOption) userAnswers[data.id] = selectedOption.value;
+        });
+        localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(userAnswers));
+    }
+
+    function checkAndRestoreProgress() {
+        const savedDraft = localStorage.getItem(QUIZ_STORAGE_KEY);
+        if (!savedDraft) return;
+
+        const userAnswers = JSON.parse(savedDraft);
+        const count = Object.keys(userAnswers).length;
+
+        if (count > 0) {
+            const confirmResume = confirm(
+                `Em đang làm dở ${count}/${totals} câu ở lần trước.\n\n` +
+                `• Bấm [OK] để LÀM TIẾP bài đang dở.\n` +
+                `• Bấm [Hủy (Cancel)] để LÀM LẠI TỪ ĐẦU.`
+            );
+
+            if (confirmResume) {
+                let lastAnsweredId = null;
+                Object.entries(userAnswers).forEach(([qId, value]) => {
+                    const radio = document.querySelector(`input[name="question${qId}"][value="${value}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        lastAnsweredId = qId;
+                    }
+                });
+
+                updateNavigatorState();
+
+                if (lastAnsweredId) {
+                    const targetBlock = document.getElementById(`question-${lastAnsweredId}`);
+                    if (targetBlock) {
+                        targetBlock.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            } else {
+                startTime = new Date();
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    function checkCurrentAnswers() {
+        let checkedAny = false;
+
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block.dataset.locked === "true") return;
+
+            const correctAnswer = (data.correctAnswer || '').toString().trim().toLowerCase();
+            const selectedOption = document.querySelector(`input[name="question${data.id}"]:checked`);
+            
+            if (selectedOption) {
+                checkedAny = true;
+                const userAnswer = selectedOption.value.trim().toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('correct-answer-label');
+                    currentScore++;
+                } else {
+                    document.getElementById(`label-${data.id}-${selectedOption.value}`).classList.add('wrong-answer-label');
+                    const correctKey = data.correctAnswer;
+                    if (document.getElementById(`label-${data.id}-${correctKey}`)) {
+                        document.getElementById(`label-${data.id}-${correctKey}`).classList.add('correct-answer-label');
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl && data.explanation) {
+                    explanationEl.style.display = 'block';
+                    explanationEl.innerHTML = `<strong>Giải thích:</strong> ${data.explanation}`;
+                }
+
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => radio.disabled = true);
+                block.dataset.locked = "true";
+                answeredCount++;
+            }
+        });
+
+        if (!checkedAny) {
+            alert('Bạn chưa chọn đáp án nào để kiểm tra!');
+        } else {
+            updateScoreBoard();
+            saveAdminResultData();
+
+            if (answeredCount === totals) {
+                alert(`Chúc mừng! Bạn đã hoàn thành toàn bộ ${totals} câu hỏi. Tổng điểm: ${currentScore}/${totals}.`);
+                localStorage.removeItem(QUIZ_STORAGE_KEY);
+            }
+        }
+    }
+
+    let startTime = new Date();
+
+    function saveAdminResultData() {
+        const endTime = new Date();
+        const durationSec = Math.max(0, Math.round((endTime - startTime) / 1000));
+        const durationMin = (durationSec / 60).toFixed(1);
+
+        const quizTitle = document.title || 'Bài tập SAT';
+        let studentAnswers = {};
+
+        quizData.forEach((data, index) => {
+            const selected = document.querySelector(`input[name="question${data.id}"]:checked`);
+            studentAnswers[`Câu ${index + 1}`] = selected ? selected.value : 'Bỏ trống';
+        });
+
+        let history = JSON.parse(localStorage.getItem('sat_results') || '[]');
+        const attemptCount = history.filter(h => h.studentName === STUDENT_ID && h.quizTitle === quizTitle).length + 1;
+
+        const resultData = {
+            id: Date.now(),
+            studentName: STUDENT_ID,
+            quizTitle: quizTitle,
+            attempt: attemptCount,
+            score: `${currentScore}/${totals}`,
+            percentage: Math.round((currentScore / totals) * 100) + '%',
+            answers: studentAnswers,
+            startTime: startTime.toLocaleTimeString('vi-VN') + ' ' + startTime.toLocaleDateString('vi-VN'),
+            endTime: endTime.toLocaleTimeString('vi-VN') + ' ' + endTime.toLocaleDateString('vi-VN'),
+            duration: `${durationMin} phút (${durationSec}s)`
+        };
+
+        history.push(resultData);
+        localStorage.setItem('sat_results', JSON.stringify(history));
+
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'SAT_SUBMIT_RESULT', data: resultData }, '*');
+        }
+    }
+
+    function resetQuiz() {
+        if (!confirm('Bạn có muốn làm lại từ đầu không?')) return;
+        
+        currentScore = 0;
+        answeredCount = 0;
+        startTime = new Date();
+        
+        localStorage.removeItem(QUIZ_STORAGE_KEY);
+        
+        quizData.forEach(data => {
+            const block = document.getElementById(`question-${data.id}`);
+            if (block) {
+                block.dataset.locked = "false";
+                
+                const radios = document.querySelectorAll(`input[name="question${data.id}"]`);
+                radios.forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                });
+                if (data.options) {
+                    for (const key of Object.keys(data.options)) {
+                        const lbl = document.getElementById(`label-${data.id}-${key}`);
+                        if (lbl) {
+                            lbl.classList.remove('correct-answer-label', 'wrong-answer-label');
+                        }
+                    }
+                }
+
+                const explanationEl = document.getElementById(`explanation-${data.id}`);
+                if (explanationEl) explanationEl.style.display = 'none';
+
+                const navBtn = document.getElementById(`nav_btn_${data.id}`);
+                if (navBtn) {
+                    navBtn.style.background = '#f8f9fa';
+                    navBtn.style.color = '#2c3e50';
+                    navBtn.style.borderColor = '#bdc3c7';
+                }
+            }
+        });
+        updateScoreBoard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScoreBoard() {
+        const progressEl = document.getElementById('progressText');
+        const scoreEl = document.getElementById('scoreText');
+        if (progressEl) progressEl.innerText = `${answeredCount}/${totals}`;
+        if (scoreEl) scoreEl.innerText = currentScore;
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+
+    buildQuiz();
+    checkAndRestoreProgress();
+</script>
+    <script src="quiz-pager.js" defer></script>
+</body>
+</html>
